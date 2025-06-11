@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.*;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 
 @Configuration
 @PropertySource("classpath:application.properties")
@@ -24,10 +26,20 @@ import javax.sql.DataSource;
 @ComponentScan(basePackages = "solfood") // 컴포넌트 스캔
 @MapperScan(basePackages = "solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
 @EnableTransactionManagement // 트랜잭션 활성화
-public class MvcConfig implements WebMvcConfigurer {
+public class MvcConfig implements WebMvcConfigurer , InitializingBean {
 
     @Autowired
     private DbProperties dbProperties;
+
+    // DB 연결 여부 확인
+    @Override
+    public void afterPropertiesSet() {
+        try (Connection conn = dataSource().getConnection()) {
+            System.out.println("✅ DB 연결 성공: " + conn.getMetaData().getURL());
+        } catch (Exception e) {
+            System.err.println("❌ DB 연결 실패: " + e.getMessage());
+        }
+    }
 
     // 뷰리졸버 - 컨트롤러에서 포워딩할 경로(앞/뒤) 설정
     @Override
