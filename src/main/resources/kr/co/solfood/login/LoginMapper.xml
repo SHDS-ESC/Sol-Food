@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.login.LoginMapper">
+
+    <!-- 학생테이블 insert -->
+    <insert id="regist"
+            parameterType="kr.co.solfood.login.LoginVO">
+        INSERT INTO student (
+        COMPANY_ID, DEPARTMENT_ID, USERS_EMAIL, USERS_NICKNAME, USERS_PROFILE, USERS_NAME, USERS_POINT, USERS_AGE, USERS_GENDER
+        ) VALUES (
+       #{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName}, #{usersPoint}, #{usersAge}, #{usersGender}
+        )
+        <selectKey keyProperty="usersId"
+                   resultType="int" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!-- 로그인 -->
+    <select id="login" parameterType="kr.co.solfood.login.LoginVO"
+            resultType="kr.co.solfood.login.LoginVO">
+        SELECT *
+        FROM student
+        WHERE id = #{id}
+          AND pwd = MD5(#{pwd})
+    </select>
+
+    <!-- 카카오 로그인 -->
+    <select id="kakaoLogin" parameterType="kr.co.solfood.login.LoginVO"
+            resultType="kr.co.solfood.login.LoginVO">
+        SELECT *
+        FROM student
+        WHERE id = #{id}
+    </select>
+
+    <!-- view -->
+    <select id="view" parameterType="String"
+            resultType="kr.co.solfood.login.LoginVO">
+        SELECT *
+        FROM student
+        WHERE id = #{id}
+    </select>
+
+</mapper>
