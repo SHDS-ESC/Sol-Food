@@ -1,4 +1,4 @@
-package solfood.configuration;
+package configuration;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,6 +16,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.*;
+import util.Interceptor;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -23,13 +24,19 @@ import java.sql.Connection;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableWebMvc
-@ComponentScan(basePackages = "solfood") // 컴포넌트 스캔
-@MapperScan(basePackages = "solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
+@ComponentScan(basePackages = {"kr.co.solfood","util"}) // 컴포넌트 스캔
+@MapperScan(basePackages = "kr.co.solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
 @EnableTransactionManagement // 트랜잭션 활성화
 public class MvcConfig implements WebMvcConfigurer , InitializingBean {
 
     @Autowired
     private DbProperties dbProperties;
+
+    @Autowired
+    private ServerProperties serverProperties;
+
+    @Autowired
+    private KakaoProperties kakaoProperties;
 
     // DB 연결 여부 확인
     @Override
@@ -66,6 +73,26 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
         props.setUrl(url);
         props.setUsername(username);
         props.setPassword(password);
+        return props;
+    }
+
+    @Bean
+    public ServerProperties serverProperties(
+            @Value("${server.ip}") String ip,
+            @Value("${server.port}") String port
+    ){
+        ServerProperties props = new ServerProperties();
+        props.setIp(ip);
+        props.setPort(port);
+        return props;
+    }
+
+    @Bean
+    public KakaoProperties kakaoProperties(
+            @Value("${kakao.respApiKey}") String restApiKey
+    ){
+        KakaoProperties props = new KakaoProperties();
+        props.setRestApiKey(restApiKey);
         return props;
     }
 
@@ -110,7 +137,8 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
     // 인터셉터 추가
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor());
+        registry.addInterceptor(interceptor())
+        .excludePathPatterns("/user/login");
     }
 
     // Swagger

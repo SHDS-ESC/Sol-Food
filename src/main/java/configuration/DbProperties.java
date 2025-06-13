@@ -1,4 +1,4 @@
-package solfood.configuration;
+package configuration;
 
 import lombok.Data;
 
