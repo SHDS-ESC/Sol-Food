@@ -36,7 +36,7 @@ public class LoginServiceImpl implements LoginService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id",kakaoProperties.getRestApiKey());
-        body.add("redirect_uri", "http://" + serverProperties.getIp() + ":" + serverProperties.getPort() + "/solfood/login/kakaoLogin");
+        body.add("redirect_uri", "http://" + serverProperties.getIp() + ":" + serverProperties.getPort() + "/solfood/user/kakaoLogin");
         body.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(body, headers);
@@ -84,25 +84,28 @@ public class LoginServiceImpl implements LoginService {
 
         // 5. StudentVO 생성
         LoginVO vo = new LoginVO();
+        // 회사, 부서 설정 필요
         vo.setCompanyId(0);
         vo.setDepartmentId(0);
-        vo.setUsersName("kakao/" + kakaoId);
+        vo.setUsersKakaoId(kakaoId);
+        System.out.println("카카오아이디"+kakaoId);
+        vo.setUsersName("kakao/" + nickname);
         vo.setUsersNickname(nickname);
         vo.setAccessToken(accessToken);
         vo.setUsersProfile(profileImage);
         vo.setUsersEmail(email);
         vo.setUsersPoint(0);
         // 유저 나이 필요
-        // vo.setUsersAge(20);
-
+         vo.setUsersAge(20);
         return vo;
     }
 
     @Override
     public void kakaoLogin(LoginVO vo){
         LoginVO login =  mapper.kakaoLogin(vo);
+        System.out.println("찾음" + mapper.kakaoLogin(vo));
         if (login == null) {
-            mapper.insertStudent(vo); // 기본 가입 처리
+            mapper.register(vo); // 기본 가입 처리
         }
     }
 
