@@ -4,43 +4,38 @@
 
 <mapper namespace="kr.co.solfood.login.LoginMapper">
 
+    <!-- 카카오 로그인 -->
+    <select id="kakaoLogin" parameterType="kr.co.solfood.login.LoginVO"
+            resultType="kr.co.solfood.login.LoginVO">
+        SELECT *
+        FROM users
+        WHERE USERS_KAKAO_ID = #{usersKakaoId}
+    </select>
+
     <!-- 학생테이블 insert -->
-    <insert id="regist"
+    <insert id="register"
             parameterType="kr.co.solfood.login.LoginVO">
-        INSERT INTO student (
-        COMPANY_ID, DEPARTMENT_ID, USERS_EMAIL, USERS_NICKNAME, USERS_PROFILE, USERS_NAME, USERS_POINT, USERS_AGE, USERS_GENDER
+        INSERT INTO users (
+        COMPANY_ID, DEPARTMENT_ID, USERS_EMAIL, USERS_NICKNAME, USERS_PROFILE, USERS_NAME, USERS_POINT, USERS_AGE, USERS_GENDER, USERS_KAKAO_ID
         ) VALUES (
-       #{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName}, #{usersPoint}, #{usersAge}, #{usersGender}
+       #{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName}, #{usersPoint}, #{usersAge}, #{usersGender}, #{usersKakaoId}
         )
-        <selectKey keyProperty="usersId"
-                   resultType="int" order="AFTER">
-            SELECT LAST_INSERT_ID()
-        </selectKey>
     </insert>
 
     <!-- 로그인 -->
     <select id="login" parameterType="kr.co.solfood.login.LoginVO"
             resultType="kr.co.solfood.login.LoginVO">
         SELECT *
-        FROM student
-        WHERE id = #{id}
-          AND pwd = MD5(#{pwd})
-    </select>
-
-    <!-- 카카오 로그인 -->
-    <select id="kakaoLogin" parameterType="kr.co.solfood.login.LoginVO"
-            resultType="kr.co.solfood.login.LoginVO">
-        SELECT *
-        FROM student
-        WHERE id = #{id}
+        FROM users
+        WHERE USERS_KAKAO_ID = #{usersKakaoId}
     </select>
 
     <!-- view -->
     <select id="view" parameterType="String"
             resultType="kr.co.solfood.login.LoginVO">
         SELECT *
-        FROM student
-        WHERE id = #{id}
+        FROM users
+        WHERE USERS_KAKAO_ID = #{usersKakaoId}
     </select>
 
 </mapper>
