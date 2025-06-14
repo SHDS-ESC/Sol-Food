@@ -12,7 +12,7 @@
         WHERE USERS_KAKAO_ID = #{usersKakaoId}
     </select>
 
-    <!-- 학생테이블 insert -->
+    <!-- 기본 가입 처리 -->
     <insert id="register"
             parameterType="kr.co.solfood.login.LoginVO">
         INSERT INTO users (
