@@ -4,7 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface LoginMapper {
-    int regist(LoginVO vo);
+    int register(LoginVO vo);
     LoginVO kakaoLogin(LoginVO vo);
     void insertStudent(LoginVO vo);
     LoginVO login(LoginVO vo);
