@@ -24,10 +24,10 @@ import java.sql.Connection;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableWebMvc
-@ComponentScan(basePackages = {"kr.co.solfood","util"}) // 컴포넌트 스캔
+@ComponentScan(basePackages = {"kr.co.solfood", "util"}) // 컴포넌트 스캔
 @MapperScan(basePackages = "kr.co.solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
 @EnableTransactionManagement // 트랜잭션 활성화
-public class MvcConfig implements WebMvcConfigurer , InitializingBean {
+public class MvcConfig implements WebMvcConfigurer, InitializingBean {
 
     @Autowired
     private DbProperties dbProperties;
@@ -80,7 +80,7 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
     public ServerProperties serverProperties(
             @Value("${server.ip}") String ip,
             @Value("${server.port}") String port
-    ){
+    ) {
         ServerProperties props = new ServerProperties();
         props.setIp(ip);
         props.setPort(port);
@@ -90,7 +90,7 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
     @Bean
     public KakaoProperties kakaoProperties(
             @Value("${kakao.respApiKey}") String restApiKey
-    ){
+    ) {
         KakaoProperties props = new KakaoProperties();
         props.setRestApiKey(restApiKey);
         return props;
@@ -119,6 +119,11 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean ssf = new SqlSessionFactoryBean();
         ssf.setDataSource(dataSource());
+        // VO 클래스의 필드명과 MaridDB의 컬럼명을 일치 (VO는 camelCase, DB는 snake_case)
+        org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
+        config.setMapUnderscoreToCamelCase(true); // underscores → camelCase
+        ssf.setConfiguration(config);
+
         return ssf.getObject();
     }
 
@@ -138,7 +143,8 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(interceptor())
-        .excludePathPatterns("/user/login");
+                .excludePathPatterns("/user/login")
+                .excludePathPatterns("/user/kakaoLogin");
     }
 
     // Swagger
