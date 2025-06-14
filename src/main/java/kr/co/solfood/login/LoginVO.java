@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class LoginVO {
-    private int usersId;         // PK
+    private long usersId;         // PK
     private int companyId;       // FK
     private int departmentId;    // FK
     private String usersEmail;      // Unique or FK
@@ -15,4 +15,5 @@ public class LoginVO {
     private int usersAge;
     private String usersGender;
     private String accessToken;
+    private long usersKakaoId;
 }
