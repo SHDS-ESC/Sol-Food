@@ -3,7 +3,6 @@ package kr.co.solfood.user.login;
 import configuration.KakaoProperties;
 import configuration.ServerProperties;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,7 +22,7 @@ public class LoginServiceImpl implements LoginService {
     private final KakaoProperties kakaoProperties;
     private final ServerProperties serverProperties;
 
-    LoginServiceImpl(LoginMapper mapper,KakaoProperties kakaoProperties,ServerProperties serverProperties) {
+    LoginServiceImpl(LoginMapper mapper, KakaoProperties kakaoProperties, ServerProperties serverProperties) {
         this.mapper = mapper;
         this.kakaoProperties = kakaoProperties;
         this.serverProperties = serverProperties;
@@ -81,27 +80,32 @@ public class LoginServiceImpl implements LoginService {
         }
 
         JSONObject kakaoAccount = profileObj.getJSONObject("kakao_account");
-        JSONObject kakaoProfile = kakaoAccount.getJSONObject("profile");
 
         String email = kakaoAccount.optString("email", "");
-        String nickname = kakaoAccount
-                .getJSONObject("profile")
-                .optString("nickname", "");
-        String profileImage = kakaoProfile.optString("profile_image_url", "");
-        System.out.println("카카오" + profileImage);
+        JSONObject profile;
+        // 기본 프로필 이미지와 닉네임 설정
+        String profileImage = "https://cdn2.ppomppu.co.kr/zboard/data3/2022/0509/m_20220509173224_d9N4ZGtBVR.jpeg";
+        String nickname = "비동의"; // 기본 닉네임 설정
 
-        // 5. StudentVO 생성
+        // "profile" 키가 존재하는지 확인하고 처리
+        if (kakaoAccount.has("profile")) {
+            profile = kakaoAccount.getJSONObject("profile");
+            profileImage = profile.optString("profile_image_url", "");
+            nickname = profile.optString("nickname", "");
+        }
+
+        // 5. LoginVO 생성
         LoginVO vo = new LoginVO();
-        // 회사, 부서 설정 필요
+        vo.setUsersNickname(nickname);
         vo.setCompanyId(0);
         vo.setDepartmentId(0);
         vo.setUsersKakaoId(kakaoId);
-        vo.setUsersNickname(nickname);
         vo.setAccessToken(accessToken);
         vo.setUsersProfile(profileImage);
         vo.setUsersEmail(email);
         vo.setUsersPoint(0);
         vo.setUsersLoginType("kakao");
+
         return vo;
     }
 
