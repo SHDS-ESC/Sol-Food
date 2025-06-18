@@ -20,17 +20,15 @@ import java.util.Map;
 public class LoginController {
 
     private final LoginService service;
+    private final KakaoProperties kakaoProperties;
+    private final ServerProperties serverProperties;
 
     @Autowired
-    public LoginController(LoginService service) {
+    public LoginController(LoginService service, KakaoProperties kakaoProperties, ServerProperties serverProperties) {
         this.service = service;
+        this.kakaoProperties = kakaoProperties;
+        this.serverProperties = serverProperties;
     }
-
-    @Autowired
-    private KakaoProperties kakaoProperties;
-
-    @Autowired
-    private ServerProperties serverProperties;
 
     // 유저 로그인 페이지
     @GetMapping("/login")

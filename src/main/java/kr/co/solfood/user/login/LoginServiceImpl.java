@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Service
 public class LoginServiceImpl implements LoginService {
-    
+
     private final LoginMapper mapper;
     private final KakaoProperties kakaoProperties;
     private final ServerProperties serverProperties;
