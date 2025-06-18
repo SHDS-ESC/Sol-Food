@@ -144,7 +144,9 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(interceptor())
                 .excludePathPatterns("/user/login")
-                .excludePathPatterns("/user/kakaoLogin");
+                .excludePathPatterns("/user/kakaoLogin")
+                .excludePathPatterns("/user/store");
+
     }
 
     // Swagger
