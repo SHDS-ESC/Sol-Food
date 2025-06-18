@@ -67,8 +67,8 @@
 </head>
 <body>
 <div class="profile-container">
-    <img class="profile-img" src='${userLoginSession.usersProfile }' alt='카카오 프로필 이미지'>
-    <div class="nickname">${userLoginSession.usersNickname }님</div>
+    <img class="profile-img" src='${user.usersProfile }' alt='카카오 프로필 이미지'>
+    <div class="nickname">${user.usersNickname }님</div>
     <div class="welcome">환영합니다 🎉</div>
     <div class="logout-btn">
         <button onclick="location.href='logout'">로그아웃</button>
