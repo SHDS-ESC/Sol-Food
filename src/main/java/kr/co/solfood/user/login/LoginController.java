@@ -32,7 +32,7 @@ public class LoginController {
     @GetMapping("/login")
     public void login(Model model) {
         model.addAttribute("apiKey", kakaoProperties.getRestApiKey());
-        Map<String,String> serverMap = new HashMap<>();
+        Map<String, String> serverMap = new HashMap<>();
         serverMap.put("ip", serverProperties.getIp());
         serverMap.put("port", serverProperties.getPort());
         model.addAttribute("serverMap", serverMap);
@@ -43,18 +43,19 @@ public class LoginController {
     @GetMapping("/kakaoLogin")
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         LoginVO kakaoLogin = service.confirmAccessToken(code);
-        sess.setAttribute("user", kakaoLogin);
+        sess.setAttribute("userLoginSession", kakaoLogin);
         return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:add-register" : "redirect:mypage";
     }
 
     // 카카오 추가 정보 페이지
     @GetMapping("/add-register")
-    public void addRegister(){ }
+    public void addRegister() {
+    }
 
     // 추가 정보 받은 후 등록
     @Transactional
     @PostMapping("/add-register")
-    public String addRegister(LoginVO kakaoAddVO, HttpSession sess){
+    public String addRegister(LoginVO kakaoAddVO, HttpSession sess) {
         LoginVO loginVO = service.register(kakaoAddVO);
         sess.setAttribute("user", loginVO);
         return "redirect:mypage";
