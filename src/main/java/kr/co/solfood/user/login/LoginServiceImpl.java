@@ -107,8 +107,8 @@ public class LoginServiceImpl implements LoginService {
     // 회원 가입 루트 로그인
     @Override
     public LoginVO register(LoginVO vo) {
-        vo.setUsersEnterDate(LocalDate.now().toString());
-        vo.setUsersJoinDate(LocalDate.now().toString());
+        vo.setUsersCreatedAt(LocalDate.now().toString());
+        vo.setUsersUpdatedAt(LocalDate.now().toString());
         int result = mapper.register(vo);
         if (result > 0) {
             return vo; // 등록 성공 시, 등록된 사용자 정보 반환
@@ -119,9 +119,10 @@ public class LoginServiceImpl implements LoginService {
     // 카카오 최초 로그인 확인 (소셜 로그인 전용)
     @Override
     public boolean confirmKakaoLoginWithFirst(LoginVO vo) {
-        if (vo.getUsersJoinDate() == null) {
+        if (vo.getUsersCreatedAt() == null) {
             return true;
         }
+        vo.setUsersUpdatedAt(LocalDate.now().toString());
         return false;
     }
 
