@@ -116,19 +116,6 @@ public class LoginServiceImpl implements LoginService {
         return null; // 등록 실패 시, null 반환
     }
 
-//    @Override
-//    public LoginVO addRegister(LoginVO vo) {
-//        vo.setUsersName(vo.getUsersName());
-//        vo.setUsersGender(vo.getUsersGender());
-//        vo.setUsersTel(vo.getUsersTel());
-//        vo.setUsersJoinDate(vo.getUsersJoinDate());
-//        vo.setUsersStatus(vo.getUsersStatus());
-//        vo.setUsersJoinDate(LocalDateTime.now().toString());
-//        vo.setUsersEnterDate(LocalDateTime.now().toString());
-//        mapper.register(vo);
-//        return vo;
-//    }
-
     // 카카오 최초 로그인 확인 (소셜 로그인 전용)
     @Override
     public boolean confirmKakaoLoginWithFirst(LoginVO vo) {
