@@ -143,9 +143,11 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(interceptor())
-                .excludePathPatterns("/user/login")
-                .excludePathPatterns("/user/kakaoLogin")
-                .excludePathPatterns("/user/store");
+                .excludePathPatterns("/user/**");
+//                .excludePathPatterns("/user/login")
+//                .excludePathPatterns("/user/kakaoLogin")
+//                .excludePathPatterns("/user/store")
+//                .excludePathPatterns("user/store/category");
 
     }
 
