@@ -14,7 +14,7 @@
     <select id="selectCategoryStore" resultType="kr.co.solfood.store.StoreVO">
         SELECT store_name, store_category, store_avgstar
         FROM store
-        WHERE store_category = #{storeCategory}
+        WHERE store_category = #{category}
     </select>
 
 </mapper>
