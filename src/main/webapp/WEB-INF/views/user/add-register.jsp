@@ -74,20 +74,20 @@
 </head>
 <body>
 <div class="profile-container">
-    <img class="profile-img" src='${user.usersProfile }' alt='카카오 프로필 이미지'>
-    <div class="nickname">${user.usersNickname }님</div>
+    <img class="profile-img" src='${userLoginSession.usersProfile }' alt='카카오 프로필 이미지'>
+    <div class="nickname">${userLoginSession.usersNickname }님</div>
     <div class="welcome">추가 정보를 입력해주세요</div>
     <form action="/solfood/user/add-register" method="post">
-        <input type="hidden" name="usersId" value="${user.usersId}">
-        <input type="hidden" name="companyId" value="${user.companyId }">
-        <input type="hidden" name="departmentId" value="${user.departmentId }">
-        <input type="hidden" name="usersEmail" value="${user.usersEmail }">
-        <input type="hidden" name="usersProfile" value="${user.usersProfile }">
-        <input type="hidden" name="usersNickname" value="${user.usersNickname }">
-        <input type="hidden" name="usersKakaoId" value="${user.usersKakaoId}">
-        <input type="hidden" name="accessToken" value="${user.accessToken}">
-        <input type="hidden" name="usersPoint" value="${user.usersPoint}">
-        <input type="hidden" name="usersLoginType" value="${user.usersLoginType}">
+        <input type="hidden" name="usersId" value="${userLoginSession.usersId}">
+        <input type="hidden" name="companyId" value="${userLoginSession.companyId }">
+        <input type="hidden" name="departmentId" value="${userLoginSession.departmentId }">
+        <input type="hidden" name="usersEmail" value="${userLoginSession.usersEmail }">
+        <input type="hidden" name="usersProfile" value="${userLoginSession.usersProfile }">
+        <input type="hidden" name="usersNickname" value="${userLoginSession.usersNickname }">
+        <input type="hidden" name="usersKakaoId" value="${userLoginSession.usersKakaoId}">
+        <input type="hidden" name="accessToken" value="${userLoginSession.accessToken}">
+        <input type="hidden" name="usersPoint" value="${userLoginSession.usersPoint}">
+        <input type="hidden" name="usersLoginType" value="${userLoginSession.usersLoginType}">
 
         <div class="form-group">
             <label for="usersName">이름</label>
