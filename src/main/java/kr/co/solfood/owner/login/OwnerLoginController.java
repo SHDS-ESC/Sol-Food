@@ -1,12 +1,18 @@
-package kr.co.solfood.login;
+package kr.co.solfood.owner.login;
 
 import properties.KakaoProperties;
 import properties.ServerProperties;
+import configuration.KakaoProperties;
+import configuration.ServerProperties;
+import kr.co.solfood.user.login.LoginService;
+import kr.co.solfood.user.login.LoginVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
@@ -14,10 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class LoginController {
-
-    @Autowired
-    private LoginService service;
+@RequestMapping("/owner")
+public class OwnerLoginController {
 
     @Autowired
     private KakaoProperties kakaoProperties;
@@ -25,7 +29,8 @@ public class LoginController {
     @Autowired
     private ServerProperties serverProperties;
 
-    @GetMapping("/user/login")
+    // 유저 로그인 페이지
+    @GetMapping("/login")
     public void login(Model model) {
         model.addAttribute("apiKey", kakaoProperties.getRestApiKey());
         Map<String,String> serverMap = new HashMap<>();
@@ -34,13 +39,6 @@ public class LoginController {
         model.addAttribute("serverMap", serverMap);
     }
 
-    @Transactional
-    @GetMapping("/user/kakaoLogin")
-    public String kakaoLogin(@RequestParam String code, HttpSession sess) {
-        LoginVO kakaoLogin = service.confirmAccessToken(code);
-        service.kakaoLogin(kakaoLogin);
-        sess.setAttribute("loginSession", kakaoLogin);
-        return "redirect:mypage";
-    }
-
+    @GetMapping("/home")
+    public void home(Model model) {}
 }

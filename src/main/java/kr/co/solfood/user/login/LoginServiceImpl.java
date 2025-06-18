@@ -1,4 +1,4 @@
-package kr.co.solfood.login;
+package kr.co.solfood.user.login;
 
 import properties.KakaoProperties;
 import properties.ServerProperties;
@@ -13,6 +13,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Service
@@ -27,6 +28,7 @@ public class LoginServiceImpl implements LoginService {
     @Autowired
     ServerProperties serverProperties;
 
+    // 액세스 토큰 확인 후 VO 반환
     @Override
     public LoginVO confirmAccessToken(String code) {
         // 1. 토큰 요청
@@ -35,7 +37,7 @@ public class LoginServiceImpl implements LoginService {
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id",kakaoProperties.getRestApiKey());
+        body.add("client_id", kakaoProperties.getRestApiKey());
         body.add("redirect_uri", "http://" + serverProperties.getIp() + ":" + serverProperties.getPort() + "/solfood/user/kakaoLogin");
         body.add("code", code);
 
@@ -72,6 +74,11 @@ public class LoginServiceImpl implements LoginService {
         JSONObject profileObj = new JSONObject(Objects.requireNonNull(profileJson));
 
         long kakaoId = profileObj.getLong("id");
+
+        if (mapper.kakaoLogin(kakaoId) != null) {
+            return mapper.kakaoLogin(kakaoId);
+        }
+
         JSONObject kakaoAccount = profileObj.getJSONObject("kakao_account");
         JSONObject kakaoProfile = kakaoAccount.getJSONObject("profile");
 
@@ -88,25 +95,47 @@ public class LoginServiceImpl implements LoginService {
         vo.setCompanyId(0);
         vo.setDepartmentId(0);
         vo.setUsersKakaoId(kakaoId);
-        System.out.println("카카오아이디"+kakaoId);
-        vo.setUsersName("kakao/" + nickname);
         vo.setUsersNickname(nickname);
         vo.setAccessToken(accessToken);
         vo.setUsersProfile(profileImage);
         vo.setUsersEmail(email);
         vo.setUsersPoint(0);
-        // 유저 나이 필요
-         vo.setUsersAge(20);
+        vo.setUsersLoginType("kakao");
         return vo;
     }
 
+    // 회원 가입 루트 로그인
     @Override
-    public void kakaoLogin(LoginVO vo){
-        LoginVO login =  mapper.kakaoLogin(vo);
-        System.out.println("찾음" + mapper.kakaoLogin(vo));
-        if (login == null) {
-            mapper.register(vo); // 기본 가입 처리
+    public LoginVO register(LoginVO vo) {
+        vo.setUsersEnterDate(LocalDate.now().toString());
+        vo.setUsersJoinDate(LocalDate.now().toString());
+        int result = mapper.register(vo);
+        if (result > 0) {
+            return vo; // 등록 성공 시, 등록된 사용자 정보 반환
         }
+        return null; // 등록 실패 시, null 반환
+    }
+
+//    @Override
+//    public LoginVO addRegister(LoginVO vo) {
+//        vo.setUsersName(vo.getUsersName());
+//        vo.setUsersGender(vo.getUsersGender());
+//        vo.setUsersTel(vo.getUsersTel());
+//        vo.setUsersJoinDate(vo.getUsersJoinDate());
+//        vo.setUsersStatus(vo.getUsersStatus());
+//        vo.setUsersJoinDate(LocalDateTime.now().toString());
+//        vo.setUsersEnterDate(LocalDateTime.now().toString());
+//        mapper.register(vo);
+//        return vo;
+//    }
+
+    // 카카오 최초 로그인 확인 (소셜 로그인 전용)
+    @Override
+    public boolean confirmKakaoLoginWithFirst(LoginVO vo) {
+        if (vo.getUsersJoinDate() == null) {
+            return true;
+        }
+        return false;
     }
 
 }
