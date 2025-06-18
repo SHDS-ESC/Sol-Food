@@ -1,4 +1,4 @@
-package configuration;
+package properties;
 
 import lombok.Data;
 
@@ -8,4 +8,4 @@ public class DbProperties {
     private String url;
     private String username;
     private String password;
-}
+} 
