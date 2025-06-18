@@ -16,7 +16,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.*;
-import util.Interceptor;
+import util.LoginInterceptor;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -135,14 +135,15 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
 
     // 인터셉터를 빈으로 등록
     @Bean
-    public Interceptor interceptor() {
-        return new Interceptor();
+    public LoginInterceptor loginInterceptor() {
+        return new LoginInterceptor();
     }
 
     // 인터셉터 추가
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor())
+        registry.addInterceptor(loginInterceptor())
+                .addPathPatterns("/user/**")
                 .excludePathPatterns("/user/login")
                 .excludePathPatterns("/user/kakaoLogin");
     }
