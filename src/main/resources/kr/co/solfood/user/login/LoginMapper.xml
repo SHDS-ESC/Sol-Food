@@ -26,12 +26,12 @@
                            users_kakao_id,
                            users_login_type,
                            users_tel,
-                           users_join_date,
-                           users_enter_date,
+                           users_created_at,
+                           users_updated_at,
                            users_status)
         VALUES (#{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName},
                 #{usersPoint}, #{usersGender}, #{usersKakaoId}, #{usersLoginType}, #{usersTel},
-                #{usersJoinDate}, #{usersEnterDate}, #{usersStatus})
+                #{usersCreatedAt}, #{usersUpdatedAt}, #{usersStatus})
     </insert>
 
 
