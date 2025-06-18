@@ -1,7 +1,6 @@
 package kr.co.solfood.user.login;
 
 import org.springframework.web.servlet.HandlerInterceptor;
-import util.LoginType;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
