@@ -1,4 +1,4 @@
-package solfood.configuration;
+package configuration;
 
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,6 +16,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.*;
+import util.LoginInterceptor;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -23,13 +24,19 @@ import java.sql.Connection;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableWebMvc
-@ComponentScan(basePackages = "solfood") // 컴포넌트 스캔
-@MapperScan(basePackages = "solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
+@ComponentScan(basePackages = {"kr.co.solfood", "util"}) // 컴포넌트 스캔
+@MapperScan(basePackages = "kr.co.solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
 @EnableTransactionManagement // 트랜잭션 활성화
-public class MvcConfig implements WebMvcConfigurer , InitializingBean {
+public class MvcConfig implements WebMvcConfigurer, InitializingBean {
 
     @Autowired
     private DbProperties dbProperties;
+
+    @Autowired
+    private ServerProperties serverProperties;
+
+    @Autowired
+    private KakaoProperties kakaoProperties;
 
     // DB 연결 여부 확인
     @Override
@@ -69,6 +76,26 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
         return props;
     }
 
+    @Bean
+    public ServerProperties serverProperties(
+            @Value("${server.ip}") String ip,
+            @Value("${server.port}") String port
+    ) {
+        ServerProperties props = new ServerProperties();
+        props.setIp(ip);
+        props.setPort(port);
+        return props;
+    }
+
+    @Bean
+    public KakaoProperties kakaoProperties(
+            @Value("${kakao.respApiKey}") String restApiKey
+    ) {
+        KakaoProperties props = new KakaoProperties();
+        props.setRestApiKey(restApiKey);
+        return props;
+    }
+
     // 정적리소스 처리(스프링이 아니라 톰캣이 처리하도록) 활성화
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer config) {
@@ -92,6 +119,11 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean ssf = new SqlSessionFactoryBean();
         ssf.setDataSource(dataSource());
+        // VO 클래스의 필드명과 MaridDB의 컬럼명을 일치 (VO는 camelCase, DB는 snake_case)
+        org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
+        config.setMapUnderscoreToCamelCase(true); // underscores → camelCase
+        ssf.setConfiguration(config);
+
         return ssf.getObject();
     }
 
@@ -103,14 +135,17 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
 
     // 인터셉터를 빈으로 등록
     @Bean
-    public Interceptor interceptor() {
-        return new Interceptor();
+    public LoginInterceptor loginInterceptor() {
+        return new LoginInterceptor();
     }
 
     // 인터셉터 추가
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor());
+        registry.addInterceptor(loginInterceptor())
+                .addPathPatterns("/user/**")
+                .excludePathPatterns("/user/login")
+                .excludePathPatterns("/user/kakaoLogin");
     }
 
     // Swagger
