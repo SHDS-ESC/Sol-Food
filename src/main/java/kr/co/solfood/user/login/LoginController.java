@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import util.LoginType;
 
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class LoginController {
     @GetMapping("/kakaoLogin")
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         LoginVO kakaoLogin = service.confirmAccessToken(code);
-        sess.setAttribute("user", kakaoLogin);
+        sess.setAttribute("userLoginSession", kakaoLogin);
         return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:add-register" : "redirect:mypage";
     }
 
