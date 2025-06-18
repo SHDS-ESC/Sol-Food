@@ -13,7 +13,7 @@
         </init-param>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>solfood.configuration.MvcConfig</param-value>
+            <param-value>configuration.MvcConfig</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>

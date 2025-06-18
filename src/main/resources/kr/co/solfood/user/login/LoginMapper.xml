@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.user.login.LoginMapper">
+
+    <!-- 카카오 유저 확인 (최초 가입) -->
+    <select id="kakaoLogin" parameterType="Long"
+            resultType="kr.co.solfood.user.login.LoginVO">
+        SELECT *
+        FROM users
+        WHERE users_kakao_id = #{usersKakaoId}
+    </select>
+
+    <!-- 유저 회원 가입 (공용) -->
+    <insert id="register"
+            parameterType="kr.co.solfood.user.login.LoginVO">
+        INSERT INTO users (company_id,
+                           department_id,
+                           users_email,
+                           users_nickname,
+                           users_profile,
+                           users_name,
+                           users_point,
+                           users_gender,
+                           users_kakao_id,
+                           users_login_type,
+                           users_tel,
+                           users_join_date,
+                           users_enter_date,
+                           users_status)
+        VALUES (#{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName},
+                #{usersPoint}, #{usersGender}, #{usersKakaoId}, #{usersLoginType}, #{usersTel},
+                #{usersJoinDate}, #{usersEnterDate}, #{usersStatus})
+    </insert>
+
+
+</mapper>

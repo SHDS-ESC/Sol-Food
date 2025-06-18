@@ -1,6 +1,9 @@
-package solfood.configuration;
+package configuration;
 
 import com.zaxxer.hikari.HikariDataSource;
+import kr.co.solfood.admin.login.AdminLoginInterceptor;
+import kr.co.solfood.owner.login.OwnerLoginInterceptor;
+import kr.co.solfood.user.login.UserLoginInterceptor;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -23,13 +26,19 @@ import java.sql.Connection;
 @Configuration
 @PropertySource("classpath:application.properties")
 @EnableWebMvc
-@ComponentScan(basePackages = "solfood") // 컴포넌트 스캔
-@MapperScan(basePackages = "solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
+@ComponentScan(basePackages = {"kr.co.solfood", "util"}) // 컴포넌트 스캔
+@MapperScan(basePackages = "kr.co.solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
 @EnableTransactionManagement // 트랜잭션 활성화
-public class MvcConfig implements WebMvcConfigurer , InitializingBean {
+public class MvcConfig implements WebMvcConfigurer, InitializingBean {
 
     @Autowired
     private DbProperties dbProperties;
+
+    @Autowired
+    private ServerProperties serverProperties;
+
+    @Autowired
+    private KakaoProperties kakaoProperties;
 
     // DB 연결 여부 확인
     @Override
@@ -69,12 +78,31 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
         return props;
     }
 
+    @Bean
+    public ServerProperties serverProperties(
+            @Value("${server.ip}") String ip,
+            @Value("${server.port}") String port
+    ) {
+        ServerProperties props = new ServerProperties();
+        props.setIp(ip);
+        props.setPort(port);
+        return props;
+    }
+
+    @Bean
+    public KakaoProperties kakaoProperties(
+            @Value("${kakao.respApiKey}") String restApiKey
+    ) {
+        KakaoProperties props = new KakaoProperties();
+        props.setRestApiKey(restApiKey);
+        return props;
+    }
+
     // 정적리소스 처리(스프링이 아니라 톰캣이 처리하도록) 활성화
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer config) {
         config.enable();
     }
-
 
     // HikariCP
     @Bean
@@ -92,6 +120,11 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         SqlSessionFactoryBean ssf = new SqlSessionFactoryBean();
         ssf.setDataSource(dataSource());
+        // VO 클래스의 필드명과 MaridDB의 컬럼명을 일치 (VO는 camelCase, DB는 snake_case)
+        org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
+        config.setMapUnderscoreToCamelCase(true); // underscores → camelCase
+        ssf.setConfiguration(config);
+
         return ssf.getObject();
     }
 
@@ -103,14 +136,37 @@ public class MvcConfig implements WebMvcConfigurer , InitializingBean {
 
     // 인터셉터를 빈으로 등록
     @Bean
-    public Interceptor interceptor() {
-        return new Interceptor();
+    public UserLoginInterceptor userLoginInterceptor() {
+        return new UserLoginInterceptor();
     }
 
-    // 인터셉터 추가
+    @Bean
+    public OwnerLoginInterceptor ownerLoginInterceptor() {
+        return new OwnerLoginInterceptor();
+    }
+
+    @Bean
+    public AdminLoginInterceptor adminLoginInterceptor() {
+        return new AdminLoginInterceptor();
+    }
+
+    // 인터 셉터 추가
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor());
+        registry.addInterceptor(userLoginInterceptor())
+                .addPathPatterns("/user/**")
+                .excludePathPatterns("/user/login")
+                .excludePathPatterns("/user/kakaoLogin");
+
+        registry.addInterceptor(adminLoginInterceptor())
+                .addPathPatterns("/admin/**")
+                .excludePathPatterns("/admin/login")
+                .excludePathPatterns("/admin/kakaoLogin");
+
+        registry.addInterceptor(ownerLoginInterceptor())
+                .addPathPatterns("/owner/**")
+                .excludePathPatterns("/owner/login")
+                .excludePathPatterns("/owner/kakaoLogin");
     }
 
     // Swagger
