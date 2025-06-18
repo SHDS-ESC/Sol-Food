@@ -18,15 +18,16 @@ import java.util.Objects;
 
 @Service
 public class LoginServiceImpl implements LoginService {
+    
+    private final LoginMapper mapper;
+    private final KakaoProperties kakaoProperties;
+    private final ServerProperties serverProperties;
 
-    @Autowired
-    LoginMapper mapper;
-
-    @Autowired
-    KakaoProperties kakaoProperties;
-
-    @Autowired
-    ServerProperties serverProperties;
+    LoginServiceImpl(LoginMapper mapper,KakaoProperties kakaoProperties,ServerProperties serverProperties) {
+        this.mapper = mapper;
+        this.kakaoProperties = kakaoProperties;
+        this.serverProperties = serverProperties;
+    }
 
     // 액세스 토큰 확인 후 VO 반환
     @Override
