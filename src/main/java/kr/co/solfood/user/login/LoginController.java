@@ -18,14 +18,16 @@ import java.util.Map;
 @RequestMapping("/user")
 public class LoginController {
 
-    @Autowired
-    private LoginService service;
+    private final LoginService service;
+    private final KakaoProperties kakaoProperties;
+    private final ServerProperties serverProperties;
 
     @Autowired
-    private KakaoProperties kakaoProperties;
-
-    @Autowired
-    private ServerProperties serverProperties;
+    public LoginController(LoginService service, KakaoProperties kakaoProperties, ServerProperties serverProperties) {
+        this.service = service;
+        this.kakaoProperties = kakaoProperties;
+        this.serverProperties = serverProperties;
+    }
 
     // 유저 로그인 페이지
     @GetMapping("/login")
@@ -42,7 +44,7 @@ public class LoginController {
     @GetMapping("/kakaoLogin")
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         LoginVO kakaoLogin = service.confirmAccessToken(code);
-        sess.setAttribute("user", kakaoLogin);
+        sess.setAttribute("userLoginSession", kakaoLogin);
         return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:add-register" : "redirect:mypage";
     }
 

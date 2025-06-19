@@ -17,8 +17,8 @@ public class LoginVO {
     private String accessToken;
     private long usersKakaoId;
     private String usersTel;
-    private String usersJoinDate;
-    private String usersEnterDate;
+    private String usersCreatedAt;
+    private String usersUpdatedAt;
     private String usersStatus;
     private String usersLoginType;
 }

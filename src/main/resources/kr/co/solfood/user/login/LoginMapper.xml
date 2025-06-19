@@ -9,15 +9,27 @@
             resultType="kr.co.solfood.user.login.LoginVO">
         SELECT *
         FROM users
-        WHERE USERS_KAKAO_ID = #{usersKakaoId}
+        WHERE users_kakao_id = #{usersKakaoId}
     </select>
 
     <!-- 유저 회원 가입 (공용) -->
     <insert id="register"
             parameterType="kr.co.solfood.user.login.LoginVO">
-        INSERT INTO users (COMPANY_ID, DEPARTMENT_ID, USERS_EMAIL, USERS_NICKNAME, USERS_PROFILE, USERS_NAME,
-                           USERS_POINT, USERS_GENDER, USERS_KAKAO_ID, USERS_LOGIN_TYPE, USERS_TEL,
-                           USERS_JOIN_DATE, USERS_ENTER_DATE, USERS_STATUS, USERS_PWD)
+        INSERT INTO users (company_id,
+                           department_id,
+                           users_email,
+                           users_nickname,
+                           users_profile,
+                           users_name,
+                           users_point,
+                           users_gender,
+                           users_kakao_id,
+                           users_login_type,
+                           users_tel,
+                           users_created_at,
+                           users_updated_at,
+                           users_status,
+                           users_pwd)
         VALUES (#{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName},
                 #{usersPoint}, #{usersGender}, #{usersKakaoId}, #{usersLoginType}, #{usersTel},
                 #{usersJoinDate}, #{usersEnterDate}, #{usersStatus}, #{usersPwd})
