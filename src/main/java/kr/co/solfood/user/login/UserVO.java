@@ -25,5 +25,7 @@ public class UserVO {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date usersUpdatedAt;
     private String usersStatus;
+    private String usersBirth;
     private String usersLoginType;
+    private String company_name; // 부서 이름
 }

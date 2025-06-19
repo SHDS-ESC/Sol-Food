@@ -61,7 +61,7 @@ public class LoginController {
 
     // 카카오 추가 정보 페이지
     @GetMapping("/extra")
-    public void addRegister(Model model) {
+    public void extra(Model model) {
         List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
         model.addAttribute("companyList", companyList);
     }
@@ -69,8 +69,9 @@ public class LoginController {
     // 추가 정보 받은 후 등록
     @Transactional
     @PostMapping("/extra")
-    public String addRegister(UserVO kakaoAddVO, HttpSession sess) {
+    public String extra(UserVO kakaoAddVO, HttpSession sess) {
         UserVO userVo = service.register(kakaoAddVO);
+        System.out.println("브이오" + kakaoAddVO);
         sess.setAttribute("userLoginSession", userVo);
         return "redirect:mypage";
     }
@@ -140,7 +141,6 @@ public class LoginController {
     @GetMapping("/company/depts")
     @ResponseBody
     public List<DepartmentVO> getDepartments(@RequestParam("companyId") int companyId) {
-        System.out.println("companyId:" + companyId);
         return service.getDepartmentsByCompanyId(companyId);
     }
 
