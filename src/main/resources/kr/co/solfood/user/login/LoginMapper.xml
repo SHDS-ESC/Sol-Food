@@ -32,7 +32,7 @@
                            users_pwd)
         VALUES (#{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName},
                 #{usersPoint}, #{usersGender}, #{usersKakaoId}, #{usersLoginType}, #{usersTel},
-                #{usersJoinDate}, #{usersEnterDate}, #{usersStatus}, #{usersPwd})
+                #{usersCreatedAt}, #{usersUpdatedAt}, #{usersStatus}, #{usersPwd})
     </insert>
 
     <!--회사리스트-->
@@ -52,7 +52,7 @@
     <select id="selectUser" parameterType="kr.co.solfood.user.login.LoginRequest" resultType="kr.co.solfood.user.login.LoginVO">
         SELECT *
         FROM users
-        WHERE USERS_EMAIL = #{usersEmail} AND USERS_PWD = #{usersPwd}
+        WHERE users_email = #{usersEmail} AND users_pwd = #{usersPwd}
     </select>
 
 

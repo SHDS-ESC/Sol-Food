@@ -50,7 +50,9 @@ public class LoginController {
 
     // 카카오 추가 정보 페이지
     @GetMapping("/add-register")
-    public void addRegister() {
+    public void addRegister(Model model) {
+        List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
+        model.addAttribute("companyList", companyList);
     }
 
     // 추가 정보 받은 후 등록
@@ -58,7 +60,7 @@ public class LoginController {
     @PostMapping("/add-register")
     public String addRegister(LoginVO kakaoAddVO, HttpSession sess) {
         LoginVO loginVO = service.register(kakaoAddVO);
-        sess.setAttribute("user", loginVO);
+        sess.setAttribute("userLoginSession", loginVO);
         return "redirect:mypage";
     }
 
@@ -74,8 +76,8 @@ public class LoginController {
     public String nativeLogin(LoginRequest req, HttpSession sess, Model model) {
         LoginVO loginVO = service.nativeLogin(req);
         if(loginVO !=null){
-            sess.setAttribute("user", loginVO);
-
+            System.out.println("로그인 ===============> "+loginVO);
+            sess.setAttribute("userLoginSession", loginVO);
             return "redirect:mypage";
         } else {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
@@ -105,9 +107,8 @@ public class LoginController {
     @Transactional
     @PostMapping("/join")
     public String join(LoginVO kakaoAddVO, HttpSession sess) {
-        LoginVO loginVO = service.register(kakaoAddVO);
-        sess.setAttribute("user", loginVO);
-        return "redirect:mypage";
+        service.register(kakaoAddVO);
+        return "redirect:login";
     }
 
     // 부서
