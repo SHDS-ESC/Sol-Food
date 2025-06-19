@@ -56,11 +56,11 @@ public class LoginController {
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         UserVO kakaoLogin = service.confirmAccessToken(code);
         sess.setAttribute("userLoginSession", kakaoLogin);
-        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:add-register" : "redirect:mypage";
+        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:extra" : "redirect:mypage";
     }
 
     // 카카오 추가 정보 페이지
-    @GetMapping("/add-register")
+    @GetMapping("/extra")
     public void addRegister(Model model) {
         List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
         model.addAttribute("companyList", companyList);
@@ -68,7 +68,7 @@ public class LoginController {
 
     // 추가 정보 받은 후 등록
     @Transactional
-    @PostMapping("/add-register")
+    @PostMapping("/extra")
     public String addRegister(UserVO kakaoAddVO, HttpSession sess) {
         UserVO userVo = service.register(kakaoAddVO);
         sess.setAttribute("userLoginSession", userVo);
