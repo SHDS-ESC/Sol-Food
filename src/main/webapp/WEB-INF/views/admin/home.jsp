@@ -1,4 +1,3 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -353,7 +352,7 @@
                 <li><a href="#features">서비스</a></li>
                 <li><a href="#about">소개</a></li>
                 <li><a href="#contact">문의</a></li>
-                <li><a href="<c:url value="/user/login"/>">로그인</a></li>
+                <li><a href="/user/login">로그인</a></li>
             </ul>
         </nav>
     </header>
@@ -364,7 +363,7 @@
             <h1>건강한 식단의 시작</h1>
             <p>Sol-Food와 함께 맞춤형 영양 관리로 건강한 라이프스타일을 만들어보세요</p>
             <div class="cta-buttons">
-                <a href="<c:url value="/user/login"/>" class="btn btn-primary">
+                <a href="/user/login" class="btn btn-primary">
                     <i class="fas fa-user"></i> 시작하기
                 </a>
                 <a href="#features" class="btn btn-secondary">

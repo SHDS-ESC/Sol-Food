@@ -1,6 +1,9 @@
 package configuration;
 
 import com.zaxxer.hikari.HikariDataSource;
+import kr.co.solfood.admin.login.AdminLoginInterceptor;
+import kr.co.solfood.owner.login.OwnerLoginInterceptor;
+import kr.co.solfood.user.login.UserLoginInterceptor;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -102,7 +105,6 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
         config.enable();
     }
 
-
     // HikariCP
     @Bean
     public DataSource dataSource() {
@@ -135,20 +137,37 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
 
     // 인터셉터를 빈으로 등록
     @Bean
-    public Interceptor interceptor() {
-        return new Interceptor();
+    public UserLoginInterceptor userLoginInterceptor() {
+        return new UserLoginInterceptor();
     }
 
-    // 인터셉터 추가
+    @Bean
+    public OwnerLoginInterceptor ownerLoginInterceptor() {
+        return new OwnerLoginInterceptor();
+    }
+
+    @Bean
+    public AdminLoginInterceptor adminLoginInterceptor() {
+        return new AdminLoginInterceptor();
+    }
+
+    // 인터 셉터 추가
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor())
-                .excludePathPatterns("/user/**");
-//                .excludePathPatterns("/user/login")
-//                .excludePathPatterns("/user/kakaoLogin")
-//                .excludePathPatterns("/user/store")
-//                .excludePathPatterns("user/store/category");
+        registry.addInterceptor(userLoginInterceptor())
+                .addPathPatterns("/user/**")
+                .excludePathPatterns("/user/login")
+                .excludePathPatterns("/user/kakaoLogin");
 
+        registry.addInterceptor(adminLoginInterceptor())
+                .addPathPatterns("/admin/**")
+                .excludePathPatterns("/admin/login")
+                .excludePathPatterns("/admin/kakaoLogin");
+
+        registry.addInterceptor(ownerLoginInterceptor())
+                .addPathPatterns("/owner/**")
+                .excludePathPatterns("/owner/login")
+                .excludePathPatterns("/owner/kakaoLogin");
     }
 
     // Swagger
