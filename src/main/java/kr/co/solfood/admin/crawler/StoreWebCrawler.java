@@ -2,6 +2,7 @@ package kr.co.solfood.admin.crawler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import configuration.KakaoProperties;
 import kr.co.solfood.user.store.CategoryProperties;
 import kr.co.solfood.user.store.StoreService;
 import kr.co.solfood.user.store.StoreVO;
@@ -25,9 +26,11 @@ public class StoreWebCrawler {
     
     @Autowired
     private CategoryProperties categoryProperties;
+    
+    @Autowired
+    private KakaoProperties kakaoProperties;
 
-    // 카카오 REST API 키 (실제 사용시 설정 파일로 분리)
-    private static final String KAKAO_API_KEY = "5d4b8480ccbf31d3c2c6cca2fae79fd6";
+    // 카카오 Local API URL
     private static final String KAKAO_LOCAL_API_URL = "https://dapi.kakao.com/v2/local/search/keyword.json";
 
     /**
@@ -88,7 +91,7 @@ public class StoreWebCrawler {
             
             // 요청 헤더 설정
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", "KakaoAK " + KAKAO_API_KEY);
+            connection.setRequestProperty("Authorization", "KakaoAK " + kakaoProperties.getRestApiKey());
             connection.setRequestProperty("Content-Type", "application/json");
             
             // 응답 확인
@@ -258,7 +261,7 @@ public class StoreWebCrawler {
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-            connection.setRequestProperty("Authorization", "KakaoAK " + KAKAO_API_KEY);
+            connection.setRequestProperty("Authorization", "KakaoAK " + kakaoProperties.getRestApiKey());
             
             if (connection.getResponseCode() == 200) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
