@@ -19,14 +19,16 @@ import java.util.Map;
 @RequestMapping("/user")
 public class LoginController {
 
-    @Autowired
-    private LoginService service;
+    private final LoginService service;
+    private final KakaoProperties kakaoProperties;
+    private final ServerProperties serverProperties;
 
     @Autowired
-    private KakaoProperties kakaoProperties;
-
-    @Autowired
-    private ServerProperties serverProperties;
+    public LoginController(LoginService service, KakaoProperties kakaoProperties, ServerProperties serverProperties) {
+        this.service = service;
+        this.kakaoProperties = kakaoProperties;
+        this.serverProperties = serverProperties;
+    }
 
     // 유저 로그인 페이지
     @GetMapping("/login")
