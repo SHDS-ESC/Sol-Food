@@ -8,6 +8,22 @@
     <select id="selectAllStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT store_name, store_category, store_avgstar, store_mainimage
         FROM store
+    <!-- 가게 ID로 가게 정보 조회 -->
+    <select id="getStoreById" parameterType="int" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            store_id as storeId,
+            store_name as storeName,
+            store_address as storeAddress,
+            store_latitude as storeLatitude,
+            store_longitude as storeLongitude,
+            store_avgstar as storeAvgstar,
+            store_intro as storeIntro,
+            store_mainimage as storeMainimage,
+            store_category as storeCategory,
+            store_capacity as storeCapacity,
+            store_tel as storeTel
+        FROM store
+        WHERE store_id = #{storeId}
     </select>
 
     <!-- 카테고리별 조회 -->
