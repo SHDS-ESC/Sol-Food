@@ -3,7 +3,6 @@ package kr.co.solfood.user.login;
 import configuration.KakaoProperties;
 import configuration.ServerProperties;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -14,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,7 +24,7 @@ public class LoginServiceImpl implements LoginService {
     private final KakaoProperties kakaoProperties;
     private final ServerProperties serverProperties;
 
-    LoginServiceImpl(LoginMapper mapper,KakaoProperties kakaoProperties,ServerProperties serverProperties) {
+    LoginServiceImpl(LoginMapper mapper, KakaoProperties kakaoProperties, ServerProperties serverProperties) {
         this.mapper = mapper;
         this.kakaoProperties = kakaoProperties;
         this.serverProperties = serverProperties;
@@ -82,35 +82,41 @@ public class LoginServiceImpl implements LoginService {
         }
 
         JSONObject kakaoAccount = profileObj.getJSONObject("kakao_account");
-        JSONObject kakaoProfile = kakaoAccount.getJSONObject("profile");
 
         String email = kakaoAccount.optString("email", "");
-        String nickname = kakaoAccount
-                .getJSONObject("profile")
-                .optString("nickname", "");
-        String profileImage = kakaoProfile.optString("profile_image_url", "");
-        System.out.println("카카오" + profileImage);
+        JSONObject profile;
+        // 기본 프로필 이미지와 닉네임 설정
+        String profileImage = "https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800";
+        int num = (int) (Math.random() * 99) + 1; // 랜덤 숫자 생성
+        String nickname = "익명의 사용자" + num; // 기본 닉네임 설정
 
-        // 5. StudentVO 생성
+        // "profile" 키가 존재하는지 확인하고 처리
+        if (kakaoAccount.has("profile")) {
+            profile = kakaoAccount.getJSONObject("profile");
+            profileImage = profile.optString("profile_image_url", "");
+            nickname = profile.optString("nickname", "");
+        }
+
+        // 5. LoginVO 생성
         LoginVO vo = new LoginVO();
-        // 회사, 부서 설정 필요
+        vo.setUsersNickname(nickname);
         vo.setCompanyId(0);
         vo.setDepartmentId(0);
         vo.setUsersKakaoId(kakaoId);
-        vo.setUsersNickname(nickname);
         vo.setAccessToken(accessToken);
         vo.setUsersProfile(profileImage);
         vo.setUsersEmail(email);
         vo.setUsersPoint(0);
         vo.setUsersLoginType("kakao");
+
         return vo;
     }
 
     // 회원 가입 루트 로그인
     @Override
     public LoginVO register(LoginVO vo) {
-        vo.setUsersCreatedAt(LocalDate.now().toString());
-        vo.setUsersUpdatedAt(LocalDate.now().toString());
+        vo.setUsersCreatedAt(new Date());
+        vo.setUsersUpdatedAt(new Date());
         int result = mapper.register(vo);
         if (result > 0) {
             return vo; // 등록 성공 시, 등록된 사용자 정보 반환
@@ -124,7 +130,7 @@ public class LoginServiceImpl implements LoginService {
         if (vo.getUsersCreatedAt() == null) {
             return true;
         }
-        vo.setUsersUpdatedAt(LocalDate.now().toString());
+        vo.setUsersUpdatedAt(new Date());
         return false;
     }
 
