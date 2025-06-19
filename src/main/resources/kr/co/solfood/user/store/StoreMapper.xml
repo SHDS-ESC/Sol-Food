@@ -8,6 +8,7 @@
     <select id="selectAllStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT store_name, store_category, store_avgstar, store_mainimage
         FROM store
+    </select>
     <!-- 가게 ID로 가게 정보 조회 -->
     <select id="getStoreById" parameterType="int" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT

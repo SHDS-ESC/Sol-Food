@@ -163,11 +163,11 @@
     <div class="store-grid">
         <c:forEach items="${store}" var="store">
             <div class="store-card">
-                <img src="${store.mainImage}" alt="${store.storeName}" class="store_mainimage">
+                <img src="${store.storeMainimage}" alt="${store.storeName}" class="store_mainimage">
                 <div class="store-body">
                     <div class="store-name">${store.storeName}</div>
                     <div>${store.storeCategory}</div>
-                    <div>⭐별점: ${store.storeAvgStar}</div>
+                    <div>⭐별점: ${store.storeAvgstar}</div>
                     <i class="bi bi-heart like-icon"></i> <!-- 찜 기능 -->
                 </div>
             </div>
