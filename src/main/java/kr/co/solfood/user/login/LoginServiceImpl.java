@@ -1,7 +1,7 @@
 package kr.co.solfood.user.login;
 
-import configuration.KakaoProperties;
-import configuration.ServerProperties;
+import properties.KakaoProperties;
+import properties.ServerProperties;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

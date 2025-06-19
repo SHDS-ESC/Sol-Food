@@ -2,8 +2,6 @@ package kr.co.solfood.user.login;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import java.time.LocalDateTime;
-
 @Mapper
 public interface LoginMapper {
     // 회원 가입
