@@ -20,4 +20,10 @@ public interface LoginMapper {
 
     // 로그인
     LoginVO selectUser(LoginRequest req);
+
+    // 비밀번호 찾기
+    LoginVO searchPwd(SearchPwdRequest req);
+
+    // 새로운 비밀번호 저장
+    void setNewPwd(SearchPwdRequest req);
 }

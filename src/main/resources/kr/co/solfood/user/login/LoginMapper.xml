@@ -32,7 +32,7 @@
                            users_pwd)
         VALUES (#{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName},
                 #{usersPoint}, #{usersGender}, #{usersKakaoId}, #{usersLoginType}, #{usersTel},
-                #{usersCreatedAt}, #{usersUpdatedAt}, #{usersStatus}, #{usersPwd})
+                #{usersCreatedAt}, #{usersUpdatedAt}, #{usersStatus}, md5(#{usersPwd}))
     </insert>
 
     <!--회사리스트-->
@@ -54,6 +54,20 @@
         FROM users
         WHERE users_email = #{usersEmail} AND users_pwd = #{usersPwd}
     </select>
+
+    <!--비밀번호 찾기-->
+    <select id="searchPwd" resultType="kr.co.solfood.user.login.LoginVO" parameterType="kr.co.solfood.user.login.SearchPwdRequest">
+        SELECT *
+        FROM users
+        WHERE users_email = #{usersEmail} AND users_name =#{usersName}
+    </select>
+
+    <!--새로운 비밀번호 저장-->
+    <update id="setNewPwd" parameterType="kr.co.solfood.user.login.SearchPwdRequest" >
+        UPDATE users
+        SET users_pwd = #{usersPwd}
+        WHERE users_email = #{usersEmail} AND users_name =#{usersName};
+    </update>
 
 
 </mapper>

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Controller
 @RequestMapping("/user")
@@ -21,6 +22,18 @@ public class LoginController {
     private final LoginService service;
     private final KakaoProperties kakaoProperties;
     private final ServerProperties serverProperties;
+    private static final Random rand = new Random(1234L); // 랜덤 객체
+
+    // 랜덤 비밀번호 생성 로직
+    public static String makePassword() {
+        String chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        int len = 8 + rand.nextInt(6); // 8~13글자
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            sb.append(chars.charAt(rand.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
 
     @Autowired
     public LoginController(LoginService service, KakaoProperties kakaoProperties, ServerProperties serverProperties) {
@@ -76,7 +89,6 @@ public class LoginController {
     public String nativeLogin(LoginRequest req, HttpSession sess, Model model) {
         LoginVO loginVO = service.nativeLogin(req);
         if(loginVO !=null){
-            System.out.println("로그인 ===============> "+loginVO);
             sess.setAttribute("userLoginSession", loginVO);
             return "redirect:mypage";
         } else {
@@ -92,8 +104,23 @@ public class LoginController {
 
     // 비밀번호 찾기
     @GetMapping("/search-pwd")
-    public void searchPwd() {
+    public void searchPwd() {}
+
+    // 비밀번호 찾기 post
+    @Transactional
+    @PostMapping("/search-pwd")
+    public String searchPwd(SearchPwdRequest req, Model model) {
+       LoginVO loginVO  = service.searchPwd(req);
+       if(loginVO != null){
+           /* 임시 비밀번호 */
+           String newPwd = makePassword(); // 임시 비밀번호 생성
+           req.setUsersPwd(newPwd); // req vo 에 저장
+           service.setNewPwd(req); // req vo 전달
+           model.addAttribute("newPwd", newPwd);
+       }
+        return "/user/find-pwd";
     }
+
 
     // 회원가입
     @GetMapping("/join")
