@@ -1,4 +1,4 @@
-package kr.co.solfood.store;
+package kr.co.solfood.user.store;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package kr.co.solfood.store;
+package kr.co.solfood.user.store;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
