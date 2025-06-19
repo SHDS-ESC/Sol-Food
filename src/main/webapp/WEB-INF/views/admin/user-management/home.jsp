@@ -229,6 +229,10 @@
                     <!-- 사용자 리스트 -->
                     <h2 class="mb-3 text-success">🎭 사용자 관리</h2>
                     <div class="user-card">
+                        <form action="<c:url value='/admin/home/user-management/search'/>" method="get" class="search-bar">
+                            <input type="text" name="query" class="form-control" placeholder="검색">
+                            <button type="submit" class="btn btn-success">검색</button>
+                        </form>
                         <div class="table-responsive">
                             <table class="table align-middle table-hover">
                                 <thead class="table-light">

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.solfood.admin.home.AdminMapper">
+    <select id="getUsers" parameterType="String" resultType="kr.co.solfood.user.login.UserVO">
+        SELECT *
+        FROM users U
+        JOIN department D ON U.department_id = D.department_id
+        WHERE users_name LIKE CONCAT('%', #{query}, '%')
+        ORDER BY users_id DESC
+    </select>
+</mapper>
