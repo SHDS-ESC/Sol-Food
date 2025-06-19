@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 @Data
-public class LoginVO {
+public class UserVO {
     private long usersId;
     private int companyId;
     private int departmentId;
