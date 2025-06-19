@@ -159,6 +159,9 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
                 .excludePathPatterns("/user/native-login")
                 .excludePathPatterns("/user/join")
                 .excludePathPatterns("/user/company/depts")
+                .excludePathPatterns("/user/search-pwd")
+                .excludePathPatterns("/user/find-pwd")
+                .excludePathPatterns("/user/search-id")
                 .excludePathPatterns("/user/kakaoLogin");
 
         registry.addInterceptor(adminLoginInterceptor())
