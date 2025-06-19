@@ -4,15 +4,15 @@ import lombok.Data;
 
 @Data
 public class StoreVO {
-    private int storeId;
-    private String storeName;
-    private String storeAddress;
-    private String storeLatitude;
-    private String storeLongitude;
-    private int storeAvgStar;
-    private String intro;
-    private String mainImage;
-    private String storeCategory;
-    private int storeCapacity;
-    private String storeTel;
+    private int storeId;           // store_id
+    private String storeName;      // store_name
+    private String storeAddress;   // store_address
+    private double storeLatitude;  // store_latitude
+    private double storeLongitude; // store_longitude
+    private int storeAvgstar;      // store_avgstar
+    private String storeIntro;     // store_intro
+    private String storeMainimage; // store_mainimage
+    private String storeCategory;  // store_category
+    private int storeCapacity;     // store_capacity
+    private String storeTel;       // store_tel
 }

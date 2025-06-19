@@ -153,21 +153,21 @@
 
     <!-- ✅ 카테고리 버튼 -->
     <div class="category-scroll">
-        <a href="#" class="btn btn-outline-primary category-btn">전체</a>
-        <a href="#" class="btn btn-outline-primary category-btn">한식</a>
-        <a href="#" class="btn btn-outline-primary category-btn">카페</a>
-        <a href="#" class="btn btn-outline-primary category-btn">패스트푸드</a>
+        <a href="/solfood/user/store" class="btn btn-outline-primary category-btn">전체</a>
+        <a href="/solfood/user/store/category/한식" class="btn btn-outline-primary category-btn">한식</a>
+        <a href="/solfood/user/store/category/카페" class="btn btn-outline-primary category-btn">카페</a>
+        <a href="/solfood/user/store/category/패스트푸드" class="btn btn-outline-primary category-btn">패스트푸드</a>
     </div>
 
     <!-- ✅ 식당 카드 리스트 -->
     <div class="store-grid">
         <c:forEach items="${store}" var="store">
             <div class="store-card">
-                <img src="${store.mainImage}" alt="${store.storeName}" class="store_mainimage">
+                <img src="${store.storeMainimage}" alt="${store.storeName}" class="store_mainimage">
                 <div class="store-body">
                     <div class="store-name">${store.storeName}</div>
                     <div>${store.storeCategory}</div>
-                    <div>⭐별점: ${store.storeAvgStar}</div>
+                    <div>⭐별점: ${store.storeAvgstar}</div>
                     <i class="bi bi-heart like-icon"></i> <!-- 찜 기능 -->
                 </div>
             </div>

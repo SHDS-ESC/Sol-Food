@@ -11,4 +11,7 @@ public interface StoreMapper {
 
     //카테고리별 가게 목록 조회
     List<StoreVO> selectCategoryStore(String category);
+
+    // 가게 ID로 가게 정보 조회
+    StoreVO getStoreById(int storeId);
 }
