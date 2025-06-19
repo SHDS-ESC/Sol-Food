@@ -143,7 +143,7 @@
     <img class="profile-img" src='${userLoginSession.usersProfile }' alt='카카오 프로필 이미지'>
     <div class="nickname">${userLoginSession.usersNickname }님</div>
     <div class="welcome">추가 정보를 입력해주세요</div>
-    <form action="<c:url value="/solfood/user/add-register"/>" method="post">
+    <form action="<c:url value="/user/add-register"/>" method="post">
         <input type="hidden" name="usersId" value="${userLoginSession.usersId}">
         <input type="hidden" name="companyId" value="${userLoginSession.companyId }">
         <input type="hidden" name="departmentId" value="${userLoginSession.departmentId }">
