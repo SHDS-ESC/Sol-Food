@@ -7,9 +7,6 @@ public interface LoginService {
     // 회원 가입 루트 로그인
     LoginVO register(LoginVO vo);
 
-    // 카카오 가입 루트 로그인
-    //LoginVO addRegister(LoginVO vo);
-
     // 카카오 최초 로그인 확인 (소셜 로그인 전용)
     boolean confirmKakaoLoginWithFirst(LoginVO vo);
 }
