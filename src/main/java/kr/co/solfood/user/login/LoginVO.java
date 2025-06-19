@@ -1,6 +1,9 @@
 package kr.co.solfood.user.login;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Data
 public class LoginVO {
@@ -17,8 +20,10 @@ public class LoginVO {
     private String accessToken;
     private long usersKakaoId;
     private String usersTel;
-    private String usersCreatedAt;
-    private String usersUpdatedAt;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Date usersCreatedAt;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private Date usersUpdatedAt;
     private String usersStatus;
     private String usersLoginType;
 }
