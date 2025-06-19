@@ -5,111 +5,184 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>전체 가게 목록</title>
+    <title>식당 목록</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-      body {
-          background-color: #f5d6db; /* 연분홍 배경 */
-          font-family: 'Apple SD Gothic Neo', sans-serif;
-      }
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-      .category-btn {
-          border-radius: 20px;
-          padding: 6px 18px;
-          font-size: 14px;
-          margin: 0 5px 10px 0;
-      }
+    <style>
+        body {
+            margin: 0;
+            background-color: #f5d6db; /* 연분홍 배경 */
+            font-family: 'Apple SD Gothic Neo', sans-serif;
+        }
 
-      .store-card {
-          padding: 10px;
-      }
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-bottom: 80px; /* 하단 바 공간 */
+        }
 
-      .card {
-          border: none;
-          border-radius: 15px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          overflow: hidden;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-      }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
 
-      .card-img-placeholder {
-          background-color: #eee;
-          width: 100%;
-          aspect-ratio: 1 / 1;
-      }
+        .toggle-btns {
+            display: flex;
+            gap: 5px;
+        }
 
-      .card-body {
-          padding: 12px;
-      }
+        .search-bar {
+            padding: 0 15px;
+            margin-top: 10px;
+            display: flex;
+            gap: 5px;
+        }
 
-      .card-title {
-          font-size: 18px;
-          font-weight: bold;
-      }
+        .category-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 15px;
+        }
 
-      .card-text {
-          margin-bottom: 5px;
-          font-size: 14px;
-      }
+        .category-btn {
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 13px;
+            display: inline-block;
+            margin-right: 8px;
+            white-space: nowrap;
+        }
 
-      .like-icon {
-          float: right;
-          font-size: 18px;
-          color: #ff4d6d;
-          cursor: pointer;
-      }
+        .store-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 10px 15px;
+        }
 
-      .bottom-nav {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: white;
-          border-top: 1px solid #ddd;
-          display: flex;
-          justify-content: space-around;
-          padding: 10px 0;
-      }
+        .store-card {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+        }
 
-      .bottom-nav i {
-          font-size: 20px;
-      }
-  </style>
+        .store-img {
+            width: 100%;
+            height: 120px;
+            background-color: #eee;
+            object-fit: cover;
+        }
 
+        .store-body {
+            padding: 10px;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .store-name {
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .like-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ff4d6d;
+            font-size: 16px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 430px;
+            background: #fff;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .bottom-nav a {
+            color: #555;
+            text-decoration: none;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .bottom-nav i {
+            font-size: 20px;
+            display: block;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h2 class="mb-4">전체 가게 목록</h2>
 
-    <!-- ✅ 카테고리 버튼 영역 -->
-    <div class="mb-4">
-        <a href="/solfood/user/store" class="btn btn-outline-primary category-btn">전체</a>
-        <a href="/solfood/user/store/category/한식" class="btn btn-outline-primary category-btn">한식</a>
-        <a href="/solfood/user/store/category/카페" class="btn btn-outline-primary category-btn">카페</a>
-        <a href="/solfood/user/store/category/패스트푸드" class="btn btn-outline-primary category-btn">패스트푸드</a>
+<div class="app-container">
+
+    <!-- ✅ 상단 헤더 -->
+    <div class="header">
+        <div><strong>로고</strong></div>
+        <div class="toggle-btns">
+            <button class="btn btn-outline-secondary btn-sm">지도</button>
+            <button class="btn btn-outline-secondary btn-sm">목록</button>
+        </div>
+        <div><i class="bi bi-list" style="font-size: 20px;"></i></div>
     </div>
 
-    <!-- ✅ 가게 목록 영역 -->
-    <div class="row">
+    <!-- ✅ 검색바 -->
+    <div class="search-bar">
+        <input type="text" class="form-control" placeholder="검색어를 입력해주세요">
+        <button class="btn btn-primary">검색</button>
+    </div>
+
+    <!-- ✅ 카테고리 버튼 -->
+    <div class="category-scroll">
+        <a href="#" class="btn btn-outline-primary category-btn">전체</a>
+        <a href="#" class="btn btn-outline-primary category-btn">한식</a>
+        <a href="#" class="btn btn-outline-primary category-btn">카페</a>
+        <a href="#" class="btn btn-outline-primary category-btn">패스트푸드</a>
+    </div>
+
+    <!-- ✅ 식당 카드 리스트 -->
+    <div class="store-grid">
         <c:forEach items="${store}" var="store">
-            <div class="col-md-4 store-card">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">${store.storeName}</h5>
-                        <p class="card-text">
-                            <span class="badge bg-secondary">${store.storeCategory}</span>
-                        </p>
-                        <p class="card-text">${store.storeAddress}</p>
-                        <p class="card-text">⭐ 평균 평점: ${store.storeAvgStar}</p>
-                        <a href="/store/detail/${store.storeId}" class="btn btn-primary">상세보기</a>
-                    </div>
+            <div class="store-card">
+                <img src="${store.mainImage}" alt="${store.storeName}" class="store_mainimage">
+                <div class="store-body">
+                    <div class="store-name">${store.storeName}</div>
+                    <div>${store.storeCategory}</div>
+                    <div>⭐별점: ${store.storeAvgStar}</div>
+                    <i class="bi bi-heart like-icon"></i> <!-- 찜 기능 -->
                 </div>
             </div>
         </c:forEach>
     </div>
 </div>
+
+<!-- ✅ 하단바 -->
+<div class="bottom-nav">
+    <a href="#"><i class="bi bi-house"></i>홈</a>
+    <a href="#"><i class="bi bi-list-check"></i>리스트</a>
+    <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
+    <a href="#"><i class="bi bi-heart-fill"></i>찜</a>
+    <a href="#"><i class="bi bi-person-circle"></i>마이</a>
+</div>
+
 </body>
 </html>
