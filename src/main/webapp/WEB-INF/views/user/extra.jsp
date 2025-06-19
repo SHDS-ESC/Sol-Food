@@ -145,8 +145,6 @@
     <div class="welcome">추가 정보를 입력해주세요</div>
     <form action="<c:url value="/user/extra"/>" method="post">
         <input type="hidden" name="usersId" value="${userLoginSession.usersId}">
-        <input type="hidden" name="companyId" value="${userLoginSession.companyId }">
-        <input type="hidden" name="departmentId" value="${userLoginSession.departmentId }">
         <input type="hidden" name="usersEmail" value="${userLoginSession.usersEmail }">
         <input type="hidden" name="usersProfile" value="${userLoginSession.usersProfile }">
         <input type="hidden" name="usersNickname" value="${userLoginSession.usersNickname }">
