@@ -27,6 +27,12 @@ public class OwnerLoginController {
     @Autowired
     private ServerProperties serverProperties;
 
+    // 오너 루트 경로 - index 페이지로 리다이렉트
+    @GetMapping("/")
+    public String root() {
+        return "redirect:/owner/index";
+    }
+
     // 유저 로그인 페이지
     @GetMapping("/login")
     public void login(Model model) {
@@ -39,4 +45,14 @@ public class OwnerLoginController {
 
     @GetMapping("/home")
     public void home(Model model) {}
+
+        
+    // 오너 대시보드 메인 페이지
+    @GetMapping("/index")
+    public String index(Model model) {
+        // 여기에 필요한 데이터를 모델에 추가할 수 있습니다
+        model.addAttribute("ownerName", "관리자님");
+        model.addAttribute("restaurantName", "Sol Food");
+        return "owner/index";
+    }
 }
