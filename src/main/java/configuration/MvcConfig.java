@@ -19,6 +19,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.*;
+import util.Interceptor;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -156,6 +157,9 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
         registry.addInterceptor(userLoginInterceptor())
                 .addPathPatterns("/user/**")
                 .excludePathPatterns("/user/login")
+                .excludePathPatterns("/user/native-login")
+                .excludePathPatterns("/user/join")
+                .excludePathPatterns("/user/company/depts")
                 .excludePathPatterns("/user/kakaoLogin");
 
         registry.addInterceptor(adminLoginInterceptor())

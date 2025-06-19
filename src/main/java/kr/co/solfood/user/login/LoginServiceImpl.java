@@ -13,6 +13,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -129,6 +130,24 @@ public class LoginServiceImpl implements LoginService {
         }
         vo.setUsersUpdatedAt(LocalDate.now().toString());
         return false;
+    }
+
+    // 회사 리스트 가져오기
+    @Override
+    public List<CompanyVO> getCompanyList() {
+        return mapper.selectAllCompanies();
+    }
+
+    // 회사 > 부서 리스트 가져오기
+    @Override
+    public List<DepartmentVO> getDepartmentsByCompanyId(int companyId) {
+        return mapper.getDepartmentsByCompanyId(companyId);
+    }
+
+    // 로그인
+    @Override
+    public LoginVO nativeLogin(LoginRequest req) {
+        return mapper.selectUser(req);
     }
 
 }
