@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/review")
+@RequestMapping("/user")
 public class ReviewController {
     
     @Autowired
@@ -31,14 +31,14 @@ public class ReviewController {
     @GetMapping("/list")
     public String reviewList(@RequestParam(required = false) Integer storeId, Model model) {
         if (storeId == null) {
-            return "redirect:/review/list?storeId=1";
+            return "redirect:/user/list?storeId=1";
         }
         
         // 가게 정보 조회
         StoreVO store = reviewService.getStoreById(storeId);
         if (store == null) {
             // 가게 정보가 없으면 1번 가게로 리다이렉트
-            return "redirect:/review/list?storeId=1";
+            return "redirect:/user/list?storeId=1";
         }
         
         // 해당 가게의 리뷰 목록 조회
@@ -91,7 +91,7 @@ public class ReviewController {
         try {
             reviewService.registerReview(review);
             System.out.println("리뷰 등록 성공: " + review.getReviewTitle());
-            return "redirect:/review/list?storeId=" + review.getStoreId();
+            return "redirect:/user/list?storeId=" + review.getStoreId();
         } catch (Exception e) {
             System.err.println("리뷰 등록 실패: " + e.getMessage());
             e.printStackTrace();
@@ -137,7 +137,7 @@ public class ReviewController {
         System.out.println("=== 리뷰 수정 요청 받음: " + review.getReviewId() + " ===");
         try {
             reviewService.updateReview(review);
-            return "redirect:/review/detail/" + review.getReviewId();
+            return "redirect:/user/detail/" + review.getReviewId();
         } catch (Exception e) {
             System.err.println("리뷰 수정 실패: " + e.getMessage());
             e.printStackTrace();
@@ -155,7 +155,7 @@ public class ReviewController {
             Integer storeId = review != null ? review.getStoreId() : 1;
             
             reviewService.deleteReview(reviewId);
-            return "redirect:/review/list?storeId=" + storeId;
+            return "redirect:/user/list?storeId=" + storeId;
         } catch (Exception e) {
             System.err.println("리뷰 삭제 실패: " + e.getMessage());
             e.printStackTrace();
