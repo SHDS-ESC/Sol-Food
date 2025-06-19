@@ -1,4 +1,4 @@
-package kr.co.solfood.user.store;
+package kr.co.solfood.user.menu;
 
 import lombok.Data;
 

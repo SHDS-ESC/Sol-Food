@@ -1,7 +1,8 @@
 package kr.co.solfood.user.review;
 
 import configuration.KakaoProperties;
-import kr.co.solfood.user.store.MenuVO;
+import kr.co.solfood.user.menu.MenuVO;
+import kr.co.solfood.user.menu.MenuService;
 import kr.co.solfood.user.store.StoreVO;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class ReviewController {
     
     @Autowired
     private ReviewService reviewService;
+    
+    @Autowired
+    private MenuService menuService;
     
     @Autowired
     private KakaoProperties kakaoProperties;
@@ -70,7 +74,7 @@ public class ReviewController {
         model.addAttribute("starCounts", starCounts);
         
         // 해당 가게의 메뉴 목록 조회
-        List<MenuVO> menuList = reviewService.getMenusByStoreId(storeId);
+        List<MenuVO> menuList = menuService.getMenusByStoreId(storeId);
         model.addAttribute("menuList", menuList);
         
         return "review/reviewList";
