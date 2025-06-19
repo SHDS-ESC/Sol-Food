@@ -152,4 +152,17 @@ public class LoginServiceImpl implements LoginService {
         return mapper.selectUser(req);
     }
 
+    // 비밀번호 찾기
+    @Override
+    public LoginVO searchPwd(SearchPwdRequest req) {
+        return mapper.searchPwd(req);
+    }
+
+    // 비밀번호 찾기 > 새로운 비밀번호 저장
+    @Override
+    public void setNewPwd(SearchPwdRequest req) {
+        mapper.setNewPwd(req);
+    }
+
+
 }

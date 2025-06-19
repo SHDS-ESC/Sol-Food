@@ -20,4 +20,10 @@ public interface LoginService {
 
     // 자체로그인
     LoginVO nativeLogin(LoginRequest req);
+
+    // 비밀번호 찾기
+    LoginVO searchPwd(SearchPwdRequest req);
+
+    // 비밀번호 찾기 > 새로운 비밀번호 저장
+    void setNewPwd(SearchPwdRequest req);
 }
