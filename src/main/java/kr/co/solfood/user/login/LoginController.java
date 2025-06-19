@@ -59,7 +59,7 @@ public class LoginController {
     @PostMapping("/add-register")
     public String addRegister(LoginVO kakaoAddVO, HttpSession sess) {
         LoginVO loginVO = service.register(kakaoAddVO);
-        sess.setAttribute("user", loginVO);
+        sess.setAttribute("userLoginSession", loginVO);
         return "redirect:mypage";
     }
 
