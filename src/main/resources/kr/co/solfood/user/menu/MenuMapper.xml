@@ -15,7 +15,7 @@
             menu_intro menuIntro
         FROM menu 
         WHERE store_id = #{storeId}
-        ORDER BY menu_price ASC
+        ORDER BY store_id ASC
     </select>
 
     <!-- 메뉴 상세 조회 -->

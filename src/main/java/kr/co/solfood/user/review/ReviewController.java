@@ -83,7 +83,6 @@ public class ReviewController {
     // 리뷰 작성 페이지
     @GetMapping("/write")
     public String reviewWriteForm(Model model) {
-        System.out.println("=== 리뷰 작성 페이지 요청 받음 ===");
         model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
         return "review/reviewWrite";
     }
@@ -91,13 +90,12 @@ public class ReviewController {
     // 리뷰 작성 처리
     @PostMapping("/write")
     public String reviewWrite(@ModelAttribute ReviewVO review) {
-        System.out.println("=== 리뷰 작성 요청 받음 ===");
         try {
             reviewService.registerReview(review);
             System.out.println("리뷰 등록 성공: " + review.getReviewTitle());
             return "redirect:/user/list?storeId=" + review.getStoreId();
         } catch (Exception e) {
-            System.err.println("리뷰 등록 실패: " + e.getMessage());
+            System.out.println("리뷰 등록 실패: " + e.getMessage());
             e.printStackTrace();
             return "error";
         }
@@ -106,14 +104,13 @@ public class ReviewController {
     // 리뷰 상세 보기
     @GetMapping("/detail/{reviewId}")
     public String reviewDetail(@PathVariable Integer reviewId, Model model) {
-        System.out.println("=== 리뷰 상세 요청 받음: " + reviewId + " ===");
         try {
             ReviewVO review = reviewService.getReviewById(reviewId);
             model.addAttribute("review", review);
             model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
             return "review/reviewDetail";
         } catch (Exception e) {
-            System.err.println("리뷰 상세 조회 실패: " + e.getMessage());
+            System.out.println("리뷰 상세 조회 실패: " + e.getMessage());
             e.printStackTrace();
             return "error";
         }
@@ -122,14 +119,13 @@ public class ReviewController {
     // 리뷰 수정 페이지
     @GetMapping("/edit/{reviewId}")
     public String reviewEditForm(@PathVariable Integer reviewId, Model model) {
-        System.out.println("=== 리뷰 수정 페이지 요청 받음: " + reviewId + " ===");
         try {
             ReviewVO review = reviewService.getReviewById(reviewId);
             model.addAttribute("review", review);
             model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
             return "review/reviewEdit";
         } catch (Exception e) {
-            System.err.println("리뷰 수정 페이지 조회 실패: " + e.getMessage());
+            System.out.println("리뷰 수정 페이지 조회 실패: " + e.getMessage());
             e.printStackTrace();
             return "error";
         }
@@ -138,12 +134,11 @@ public class ReviewController {
     // 리뷰 수정 처리
     @PostMapping("/edit")
     public String reviewEdit(@ModelAttribute ReviewVO review) {
-        System.out.println("=== 리뷰 수정 요청 받음: " + review.getReviewId() + " ===");
         try {
             reviewService.updateReview(review);
             return "redirect:/user/detail/" + review.getReviewId();
         } catch (Exception e) {
-            System.err.println("리뷰 수정 실패: " + e.getMessage());
+            System.out.println("리뷰 수정 실패: " + e.getMessage());
             e.printStackTrace();
             return "error";
         }
@@ -152,7 +147,6 @@ public class ReviewController {
     // 리뷰 삭제
     @PostMapping("/delete/{reviewId}")
     public String reviewDelete(@PathVariable Integer reviewId) {
-        System.out.println("=== 리뷰 삭제 요청 받음: " + reviewId + " ===");
         try {
             // 삭제 전에 해당 리뷰의 storeId를 조회
             ReviewVO review = reviewService.getReviewById(reviewId);
@@ -161,7 +155,7 @@ public class ReviewController {
             reviewService.deleteReview(reviewId);
             return "redirect:/user/list?storeId=" + storeId;
         } catch (Exception e) {
-            System.err.println("리뷰 삭제 실패: " + e.getMessage());
+            System.out.println("리뷰 삭제 실패: " + e.getMessage());
             e.printStackTrace();
             return "error";
         }
@@ -170,7 +164,6 @@ public class ReviewController {
     // 식당명으로 리뷰 검색 (임시: 리뷰 제목으로 검색)
     @GetMapping("/search")
     public String reviewSearch(@RequestParam String reviewTitle, Model model) {
-        System.out.println("=== 리뷰 검색 요청 받음: " + reviewTitle + " ===");
         try {
             // 예시: 제목으로 검색 (실제 구현에 맞게 수정 필요)
             List<ReviewVO> reviewList = reviewService.getReviewsByTitle(reviewTitle);
@@ -179,7 +172,7 @@ public class ReviewController {
             model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
             return "review/reviewList";
         } catch (Exception e) {
-            System.err.println("리뷰 검색 실패: " + e.getMessage());
+            System.out.println("리뷰 검색 실패: " + e.getMessage());
             e.printStackTrace();
             return "error";
         }
