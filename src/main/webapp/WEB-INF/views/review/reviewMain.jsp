@@ -86,8 +86,8 @@
   <p class="subtitle">맛집 리뷰 시스템에 오신 것을 환영합니다!</p>
 
   <div>
-    <a href="${pageContext.request.contextPath}/review/list" class="btn">📋 리뷰 목록 보기</a>
-    <a href="${pageContext.request.contextPath}/review/write" class="btn">✏️ 리뷰 작성하기</a>
+    <a href="${pageContext.request.contextPath}/user/list" class="btn">📋 리뷰 목록 보기</a>
+    <a href="${pageContext.request.contextPath}/user/write" class="btn">✏️ 리뷰 작성하기</a>
   </div>
 
   <div class="features">
