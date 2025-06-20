@@ -21,7 +21,6 @@
 </body>
 </html>
 
-->
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -439,92 +438,7 @@
       background: #16a34a;
     }
 
-    /* 주문 사이드바 (오른쪽) */
-    .order-sidebar {
-      width: 300px;
-      background: white;
-      border-left: 1px solid #eee;
-      padding: 20px;
-      position: fixed;
-      right: 0;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      z-index: 999;
-    }
 
-    .order-header {
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #eee;
-    }
-
-    .order-header h3 {
-      font-size: 1.2rem;
-      margin-bottom: 5px;
-    }
-
-    .order-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    .order-item:last-child {
-      border-bottom: none;
-    }
-
-    .order-total {
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 2px solid #eee;
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    .checkout-btn {
-      width: 100%;
-      background: #22c55e;
-      color: white;
-      border: none;
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 20px;
-      transition: background 0.3s ease;
-    }
-
-    .checkout-btn:hover {
-      background: #16a34a;
-    }
-
-    /* 반응형 */
-    @media (max-width: 768px) {
-      .main-content {
-        margin-left: 0;
-      }
-
-      .sidebar {
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-      }
-
-      .sidebar.active {
-        transform: translateX(0);
-      }
-
-      .order-sidebar {
-        display: none;
-      }
-
-      .menu-grid {
-        grid-template-columns: 1fr;
-      }
-    }
   </style>
 </head>
 <body>
@@ -537,9 +451,9 @@
     </div>
     <ul class="sidebar-menu">
       <li>
-        <a href="#" class="active" data-tab="overview">
-          <span class="icon">📊</span>
-          <span>개요</span>
+        <a href="#" data-tab="store" data-tab="overview">
+          <span class="icon">📅</span>
+          <span>상점 관리</span>
         </a>
       </li>
       <li>
@@ -548,22 +462,22 @@
           <span>메뉴 관리</span>
         </a>
       </li>
-      <li>
+      <%--<li>
         <a href="#" data-tab="orders">
           <span class="icon">📋</span>
-          <span>주문 관리</span>
+          <span>예약 관리</span>
         </a>
-      </li>
+      </li>--%>
       <li>
-        <a href="#" data-tab="calendar">
-          <span class="icon">📅</span>
-          <span>일정 관리</span>
+        <a href="#" class="active" >
+          <span class="icon">📊</span>
+          <span>매출 관리</span>
         </a>
       </li>
       <li>
         <a href="#" data-tab="testimonials">
           <span class="icon">💬</span>
-          <span>고객 후기</span>
+          <span>리뷰 관리</span>
         </a>
       </li>
       <li>
@@ -579,12 +493,12 @@
   <main class="main-content">
     <!-- 헤더 -->
     <header class="header">
-      <h1 class="header-title">메뉴 관리</h1>
+      <h1 class="header-title"></h1>
       <div class="header-actions">
         <div class="user-info">
           <div class="user-avatar">관</div>
           <div class="user-details">
-              <h4><c:out value="${ownerName}" default="관리자님"/></h4>
+              <h4>${ownerLoginSession.ownerEmail}</h4>
               <p>레스토랑 오너</p>
           </div>
         </div>
@@ -618,43 +532,6 @@
     </section>
   </main>
 
-  <!-- 주문 사이드바 (오른쪽) -->
-  <aside class="order-sidebar">
-    <div class="order-header">
-      <h3>My Order</h3>
-      <p>📍 서울특별시 강남구</p>
-    </div>
-    <div id="orderItems">
-      <div class="order-item">
-        <div>
-          <div style="font-weight: 600;">Beef soup</div>
-          <div style="color: #666; font-size: 0.9rem;">1x</div>
-        </div>
-        <div style="font-weight: 600;">$8.99</div>
-      </div>
-      <div class="order-item">
-        <div>
-          <div style="font-weight: 600;">Noodle salad</div>
-          <div style="color: #666; font-size: 0.9rem;">1x</div>
-        </div>
-        <div style="font-weight: 600;">$6.50</div>
-      </div>
-      <div class="order-item">
-        <div>
-          <div style="font-weight: 600;">Fried vegetables</div>
-          <div style="color: #666; font-size: 0.9rem;">1x</div>
-        </div>
-        <div style="font-weight: 600;">$4.99</div>
-      </div>
-    </div>
-    <div class="order-total">
-      <div style="display: flex; justify-content: space-between;">
-        <span>Total</span>
-        <span>$15.48</span>
-      </div>
-    </div>
-    <button class="checkout-btn">Checkout</button>
-  </aside>
 </div>
 
 <!-- 메뉴 추가/수정 모달 -->
@@ -699,7 +576,7 @@
   </div>
 </div>
 
-<script>
+<%--<script>
   // 메뉴 데이터
   let menus = [
     {
@@ -914,6 +791,6 @@
       closeModal();
     }
   }
-</script>
+</script>--%>
 </body>
 </html>
