@@ -32,7 +32,7 @@ public class LoginServiceImpl implements LoginService {
 
     // 액세스 토큰 확인 후 VO 반환
     @Override
-    public LoginVO confirmAccessToken(String code) {
+    public UserVO confirmAccessToken(String code) {
         // 1. 토큰 요청
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -97,8 +97,8 @@ public class LoginServiceImpl implements LoginService {
             nickname = profile.optString("nickname", "");
         }
 
-        // 5. LoginVO 생성
-        LoginVO vo = new LoginVO();
+        // 5. UserVO 생성
+        UserVO vo = new UserVO();
         vo.setUsersNickname(nickname);
         vo.setCompanyId(0);
         vo.setDepartmentId(0);
@@ -114,7 +114,7 @@ public class LoginServiceImpl implements LoginService {
 
     // 회원 가입 루트 로그인
     @Override
-    public LoginVO register(LoginVO vo) {
+    public UserVO register(UserVO vo) {
         vo.setUsersCreatedAt(new Date());
         vo.setUsersUpdatedAt(new Date());
         int result = mapper.register(vo);
@@ -126,7 +126,7 @@ public class LoginServiceImpl implements LoginService {
 
     // 카카오 최초 로그인 확인 (소셜 로그인 전용)
     @Override
-    public boolean confirmKakaoLoginWithFirst(LoginVO vo) {
+    public boolean confirmKakaoLoginWithFirst(UserVO vo) {
         if (vo.getUsersCreatedAt() == null) {
             return true;
         }
@@ -148,13 +148,13 @@ public class LoginServiceImpl implements LoginService {
 
     // 로그인
     @Override
-    public LoginVO nativeLogin(LoginRequest req) {
+    public UserVO nativeLogin(LoginRequest req) {
         return mapper.selectUser(req);
     }
 
     // 비밀번호 찾기
     @Override
-    public LoginVO searchPwd(SearchPwdRequest req) {
+    public UserVO searchPwd(SearchPwdRequest req) {
         return mapper.searchPwd(req);
     }
 
