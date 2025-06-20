@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -84,11 +86,11 @@
             gap: 10px;
         }
 
-        .form-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
+        /*.form-row {*/
+        /*    display: flex;*/
+        /*    gap: 15px;*/
+        /*    margin-bottom: 15px;*/
+        /*}*/
 
         .form-group {
             flex: 1;
@@ -269,7 +271,8 @@
             <span class="register-type">오너 회원가입</span>
         </div>
 
-        <form id="registerForm" action="${pageContext.request.contextPath}/owner/register" method="post" enctype="multipart/form-data">
+        <form id="registerForm" action="<c:url value="/owner/register"/>" method="post" >
+            <input type="hidden" name="ownerStatus" value="활성">
             <!-- 개인정보 섹션 -->
             <div class="form-section">
                 <h3 class="section-title">
@@ -279,13 +282,13 @@
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="ownerId">아이디 *</label>
-                        <input type="text" id="ownerId" name="ownerId" placeholder="6~20자의 영문, 숫자" required>
-                        <div class="validation-message" id="idValidation"></div>
+                        <label for="ownerEmail">이메일 *</label>
+                        <input type="email" id="ownerEmail" name="ownerEmail" placeholder="example@email.com" required>
+                        <div class="validation-message" id="emailValidation"></div>
                     </div>
                     <div class="form-group">
                         <label for="ownerPassword">비밀번호 *</label>
-                        <input type="password" id="ownerPassword" name="ownerPassword" placeholder="8자 이상 영문, 숫자, 특수문자" required>
+                        <input type="password" id="ownerPassword" name="ownerPwd" placeholder="8자 이상 영문, 숫자, 특수문자" required>
                         <div class="validation-message" id="passwordValidation"></div>
                     </div>
                 </div>
@@ -293,30 +296,25 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="passwordConfirm">비밀번호 확인 *</label>
-                        <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
+                        <input type="password" id="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
                         <div class="validation-message" id="passwordConfirmValidation"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="ownerName">이름 *</label>
-                        <input type="text" id="ownerName" name="ownerName" placeholder="실명을 입력하세요" required>
-                    </div>
+<%--                    <div class="form-group">--%>
+<%--                        <label for="ownerName">이름 *</label>--%>
+<%--                        <input type="text" id="ownerName" name="ownerName" placeholder="실명을 입력하세요" required>--%>
+<%--                    </div>--%>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="ownerEmail">이메일 *</label>
-                        <input type="email" id="ownerEmail" name="ownerEmail" placeholder="example@email.com" required>
-                        <div class="validation-message" id="emailValidation"></div>
-                    </div>
-                    <div class="form-group">
                         <label for="ownerPhone">연락처 *</label>
-                        <input type="tel" id="ownerPhone" name="ownerPhone" placeholder="010-0000-0000" required>
+                        <input type="tel" id="ownerPhone" name="ownerTel" placeholder="010-0000-0000" required>
                     </div>
                 </div>
             </div>
 
             <!-- 레스토랑 정보 섹션 -->
-            <div class="form-section">
+            <%--<div class="form-section">
                 <h3 class="section-title">
                     <span>🏪</span>
                     레스토랑 정보
@@ -374,10 +372,10 @@
                     </div>
                     <div class="file-preview" id="imagePreview"></div>
                 </div>
-            </div>
+            </div>--%>
 
             <!-- 운영정보 섹션 -->
-            <div class="form-section">
+            <%--<div class="form-section">
                 <h3 class="section-title">
                     <span>⏰</span>
                     운영정보
@@ -408,11 +406,11 @@
                     </select>
                 </div>
             </div>
-
+--%>
             <!-- 약관동의 -->
             <div class="form-section">
                 <div class="checkbox-group">
-                    <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                    <input type="checkbox" id="agreeTerms"  required>
                     <label for="agreeTerms">
                         <strong>[필수]</strong> 이용약관 및 개인정보처리방침에 동의합니다.<br>
                         Sol Food 서비스 이용약관과 개인정보 수집·이용에 대한 안내를 모두 읽고 동의합니다.
@@ -420,7 +418,7 @@
                 </div>
 
                 <div class="checkbox-group">
-                    <input type="checkbox" id="agreeMarketing" name="agreeMarketing">
+                    <input type="checkbox" id="agreeMarketing" >
                     <label for="agreeMarketing">
                         [선택] 마케팅 정보 수신에 동의합니다.<br>
                         새로운 서비스, 이벤트 정보 등을 SMS, 이메일로 받아보시겠습니까?
@@ -441,36 +439,22 @@
 
     <script>
         $(document).ready(function() {
-            // 아이디 유효성 검사
-            $('#ownerId').on('input', function() {
-                const id = $(this).val();
-                const regex = /^[a-zA-Z0-9]{6,20}$/;
-                
-                if (id.length === 0) {
-                    $('#idValidation').text('');
-                } else if (!regex.test(id)) {
-                    $('#idValidation').text('6~20자의 영문, 숫자만 사용 가능합니다.');
-                } else {
-                    $('#idValidation').text('사용 가능한 아이디입니다.').addClass('success');
-                }
-                checkFormValid();
-            });
 
             // 비밀번호 유효성 검사
-            $('#ownerPassword').on('input', function() {
-                const password = $(this).val();
-                const regex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
-                
-                if (password.length === 0) {
-                    $('#passwordValidation').text('');
-                } else if (!regex.test(password)) {
-                    $('#passwordValidation').text('8자 이상, 영문+숫자+특수문자를 포함해야 합니다.');
-                } else {
-                    $('#passwordValidation').text('사용 가능한 비밀번호입니다.').addClass('success');
-                }
-                checkPasswordMatch();
-                checkFormValid();
-            });
+            // $('#ownerPassword').on('input', function() {
+            //     const password = $(this).val();
+            //     const regex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+            //
+            //     if (password.length === 0) {
+            //         $('#passwordValidation').text('');
+            //     } else if (!regex.test(password)) {
+            //         $('#passwordValidation').text('8자 이상, 영문+숫자+특수문자를 포함해야 합니다.');
+            //     } else {
+            //         $('#passwordValidation').text('사용 가능한 비밀번호입니다.').addClass('success');
+            //     }
+            //     checkPasswordMatch();
+            //     checkFormValid();
+            // });
 
             // 비밀번호 확인 검사
             $('#passwordConfirm').on('input', function() {
@@ -539,8 +523,8 @@
                 });
 
                 // 유효성 검사 통과 여부 확인
-                if ($('#idValidation').hasClass('success') &&
-                    $('#passwordValidation').hasClass('success') &&
+                if (
+                    // $('#passwordValidation').hasClass('success') &&
                     $('#passwordConfirmValidation').hasClass('success') &&
                     $('#emailValidation').hasClass('success') &&
                     $('#agreeTerms').is(':checked') &&
