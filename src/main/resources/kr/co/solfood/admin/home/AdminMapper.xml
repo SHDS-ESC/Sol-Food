@@ -6,6 +6,6 @@
         FROM users U
         JOIN department D ON U.department_id = D.department_id
         WHERE users_name LIKE CONCAT('%', #{query}, '%')
-        ORDER BY users_id DESC
+        ORDER BY users_id
     </select>
 </mapper>

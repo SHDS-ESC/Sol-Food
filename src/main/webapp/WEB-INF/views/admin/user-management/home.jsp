@@ -33,6 +33,24 @@
                     color: var(--text-color);
                 }
 
+                /* 성별 스타일 */
+                .gender-badge {
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 0.5rem;
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                }
+
+                .gender-male {
+                    background-color: #cce5ff;
+                    color: #004085;
+                }
+
+                .gender-female {
+                    background-color: #ffe6f0;
+                    color: #6f1b47;
+                }
+
                 .side-menu {
                     width: 240px;
                     height: 100vh;
@@ -147,6 +165,10 @@
                     border: 1px solid #adb5bd;
                 }
 
+                .table {
+                    text-align: center;
+                }
+
                 .table thead th {
                     background: #e6f4ea;
                     color: #198754;
@@ -229,7 +251,8 @@
                     <!-- 사용자 리스트 -->
                     <h2 class="mb-3 text-success">🎭 사용자 관리</h2>
                     <div class="user-card">
-                        <form action="<c:url value='/admin/home/user-management/search'/>" method="get" class="search-bar">
+                        <form action="<c:url value='/admin/home/user-management/search'/>" method="get"
+                            class="search-bar">
                             <input type="text" name="query" class="form-control" placeholder="검색">
                             <button type="submit" class="btn btn-success">검색</button>
                         </form>
@@ -259,8 +282,14 @@
                                                         <img src="${user.usersProfile}" class="user-avatar" alt="프로필">
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <div class="user-avatar" style="background:#e9ecef;display:flex;align-items:center;justify-content:center;">
-                                                            <svg width="24" height="24" fill="#adb5bd" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/></svg>
+                                                        <div class="user-avatar"
+                                                            style="background:#e9ecef;display:flex;align-items:center;justify-content:center;">
+                                                            <svg width="24" height="24" fill="#adb5bd"
+                                                                viewBox="0 0 24 24">
+                                                                <circle cx="12" cy="8" r="4" />
+                                                                <path
+                                                                    d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z" />
+                                                            </svg>
                                                         </div>
                                                     </c:otherwise>
                                                 </c:choose>
@@ -279,14 +308,29 @@
                                                         <span class="login-label login-label-native">네이티브</span>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <span class="login-label login-label-web">${user.usersLoginType}</span>
+                                                        <span
+                                                            class="login-label login-label-web">${user.usersLoginType}</span>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
                                             <td>${user.usersEmail}</td>
                                             <td>${user.departmentName}</td>
                                             <td>${user.usersBirth}</td>
-                                            <td>${user.usersGender}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when
+                                                        test="${user.usersGender eq '남성' or user.usersGender eq '남'}">
+                                                        <span class="gender-badge gender-male">남성</span>
+                                                    </c:when>
+                                                    <c:when
+                                                        test="${user.usersGender eq '여성' or user.usersGender eq '여'}">
+                                                        <span class="gender-badge gender-female">여성</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="text-muted">-</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
                                             <td>${user.usersStatus}</td>
                                         </tr>
                                     </c:forEach>
