@@ -3,7 +3,7 @@ package kr.co.solfood.user.login;
 import lombok.Data;
 
 @Data
-public class LoginVO {
+public class UserVO {
     private long usersId;
     private int companyId;
     private int departmentId;
@@ -19,5 +19,8 @@ public class LoginVO {
     private String usersCreatedAt;
     private String usersUpdatedAt;
     private String usersStatus;
+    private String usersBirth;
     private String usersLoginType;
+    private String companyName; // 부서 이름
+    private String departmentName;
 }
