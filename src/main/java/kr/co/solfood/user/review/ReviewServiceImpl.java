@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.solfood.user.store.MenuMapper;
-import kr.co.solfood.user.store.MenuVO;
 import kr.co.solfood.user.store.StoreMapper;
 import kr.co.solfood.user.store.StoreVO;
 
@@ -22,9 +20,6 @@ public class ReviewServiceImpl implements ReviewService {
     
     @Autowired
     private StoreMapper storeMapper;
-    
-    @Autowired
-    private MenuMapper menuMapper;
     
     @Override
     public List<ReviewVO> getReviewList() {
@@ -102,10 +97,5 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public Map<String, Object> getStarCountsByStoreId(Integer storeId) {
         return reviewMapper.selectStarCountsByStoreId(storeId);
-    }
-    
-    @Override
-    public List<MenuVO> getMenusByStoreId(Integer storeId) {
-        return menuMapper.getMenusByStoreId(storeId);
     }
 }

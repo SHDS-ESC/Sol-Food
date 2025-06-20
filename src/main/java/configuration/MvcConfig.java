@@ -124,10 +124,6 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
         SqlSessionFactoryBean ssf = new SqlSessionFactoryBean();
         ssf.setDataSource(dataSource());
 
-        // XML 매퍼 파일들의 위치 설정 (kr/co/solfood 패키지 하위만 스캔)
-//        PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-//        ssf.setMapperLocations(resolver.getResources("classpath*:kr/co/solfood/**/*.xml"));
-
         // VO 클래스의 필드명과 MaridDB의 컬럼명을 일치 (VO는 camelCase, DB는 snake_case)
         org.apache.ibatis.session.Configuration config = new org.apache.ibatis.session.Configuration();
         config.setMapUnderscoreToCamelCase(true); // underscores → camelCase

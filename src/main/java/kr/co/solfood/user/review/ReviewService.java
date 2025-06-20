@@ -3,7 +3,6 @@ package kr.co.solfood.user.review;
 import java.util.List;
 import java.util.Map;
 
-import kr.co.solfood.user.store.MenuVO;
 import kr.co.solfood.user.store.StoreVO;
 
 public interface ReviewService {
@@ -51,7 +50,4 @@ public interface ReviewService {
     
     // 특정 가게의 별점별 개수 조회
     Map<String, Object> getStarCountsByStoreId(Integer storeId);
-    
-    // 가게별 메뉴 목록 조회
-    List<MenuVO> getMenusByStoreId(Integer storeId);
 }
