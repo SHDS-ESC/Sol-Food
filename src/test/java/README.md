@@ -5,7 +5,7 @@
 ### 1. SimpleLoginTest.java
 - **목적**: Mockito 없이 JUnit 5만 사용하는 기본적인 테스트
 - **테스트 내용**:
-  - LoginVO, LoginRequest, SearchPwdRequest 객체 생성 및 기본값 설정
+  - UserVO, LoginRequest, SearchPwdRequest 객체 생성 및 기본값 설정
   - 날짜 설정 테스트
   - 다양한 로그인 타입 테스트 (ParameterizedTest 사용)
   - 카카오 ID 설정 테스트
