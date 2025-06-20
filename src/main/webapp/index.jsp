@@ -370,6 +370,12 @@
                 <a href="#features" class="btn btn-secondary">
                     <i class="fas fa-info-circle"></i> 자세히 보기
                 </a>
+                <a href = "<c:url value = "user/main"/>" class = "btn btn-primary">
+                    <i class = "fas fa-user"></i> 리뷰 메인 페이지
+                </a>
+                <a href = "<c:url value = "user/store"/>" class = "btn btn-primary">
+                    <i class = "fas fa-user"></i> 상점 메인 페이지
+                </a>
             </div>
         </div>
     </section>
