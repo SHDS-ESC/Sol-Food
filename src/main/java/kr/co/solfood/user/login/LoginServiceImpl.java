@@ -13,8 +13,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -86,9 +84,8 @@ public class LoginServiceImpl implements LoginService {
         String email = kakaoAccount.optString("email", "");
         JSONObject profile;
         // 기본 프로필 이미지와 닉네임 설정
-        String profileImage = "https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800";
-        int num = (int) (Math.random() * 99) + 1; // 랜덤 숫자 생성
-        String nickname = "익명의 사용자" + num; // 기본 닉네임 설정
+        String profileImage = "https://cdn2.ppomppu.co.kr/zboard/data3/2022/0509/m_20220509173224_d9N4ZGtBVR.jpeg";
+        String nickname = "비동의"; // 기본 닉네임 설정
 
         // "profile" 키가 존재하는지 확인하고 처리
         if (kakaoAccount.has("profile")) {
@@ -115,8 +112,8 @@ public class LoginServiceImpl implements LoginService {
     // 회원 가입 루트 로그인
     @Override
     public LoginVO register(LoginVO vo) {
-        vo.setUsersCreatedAt(new Date());
-        vo.setUsersUpdatedAt(new Date());
+        vo.setUsersCreatedAt(LocalDate.now().toString());
+        vo.setUsersUpdatedAt(LocalDate.now().toString());
         int result = mapper.register(vo);
         if (result > 0) {
             return vo; // 등록 성공 시, 등록된 사용자 정보 반환
@@ -130,39 +127,8 @@ public class LoginServiceImpl implements LoginService {
         if (vo.getUsersCreatedAt() == null) {
             return true;
         }
-        vo.setUsersUpdatedAt(new Date());
+        vo.setUsersUpdatedAt(LocalDate.now().toString());
         return false;
     }
-
-    // 회사 리스트 가져오기
-    @Override
-    public List<CompanyVO> getCompanyList() {
-        return mapper.selectAllCompanies();
-    }
-
-    // 회사 > 부서 리스트 가져오기
-    @Override
-    public List<DepartmentVO> getDepartmentsByCompanyId(int companyId) {
-        return mapper.getDepartmentsByCompanyId(companyId);
-    }
-
-    // 로그인
-    @Override
-    public LoginVO nativeLogin(LoginRequest req) {
-        return mapper.selectUser(req);
-    }
-
-    // 비밀번호 찾기
-    @Override
-    public LoginVO searchPwd(SearchPwdRequest req) {
-        return mapper.searchPwd(req);
-    }
-
-    // 비밀번호 찾기 > 새로운 비밀번호 저장
-    @Override
-    public void setNewPwd(SearchPwdRequest req) {
-        mapper.setNewPwd(req);
-    }
-
 
 }
