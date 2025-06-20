@@ -153,11 +153,16 @@
 
     <!-- ✅ 카테고리 버튼 -->
     <div class="category-scroll">
-        <a href="/solfood/user/store" class="btn btn-outline-primary category-btn">전체</a>
-        <a href="/solfood/user/store/category/한식" class="btn btn-outline-primary category-btn">한식</a>
-        <a href="/solfood/user/store/category/카페" class="btn btn-outline-primary category-btn">카페</a>
-        <a href="/solfood/user/store/category/패스트푸드" class="btn btn-outline-primary category-btn">패스트푸드</a>
+        <a href="/solfood/user/store"
+           class="btn category-btn ${empty currentCategory ? 'btn-primary' : 'btn-outline-primary'}">전체</a>
+        <a href="?category=한식"
+           class="btn category-btn ${currentCategory eq '한식' ? 'btn-primary' : 'btn-outline-primary'}">한식</a>
+        <a href="?category=카페"
+           class="btn category-btn ${currentCategory eq '카페' ? 'btn-primary' : 'btn-outline-primary'}">카페</a>
+        <a href="?category=패스트푸드"
+           class="btn category-btn ${currentCategory eq '패스트푸드' ? 'btn-primary' : 'btn-outline-primary'}">패스트푸드</a>
     </div>
+
 
     <!-- ✅ 식당 카드 리스트 -->
     <div class="store-grid">
