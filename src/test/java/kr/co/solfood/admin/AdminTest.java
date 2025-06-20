@@ -7,11 +7,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,21 +29,21 @@ public class AdminTest {
 
     @Test
     @DisplayName("유저 홈 리스트 조회 (전체)테스트")
-    public void getUsersListAll(){
+    public void getUsersListAll() {
         List<UserVO> list = adminMapper.getUsers("");
         assumeTrue(!list.isEmpty());
     }
 
     @Test
     @DisplayName("유저 홈 리스트 검색 (특정 쿼리)테스트 - 리스트 수 반환")
-    public void getUsersSize(){
+    public void getUsersSize() {
         List<UserVO> list = adminMapper.getUsers("박지원");
         assertEquals(1, list.size());
     }
 
     @Test
     @DisplayName("유저 홈 리스트 검색 (특정 쿼리)테스트 - 리스트 검색 결과 검증")
-    public void getUsersName(){
+    public void getUsersName() {
         String name = "안민석";
         List<UserVO> list = adminMapper.getUsers(name);
         assertEquals(name, list.get(0).getUsersName());

@@ -31,9 +31,7 @@ public class AdminHomeController {
     @GetMapping("/home/user-management/search")
     public String userSearch(@RequestParam String query, Model model) {
         List<UserVO> userList = adminHomeService.getUsers(query);
-        System.out.println(query);
         model.addAttribute("userList", userList);
-        System.out.println("리스트" + userList);
         return "admin/user-management/home";
     }
 
