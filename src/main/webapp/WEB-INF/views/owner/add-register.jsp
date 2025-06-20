@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sol Food - 오너 회원가입</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"
-            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+    <script src="https://code.jquery.com/jquery-3.7.1.js" 
+            integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" 
             crossorigin="anonymous"></script>
     <style>
         * {
@@ -261,21 +261,6 @@
     </style>
 </head>
 <body>
-<div class="profile-container">
-    <img class="profile-img" src='${user.usersProfile }' alt='카카오 프로필 이미지'>
-    <div class="nickname">${user.usersNickname }님</div>
-    <div class="welcome">추가 정보를 입력해주세요</div>
-    <form action="<c:url value="/user/extra"/>" method="post">
-        <input type="hidden" name="usersId" value="${user.usersId}">
-        <input type="hidden" name="companyId" value="${user.companyId }">
-        <input type="hidden" name="departmentId" value="${user.departmentId }">
-        <input type="hidden" name="usersEmail" value="${user.usersEmail }">
-        <input type="hidden" name="usersProfile" value="${user.usersProfile }">
-        <input type="hidden" name="usersNickname" value="${user.usersNickname }">
-        <input type="hidden" name="usersKakaoId" value="${user.usersKakaoId}">
-        <input type="hidden" name="accessToken" value="${user.accessToken}">
-        <input type="hidden" name="usersPoint" value="${user.usersPoint}">
-        <input type="hidden" name="usersLoginType" value="${user.usersLoginType}">
     <div class="register-container">
         <div class="brand-header">
             <div class="brand-logo">🍽️</div>
@@ -291,7 +276,7 @@
                     <span>👤</span>
                     개인정보
                 </h3>
-
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="ownerId">아이디 *</label>
@@ -336,7 +321,7 @@
                     <span>🏪</span>
                     레스토랑 정보
                 </h3>
-
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="restaurantName">레스토랑명 *</label>
@@ -397,7 +382,7 @@
                     <span>⏰</span>
                     운영정보
                 </h3>
-
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="openTime">오픈시간 *</label>
@@ -449,7 +434,7 @@
         </form>
 
         <div class="form-links">
-            이미 계정이 있으신가요?
+            이미 계정이 있으신가요? 
             <a href="${pageContext.request.contextPath}/owner/login">로그인</a>
         </div>
     </div>
@@ -460,7 +445,7 @@
             $('#ownerId').on('input', function() {
                 const id = $(this).val();
                 const regex = /^[a-zA-Z0-9]{6,20}$/;
-
+                
                 if (id.length === 0) {
                     $('#idValidation').text('');
                 } else if (!regex.test(id)) {
@@ -475,7 +460,7 @@
             $('#ownerPassword').on('input', function() {
                 const password = $(this).val();
                 const regex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
-
+                
                 if (password.length === 0) {
                     $('#passwordValidation').text('');
                 } else if (!regex.test(password)) {
@@ -496,7 +481,7 @@
             function checkPasswordMatch() {
                 const password = $('#ownerPassword').val();
                 const confirmPassword = $('#passwordConfirm').val();
-
+                
                 if (confirmPassword.length === 0) {
                     $('#passwordConfirmValidation').text('');
                 } else if (password !== confirmPassword) {
@@ -510,7 +495,7 @@
             $('#ownerEmail').on('input', function() {
                 const email = $(this).val();
                 const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+                
                 if (email.length === 0) {
                     $('#emailValidation').text('');
                 } else if (!regex.test(email)) {
@@ -546,7 +531,7 @@
             function checkFormValid() {
                 const requiredFields = $('input[required], select[required]');
                 let allValid = true;
-
+                
                 requiredFields.each(function() {
                     if ($(this).val().trim() === '') {
                         allValid = false;

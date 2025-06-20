@@ -54,25 +54,24 @@ public class LoginController {
     @Transactional
     @GetMapping("/kakaoLogin")
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
-        UserVO kakaoLogin = service.confirmAccessToken(code);
+        LoginVO kakaoLogin = service.confirmAccessToken(code);
         sess.setAttribute("userLoginSession", kakaoLogin);
-        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:extra" : "redirect:mypage";
+        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:add-register" : "redirect:mypage";
     }
 
     // 카카오 추가 정보 페이지
-    @GetMapping("/extra")
-    public void extra(Model model) {
+    @GetMapping("/add-register")
+    public void addRegister(Model model) {
         List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
         model.addAttribute("companyList", companyList);
     }
 
     // 추가 정보 받은 후 등록
     @Transactional
-    @PostMapping("/extra")
-    public String extra(UserVO kakaoAddVO, HttpSession sess) {
-        UserVO userVo = service.register(kakaoAddVO);
-        System.out.println("브이오" + kakaoAddVO);
-        sess.setAttribute("userLoginSession", userVo);
+    @PostMapping("/add-register")
+    public String addRegister(LoginVO kakaoAddVO, HttpSession sess) {
+        LoginVO loginVO = service.register(kakaoAddVO);
+        sess.setAttribute("userLoginSession", loginVO);
         return "redirect:mypage";
     }
 
@@ -86,9 +85,9 @@ public class LoginController {
     // 자체 로그인
     @PostMapping("/native-login")
     public String nativeLogin(LoginRequest req, HttpSession sess, Model model) {
-        UserVO userVo = service.nativeLogin(req);
-        if(userVo !=null){
-            sess.setAttribute("userLoginSession", userVo);
+        LoginVO loginVO = service.nativeLogin(req);
+        if(loginVO !=null){
+            sess.setAttribute("userLoginSession", loginVO);
             return "redirect:mypage";
         } else {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
@@ -109,8 +108,8 @@ public class LoginController {
     @Transactional
     @PostMapping("/search-pwd")
     public String searchPwd(SearchPwdRequest req, Model model) {
-       UserVO userVo  = service.searchPwd(req);
-       if(userVo != null){
+       LoginVO loginVO  = service.searchPwd(req);
+       if(loginVO != null){
            /* 임시 비밀번호 */
            String newPwd = makePassword(); // 임시 비밀번호 생성
            req.setUsersPwd(newPwd); // req vo 에 저장
@@ -132,7 +131,7 @@ public class LoginController {
     // 회원가입 post
     @Transactional
     @PostMapping("/join")
-    public String join(UserVO kakaoAddVO, HttpSession sess) {
+    public String join(LoginVO kakaoAddVO, HttpSession sess) {
         service.register(kakaoAddVO);
         return "redirect:login";
     }
@@ -141,6 +140,7 @@ public class LoginController {
     @GetMapping("/company/depts")
     @ResponseBody
     public List<DepartmentVO> getDepartments(@RequestParam("companyId") int companyId) {
+        System.out.println("companyId:" + companyId);
         return service.getDepartmentsByCompanyId(companyId);
     }
 

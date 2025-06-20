@@ -6,7 +6,7 @@
 
     <!-- 카카오 유저 확인 (최초 가입) -->
     <select id="kakaoLogin" parameterType="Long"
-            resultType="kr.co.solfood.user.login.UserVO">
+            resultType="kr.co.solfood.user.login.LoginVO">
         SELECT *
         FROM users
         WHERE users_kakao_id = #{usersKakaoId}
@@ -14,7 +14,7 @@
 
     <!-- 유저 회원 가입 (공용) -->
     <insert id="register"
-            parameterType="kr.co.solfood.user.login.UserVO">
+            parameterType="kr.co.solfood.user.login.LoginVO">
         INSERT INTO users (company_id,
                            department_id,
                            users_email,
@@ -49,14 +49,14 @@
     </select>
 
     <!--로그인-->
-    <select id="selectUser" parameterType="kr.co.solfood.user.login.LoginRequest" resultType="kr.co.solfood.user.login.UserVO">
+    <select id="selectUser" parameterType="kr.co.solfood.user.login.LoginRequest" resultType="kr.co.solfood.user.login.LoginVO">
         SELECT *
         FROM users
         WHERE users_email = #{usersEmail} AND users_pwd = #{usersPwd}
     </select>
 
     <!--비밀번호 찾기-->
-    <select id="searchPwd" resultType="kr.co.solfood.user.login.UserVO" parameterType="kr.co.solfood.user.login.SearchPwdRequest">
+    <select id="searchPwd" resultType="kr.co.solfood.user.login.LoginVO" parameterType="kr.co.solfood.user.login.SearchPwdRequest">
         SELECT *
         FROM users
         WHERE users_email = #{usersEmail} AND users_name =#{usersName}
