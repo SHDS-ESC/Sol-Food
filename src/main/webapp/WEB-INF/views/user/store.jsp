@@ -59,7 +59,7 @@
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE and Edge */
         }
-        
+
         .category-scroll::-webkit-scrollbar {
             display: none; /* Chrome, Safari and Opera */
         }
@@ -166,18 +166,18 @@
             background-color: #0d6efd !important;
             color: white !important;
         }
-        
+
         .loading {
             text-align: center;
             padding: 40px;
             color: #666;
         }
-        
+
         .loading i {
             font-size: 30px;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -216,8 +216,18 @@
         <button class="btn btn-primary">검색</button>
     </div>
 
+    <!-- ✅ 카테고리 버튼 -->
+    <div class="category-scroll">
+        <a href="/solfood/user/store"
+           class="btn category-btn ${empty currentCategory ? 'btn-primary' : 'btn-outline-primary'}">전체</a>
+        <a href="?category=한식"
+           class="btn category-btn ${currentCategory eq '한식' ? 'btn-primary' : 'btn-outline-primary'}">한식</a>
+        <a href="?category=카페"
+           class="btn category-btn ${currentCategory eq '카페' ? 'btn-primary' : 'btn-outline-primary'}">카페</a>
+        <a href="?category=패스트푸드"
+           class="btn category-btn ${currentCategory eq '패스트푸드' ? 'btn-primary' : 'btn-outline-primary'}">패스트푸드</a>
     <!-- ✅ 카테고리 버튼 (동적 로딩) -->
-    <div class="category-scroll" id="categoryContainer">
+<%--    <div class="category-scroll" id="categoryContainer">--%>
         <!-- 카테고리 버튼들이 동적으로 생성됩니다 -->
     </div>
 
@@ -238,7 +248,7 @@
                         </div>
                     </c:when>
                     <c:otherwise>
-                        <img src="${store.storeMainimage}" alt="${store.storeName}" class="store-img" 
+                        <img src="${store.storeMainimage}" alt="${store.storeName}" class="store-img"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">
                             <i class="bi bi-shop" style="font-size: 40px;"></i>
@@ -324,7 +334,7 @@ function loadCategoryConfig() {
 function generateCategoryButtons() {
     const container = document.getElementById('categoryContainer');
     container.innerHTML = '';
-    
+
     if (categoryConfig && categoryConfig.categories) {
         categoryConfig.categories.forEach((category, index) => {
             const button = document.createElement('button');
@@ -340,7 +350,7 @@ function generateCategoryButtons() {
 function generateDefaultCategories() {
     const container = document.getElementById('categoryContainer');
     const defaultCategories = ['전체', '한식', '카페', '일식', '중식', '양식', '치킨', '피자', '패스트푸드', '분식', '베이커리'];
-    
+
     container.innerHTML = '';
     defaultCategories.forEach((category, index) => {
         const button = document.createElement('button');
@@ -355,11 +365,11 @@ function showMap() {
     // 버튼 스타일 변경
     document.getElementById('mapBtn').classList.add('btn-active');
     document.getElementById('listBtn').classList.remove('btn-active');
-    
+
     // 컨테이너 표시/숨김
     document.getElementById('mapContainer').style.display = 'flex';
     document.getElementById('listContainer').style.display = 'none';
-    
+
     // 지도 초기화 (한번만)
     if (!map) {
         initializeMap();
@@ -378,7 +388,7 @@ function showList() {
     // 버튼 스타일 변경
     document.getElementById('listBtn').classList.add('btn-active');
     document.getElementById('mapBtn').classList.remove('btn-active');
-    
+
     // 컨테이너 표시/숨김
     document.getElementById('listContainer').style.display = 'block';
     document.getElementById('mapContainer').style.display = 'none';
@@ -392,7 +402,7 @@ function initializeMap() {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
                 currentPosition = new kakao.maps.LatLng(lat, lng);
-                
+
                 createMap(currentPosition);
             },
             function(error) {
@@ -421,7 +431,7 @@ function createMap(position) {
 
     // 지도 생성
     map = new kakao.maps.Map(mapContainer, mapOption);
-    
+
     // Places 서비스 객체 생성
     placesService = new kakao.maps.services.Places();
 
@@ -453,17 +463,17 @@ function searchByCategory(category) {
         btn.classList.remove('active');
     });
     event.target.classList.add('active');
-    
+
     currentCategory = category;
-    
+
     // 목록 화면의 카테고리 필터링
     filterStoreList(category);
-    
+
     // 지도가 활성화된 상태에서만 지도 검색
     if (map && placesService && currentPosition) {
         // 기존 마커들 제거
         clearMarkers();
-        
+
         // CategoryProperties에서 검색 키워드 가져오기
         let keyword = '';
         if (categoryConfig && categoryConfig.searchKeywords) {
@@ -471,14 +481,14 @@ function searchByCategory(category) {
         } else {
             keyword = category; // 백업용
         }
-        
+
         // 키워드 검색 옵션
         const options = {
             location: currentPosition,
             radius: 1000, // 1km 반경
             sort: kakao.maps.services.SortBy.DISTANCE
         };
-        
+
         // 키워드로 장소 검색
         placesService.keywordSearch(keyword, placesSearchCB, options);
     }
@@ -488,7 +498,7 @@ function searchByCategory(category) {
 function filterStoreList(category) {
     // 로딩 표시
     showLoading();
-    
+
     // Ajax로 카테고리별 데이터 가져오기
     fetch('/solfood/user/api/store/category/' + encodeURIComponent(category))
         .then(response => response.json())
@@ -511,12 +521,12 @@ function showLoading() {
 // 기존 방식 필터링 (백업용)
 function fallbackFilterStoreList(category) {
     const storeCards = document.querySelectorAll('.store-card');
-    
+
     storeCards.forEach(card => {
         const storeCategory = card.querySelector('.store-category');
         if (storeCategory) {
             const storeCategoryText = storeCategory.textContent.trim();
-            
+
             if (category === '전체') {
                 card.style.display = 'block';
             } else {
@@ -534,7 +544,7 @@ function fallbackFilterStoreList(category) {
 function updateStoreGrid(stores) {
     const storeGrid = document.querySelector('.store-grid');
     storeGrid.innerHTML = '';
-    
+
     stores.forEach(store => {
         const storeCard = createStoreCard(store);
         storeGrid.appendChild(storeCard);
@@ -546,33 +556,33 @@ function createStoreCard(store) {
     const card = document.createElement('div');
     card.className = 'store-card';
     card.setAttribute('data-category', store.storeCategory);
-    
+
     let imageHtml = '';
     if (!store.storeMainimage || store.storeMainimage === '/img/default-restaurant.jpg') {
         imageHtml = '<div class="store-img" style="background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #6c757d;"><i class="bi bi-shop" style="font-size: 40px;"></i></div>';
     } else {
         imageHtml = '<img src="' + store.storeMainimage + '" alt="' + store.storeName + '" class="store-img" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'flex\';"><div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;"><i class="bi bi-shop" style="font-size: 40px;"></i></div>';
     }
-    
+
     let addressHtml = '';
     if (store.storeAddress && store.storeAddress.trim() !== '') {
         const shortAddress = store.storeAddress.length > 15 ? store.storeAddress.substring(0, 15) + '...' : store.storeAddress;
         addressHtml = '<div style="font-size: 11px; color: #666; margin-bottom: 3px;">📍 ' + shortAddress + '</div>';
     }
-    
+
     let starHtml = '';
     if (store.storeAvgstar > 0) {
         starHtml = '⭐ ' + store.storeAvgstar + '점';
     } else {
         starHtml = '⭐ 신규매장';
     }
-    
+
     let phoneHtml = '';
     if (store.storeTel && store.storeTel !== '정보없음') {
         phoneHtml = '<div style="font-size: 10px; color: #28a745; margin-top: 2px;">📞 ' + store.storeTel + '</div>';
     }
-    
-    card.innerHTML = imageHtml + 
+
+    card.innerHTML = imageHtml +
         '<div class="store-body">' +
         '<div class="store-name">' + store.storeName + '</div>' +
         '<div class="store-category">' + store.storeCategory + '</div>' +
@@ -581,7 +591,7 @@ function createStoreCard(store) {
         phoneHtml +
         '<i class="bi bi-heart like-icon"></i>' +
         '</div>';
-    
+
     return card;
 }
 
@@ -590,18 +600,18 @@ function isCategoryMatch(storeCategory, selectedCategory) {
     if (selectedCategory === '전체') {
         return true;
     }
-    
+
     // CategoryProperties에서 매칭 키워드 가져오기
     if (categoryConfig && categoryConfig.matchingKeywords) {
         const matchingKeywords = categoryConfig.matchingKeywords[selectedCategory];
         if (matchingKeywords) {
             const storeCat = storeCategory.toLowerCase();
-            return matchingKeywords.some(keyword => 
+            return matchingKeywords.some(keyword =>
                 storeCat.includes(keyword.toLowerCase())
             );
         }
     }
-    
+
     // 백업용: 기본 매칭
     return storeCategory.toLowerCase().includes(selectedCategory.toLowerCase());
 }
@@ -626,9 +636,9 @@ function displayMarker(place) {
         map: map,
         position: new kakao.maps.LatLng(place.y, place.x)
     });
-    
+
     markers.push(marker);
-    
+
     // 마커에 클릭 이벤트 등록
     kakao.maps.event.addListener(marker, 'click', function() {
         // 인포윈도우 내용
@@ -640,11 +650,11 @@ function displayMarker(place) {
             content += '<div style="font-size:12px;color:#0066cc;margin-top:5px;">' + place.phone + '</div>';
         }
         content += '</div>';
-        
+
         const infowindow = new kakao.maps.InfoWindow({
             content: content
         });
-        
+
         infowindow.open(map, marker);
     });
 }
