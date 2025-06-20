@@ -4,31 +4,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/user/store")
 public class StoreController {
     @Autowired
     private StoreService service;
 
-    //전체 가게 목록 조회
-    @GetMapping("/store")
-    public void getAllStore(Model model) {
-        List<StoreVO> storeList = service.getAllStore();
+    @GetMapping("")
+    public String getStoreList(@RequestParam(value = "category", required = false) String category, Model model) {
+        List<StoreVO> storeList;
+        if (category == null) {
+            storeList = service.getAllStore();
+        } else {
+            storeList = service.getCategoryStore(category);
+            model.addAttribute("currentCategory", category);
+        }
         model.addAttribute("store", storeList);
-    }
-
-    //카테고리별 목록 조회
-    @GetMapping("/store/category/{category}")
-    public String getCategoryStore(@PathVariable String category, Model model){
-        List<StoreVO> categoryStoreList = service.getCategoryStore(category);
-        model.addAttribute("store", categoryStoreList);
-        model.addAttribute("currentCategory", category);
-        return "/user/store";
+        return "user/store";
     }
 
 }
