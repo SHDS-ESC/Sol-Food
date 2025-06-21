@@ -76,13 +76,17 @@
 3. **설정 파일 구성**
    ```properties
    # src/main/resources/application.properties
-   spring.datasource.url=jdbc:oracle:thin:@localhost:1521:XE
-   spring.datasource.username=your_username
-   spring.datasource.password=your_password
+   db.driver=net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+   db.url=jdbc:log4jdbc:mariadb://YOUR_IP:YOUR_PORT_NUMBER/YOUR_DB_NAME
+   db.username=YOUR_DB_USER_NAME
+   db.password=YOUR_DB_PASSWORD
+   server.ip=YOUR_IP
+   server.port=YOUR_PORT_NUMBER
+   
    
    # 카카오 API 키 설정
-   kakao.rest.api.key=your_kakao_rest_api_key
-   kakao.js.api.key=your_kakao_js_api_key
+   kakao.restApiKey=YOUR_KAKAO_RESTAPI_KEY
+   kakao.js.key=YOUR_KAKAO_JS_KEY
    ```
 
 4. **프로젝트 빌드 및 실행**
@@ -93,7 +97,7 @@
 
 5. **웹 브라우저에서 접속**
    ```
-   http://localhost:8080
+   http://YOUR_IP:YOUR_PORT_NUMBER
    ```
 
 ---
