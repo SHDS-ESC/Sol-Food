@@ -42,7 +42,7 @@ class LoginServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // 테스트용 LoginVO 설정
+        // 테스트용 UserVO 설정
         testLoginVO = new UserVO();
         testLoginVO.setUsersNickname("테스트 사용자");
         testLoginVO.setUsersEmail("test@example.com");
