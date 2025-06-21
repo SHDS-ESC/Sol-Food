@@ -11,11 +11,9 @@ import java.util.List;
 public class AdminHomeServiceImpl implements AdminHomeService {
 
     private final AdminMapper adminMapper;
-    private final ResourceUrlProvider resourceUrlProvider;
 
-    public AdminHomeServiceImpl(AdminMapper adminMapper, ResourceUrlProvider resourceUrlProvider) {
+    public AdminHomeServiceImpl(AdminMapper adminMapper) {
         this.adminMapper = adminMapper;
-        this.resourceUrlProvider = resourceUrlProvider;
     }
 
     @Override
@@ -35,6 +33,5 @@ public class AdminHomeServiceImpl implements AdminHomeService {
                 return adminMapper.userManagementChartByYears();
         }
     }
-
 
 }
