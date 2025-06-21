@@ -1,6 +1,8 @@
 # 🍽️ Sol-Food - 홍대 맛집 리뷰 플랫폼
 
-<div align="center">
+| ![](https://github.com/yunisy51.png?size=100) | ![](https://github.com/jiwonns.png?size=100) | ![](https://github.com/ogh010.png?size=100) | ![](https://github.com/dlsundn.png?size=100) | ![](https://github.com/sngsngUDON.png?size=100) |
+|:---:|:---:|:---:|:---:|:---:|
+| [이상윤](https://github.com/yunisy51) | [박지원](https://github.com/jiwonns) | [오가희](https://github.com/ogh010) | [이선우](https://github.com/dlsundn) | [안민석](https://github.com/sngsngUDON) |
 
 ![Java](https://img.shields.io/badge/Java-11-orange?style=for-the-badge&logo=java)
 ![Spring](https://img.shields.io/badge/Spring-5.2.25-green?style=for-the-badge&logo=spring)
@@ -13,7 +15,6 @@
 
 [🚀 시작하기](#시작하기) • [📋 기능](#주요-기능) • [🏗️ 아키텍처](#아키텍처) • [🛠️ 기술-스택](#기술-스택)
 
-</div>
 
 ---
 
@@ -171,9 +172,9 @@ Sol-Food/
 ```java
 @GetMapping("/user/store")
 public String getStoreList(@RequestParam String category, Model model) {
-    List<StoreVO> storeList = service.getCategoryStore(category);
-    model.addAttribute("store", storeList);
-    return "user/store";
+   List<StoreVO> storeList = service.getCategoryStore(category);
+   model.addAttribute("store", storeList);
+   return "user/store";
 }
 ```
 
@@ -186,9 +187,9 @@ public String getStoreList(@RequestParam String category, Model model) {
 ```java
 @Component
 public class StoreWebCrawler {
-    public List<StoreVO> crawlHongdaeRestaurants() {
-        // 카카오 Local API를 통한 홍대 맛집 정보 수집
-    }
+   public List<StoreVO> crawlHongdaeRestaurants() {
+      // 카카오 Local API를 통한 홍대 맛집 정보 수집
+   }
 }
 ```
 
@@ -244,35 +245,6 @@ mvn test
 
 ---
 
-## 👥 팀원
-
-<div align="center">
-
-### 🎯 **팀장**
-<img src="https://img.shields.io/badge/팀장-이상윤-blue?style=for-the-badge&logo=github" alt="팀장 이상윤" width="200"/>
-
-**이상윤** - 프로젝트 총괄 및 아키텍처 설계
-
----
-
-### 👨‍💻 **개발팀**
-
-<img src="https://img.shields.io/badge/개발자-박지원-orange?style=for-the-badge&logo=github" alt="박지원" width="180"/>
-**박지원**
-
-<img src="https://img.shields.io/badge/개발자-오가희-pink?style=for-the-badge&logo=github" alt="오가희" width="180"/>
-**오가희**
-
-<img src="https://img.shields.io/badge/개발자-이선우-yellow?style=for-the-badge&logo=github" alt="이선우" width="180"/>
-**이선우**
-
-<img src="https://img.shields.io/badge/개발자-안민석-green?style=for-the-badge&logo=github" alt="안민석" width="180"/>
-**안민석**
-
-</div>
-
----
-
 ## 📞 문의
 
 - **이메일**: contact@sol-food.com
@@ -281,10 +253,8 @@ mvn test
 
 ---
 
-<div align="center">
 
 **🍽️ Sol-Food와 함께 맛있는 홍대 맛집을 발견하세요!**
 
 [⬆️ 맨 위로](#-sol-food---홍대-맛집-리뷰-플랫폼)
 
-</div>
