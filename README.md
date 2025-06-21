@@ -1,8 +1,8 @@
 # 🍽️ Sol-Food - 홍대 맛집 리뷰 플랫폼
 
-| ![](https://github.com/yunisy51.png?size=100) | ![](https://github.com/jiwonns.png?size=100) | ![](https://github.com/ogh010.png?size=100) | ![](https://github.com/dlsundn.png?size=100) | ![](https://github.com/sngsngUDON.png?size=100) |
+| ![](https://github.com/5y1ee.png?size=100) | ![](https://github.com/jiwonns.png?size=100) | ![](https://github.com/ogh010.png?size=100) | ![](https://github.com/dlsundn.png?size=100) | ![](https://github.com/sngsngUDON.png?size=100) |
 |:---:|:---:|:---:|:---:|:---:|
-| [이상윤](https://github.com/yunisy51) | [박지원](https://github.com/jiwonns) | [오가희](https://github.com/ogh010) | [이선우](https://github.com/dlsundn) | [안민석](https://github.com/sngsngUDON) |
+| [이상윤](https://github.com/5y1ee) | [박지원](https://github.com/jiwonns) | [오가희](https://github.com/ogh010) | [이선우](https://github.com/dlsundn) | [안민석](https://github.com/sngsngUDON) |
 
 ![Java](https://img.shields.io/badge/Java-11-orange?style=for-the-badge&logo=java)
 ![Spring](https://img.shields.io/badge/Spring-5.2.25-green?style=for-the-badge&logo=spring)
