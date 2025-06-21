@@ -16,7 +16,7 @@ public class StoreController {
     private StoreService service;
 
     @GetMapping("")
-    public String getStoreList(@RequestParam(value = "category", required = false) String category, Model model) {
+    public void getStoreList(@RequestParam(value = "category", required = false) String category, Model model) {
         List<StoreVO> storeList;
         if (category == null) {
             storeList = service.getAllStore();
@@ -25,7 +25,6 @@ public class StoreController {
             model.addAttribute("currentCategory", category);
         }
         model.addAttribute("store", storeList);
-        return "user/store";
     }
 
 }
