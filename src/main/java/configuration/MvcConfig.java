@@ -19,7 +19,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.*;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 
@@ -168,10 +168,10 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
                 .excludePathPatterns("/user/search-id")
                 .excludePathPatterns("/user/kakaoLogin");
 
-        registry.addInterceptor(adminLoginInterceptor())
-                .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/login")
-                .excludePathPatterns("/admin/kakaoLogin");
+//        registry.addInterceptor(adminLoginInterceptor())
+//                .addPathPatterns("/admin/**")
+//                .excludePathPatterns("/admin/login")
+//                .excludePathPatterns("/admin/kakaoLogin");
 
         registry.addInterceptor(ownerLoginInterceptor())
                 .addPathPatterns("/owner/**")
