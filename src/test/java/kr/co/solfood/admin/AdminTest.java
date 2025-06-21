@@ -1,5 +1,7 @@
 package kr.co.solfood.admin;
 
+import kr.co.solfood.admin.dto.ChartRequestDTO;
+import kr.co.solfood.admin.home.AdminHomeService;
 import kr.co.solfood.admin.home.AdminMapper;
 import kr.co.solfood.user.login.LoginMapper;
 import kr.co.solfood.user.login.UserVO;
@@ -27,6 +29,9 @@ public class AdminTest {
     @Autowired
     LoginMapper loginMapper;
 
+    @Autowired
+    private AdminHomeService adminHomeService;
+
     @Test
     @DisplayName("유저 홈 리스트 조회 (전체)테스트")
     public void getUsersListAll() {
@@ -49,4 +54,10 @@ public class AdminTest {
         assertEquals(name, list.get(0).getUsersName());
     }
 
+    @Test
+    @DisplayName("차트 데이터 조회 테스트")
+    public void getChartData() {
+        List<ChartRequestDTO> list = adminHomeService.userManagementChart("연간");
+        assumeTrue(!list.isEmpty());
+    }
 }
