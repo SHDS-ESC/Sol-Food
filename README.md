@@ -246,9 +246,30 @@ mvn test
 
 ## 👥 팀원
 
-- **개발자**: [Your Name](https://github.com/your-username)
-- **디자이너**: [Designer Name](https://github.com/designer-username)
-- **기획자**: [Planner Name](https://github.com/planner-username)
+<div align="center">
+
+### 🎯 **팀장**
+<img src="https://img.shields.io/badge/팀장-이상윤-blue?style=for-the-badge&logo=github" alt="팀장 이상윤" width="200"/>
+
+**이상윤** - 프로젝트 총괄 및 아키텍처 설계
+
+---
+
+### 👨‍💻 **개발팀**
+
+<img src="https://img.shields.io/badge/개발자-박지원-orange?style=for-the-badge&logo=github" alt="박지원" width="180"/>
+**박지원**
+
+<img src="https://img.shields.io/badge/개발자-오가희-pink?style=for-the-badge&logo=github" alt="오가희" width="180"/>
+**오가희**
+
+<img src="https://img.shields.io/badge/개발자-이선우-yellow?style=for-the-badge&logo=github" alt="이선우" width="180"/>
+**이선우**
+
+<img src="https://img.shields.io/badge/개발자-안민석-green?style=for-the-badge&logo=github" alt="안민석" width="180"/>
+**안민석**
+
+</div>
 
 ---
 
