@@ -6,14 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 @Controller
 @RequestMapping("/user")
@@ -22,6 +20,18 @@ public class LoginController {
     private final LoginService service;
     private final KakaoProperties kakaoProperties;
     private final ServerProperties serverProperties;
+    private static final Random rand = new Random(1234L); // 랜덤 객체
+
+    // 랜덤 비밀번호 생성 로직
+    public static String makePassword() {
+        String chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+        int len = 8 + rand.nextInt(6); // 8~13글자
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            sb.append(chars.charAt(rand.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
 
     @Autowired
     public LoginController(LoginService service, KakaoProperties kakaoProperties, ServerProperties serverProperties) {
@@ -51,7 +61,9 @@ public class LoginController {
 
     // 카카오 추가 정보 페이지
     @GetMapping("/add-register")
-    public void addRegister() {
+    public void addRegister(Model model) {
+        List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
+        model.addAttribute("companyList", companyList);
     }
 
     // 추가 정보 받은 후 등록
@@ -59,7 +71,7 @@ public class LoginController {
     @PostMapping("/add-register")
     public String addRegister(LoginVO kakaoAddVO, HttpSession sess) {
         LoginVO loginVO = service.register(kakaoAddVO);
-        sess.setAttribute("user", loginVO);
+        sess.setAttribute("userLoginSession", loginVO);
         return "redirect:mypage";
     }
 
@@ -69,5 +81,68 @@ public class LoginController {
         sess.invalidate();
         return "redirect:login";
     }
+
+    // 자체 로그인
+    @PostMapping("/native-login")
+    public String nativeLogin(LoginRequest req, HttpSession sess, Model model) {
+        LoginVO loginVO = service.nativeLogin(req);
+        if(loginVO !=null){
+            sess.setAttribute("userLoginSession", loginVO);
+            return "redirect:mypage";
+        } else {
+            model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
+            return "/user/login"; // 로그인 페이지로 다시 이동
+        }
+    }
+
+    // 아이디 찾기
+    @GetMapping("/search-id")
+    public void searchId() {
+    }
+
+    // 비밀번호 찾기
+    @GetMapping("/search-pwd")
+    public void searchPwd() {}
+
+    // 비밀번호 찾기 post
+    @Transactional
+    @PostMapping("/search-pwd")
+    public String searchPwd(SearchPwdRequest req, Model model) {
+       LoginVO loginVO  = service.searchPwd(req);
+       if(loginVO != null){
+           /* 임시 비밀번호 */
+           String newPwd = makePassword(); // 임시 비밀번호 생성
+           req.setUsersPwd(newPwd); // req vo 에 저장
+           service.setNewPwd(req); // req vo 전달
+           model.addAttribute("newPwd", newPwd);
+       }
+        return "/user/find-pwd";
+    }
+
+
+    // 회원가입
+    @GetMapping("/join")
+    public String join(Model model) {
+        List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
+        model.addAttribute("companyList", companyList);
+        return "/user/join";
+    }
+
+    // 회원가입 post
+    @Transactional
+    @PostMapping("/join")
+    public String join(LoginVO kakaoAddVO, HttpSession sess) {
+        service.register(kakaoAddVO);
+        return "redirect:login";
+    }
+
+    // 부서
+    @GetMapping("/company/depts")
+    @ResponseBody
+    public List<DepartmentVO> getDepartments(@RequestParam("companyId") int companyId) {
+        System.out.println("companyId:" + companyId);
+        return service.getDepartmentsByCompanyId(companyId);
+    }
+
 
 }
