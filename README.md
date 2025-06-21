@@ -1,8 +1,25 @@
 # 🍽️ Sol-Food - 홍대 맛집 리뷰 플랫폼
 
-| ![](https://github.com/5y1ee.png?size=100) | ![](https://github.com/jiwonns.png?size=100) | ![](https://github.com/ogh010.png?size=100) | ![](https://github.com/dlsundn.png?size=100) | ![](https://github.com/sngsngUDON.png?size=100) |
-|:---:|:---:|:---:|:---:|:---:|
-| [이상윤](https://github.com/5y1ee) | [박지원](https://github.com/jiwonns) | [오가희](https://github.com/ogh010) | [이선우](https://github.com/dlsundn) | [안민석](https://github.com/sngsngUDON) |
+<div align="center">
+
+<table style="margin: 0 auto;">
+<tr>
+<td align="center"><img src="https://github.com/5y1ee.png?size=100" width="100" height="100" style="border-radius: 50%;"/></td>
+<td align="center"><img src="https://github.com/jiwonns.png?size=100" width="100" height="100" style="border-radius: 50%;"/></td>
+<td align="center"><img src="https://github.com/ogh010.png?size=100" width="100" height="100" style="border-radius: 50%;"/></td>
+<td align="center"><img src="https://github.com/dlsundn.png?size=100" width="100" height="100" style="border-radius: 50%;"/></td>
+<td align="center"><img src="https://github.com/sngsngUDON.png?size=100" width="100" height="100" style="border-radius: 50%;"/></td>
+</tr>
+<tr>
+<td align="center"><strong><a href="https://github.com/5y1ee">이상윤</a></strong></td>
+<td align="center"><strong><a href="https://github.com/jiwonns">박지원</a></strong></td>
+<td align="center"><strong><a href="https://github.com/ogh010">오가희</a></strong></td>
+<td align="center"><strong><a href="https://github.com/dlsundn">이선우</a></strong></td>
+<td align="center"><strong><a href="https://github.com/sngsngUDON">안민석</a></strong></td>
+</tr>
+</table>
+
+<br/>
 
 ![Java](https://img.shields.io/badge/Java-11-orange?style=for-the-badge&logo=java)
 ![Spring](https://img.shields.io/badge/Spring-5.2.25-green?style=for-the-badge&logo=spring)
@@ -15,6 +32,7 @@
 
 [🚀 시작하기](#시작하기) • [📋 기능](#주요-기능) • [🏗️ 아키텍처](#아키텍처) • [🛠️ 기술-스택](#기술-스택)
 
+</div>
 
 ---
 
@@ -253,8 +271,6 @@ mvn test
 
 ---
 
-
 **🍽️ Sol-Food와 함께 맛있는 홍대 맛집을 발견하세요!**
 
 [⬆️ 맨 위로](#-sol-food---홍대-맛집-리뷰-플랫폼)
-
