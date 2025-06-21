@@ -168,10 +168,10 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
                 .excludePathPatterns("/user/search-id")
                 .excludePathPatterns("/user/kakaoLogin");
 
-//        registry.addInterceptor(adminLoginInterceptor())
-//                .addPathPatterns("/admin/**")
-//                .excludePathPatterns("/admin/login")
-//                .excludePathPatterns("/admin/kakaoLogin");
+       registry.addInterceptor(adminLoginInterceptor())
+               .addPathPatterns("/admin/**")
+               .excludePathPatterns("/admin/login")
+               .excludePathPatterns("/admin/kakaoLogin");
 
         registry.addInterceptor(ownerLoginInterceptor())
                 .addPathPatterns("/owner/**")
