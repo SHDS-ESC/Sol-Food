@@ -233,7 +233,7 @@
         <!-- 사용자 리스트 -->
         <h2 class="mb-3 text-success">🎭 사용자 관리</h2>
         <div class="user-card">
-            <form action="<c:url value='/admin/home/user-management/search'/>" method="get" class="search-bar">
+            <form id="searchForm" class="search-bar">
                 <input type="text" name="query" class="form-control" placeholder="검색">
                 <button type="submit" class="btn btn-success">검색</button>
             </form>
@@ -253,14 +253,14 @@
                         <th>상태</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="userListBody">
                     <c:forEach var="user" items="${userList}">
                         <tr>
                             <td>${user.usersId}</td>
                             <td>
                                 <c:choose>
                                     <c:when test="${not empty user.usersProfile}">
-                                        <img src="${user.usersProfile}" class="user-avatar" alt="프로필">
+                                        <img src="${user.usersProfile}" class="user-avatar" alt="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800">
                                     </c:when>
                                     <c:otherwise>
                                         <div class="user-avatar"
@@ -391,6 +391,64 @@
     // 페이지가 로드되면 '연간' 버튼을 클릭한 효과를 주어 차트를 초기화합니다.
     $(document).ready(function () {
         $('.filter-btns button[name="연간"]').click();
+
+        // AJAX 검색 기능
+        $('#searchForm').on('submit', function(e) {
+            e.preventDefault();
+            const query = $(this).find('input[name="query"]').val();
+            $.ajax({
+                url: ctx + '/admin/home/user-management/search',
+                type: 'GET',
+                data: { query: query },
+                success: function(userList) {
+                    console.log('userList:', userList);
+                    const userListBody = $('#userListBody');
+                    userListBody.empty();
+                    if (!userList || userList.length === 0) {
+                        userListBody.append('<tr><td colspan="10" class="text-center">검색 결과가 없습니다.</td></tr>');
+                        return;
+                    }
+                    userList.forEach(function(user) {
+                        console.log('user:', user);
+                        const profileHtml = user.usersProfile
+                            ? `<img src="${user.usersProfile}" class="user-avatar" alt="프로필">`
+                            : `<div class="user-avatar" style="background:#e9ecef;display:flex;align-items:center;justify-content:center;">
+                                   <svg width="24" height="24" fill="#adb5bd" viewBox="0 0 24 24">
+                                       <circle cx="12" cy="8" r="4"/>
+                                       <path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/>
+                                   </svg>
+                               </div>`;
+                        let loginTypeHtml = '';
+                        if (!user.usersLoginType) {
+                            loginTypeHtml = '<span class="login-label login-label-web">X</span>';
+                        } else if (user.usersLoginType === 'kakao') {
+                            loginTypeHtml = '<span class="login-label login-label-kakao">카카오</span>';
+                        } else if (user.usersLoginType === 'native') {
+                            loginTypeHtml = '<span class="login-label login-label-native">네이티브</span>';
+                        } else {
+                            loginTypeHtml = `<span class.login-label login-label-web">${user.usersLoginType}</span>`;
+                        }
+
+                        const $row = $('<tr>');
+                        $row.append($('<td>').text(user.usersId || ''));
+                        $row.append($('<td>').html(profileHtml));
+                        $row.append($('<td>').text(user.usersName || ''));
+                        $row.append($('<td>').text(user.usersNickname || ''));
+                        $row.append($('<td>').html(loginTypeHtml));
+                        $row.append($('<td>').text(user.usersEmail || ''));
+                        $row.append($('<td>').text(user.departmentName || ''));
+                        $row.append($('<td>').text(user.usersBirth || ''));
+                        $row.append($('<td>').text(user.usersGender || ''));
+                        $row.append($('<td>').text(user.usersStatus || ''));
+                        
+                        userListBody.append($row);
+                    });
+                },
+                error: function() {
+                    alert('검색 중 오류가 발생했습니다.');
+                }
+            });
+        });
     });
 </script>
 </body>

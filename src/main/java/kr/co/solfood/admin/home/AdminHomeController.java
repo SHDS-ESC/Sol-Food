@@ -32,17 +32,15 @@ public class AdminHomeController {
         return "admin/user-management/home";
     }
 
+    @ResponseBody
     @GetMapping("/home/user-management/search")
-    public String userSearch(@RequestParam String query, Model model) {
-        List<UserVO> userList = adminHomeService.getUsers(query);
-        model.addAttribute("userList", userList);
-        return "admin/user-management/home";
+    public List<UserVO> userSearch(@RequestParam String query, Model model) {
+        return adminHomeService.getUsers(query);
     }
 
     @ResponseBody
     @GetMapping("/home/user-management/chart")
     public List<ChartRequestDTO> getChartData(@RequestParam("date") String date) {
-        System.out.println("차트: " + date);
         return adminHomeService.userManagementChart(date);
     }
 
