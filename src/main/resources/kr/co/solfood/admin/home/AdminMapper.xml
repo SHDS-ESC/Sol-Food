@@ -5,7 +5,29 @@
         SELECT *
         FROM users U
         JOIN department D ON U.department_id = D.department_id
-        WHERE users_name LIKE CONCAT('%', #{query}, '%')
-        ORDER BY users_id DESC
+        <where>
+            <if test="query != null and query != ''">
+                users_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
+        ORDER BY users_id
+    </select>
+
+    <select id="userManagementChartByYears" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
+        SELECT YEAR (users_created_at) AS rowCreatedAt, COUNT (*) columnCount
+        FROM users
+        GROUP BY YEAR (users_created_at);
+    </select>
+
+    <select id="userManagementChartByMonths" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
+        SELECT MONTH (users_created_at) AS rowCreatedAt, COUNT (*) columnCount
+        FROM users
+        GROUP BY MONTH (users_created_at);
+    </select>
+
+    <select id="userManagementChartByDays" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
+        SELECT DAY (users_created_at) AS rowCreatedAt, COUNT (*) columnCount
+        FROM users
+        GROUP BY DAY (users_created_at);
     </select>
 </mapper>
