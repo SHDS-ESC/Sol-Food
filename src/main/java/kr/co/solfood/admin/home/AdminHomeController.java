@@ -44,4 +44,8 @@ public class AdminHomeController {
         return adminHomeService.userManagementChart(date);
     }
 
+    @GetMapping("/home/owner-management")
+    public String ownerManagement(Model model) {
+        return "admin/owner-management/home";
+    }
 }
