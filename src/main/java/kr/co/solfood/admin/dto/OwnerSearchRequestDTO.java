@@ -1,15 +1,18 @@
 package kr.co.solfood.admin.dto;
 
+import lombok.Data;
+
+@Data
 public class OwnerSearchRequestDTO {
     String ownerId;
-    String ownerEmail;
-    String storeName;
-    String ownerTel;
-    String storeAddress;
-    String storeAvgStar;
-    String storeIntro;
     String storeMainImage;
+    String storeName;
+    String ownerEmail;
     String storeCategory;
+    int storeAvgStar;
+    String ownerTel;
     String storeTel;
+    String storeAddress;
+    String storeIntro;
     String ownerStatus;
 }

@@ -1,6 +1,7 @@
 package kr.co.solfood.admin.home;
 
 import kr.co.solfood.admin.dto.ChartRequestDTO;
+import kr.co.solfood.admin.dto.OwnerSearchRequestDTO;
 import kr.co.solfood.user.login.UserVO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,6 +47,14 @@ public class AdminHomeController {
 
     @GetMapping("/home/owner-management")
     public String ownerManagement(Model model) {
+        List<OwnerSearchRequestDTO> ownerList = adminHomeService.getOwners("");
+        model.addAttribute("ownerList", ownerList);
         return "admin/owner-management/home";
+    }
+
+    @ResponseBody
+    @GetMapping("/home/owner-management/search")
+    public List<OwnerSearchRequestDTO> ownerSearch(@RequestParam String query, Model model) {
+        return adminHomeService.getOwners(query);
     }
 }

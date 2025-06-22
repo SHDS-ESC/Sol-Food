@@ -1,6 +1,7 @@
 package kr.co.solfood.admin.home;
 
 import kr.co.solfood.admin.dto.ChartRequestDTO;
+import kr.co.solfood.admin.dto.OwnerSearchRequestDTO;
 import kr.co.solfood.user.login.UserVO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
@@ -32,6 +33,11 @@ public class AdminHomeServiceImpl implements AdminHomeService {
             default:
                 return adminMapper.userManagementChartByYears();
         }
+    }
+
+    @Override
+    public List<OwnerSearchRequestDTO> getOwners(String query) {
+        return adminMapper.getOwners(query);
     }
 
 }

@@ -103,8 +103,27 @@
             border-bottom: 2px solid #b7e4c7;
         }
 
+        .table tbody tr {
+            font-size: 12px;
+        }
+
         .table-hover tbody tr:hover {
             background: #f0fdf4;
+        }
+
+        .owner-avatar {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--accent-color);
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #adb5bd;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.10);
         }
 
         .status-active {
@@ -210,110 +229,47 @@
                     <thead class="table-light">
                     <tr>
                         <th>점주 번호</th>
+                        <th>프로필</th>
                         <th>상호명</th>
-                        <th>계약일</th>
-                        <th>주소</th>
-                        <th>별점</th>
-                        <th>소개</th>
+                        <th>이메일</th>
                         <th>카테고리</th>
+                        <th>별점</th>
+                        <th>점주 전화번호</th>
+                        <th>지점 전화번호</th>
+                        <th>주소</th>
+                        <th>지점 소개</th>
                         <th>상태</th>
-                        <th>승인 여부</th>
                     </tr>
                     </thead>
-                    <tbody id="storeListBody">
-                    <!-- 샘플 데이터 -->
-                    <tr>
-                        <td>1</td>
-                        <td>아담우동집</td>
-                        <td>2024-05-16</td>
-                        <td>서울 마포구 와우산로 94</td>
-                        <td>승인 대기중</td>
-                        <td class="amount-text">50,000,000 원</td>
-                        <td>554</td>
-                        <td>아직</td>
-                        <td>
-                            <button class="btn-detail">자세히 ▼</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>맛있는 피자집</td>
-                        <td>2024-03-10 14:30:00</td>
-                        <td>2025-03-10 14:30:00</td>
-                        <td>2024-03-11 09:15:00</td>
-                        <td class="amount-text">75,500,000 원</td>
-                        <td>823</td>
-                        <td>5%</td>
-                        <td>
-                            <span class="status-active">승인</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>행복한 치킨</td>
-                        <td>2024-01-20 16:00:00</td>
-                        <td>2025-01-20 16:00:00</td>
-                        <td>2024-01-21 10:30:00</td>
-                        <td class="amount-text">92,300,000 원</td>
-                        <td>1,247</td>
-                        <td>4.5%</td>
-                        <td>
-                            <span class="status-active">승인</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>신선한 초밥집</td>
-                        <td>2024-06-01 11:00:00</td>
-                        <td>-</td>
-                        <td>-</td>
-                        <td class="amount-text">0 원</td>
-                        <td>0</td>
-                        <td>미정</td>
-                        <td>
-                            <span class="status-pending">승인 대기중</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>감성 카페</td>
-                        <td>2023-11-15 13:45:00</td>
-                        <td>2024-11-15 13:45:00</td>
-                        <td>2023-11-16 08:20:00</td>
-                        <td class="amount-text">45,800,000 원</td>
-                        <td>672</td>
-                        <td>6%</td>
-                        <td>
-                            <span class="status-inactive">만료</span>
-                        </td>
-                    </tr>
-                    <!-- JSTL 루프 (실제 데이터용) -->
-                    <c:forEach var="store" items="${storeList}">
+                    <tbody id="ownerListBody">
+                    <c:forEach var="owner" items="${ownerList}">
                         <tr>
-                            <td>${store.storeId}</td>
-                            <td>${store.storeName}</td>
-                            <td>${store.contractStartDate}</td>
-                            <td>${store.contractEndDate}</td>
-                            <td>${store.approvalDate}</td>
-                            <td class="amount-text">${store.totalSales} 원</td>
-                            <td>${store.visitCount}</td>
-                            <td>${store.commissionRate}%</td>
+                            <td>${owner.ownerId}</td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${store.approvalStatus eq '승인'}">
-                                        <span class="status-active">승인</span>
-                                    </c:when>
-                                    <c:when test="${store.approvalStatus eq '승인 대기중'}">
-                                        <span class="status-pending">승인 대기중</span>
-                                    </c:when>
-                                    <c:when test="${store.approvalStatus eq '만료'}">
-                                        <span class="status-inactive">만료</span>
+                                    <c:when test="${not empty owner.storeMainImage}">
+                                        <img src="${owner.storeMainImage}" class="owner-avatar" alt="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800">
                                     </c:when>
                                     <c:otherwise>
-                                        <button class="btn-detail">자세히 ▼</button>
+                                        <div class="owner-avatar"
+                                             style="background:#e9ecef;display:flex;align-items:center;justify-content:center;">
+                                            <svg width="24" height="24" fill="#adb5bd" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="8" r="4"/>
+                                                <path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/>
+                                            </svg>
+                                        </div>
                                     </c:otherwise>
                                 </c:choose>
                             </td>
+                            <td>${owner.storeName}</td>
+                            <td>${owner.ownerEmail}</td>
+                            <td>${owner.storeCategory}</td>
+                            <td>${owner.storeAvgStar}</td>
+                            <td>${owner.ownerTel}</td>
+                            <td>${owner.storeTel}</td>
+                            <td>${owner.storeAddress}</td>
+                            <td>${owner.storeIntro}</td>
+                            <td>${owner.ownerStatus}</td>
                         </tr>
                     </c:forEach>
                     </tbody>
@@ -335,45 +291,42 @@
         $('#searchForm').on('submit', function(e) {
             e.preventDefault();
             const query = $(this).find('input[name="query"]').val();
-
             $.ajax({
-                url: ctx + '/admin/home/store-management/search',
+                url: ctx + '/admin/home/owner-management/search',
                 type: 'GET',
                 data: { query: query },
-                success: function(storeList) {
-                    console.log('storeList:', storeList);
-                    const storeListBody = $('#storeListBody');
-                    storeListBody.empty();
-
-                    if (!storeList || storeList.length === 0) {
-                        storeListBody.append('<tr><td colspan="9" class="text-center">검색 결과가 없습니다.</td></tr>');
+                success: function(ownerList) {
+                    const ownerListBody = $('#ownerListBody');
+                    ownerListBody.empty();
+                    if (!ownerList || ownerList.length === 0) {
+                        ownerListBody.append('<tr><td colspan="10" class="text-center">검색 결과가 없습니다.</td></tr>');
                         return;
                     }
-
-                    storeList.forEach(function(store) {
-                        let statusHtml = '';
-                        if (store.approvalStatus === '승인') {
-                            statusHtml = '<span class="status-active">승인</span>';
-                        } else if (store.approvalStatus === '승인 대기중') {
-                            statusHtml = '<span class="status-pending">승인 대기중</span>';
-                        } else if (store.approvalStatus === '만료') {
-                            statusHtml = '<span class="status-inactive">만료</span>';
-                        } else {
-                            statusHtml = '<button class="btn-detail">자세히 ▼</button>';
-                        }
+                    ownerList.forEach(function(owner) {
+                        const profileHtml = owner.storeMainImage
+                            ? `<img src="${owner.storeMainImage}" class="user-avatar" alt="프로필">`
+                            : `<div class="user-avatar" style="background:#e9ecef;display:flex;align-items:center;justify-content:center;">
+                                   <svg width="24" height="24" fill="#adb5bd" viewBox="0 0 24 24">
+                                       <circle cx="12" cy="8" r="4"/>
+                                       <path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/>
+                                   </svg>
+                               </div>`;
 
                         const $row = $('<tr>');
-                        $row.append($('<td>').text(store.storeId || ''));
-                        $row.append($('<td>').text(store.storeName || ''));
-                        $row.append($('<td>').text(store.contractStartDate || ''));
-                        $row.append($('<td>').text(store.contractEndDate || '-'));
-                        $row.append($('<td>').text(store.approvalDate || ''));
-                        $row.append($('<td>').addClass('amount-text').text((store.totalSales || '0') + ' 원'));
-                        $row.append($('<td>').text(store.visitCount || '0'));
-                        $row.append($('<td>').text((store.commissionRate || '미정') + (store.commissionRate ? '%' : '')));
-                        $row.append($('<td>').html(statusHtml));
+                        $row.append($('<td>').text(owner.ownerId || ''));
+                        $row.append($('<td>').html(profileHtml));
+                        $row.append($('<td>').text(owner.storeName || ''));
+                        $row.append($('<td>').text(owner.ownerEmail || ''));
+                        $row.append($('<td>').text(owner.storeCategory || ''));
+                        $row.append($('<td>').text(owner.storeAvgStar || ''));
+                        $row.append($('<td>').text(owner.ownerTel || ''));
+                        $row.append($('<td>').text(owner.storeTel || ''));
+                        $row.append($('<td>').text(owner.storeAddress || ''));
+                        $row.append($('<td>').text(owner.storeIntro || ''));
+                        $row.append($('<td>').text(owner.ownerStatus || ''));
 
-                        storeListBody.append($row);
+
+                        ownerListBody.append($row);
                     });
                 },
                 error: function() {
