@@ -101,6 +101,7 @@
             color: #198754;
             font-weight: 700;
             border-bottom: 2px solid #b7e4c7;
+            font-size: 12px;
         }
 
         .table tbody tr {
