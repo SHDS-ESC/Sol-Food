@@ -21,10 +21,6 @@ public class AdminLoginController {
     @Autowired
     private ServerProperties serverProperties;
 
-    @GetMapping("/home")
-    public void home(Model model) {
-    }
-
     // 유저 로그인 페이지
     @GetMapping("/login")
     public void login(Model model) {

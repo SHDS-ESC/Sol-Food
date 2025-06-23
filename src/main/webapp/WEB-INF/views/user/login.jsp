@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -41,6 +42,73 @@
             transform: translateY(-2px) scale(1.03);
             box-shadow: 0 6px 16px rgba(255, 205, 0, 0.25);
         }
+        .form-container {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px;
+        }
+        .form-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4338ca;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #374151;
+            text-align: left;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .form-actions {
+            margin-top: 32px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s ease;
+            width: 222px;
+        }
+        .btn-submit {
+            background-color: #6366f1;
+            color: white;
+        }
+        .btn-submit:hover {
+            background-color: #4f46e5;
+        }
+        .btn-cancel {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        .btn-cancel:hover {
+            background-color: #d1d5db;
+        }
+        a{margin-right: 10px}
     </style>
     <script>
         let msg = '${msg}';
@@ -52,6 +120,19 @@
 <body>
 <div class="login-container">
     <div class="login-title">로그인</div>
+    <form action="/solfood/user/native-login" method="post">
+        <label for="usersEmail">이메일</label>
+        <input type="text" placeholder="example@domain.com" name="usersEmail" id="usersEmail" required> <br>
+
+        <label for="usersPwd">비밀번호</label>
+        <input type="password" placeholder="비밀번호입력" name="usersPwd" id="usersPwd" required> <br> <br>
+
+
+        <button type="submit" class="btn btn-submit">로그인</button> <br> <br>
+    </form>
+    <a href="search-id">아이디 찾기</a>
+    <a href="search-pwd">비밀번호 찾기</a>
+    <a href="join">회원가입</a> <br> <br> <br>
     <a id="login-kakao-btn"
        class="kakao"
        href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/user/kakaoLogin&response_type=code">
