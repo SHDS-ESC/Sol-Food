@@ -4,7 +4,9 @@ function requestPayment(options, callback) {
         return;
     }
     var IMP = window.IMP;
-    IMP.init(options.impKey);
+    IMP.init(options.impCode);
+
+    console.log("impCode:", options.impCode);
 
     IMP.request_pay({
         pg: options.pg || 'html5_inicis',
