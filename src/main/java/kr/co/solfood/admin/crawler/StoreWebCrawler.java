@@ -2,15 +2,14 @@ package kr.co.solfood.admin.crawler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import configuration.KakaoProperties;
 import kr.co.solfood.user.store.CategoryProperties;
 import kr.co.solfood.user.store.StoreService;
 import kr.co.solfood.user.store.StoreVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import properties.KakaoProperties;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
