@@ -1,12 +1,12 @@
 package kr.co.solfood.admin.login;
 
-import kr.co.solfood.owner.login.OwnerVO;
-import org.springframework.web.servlet.HandlerInterceptor;
+import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.PrintWriter;
+
+import org.springframework.web.servlet.HandlerInterceptor;
 
 public class AdminLoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {

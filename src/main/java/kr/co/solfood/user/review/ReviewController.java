@@ -1,6 +1,5 @@
 package kr.co.solfood.user.review;
 
-import configuration.KakaoProperties;
 import kr.co.solfood.user.menu.MenuVO;
 import kr.co.solfood.user.menu.MenuService;
 import kr.co.solfood.user.store.StoreVO;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import properties.KakaoProperties;
 
 import java.util.List;
 import java.util.Map;

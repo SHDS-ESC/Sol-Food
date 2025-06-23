@@ -1,10 +1,9 @@
-package configuration;
-
-import lombok.Data;
-
-@Data
-public class ServerProperties {
-    String ip;
-    String port;
-}
-
+//package configuration;
+//
+//import lombok.Data;
+//
+//@Data
+//public class ServerProperties {
+//    String ip;
+//    String port;
+//}
