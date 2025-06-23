@@ -1,0 +1,480 @@
+/* Store Page Styles */
+body {
+    margin: 0;
+    background-color: #f5d6db; /* 연분홍 배경 */
+    font-family: 'Apple SD Gothic Neo', sans-serif;
+}
+
+.app-container {
+    max-width: 430px;
+    margin: 0 auto;
+    background: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-bottom: 80px; /* 하단 바 공간 */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.toggle-btns {
+    display: flex;
+    gap: 5px;
+}
+
+.search-bar {
+    padding: 0 15px;
+    margin-top: 10px;
+    display: flex;
+    gap: 5px;
+}
+
+/* 카테고리 그리드 스타일 */
+.category-container {
+    padding: 15px;
+    background: #fff;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.category-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 4px;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.category-item:hover {
+    background: #f8f9fa;
+}
+
+.category-item.active {
+    background: #fff5f5;
+}
+
+.category-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.category-item.active .category-icon {
+    border-color: #ff4d6d;
+    background: #fff5f5;
+}
+
+.category-icon img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.category-icon i {
+    font-size: 24px;
+    color: #666;
+}
+
+.category-item.active .category-icon i {
+    color: #ff4d6d;
+}
+
+.category-name {
+    font-size: 11px;
+    color: #333;
+    text-align: center;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.category-item.active .category-name {
+    color: #ff4d6d;
+    font-weight: 600;
+}
+
+.category-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.more-btn {
+    background: #f8f9fa;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.more-btn:hover {
+    background: #e9ecef;
+}
+
+.category-grid-extended {
+    display: none;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.store-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 10px 15px;
+}
+
+.store-card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.store-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.store-img {
+    width: 100%;
+    height: 120px;
+    background-color: #eee;
+    object-fit: cover;
+}
+
+.store-body {
+    padding: 10px;
+    font-size: 13px;
+    position: relative;
+}
+
+.store-name {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.like-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #ff4d6d;
+    font-size: 16px;
+}
+
+/* 지도 스타일 추가 */
+.map-container {
+    width: 100%;
+    height: calc(100vh - 200px);
+    display: none;
+    flex-direction: column;
+}
+
+.map-view {
+    flex: 1;
+}
+
+.list-container {
+    display: block;
+}
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: #fff;
+    border-top: 1px solid #ccc;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000;
+}
+
+.bottom-nav a {
+    color: #555;
+    text-decoration: none;
+    font-size: 12px;
+    text-align: center;
+}
+
+.bottom-nav i {
+    font-size: 20px;
+    display: block;
+}
+
+.btn-active {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.loading i {
+    font-size: 30px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 커스텀 마커 스타일 */
+.custom-marker {
+    background: #ff4d6d;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* 커스텀 인포윈도우 스타일 */
+.custom-infowindow {
+    width: 280px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+    font-family: 'Apple SD Gothic Neo', sans-serif;
+}
+
+.infowindow-header {
+    position: relative;
+    padding: 12px;
+    background: linear-gradient(135deg, #ff4d6d, #ff6b6b);
+    color: white;
+}
+
+.infowindow-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    font-size: 16px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.infowindow-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.store-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+    padding-right: 30px;
+}
+
+.store-category-tag {
+    background: rgba(255,255,255,0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.infowindow-body {
+    padding: 12px;
+}
+
+.menu-image-container {
+    width: 100%;
+    height: 120px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.menu-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-image-placeholder {
+    color: #6c757d;
+    font-size: 12px;
+    text-align: center;
+}
+
+.store-info {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.store-info-item {
+    margin: 3px 0;
+    display: flex;
+    align-items: center;
+}
+
+.store-info-icon {
+    width: 16px;
+    margin-right: 6px;
+    color: #0c18c1;
+}
+
+.infowindow-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.info-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-detail {
+    background: #ff4d6d;
+    color: white;
+}
+
+.btn-detail:hover {
+    background: #ff3549;
+}
+
+.btn-call {
+    background: #28a745;
+    color: white;
+}
+
+.btn-call:hover {
+    background: #218838;
+}
+
+/* 지도용 가로 스크롤 카테고리 스타일 */
+.map-category-container {
+    padding: 10px 0;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    display: none;
+}
+
+.map-category-scroll {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0 15px 10px 15px; /* 스크롤바 공간을 위해 아래 패딩 추가 */
+    gap: 10px;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    box-sizing: border-box;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #888 #f1f1f1; /* Firefox */
+}
+
+.map-category-scroll::-webkit-scrollbar {
+    height: 6px; /* 스크롤바 높이 */
+}
+
+.map-category-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.map-category-scroll::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.map-category-scroll::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.map-category-btn {
+    flex: 0 0 auto; /* flex-shrink: 0을 더 명확하게 */
+    min-width: 60px; /* 최소 폭을 설정하여 스크롤 확보 */
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: #fff;
+    color: #333;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.map-category-btn:hover {
+    background: #f8f9fa;
+    border-color: #ff4d6d;
+}
+
+.map-category-btn.active {
+    background: #ff4d6d;
+    color: white;
+    border-color: #ff4d6d;
+}
+
+/* 지도 화면에서 기본 카테고리 숨김 */
+.map-view .category-container {
+    display: none;
+}
+
+.map-view .map-category-container {
+    display: block;
+} 

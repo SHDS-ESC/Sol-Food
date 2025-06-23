@@ -15,7 +15,7 @@
             store_address,
             store_tel
         FROM store
-        ORDER BY store_id DESC
+        ORDER BY store_avgstar DESC, store_id DESC
     </select>
     <!-- 가게 ID로 가게 정보 조회 -->
     <select id="getStoreById" parameterType="int" resultType="kr.co.solfood.user.store.StoreVO">
@@ -35,7 +35,7 @@
         WHERE store_id = #{storeId}
     </select>
 
-    <!-- 카테고리별 조회 -->
+    <!-- 카테고리별 조회 (성능 개선: 인덱스 활용하도록록 수정) -->
     <select id="selectCategoryStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT 
             store_id,
@@ -46,8 +46,13 @@
             store_address,
             store_tel
         FROM store
-        WHERE store_category LIKE CONCAT('%', #{category}, '%')
-        ORDER BY store_id DESC
+        <where>
+            <if test="category != null and category != '' and category != '전체'">
+                AND store_category LIKE CONCAT(#{category}, '%')
+            </if>
+        </where>
+        ORDER BY store_avgstar DESC, store_id DESC
+        LIMIT 100
     </select>
 
     <!-- 새 가게 정보 추가 (크롤링용) -->

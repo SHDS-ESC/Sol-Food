@@ -35,14 +35,14 @@ public class ReviewController {
     @GetMapping("/list")
     public String reviewList(@RequestParam(required = false) Integer storeId, Model model) {
         if (storeId == null) {
-            return "redirect:/user/list?storeId=1";
+            return "redirect:/user/store";
         }
         
         // 가게 정보 조회
         StoreVO store = reviewService.getStoreById(storeId);
         if (store == null) {
-            // 가게 정보가 없으면 1번 가게로 리다이렉트
-            return "redirect:/user/list?storeId=1";
+            // 가게 정보가 없으면 store 메인 페이지로 리다이렉트
+            return "redirect:/user/store";
         }
         
         // 해당 가게의 리뷰 목록 조회
@@ -150,8 +150,13 @@ public class ReviewController {
         try {
             // 삭제 전에 해당 리뷰의 storeId를 조회
             ReviewVO review = reviewService.getReviewById(reviewId);
-            Integer storeId = review != null ? review.getStoreId() : 1;
             
+            if (review == null) {
+                // 리뷰 정보가 없으면 store 메인 페이지로 리다이렉트
+                return "redirect:/user/store";
+            }
+            
+            Integer storeId = review.getStoreId();
             reviewService.deleteReview(reviewId);
             return "redirect:/user/list?storeId=" + storeId;
         } catch (Exception e) {
@@ -180,8 +185,33 @@ public class ReviewController {
     
     // 리뷰 메인 페이지
     @GetMapping("/main")
-    public String reviewMain(Model model) {
+    public String reviewMain(@RequestParam(value = "storeId", required = false) Integer storeId, Model model) {
+        // storeId가 없으면 store 메인 페이지로 리다이렉트
+        if (storeId == null) {
+            return "redirect:/user/store";
+        }
+        
+        // 가게 정보 조회
+        StoreVO store = reviewService.getStoreById(storeId);
+        if (store == null) {
+            // 가게 정보가 없으면 store 메인 페이지로 리다이렉트
+            return "redirect:/user/store";
+        }
+        
+        // 해당 가게의 리뷰 목록 조회 (최신 몇 개만)
+        List<ReviewVO> recentReviews = reviewService.getReviewsByStoreId(storeId);
+        
+        // 해당 가게의 평균 별점 및 통계 조회
+        Double avgStar = reviewService.getAverageStarByStoreId(storeId);
+        Integer totalCount = reviewService.getTotalCountByStoreId(storeId);
+        
+        model.addAttribute("store", store);
+        model.addAttribute("storeId", storeId);
+        model.addAttribute("recentReviews", recentReviews);
+        model.addAttribute("avgStar", avgStar != null ? avgStar : 0.0);
+        model.addAttribute("totalCount", totalCount != null ? totalCount : 0);
         model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
+        
         return "review/reviewMain";
     }
     
