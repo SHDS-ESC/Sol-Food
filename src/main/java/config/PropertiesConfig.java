@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import properties.DbProperties;
 import properties.KakaoProperties;
+import properties.S3Properties;
 import properties.ServerProperties;
 
 @Configuration
@@ -36,9 +37,21 @@ public class PropertiesConfig {
     @Bean
     public KakaoProperties kakaoProperties(
             @Value("${kakao.restApiKey}") String restApiKey,
-            @Value("${kakao.jsApiKey") String jsApiKey
+            @Value("${kakao.js.key}") String jsApiKey
             ) {
         KakaoProperties props = new KakaoProperties(restApiKey, jsApiKey);
+        return props;
+    }
+
+    // AWS S3 설정
+    @Bean
+    public S3Properties s3Properties(
+            @Value("${aws.s3.bucket}") String bucket,
+            @Value("${aws.s3.region}") String region,
+            @Value("${aws.access.key}") String accessKey,
+            @Value("${aws.secret.key}") String secretKey
+            ) {
+        S3Properties props = new S3Properties(bucket, region, accessKey, secretKey);
         return props;
     }
 

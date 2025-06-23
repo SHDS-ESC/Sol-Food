@@ -56,7 +56,7 @@ public class LoginController {
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         UserVO kakaoLogin = service.confirmAccessToken(code);
         sess.setAttribute("userLoginSession", kakaoLogin);
-        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:extra" : "redirect:mypage";
+        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:extra" : "redirect:/";
     }
 
     // 카카오 추가 정보 페이지
@@ -73,14 +73,14 @@ public class LoginController {
         UserVO userVo = service.register(kakaoAddVO);
         System.out.println("브이오" + kakaoAddVO);
         sess.setAttribute("userLoginSession", userVo);
-        return "redirect:mypage";
+        return "redirect:/";
     }
 
     // 로그 아웃
     @GetMapping("/logout")
     public String logout(HttpSession sess) {
         sess.invalidate();
-        return "redirect:login";
+        return "redirect:/";
     }
 
     // 자체 로그인
@@ -89,7 +89,7 @@ public class LoginController {
         UserVO userVo = service.nativeLogin(req);
         if(userVo !=null){
             sess.setAttribute("userLoginSession", userVo);
-            return "redirect:mypage";
+            return "redirect:/";
         } else {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
             return "/user/login"; // 로그인 페이지로 다시 이동
