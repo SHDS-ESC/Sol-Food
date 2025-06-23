@@ -260,31 +260,35 @@
                 font-size: 1.8rem;
             }
         }
+
+        .profile-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .nickname {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .welcome {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
+<div class="register-container">
 <div class="profile-container">
     <img class="profile-img" src='${user.usersProfile }' alt='카카오 프로필 이미지'>
     <div class="nickname">${user.usersNickname }님</div>
     <div class="welcome">추가 정보를 입력해주세요</div>
-    <form action="<c:url value="/user/extra"/>" method="post">
-        <input type="hidden" name="usersId" value="${user.usersId}">
-        <input type="hidden" name="companyId" value="${user.companyId }">
-        <input type="hidden" name="departmentId" value="${user.departmentId }">
-        <input type="hidden" name="usersEmail" value="${user.usersEmail }">
-        <input type="hidden" name="usersProfile" value="${user.usersProfile }">
-        <input type="hidden" name="usersNickname" value="${user.usersNickname }">
-        <input type="hidden" name="usersKakaoId" value="${user.usersKakaoId}">
-        <input type="hidden" name="accessToken" value="${user.accessToken}">
-        <input type="hidden" name="usersPoint" value="${user.usersPoint}">
-        <input type="hidden" name="usersLoginType" value="${user.usersLoginType}">
-    <div class="register-container">
-        <div class="brand-header">
-            <div class="brand-logo">🍽️</div>
-            <h1 class="brand-title">Sol Food</h1>
-            <p class="brand-subtitle">레스토랑 관리 시스템</p>
-            <span class="register-type">오너 회원가입</span>
-        </div>
 
         <form id="registerForm" action="<c:url value="/owner/register"/>" method="post" >
             <input type="hidden" name="ownerStatus" value="활성">
@@ -441,7 +445,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="register-btn" id="submitBtn" disabled>
+            <button type="submit" class="register-btn" id="submitBtn" >
                 회원가입 완료
             </button>
         </form>
@@ -452,159 +456,10 @@
         </div>
     </div>
 
-    <script>
-        $(document).ready(function() {
-<<<<<<<< HEAD:src/main/webapp/WEB-INF/views/owner/register.jsp
+</div>
+<script>
 
-            // 비밀번호 유효성 검사
-            // $('#ownerPassword').on('input', function() {
-            //     const password = $(this).val();
-            //     const regex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
-            //
-            //     if (password.length === 0) {
-            //         $('#passwordValidation').text('');
-            //     } else if (!regex.test(password)) {
-            //         $('#passwordValidation').text('8자 이상, 영문+숫자+특수문자를 포함해야 합니다.');
-            //     } else {
-            //         $('#passwordValidation').text('사용 가능한 비밀번호입니다.').addClass('success');
-            //     }
-            //     checkPasswordMatch();
-            //     checkFormValid();
-            // });
-========
-            // 아이디 유효성 검사
-            $('#ownerId').on('input', function() {
-                const id = $(this).val();
-                const regex = /^[a-zA-Z0-9]{6,20}$/;
 
-                if (id.length === 0) {
-                    $('#idValidation').text('');
-                } else if (!regex.test(id)) {
-                    $('#idValidation').text('6~20자의 영문, 숫자만 사용 가능합니다.');
-                } else {
-                    $('#idValidation').text('사용 가능한 아이디입니다.').addClass('success');
-                }
-                checkFormValid();
-            });
-
-            // 비밀번호 유효성 검사
-            $('#ownerPassword').on('input', function() {
-                const password = $(this).val();
-                const regex = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
-
-                if (password.length === 0) {
-                    $('#passwordValidation').text('');
-                } else if (!regex.test(password)) {
-                    $('#passwordValidation').text('8자 이상, 영문+숫자+특수문자를 포함해야 합니다.');
-                } else {
-                    $('#passwordValidation').text('사용 가능한 비밀번호입니다.').addClass('success');
-                }
-                checkPasswordMatch();
-                checkFormValid();
-            });
->>>>>>>> owner:src/main/webapp/WEB-INF/views/owner/extra.jsp
-
-            // 비밀번호 확인 검사
-            $('#passwordConfirm').on('input', function() {
-                checkPasswordMatch();
-                checkFormValid();
-            });
-
-            function checkPasswordMatch() {
-                const password = $('#ownerPassword').val();
-                const confirmPassword = $('#passwordConfirm').val();
-
-                if (confirmPassword.length === 0) {
-                    $('#passwordConfirmValidation').text('');
-                } else if (password !== confirmPassword) {
-                    $('#passwordConfirmValidation').text('비밀번호가 일치하지 않습니다.');
-                } else {
-                    $('#passwordConfirmValidation').text('비밀번호가 일치합니다.').addClass('success');
-                }
-            }
-
-            // 이메일 유효성 검사
-            $('#ownerEmail').on('input', function() {
-                const email = $(this).val();
-                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-                if (email.length === 0) {
-                    $('#emailValidation').text('');
-                } else if (!regex.test(email)) {
-                    $('#emailValidation').text('올바른 이메일 형식이 아닙니다.');
-                } else {
-                    $('#emailValidation').text('사용 가능한 이메일입니다.').addClass('success');
-                }
-                checkFormValid();
-            });
-
-            // 이미지 미리보기
-            $('#restaurantImage').on('change', function() {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#imagePreview').html('<img src="' + e.target.result + '" alt="미리보기">');
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // 약관동의 체크
-            $('#agreeTerms').on('change', function() {
-                checkFormValid();
-            });
-
-            // 필수 입력 항목들 체크
-            $('input[required], select[required], textarea[required]').on('input change', function() {
-                checkFormValid();
-            });
-
-            function checkFormValid() {
-                const requiredFields = $('input[required], select[required]');
-                let allValid = true;
-
-                requiredFields.each(function() {
-                    if ($(this).val().trim() === '') {
-                        allValid = false;
-                    }
-                });
-
-                // 유효성 검사 통과 여부 확인
-                if (
-                    // $('#passwordValidation').hasClass('success') &&
-                    $('#passwordConfirmValidation').hasClass('success') &&
-                    $('#emailValidation').hasClass('success') &&
-                    $('#agreeTerms').is(':checked') &&
-                    allValid) {
-                    $('#submitBtn').prop('disabled', false);
-                } else {
-                    $('#submitBtn').prop('disabled', true);
-                }
-            }
-
-            // 전화번호 자동 하이픈 추가
-            $('#ownerPhone, #restaurantPhone').on('input', function() {
-                let value = $(this).val().replace(/[^0-9]/g, '');
-                if (value.length >= 3 && value.length <= 7) {
-                    value = value.replace(/(\d{3})(\d+)/, '$1-$2');
-                } else if (value.length >= 8) {
-                    value = value.replace(/(\d{3})(\d{4})(\d+)/, '$1-$2-$3');
-                }
-                $(this).val(value);
-            });
-
-            // 사업자등록번호 자동 하이픈 추가
-            $('#businessNumber').on('input', function() {
-                let value = $(this).val().replace(/[^0-9]/g, '');
-                if (value.length >= 3 && value.length <= 5) {
-                    value = value.replace(/(\d{3})(\d+)/, '$1-$2');
-                } else if (value.length >= 6) {
-                    value = value.replace(/(\d{3})(\d{2})(\d+)/, '$1-$2-$3');
-                }
-                $(this).val(value);
-            });
-        });
-    </script>
+</script>
 </body>
 </html>
