@@ -32,7 +32,7 @@ public class StoreController {
     @Autowired
     private KakaoProperties kakaoProperties;
 
-        @GetMapping("")
+    @GetMapping("")
     public String getStoreList(@RequestParam(value = "category", required = false) String category, Model model) {
         List<StoreVO> storeList;
         if (category == null) {
@@ -47,51 +47,39 @@ public class StoreController {
         return "user/store";
     }
 
-    //Ajax용 카테고리별 목록 조회 API
-    @GetMapping("/api/store/category/{category}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getCategoryStoreApi(@PathVariable String category) {
-        List<StoreVO> storeList;
-        if (StoreConstants.CATEGORY_ALL.equals(category)) {
-            storeList = service.getAllStore();
-        } else {
-            storeList = service.getCategoryStore(category);
-        }
+    // //Ajax용 카테고리별 목록 조회 API
+    // @GetMapping("/api/store/category/{category}")
+    // @ResponseBody
+    // public ResponseEntity<Map<String, Object>> getCategoryStoreApi(@PathVariable String category) {
+    //     List<StoreVO> storeList;
+    //     if (StoreConstants.CATEGORY_ALL.equals(category)) {
+    //         storeList = service.getAllStore();
+    //     } else {
+    //         storeList = service.getCategoryStore(category);
+    //     }
         
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", storeList);
-        response.put("count", storeList.size());
-        response.put("category", category);
+    //     Map<String, Object> response = new HashMap<>();
+    //     response.put("success", true);
+    //     response.put("data", storeList);
+    //     response.put("count", storeList.size());
+    //     response.put("category", category);
         
-        return ResponseEntity.ok(response);
-    }
+    //     return ResponseEntity.ok(response);
+    // }
 
-    //카테고리 설정 정보 API (프론트엔드용)
-    @GetMapping("/api/category/config")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getCategoryConfig() {
-        Map<String, Object> config = categoryProperties.getCategoryConfig();
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("success", true);
-        response.put("data", config);
-        
-        return ResponseEntity.ok(response);
-    }
-
+    
     // 상점 상세 페이지로 이동
     @GetMapping("/detail/{storeId}")
     public String getStoreDetail(@PathVariable int storeId) {
         // 해당 가게가 존재하는지 확인
         StoreVO store = service.getStoreById(storeId);
         if (store == null) {
-            // 가게가 없으면 전체 상점 목록으로 리다이렉트
-            return "redirect:/user/store";
+            // 존재하지 않는 가게면 404 페이지 표시
+            return "error/404";
         }
         
         // 리뷰 리스트 페이지로 리다이렉트 (상점 상세 페이지 역할)
-        return "redirect:/user/list?storeId=" + storeId;
+        return "redirect:/user/review/list?storeId=" + storeId;
     }
     
     /**
