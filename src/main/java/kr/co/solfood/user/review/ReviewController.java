@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/user/review")
 public class ReviewController {
     
     @Autowired
@@ -35,14 +35,14 @@ public class ReviewController {
     @GetMapping("/list")
     public String reviewList(@RequestParam(required = false) Integer storeId, Model model) {
         if (storeId == null) {
-            return "redirect:/user/list?storeId=1";
+            return "redirect:/user/store";
         }
         
         // 가게 정보 조회
         StoreVO store = reviewService.getStoreById(storeId);
         if (store == null) {
-            // 가게 정보가 없으면 1번 가게로 리다이렉트
-            return "redirect:/user/list?storeId=1";
+            // 존재하지 않는 가게면 스토어 메인으로 이동
+            return "redirect:/user/store";
         }
         
         // 해당 가게의 리뷰 목록 조회
@@ -77,7 +77,7 @@ public class ReviewController {
         List<MenuVO> menuList = menuService.getMenusByStoreId(storeId);
         model.addAttribute("menuList", menuList);
         
-        return "review/reviewList";
+        return "review/list";
     }
     
     // 리뷰 작성 페이지
@@ -93,41 +93,28 @@ public class ReviewController {
         try {
             reviewService.registerReview(review);
             System.out.println("리뷰 등록 성공: " + review.getReviewTitle());
-            return "redirect:/user/list?storeId=" + review.getStoreId();
+            return "redirect:/user/review/list?storeId=" + review.getStoreId();
         } catch (Exception e) {
             System.out.println("리뷰 등록 실패: " + e.getMessage());
             e.printStackTrace();
-            return "error";
+            return "redirect:/user/review/write";
         }
     }
-    
-    // 리뷰 상세 보기
-    @GetMapping("/detail/{reviewId}")
-    public String reviewDetail(@PathVariable Integer reviewId, Model model) {
-        try {
-            ReviewVO review = reviewService.getReviewById(reviewId);
-            model.addAttribute("review", review);
-            model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
-            return "review/reviewDetail";
-        } catch (Exception e) {
-            System.out.println("리뷰 상세 조회 실패: " + e.getMessage());
-            e.printStackTrace();
-            return "error";
-        }
-    }
-    
     // 리뷰 수정 페이지
     @GetMapping("/edit/{reviewId}")
     public String reviewEditForm(@PathVariable Integer reviewId, Model model) {
         try {
             ReviewVO review = reviewService.getReviewById(reviewId);
+            if (review == null) {
+                return "redirect:/user/store";
+            }
             model.addAttribute("review", review);
             model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
             return "review/reviewEdit";
         } catch (Exception e) {
             System.out.println("리뷰 수정 페이지 조회 실패: " + e.getMessage());
             e.printStackTrace();
-            return "error";
+            return "redirect:/user/review/detail/" + reviewId;
         }
     }
     
@@ -136,11 +123,11 @@ public class ReviewController {
     public String reviewEdit(@ModelAttribute ReviewVO review) {
         try {
             reviewService.updateReview(review);
-            return "redirect:/user/detail/" + review.getReviewId();
+            return "redirect:/user/review/detail/" + review.getReviewId();
         } catch (Exception e) {
             System.out.println("리뷰 수정 실패: " + e.getMessage());
             e.printStackTrace();
-            return "error";
+            return "redirect:/user/review/edit/" + review.getReviewId();
         }
     }
     
@@ -150,14 +137,20 @@ public class ReviewController {
         try {
             // 삭제 전에 해당 리뷰의 storeId를 조회
             ReviewVO review = reviewService.getReviewById(reviewId);
-            Integer storeId = review != null ? review.getStoreId() : 1;
             
+            if (review == null) {
+                // 존재하지 않는 리뷰면 스토어 목록으로
+                return "redirect:/user/store";
+            }
+            
+            Integer storeId = review.getStoreId();
             reviewService.deleteReview(reviewId);
-            return "redirect:/user/list?storeId=" + storeId;
+            return "redirect:/user/review/list?storeId=" + storeId;
         } catch (Exception e) {
             System.out.println("리뷰 삭제 실패: " + e.getMessage());
             e.printStackTrace();
-            return "error";
+            // 삭제 실패 시 리뷰 상세 페이지로 돌아가기
+            return "redirect:/user/review/detail/" + reviewId;
         }
     }
     
@@ -170,20 +163,11 @@ public class ReviewController {
             model.addAttribute("reviewList", reviewList);
             model.addAttribute("searchKeyword", reviewTitle);
             model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
-            return "review/reviewList";
+            return "review/list";
         } catch (Exception e) {
             System.out.println("리뷰 검색 실패: " + e.getMessage());
             e.printStackTrace();
-            return "error";
+            return "redirect:/user/store";
         }
     }
-    
-    // 리뷰 메인 페이지
-    @GetMapping("/main")
-    public String reviewMain(Model model) {
-        model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
-        return "review/reviewMain";
-    }
-    
-
 }
