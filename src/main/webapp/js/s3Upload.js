@@ -33,14 +33,8 @@ class S3FileUploader {
             // 4. S3에 파일 직접 업로드
             await this.uploadToS3(uploadUrlResponse.presignedUrl, file, onProgress);
             
-            // 5. 업로드 완료 후 공개 URL 받기
-            const publicUrlResponse = await this.getPublicUrl(uploadUrlResponse.fileName);
-            
-            if (!publicUrlResponse.success) {
-                throw new Error(publicUrlResponse.message);
-            }
-            
-            return publicUrlResponse.fileUrl;
+            // 5. 🚀 개선: 공개 URL을 바로 반환 (추가 API 호출 불필요)
+            return uploadUrlResponse.publicUrl;
             
         } catch (error) {
             console.error('파일 업로드 실패:', error);
@@ -101,9 +95,12 @@ class S3FileUploader {
     }
     
     /**
-     * 업로드 완료 후 공개 URL 받기
+     * 🚀 개선: 이제 사용하지 않음 (첫 번째 API 호출에서 publicUrl 바로 제공)
+     * 업로드 완료 후 공개 URL 받기 (레거시)
      */
     async getPublicUrl(fileName) {
+        console.warn('⚠️ getPublicUrl은 레거시 메서드입니다. 이제 presigned URL 요청에서 publicUrl을 바로 받습니다.');
+        
         const response = await fetch(`${this.apiBasePath}/profile/complete`, {
             method: 'POST',
             headers: {

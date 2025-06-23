@@ -123,9 +123,15 @@ public class LoginController {
 
     // 회원가입
     @GetMapping("/join")
-    public String join(Model model) {
+    public String join(Model model, HttpSession session) {
         List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
         model.addAttribute("companyList", companyList);
+        
+        // 회원가입 진행 세션 플래그 설정 (S3 업로드 보안용)
+        session.setAttribute("joinInProgress", true);
+        session.setAttribute("uploadCount", 0);
+        session.setMaxInactiveInterval(30 * 60); // 30분 후 만료
+        
         return "/user/join";
     }
 
@@ -134,6 +140,11 @@ public class LoginController {
     @PostMapping("/join")
     public String join(UserVO kakaoAddVO, HttpSession sess) {
         service.register(kakaoAddVO);
+        
+        // 회원가입 완료 후 세션 정리
+        sess.removeAttribute("joinInProgress");
+        sess.removeAttribute("uploadCount");
+        
         return "redirect:login";
     }
 
