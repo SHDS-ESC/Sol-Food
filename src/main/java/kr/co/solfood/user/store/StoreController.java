@@ -82,6 +82,19 @@ public class StoreController {
         return "redirect:/user/review/list?storeId=" + storeId;
     }
     
+    //카테고리 설정 정보 API
+    @GetMapping("/api/category/config")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getCategoryConfig() {
+        Map<String, Object> config = categoryProperties.getCategoryConfig();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", config);
+        
+        return ResponseEntity.ok(response);
+    }
+    
     /**
      * API 에러 응답 생성 헬퍼 메서드
      */
