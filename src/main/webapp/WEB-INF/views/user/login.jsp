@@ -132,7 +132,7 @@
     </form>
     <a href="search-id">아이디 찾기</a>
     <a href="search-pwd">비밀번호 찾기</a>
-    <a href="join">회원가입</a> <br> <br> <br>
+    <a href="register">회원가입</a> <br> <br> <br>
     <a id="login-kakao-btn"
        class="kakao"
        href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/user/kakaoLogin&response_type=code">

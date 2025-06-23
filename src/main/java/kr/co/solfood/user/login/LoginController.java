@@ -122,17 +122,16 @@ public class LoginController {
 
 
     // 회원가입
-    @GetMapping("/join")
-    public String join(Model model) {
+    @GetMapping("/register")
+    public void register(Model model) {
         List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
         model.addAttribute("companyList", companyList);
-        return "/user/join";
     }
 
     // 회원가입 post
     @Transactional
-    @PostMapping("/join")
-    public String join(UserVO kakaoAddVO, HttpSession sess) {
+    @PostMapping("/register")
+    public String register(UserVO kakaoAddVO, HttpSession sess) {
         service.register(kakaoAddVO);
         return "redirect:login";
     }
