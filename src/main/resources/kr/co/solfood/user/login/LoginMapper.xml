@@ -45,7 +45,7 @@
     <select id="getDepartmentsByCompanyId" parameterType="int" resultType="kr.co.solfood.user.login.DepartmentVO">
         SELECT *
         FROM department
-        WHERE COMPANY_ID = #{companyId}
+        WHERE company_id = #{companyId}
     </select>
 
     <!--로그인-->
