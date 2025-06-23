@@ -166,6 +166,7 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
                 .excludePathPatterns("/user/search-pwd")
                 .excludePathPatterns("/user/find-pwd")
                 .excludePathPatterns("/user/search-id")
+                .excludePathPatterns("/user/payment")   // 임시로 추가, 이후 제거
                 .excludePathPatterns("/user/kakaoLogin");
 
         registry.addInterceptor(adminLoginInterceptor())
@@ -182,6 +183,9 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     // Swagger
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/resources/**")
+                .addResourceLocations("/resources/");
+        // 기존 Swagger 핸들러 유지
         registry.addResourceHandler("/swagger-ui/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
                 .resourceChain(false);
