@@ -1,4 +1,4 @@
-package kr.co.solfood.user.store;
+package kr.co.solfood.user.menu;
 
 import lombok.Data;
 
@@ -31,10 +31,6 @@ public class MenuVO {
             return "비빔밥";
         } else if (menuName.contains("도시락")) {
             return "도시락";
-        } else if (menuPrice <= 2000) {
-            return "실속반찬/단품";
-        } else if (menuPrice <= 4000) {
-            return "스낵/디저트";
         } else {
             return "신메뉴";
         }

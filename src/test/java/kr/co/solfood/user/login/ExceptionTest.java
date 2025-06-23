@@ -13,57 +13,57 @@ class ExceptionTest {
     @DisplayName("null 값 처리 테스트")
     void testNullHandling() {
         // given
-        LoginVO loginVO = new LoginVO();
+        UserVO userVO = new UserVO();
 
         // when & then
         assertDoesNotThrow(() -> {
-            loginVO.setUsersNickname(null);
-            loginVO.setUsersEmail(null);
+            userVO.setUsersNickname(null);
+            userVO.setUsersEmail(null);
         });
 
-        assertNull(loginVO.getUsersNickname());
-        assertNull(loginVO.getUsersEmail());
+        assertNull(userVO.getUsersNickname());
+        assertNull(userVO.getUsersEmail());
     }
 
     @Test
     @DisplayName("빈 문자열 처리 테스트")
     void testEmptyStringHandling() {
         // given
-        LoginVO loginVO = new LoginVO();
+        UserVO userVO = new UserVO();
 
         // when
-        loginVO.setUsersNickname("");
-        loginVO.setUsersEmail("");
+        userVO.setUsersNickname("");
+        userVO.setUsersEmail("");
 
         // then
-        assertEquals("", loginVO.getUsersNickname());
-        assertEquals("", loginVO.getUsersEmail());
+        assertEquals("", userVO.getUsersNickname());
+        assertEquals("", userVO.getUsersEmail());
     }
 
     @Test
     @DisplayName("음수 포인트 처리 테스트")
     void testNegativePointHandling() {
         // given
-        LoginVO loginVO = new LoginVO();
+        UserVO userVO = new UserVO();
 
         // when
-        loginVO.setUsersPoint(-100);
+        userVO.setUsersPoint(-100);
 
         // then
-        assertEquals(-100, loginVO.getUsersPoint());
+        assertEquals(-100, userVO.getUsersPoint());
     }
 
     @Test
     @DisplayName("매우 큰 포인트 값 처리 테스트")
     void testLargePointHandling() {
         // given
-        LoginVO loginVO = new LoginVO();
+        UserVO userVO = new UserVO();
 
         // when
-        loginVO.setUsersPoint(Integer.MAX_VALUE);
+        userVO.setUsersPoint(Integer.MAX_VALUE);
 
         // then
-        assertEquals(Integer.MAX_VALUE, loginVO.getUsersPoint());
+        assertEquals(Integer.MAX_VALUE, userVO.getUsersPoint());
     }
 
     @Test
@@ -145,15 +145,15 @@ class ExceptionTest {
     @DisplayName("객체 생성 시 기본값 테스트")
     void testDefaultValues() {
         // given & when
-        LoginVO loginVO = new LoginVO();
+        UserVO userVO = new UserVO();
         LoginRequest loginRequest = new LoginRequest();
         SearchPwdRequest searchPwdRequest = new SearchPwdRequest();
 
         // then
         // LoginVO의 기본값 확인
-        assertEquals(0, loginVO.getUsersPoint());
-        assertNull(loginVO.getUsersNickname());
-        assertNull(loginVO.getUsersEmail());
+        assertEquals(0, userVO.getUsersPoint());
+        assertNull(userVO.getUsersNickname());
+        assertNull(userVO.getUsersEmail());
 
         // LoginRequest의 기본값 확인
         assertNull(loginRequest.getUsersEmail());
@@ -168,15 +168,15 @@ class ExceptionTest {
     @DisplayName("날짜 설정 테스트")
     void testDateSetting() {
         // given
-        LoginVO loginVO = new LoginVO();
+        UserVO userVO = new UserVO();
 
         // when
-        loginVO.setUsersCreatedAt(null);
-        loginVO.setUsersUpdatedAt(null);
+        userVO.setUsersCreatedAt(null);
+        userVO.setUsersUpdatedAt(null);
 
         // then
-        assertNull(loginVO.getUsersCreatedAt());
-        assertNull(loginVO.getUsersUpdatedAt());
+        assertNull(userVO.getUsersCreatedAt());
+        assertNull(userVO.getUsersUpdatedAt());
     }
 
     // 헬퍼 메서드들

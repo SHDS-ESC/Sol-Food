@@ -92,7 +92,7 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
 
     @Bean
     public KakaoProperties kakaoProperties(
-            @Value("${kakao.respApiKey}") String restApiKey,
+            @Value("${kakao.restApiKey}") String restApiKey,
             @Value("${kakao.js.key}") String jsApiKey
     ) {
         KakaoProperties props = new KakaoProperties();

@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
 
 @Data
-public class LoginVO {
+public class UserVO {
     private long usersId;
     private int companyId;
     private int departmentId;
@@ -25,5 +25,8 @@ public class LoginVO {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date usersUpdatedAt;
     private String usersStatus;
+    private String usersBirth;
     private String usersLoginType;
+    private String companyName; // 부서 이름
+    private String departmentName;
 }

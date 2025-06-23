@@ -34,7 +34,7 @@ class LoginServiceImplTest {
     @InjectMocks
     private LoginServiceImpl loginService;
 
-    private LoginVO testLoginVO;
+    private UserVO testLoginVO;
     private LoginRequest testLoginRequest;
     private SearchPwdRequest testSearchPwdRequest;
     private CompanyVO testCompanyVO;
@@ -42,8 +42,8 @@ class LoginServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // 테스트용 LoginVO 설정
-        testLoginVO = new LoginVO();
+        // 테스트용 UserVO 설정
+        testLoginVO = new UserVO();
         testLoginVO.setUsersNickname("테스트 사용자");
         testLoginVO.setUsersEmail("test@example.com");
         testLoginVO.setUsersKakaoId(123456789L);
@@ -76,10 +76,10 @@ class LoginServiceImplTest {
     @DisplayName("회원 가입 테스트 - 성공 케이스")
     void register_Success() {
         // given
-        when(loginMapper.register(any(LoginVO.class))).thenReturn(1);
+        when(loginMapper.register(any(UserVO.class))).thenReturn(1);
 
         // when
-        LoginVO result = loginService.register(testLoginVO);
+        UserVO result = loginService.register(testLoginVO);
 
         // then
         assertNotNull(result);
@@ -93,10 +93,10 @@ class LoginServiceImplTest {
     @DisplayName("회원 가입 테스트 - 실패 케이스")
     void register_Failure() {
         // given
-        when(loginMapper.register(any(LoginVO.class))).thenReturn(0);
+        when(loginMapper.register(any(UserVO.class))).thenReturn(0);
 
         // when
-        LoginVO result = loginService.register(testLoginVO);
+        UserVO result = loginService.register(testLoginVO);
 
         // then
         assertNull(result);
@@ -170,7 +170,7 @@ class LoginServiceImplTest {
         when(loginMapper.selectUser(any(LoginRequest.class))).thenReturn(testLoginVO);
 
         // when
-        LoginVO result = loginService.nativeLogin(testLoginRequest);
+        UserVO result = loginService.nativeLogin(testLoginRequest);
 
         // then
         assertNotNull(result);
@@ -185,7 +185,7 @@ class LoginServiceImplTest {
         when(loginMapper.searchPwd(any(SearchPwdRequest.class))).thenReturn(testLoginVO);
 
         // when
-        LoginVO result = loginService.searchPwd(testSearchPwdRequest);
+        UserVO result = loginService.searchPwd(testSearchPwdRequest);
 
         // then
         assertNotNull(result);

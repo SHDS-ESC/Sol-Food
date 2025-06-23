@@ -13,19 +13,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("로그인 관련 간단한 테스트")
 class SimpleLoginTest {
 
-    private LoginVO loginVO;
+    private UserVO userVO;
     private LoginRequest loginRequest;
     private SearchPwdRequest searchPwdRequest;
 
     @BeforeEach
     void setUp() {
         // 테스트 데이터 초기화
-        loginVO = new LoginVO();
-        loginVO.setUsersNickname("테스트 사용자");
-        loginVO.setUsersEmail("test@example.com");
-        loginVO.setUsersKakaoId(123456789L);
-        loginVO.setUsersPoint(100);
-        loginVO.setUsersLoginType("kakao");
+        userVO = new UserVO();
+        userVO.setUsersNickname("테스트 사용자");
+        userVO.setUsersEmail("test@example.com");
+        userVO.setUsersKakaoId(123456789L);
+        userVO.setUsersPoint(100);
+        userVO.setUsersLoginType("kakao");
 
         loginRequest = new LoginRequest();
         loginRequest.setUsersEmail("test@example.com");
@@ -37,10 +37,10 @@ class SimpleLoginTest {
     }
 
     @Test
-    @DisplayName("LoginVO 객체 생성 및 기본값 설정 테스트")
+    @DisplayName("UserVO 객체 생성 및 기본값 설정 테스트")
     void testLoginVOCreation() {
         // given & when
-        LoginVO vo = new LoginVO();
+        UserVO vo = new UserVO();
         vo.setUsersNickname("홍길동");
         vo.setUsersEmail("hong@example.com");
         vo.setUsersPoint(500);
@@ -81,20 +81,20 @@ class SimpleLoginTest {
     }
 
     @Test
-    @DisplayName("LoginVO 날짜 설정 테스트")
+    @DisplayName("UserVO 날짜 설정 테스트")
     void testLoginVODateSetting() {
         // given
         Date currentDate = new Date();
 
         // when
-        loginVO.setUsersCreatedAt(currentDate);
-        loginVO.setUsersUpdatedAt(currentDate);
+        userVO.setUsersCreatedAt(currentDate);
+        userVO.setUsersUpdatedAt(currentDate);
 
         // then
-        assertNotNull(loginVO.getUsersCreatedAt());
-        assertNotNull(loginVO.getUsersUpdatedAt());
-        assertEquals(currentDate, loginVO.getUsersCreatedAt());
-        assertEquals(currentDate, loginVO.getUsersUpdatedAt());
+        assertNotNull(userVO.getUsersCreatedAt());
+        assertNotNull(userVO.getUsersUpdatedAt());
+        assertEquals(currentDate, userVO.getUsersCreatedAt());
+        assertEquals(currentDate, userVO.getUsersUpdatedAt());
     }
 
     @ParameterizedTest
@@ -102,10 +102,10 @@ class SimpleLoginTest {
     @DisplayName("다양한 로그인 타입 테스트")
     void testDifferentLoginTypes(String loginType) {
         // given & when
-        loginVO.setUsersLoginType(loginType);
+        userVO.setUsersLoginType(loginType);
 
         // then
-        assertEquals(loginType, loginVO.getUsersLoginType());
+        assertEquals(loginType, userVO.getUsersLoginType());
     }
 
     @Test
@@ -115,24 +115,24 @@ class SimpleLoginTest {
         long kakaoId = 987654321L;
 
         // when
-        loginVO.setUsersKakaoId(kakaoId);
+        userVO.setUsersKakaoId(kakaoId);
 
         // then
-        assertEquals(kakaoId, loginVO.getUsersKakaoId());
+        assertEquals(kakaoId, userVO.getUsersKakaoId());
     }
 
     @Test
     @DisplayName("포인트 증가 테스트")
     void testPointIncrement() {
         // given
-        int initialPoint = loginVO.getUsersPoint();
+        int initialPoint = userVO.getUsersPoint();
         int increment = 50;
 
         // when
-        loginVO.setUsersPoint(initialPoint + increment);
+        userVO.setUsersPoint(initialPoint + increment);
 
         // then
-        assertEquals(initialPoint + increment, loginVO.getUsersPoint());
+        assertEquals(initialPoint + increment, userVO.getUsersPoint());
     }
 
     @Test
@@ -166,11 +166,11 @@ class SimpleLoginTest {
     @DisplayName("객체 동등성 테스트")
     void testObjectEquality() {
         // given
-        LoginVO vo1 = new LoginVO();
+        UserVO vo1 = new UserVO();
         vo1.setUsersEmail("test@example.com");
         vo1.setUsersNickname("테스트");
 
-        LoginVO vo2 = new LoginVO();
+        UserVO vo2 = new UserVO();
         vo2.setUsersEmail("test@example.com");
         vo2.setUsersNickname("테스트");
 
