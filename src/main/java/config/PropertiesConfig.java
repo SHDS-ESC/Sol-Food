@@ -18,11 +18,7 @@ public class PropertiesConfig {
             @Value("${db.username}") String username,
             @Value("${db.password}") String password
     ) {
-        DbProperties props = new DbProperties();
-        props.setDriver(driver);
-        props.setUrl(url);
-        props.setUsername(username);
-        props.setPassword(password);
+        DbProperties props = new DbProperties(driver, url, username, password);
         return props;
     }
 
@@ -32,9 +28,7 @@ public class PropertiesConfig {
             @Value("${server.ip}") String ip,
             @Value("${server.port}") String port
     ) {
-        ServerProperties props = new ServerProperties();
-        props.setIp(ip);
-        props.setPort(port);
+        ServerProperties props = new ServerProperties(ip, port);
         return props;
     }
 
@@ -43,8 +37,7 @@ public class PropertiesConfig {
     public KakaoProperties kakaoProperties(
             @Value("${kakao.respApiKey}") String restApiKey
     ) {
-        KakaoProperties props = new KakaoProperties();
-        props.setRestApiKey(restApiKey);
+        KakaoProperties props = new KakaoProperties(restApiKey);
         return props;
     }
 
