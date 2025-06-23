@@ -31,7 +31,7 @@
         GROUP BY DAY (users_created_at);
     </select>
 
-    <select id="getOwners" parameterType="String" resultType="kr.co.solfood.admin.dto.OwnerSearchRequestDTO">
+    <select id="getOwners" parameterType="kr.co.solfood.admin.dto.OwnerSearchDTO" resultType="kr.co.solfood.admin.dto.OwnerSearchResponseDTO">
         SELECT O.owner_id AS ownerId,
         store_mainimage AS storeMainImage,
         store_name AS storeName,
@@ -51,5 +51,17 @@
             </if>
         </where>
         ORDER BY O.owner_id
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="getOwnersCount" resultType="int">
+        SELECT COUNT(*)
+        FROM owner O
+        JOIN store S ON O.store_id = S.store_id
+        <where>
+            <if test="query != null and query != ''">
+                store_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
     </select>
 </mapper>

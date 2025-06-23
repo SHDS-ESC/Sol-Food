@@ -1,10 +1,11 @@
 package kr.co.solfood.admin.home;
 
 import kr.co.solfood.admin.dto.ChartRequestDTO;
-import kr.co.solfood.admin.dto.OwnerSearchRequestDTO;
+import kr.co.solfood.admin.dto.OwnerSearchDTO;
+import kr.co.solfood.admin.dto.OwnerSearchResponseDTO;
 import kr.co.solfood.user.login.UserVO;
+import kr.co.solfood.util.PageMaker;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
 import java.util.List;
 
@@ -36,8 +37,10 @@ public class AdminHomeServiceImpl implements AdminHomeService {
     }
 
     @Override
-    public List<OwnerSearchRequestDTO> getOwners(String query) {
-        return adminMapper.getOwners(query);
+    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO) {
+        List<OwnerSearchResponseDTO> ownerSearchResponseDTO = adminMapper.getOwners(ownerSearchRequestDTO);
+        int size = adminMapper.getOwnersCount(ownerSearchRequestDTO);
+        return new PageMaker<>(ownerSearchResponseDTO,size,ownerSearchRequestDTO.getPageSize(),ownerSearchRequestDTO.getCurrentPage());
     }
 
 }
