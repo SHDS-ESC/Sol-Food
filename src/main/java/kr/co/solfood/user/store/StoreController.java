@@ -126,5 +126,4 @@ public class StoreController {
         Map<String, Object> errorResponse = createErrorResponse("데이터 처리 중 오류가 발생했습니다.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
-
 }

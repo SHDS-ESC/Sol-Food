@@ -2,6 +2,7 @@ package kr.co.solfood.user.store;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Slf4j  // error 로깅을 위해 유지
 @Service
+@Primary
 public class StoreServiceImpl implements StoreService {
 
     @Autowired
