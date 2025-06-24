@@ -56,7 +56,7 @@ public class LoginController {
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         UserVO kakaoLogin = service.confirmAccessToken(code);
         sess.setAttribute("userLoginSession", kakaoLogin);
-        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:extra" : "redirect:mypage";
+        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:extra" : "redirect:/";
     }
 
     // 카카오 추가 정보 페이지
@@ -73,14 +73,14 @@ public class LoginController {
         UserVO userVo = service.register(kakaoAddVO);
         System.out.println("브이오" + kakaoAddVO);
         sess.setAttribute("userLoginSession", userVo);
-        return "redirect:mypage";
+        return "redirect:/";
     }
 
     // 로그 아웃
     @GetMapping("/logout")
     public String logout(HttpSession sess) {
         sess.invalidate();
-        return "redirect:login";
+        return "redirect:/";
     }
 
     // 자체 로그인
@@ -89,7 +89,7 @@ public class LoginController {
         UserVO userVo = service.nativeLogin(req);
         if(userVo !=null){
             sess.setAttribute("userLoginSession", userVo);
-            return "redirect:mypage";
+            return "redirect:/";
         } else {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
             return "/user/login"; // 로그인 페이지로 다시 이동
@@ -123,9 +123,15 @@ public class LoginController {
 
     // 회원가입
     @GetMapping("/join")
-    public String join(Model model) {
+    public String join(Model model, HttpSession session) {
         List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
         model.addAttribute("companyList", companyList);
+        
+        // 회원가입 진행 세션 플래그 설정 (S3 업로드 보안용)
+        session.setAttribute("joinInProgress", true);
+        session.setAttribute("uploadCount", 0);
+        session.setMaxInactiveInterval(30 * 60); // 30분 후 만료
+        
         return "/user/join";
     }
 
@@ -134,6 +140,11 @@ public class LoginController {
     @PostMapping("/join")
     public String join(UserVO kakaoAddVO, HttpSession sess) {
         service.register(kakaoAddVO);
+        
+        // 회원가입 완료 후 세션 정리
+        sess.removeAttribute("joinInProgress");
+        sess.removeAttribute("uploadCount");
+        
         return "redirect:login";
     }
 
