@@ -5,7 +5,63 @@
         SELECT *
         FROM users U
         JOIN department D ON U.department_id = D.department_id
-        WHERE users_name LIKE CONCAT('%', #{query}, '%')
-        ORDER BY users_id DESC
+        <where>
+            <if test="query != null and query != ''">
+                users_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
+        ORDER BY users_id
+    </select>
+
+    <select id="userManagementChartByYears" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
+        SELECT YEAR (users_created_at) AS rowCreatedAt, COUNT (*) columnCount
+        FROM users
+        GROUP BY YEAR (users_created_at);
+    </select>
+
+    <select id="userManagementChartByMonths" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
+        SELECT MONTH (users_created_at) AS rowCreatedAt, COUNT (*) columnCount
+        FROM users
+        GROUP BY MONTH (users_created_at);
+    </select>
+
+    <select id="userManagementChartByDays" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
+        SELECT DAY (users_created_at) AS rowCreatedAt, COUNT (*) columnCount
+        FROM users
+        GROUP BY DAY (users_created_at);
+    </select>
+
+    <select id="getOwners" parameterType="kr.co.solfood.admin.dto.OwnerSearchDTO" resultType="kr.co.solfood.admin.dto.OwnerSearchResponseDTO">
+        SELECT O.owner_id AS ownerId,
+        store_mainimage AS storeMainImage,
+        store_name AS storeName,
+        owner_email AS ownerEmail,
+        store_category AS storeCategory,
+        store_avgstar AS storeAvgStar,
+        owner_tel AS ownerTel,
+        store_tel AS storeTel,
+        store_address AS storeAddress,
+        store_intro AS storeIntro,
+        owner_status AS ownerStatus
+        FROM owner O
+        JOIN store S ON O.store_id = S.store_id
+        <where>
+            <if test="query != null and query != ''">
+                store_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
+        ORDER BY O.owner_id
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="getOwnersCount" resultType="int">
+        SELECT COUNT(*)
+        FROM owner O
+        JOIN store S ON O.store_id = S.store_id
+        <where>
+            <if test="query != null and query != ''">
+                store_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
     </select>
 </mapper>
