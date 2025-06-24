@@ -187,6 +187,11 @@
         .search-bar button {
             min-width: 100px;
         }
+
+        .table-responsive, .page-selector {
+            font-size: 12px;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 
@@ -231,12 +236,23 @@
         </div>
 
         <!-- 사용자 리스트 -->
+        <!-- 사용자 리스트 -->
         <h2 class="mb-3 text-success">🎭 사용자 관리</h2>
         <div class="user-card">
             <form id="searchForm" class="search-bar">
                 <input type="text" name="query" class="form-control" placeholder="검색">
                 <button type="submit" class="btn btn-success">검색</button>
             </form>
+
+            <!-- 여기에 페이지 사이즈 선택 추가 -->
+            <div class="page-selector">
+                <select id="pageSize" class="form-select form-select-sm" style="width: 120px;">
+                    <option value="10">10개씩 보기</option>
+                    <option value="20">20개씩 보기</option>
+                    <option value="50">50개씩 보기</option>
+                </select>
+            </div>
+
             <div class="table-responsive">
                 <table class="table align-middle table-hover">
                     <thead class="table-light">
@@ -260,7 +276,8 @@
                             <td>
                                 <c:choose>
                                     <c:when test="${not empty user.usersProfile}">
-                                        <img src="${user.usersProfile}" class="user-avatar" alt="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800">
+                                        <img src="${user.usersProfile}" class="user-avatar"
+                                             alt="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800">
                                     </c:when>
                                     <c:otherwise>
                                         <div class="user-avatar"
@@ -301,6 +318,22 @@
                     </tbody>
                 </table>
             </div>
+
+            <nav aria-label="...">
+                <ul class="pagination">
+                    <li class="page-item disabled">
+                        <a class="previous" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="next" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -315,6 +348,9 @@
 <!-- 3. JSP에서 서버 데이터 받아와서 차트 그리기 -->
 <script>
     const ctx = "${pageContext.request.contextPath}";
+    let currentPage = 1;
+    let firstPage = 1;
+    let lastPage = 10;
     let signupChart = null;  // 전역 변수로 선언
 
     $('.filter-btns button').on('click', function () {
@@ -324,7 +360,7 @@
         $(this).addClass('active');
 
         const date = $(this).attr('name');
-        console.log(date);
+
         $.ajax({
             url: ctx + '/admin/home/user-management/chart',
             type: 'GET',
@@ -375,7 +411,7 @@
                                 padding: 10,
                                 displayColors: false,
                                 callbacks: {
-                                    title: () => '',     // ❌ x축 값인 '2025' 숨김
+                                    title: () => '',
                                     label: function (context) {
                                         return context.raw + '명';
                                     }
@@ -393,23 +429,26 @@
         $('.filter-btns button[name="연간"]').click();
 
         // AJAX 검색 기능
-        $('#searchForm').on('submit', function(e) {
+        $('#searchForm').on('submit', function (e) {
             e.preventDefault();
             const query = $(this).find('input[name="query"]').val();
+
             $.ajax({
                 url: ctx + '/admin/home/user-management/search',
                 type: 'GET',
-                data: { query: query },
-                success: function(userList) {
-                    console.log('userList:', userList);
+                data: {query: query, currentPage: page, pageSize: size},
+                success: function (response) {
+
                     const userListBody = $('#userListBody');
                     userListBody.empty();
+                    const userList = response.userList;
+
                     if (!userList || userList.length === 0) {
                         userListBody.append('<tr><td colspan="10" class="text-center">검색 결과가 없습니다.</td></tr>');
                         return;
                     }
-                    userList.forEach(function(user) {
-                        console.log('user:', user);
+
+                    userList.forEach(function (user) {
                         const profileHtml = user.usersProfile
                             ? `<img src="${user.usersProfile}" class="user-avatar" alt="프로필">`
                             : `<div class="user-avatar" style="background:#e9ecef;display:flex;align-items:center;justify-content:center;">
@@ -440,15 +479,98 @@
                         $row.append($('<td>').text(user.usersBirth || ''));
                         $row.append($('<td>').text(user.usersGender || ''));
                         $row.append($('<td>').text(user.usersStatus || ''));
-                        
+
                         userListBody.append($row);
+
+                        if (response.lastPage * size < response.totalCount) {
+                            $('.pagination .next').removeClass('disabled');
+                        } else {
+                            $('.pagination .next').addClass('disabled');
+                        }
+
+                        if (response.firstPage === 1) {
+                            $('.pagination .previous').addClass('disabled');
+                        } else {
+                            $('.pagination .previous').removeClass('disabled');
+                        }
+                        lastPage = response.lastPage;
+                        firstPage = response.firstPage;
+                        renderPagination(firstPage, lastPage, page);
+
+                        $('.pagination').index(1).addClass('active').attr('aria-current', 'page');
+                        console.log('userList:', userList);
                     });
                 },
-                error: function() {
+                error: function () {
                     alert('검색 중 오류가 발생했습니다.');
                 }
             });
+
         });
+
+        const $pageSize = $('.form-select');
+
+        // 검색 폼 제출
+        $('#searchForm').on('submit', function (e) {
+            e.preventDefault();
+            currentPage = 1;
+            const query = $(this).find('input[name="query"]').val();
+            searchOwners(query, currentPage, $pageSize.val());
+        });
+
+        // 페이지 번호 클릭
+        $('.pagination').on('click', '.page-item:not(.previous):not(.next) .page-link', function (e) {
+            e.preventDefault();
+            const query = $('#searchForm').find('input[name="query"]').val();
+            currentPage = parseInt($(this).text(), 10);
+            updatePaginationUI($(this));
+            searchOwners(query, currentPage, $pageSize.val());
+        });
+
+        // Previous 클릭
+        $('.pagination').on('click', '.previous .page-link', function (e) {
+            e.preventDefault();
+            const query = $('#searchForm').find('input[name="query"]').val();
+            searchOwners(query, firstPage - $pageSize.val(), $pageSize.val());
+        });
+
+        // Next 클릭
+        $('.pagination').on('click', '.next .page-link', function (e) {
+            e.preventDefault();
+            const query = $('#searchForm').find('input[name="query"]').val();
+            searchOwners(query, lastPage + 1, $pageSize.val());
+        });
+
+        // 페이지 크기 변경
+        $pageSize.on('change', function () {
+            currentPage = 1;
+            $('#searchForm').submit();
+        });
+
+        function renderPagination(firstPage, lastPage, currentPage) {
+            $('.pagination .page-item').not('.previous, .next').remove();
+            for (let i = firstPage; i <= lastPage; i++) {
+                const $li = $('<li>').addClass('page-item');
+                if (i === currentPage) {
+                    $li.addClass('active').attr('aria-current', 'page');
+                }
+                const $a = $('<a>').addClass('page-link').text(i);
+                $li.append($a);
+                $('.pagination .next').before($li);
+            }
+        }
+
+        // 3) 페이지네이션 UI 업데이트
+        function updatePaginationUI($clicked) {
+            $clicked.parent()
+                .siblings()
+                .removeClass('active')
+                .removeAttr('aria-current')
+                .end()
+                .addClass('active')
+                .attr('aria-current', 'page');
+        }
+
     });
 </script>
 </body>
