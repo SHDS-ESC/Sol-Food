@@ -36,7 +36,7 @@
         WHERE store_id = #{storeId}
     </select>
 
-    <!-- 카테고리별 조회 (성능 개선: 인덱스 활용하도록록 수정) -->
+    <!-- 카테고리별 조회 (성능 개선: 인덱스 활용하도록 수정) -->
     <select id="selectCategoryStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT 
             store_id,
