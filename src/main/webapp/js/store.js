@@ -6,6 +6,10 @@ let markers = [];
 let currentCategory = '전체';
 let categoryConfig = null;
 let currentInfoWindow = null;
+let offset = 0;
+const pageSize = 10;
+let hasNext = true;
+let loading = false;
 
 // ==================== 초기화 ====================
 document.addEventListener('DOMContentLoaded', function() {
@@ -146,6 +150,10 @@ function selectCategory(element, category) {
     if (!isMapView && !isListView) {
         fallbackFilterStoreList(category);
     }
+      offset = 0;
+        hasNext = true;
+        document.getElementById('storeList').innerHTML = ""; // 기존 목록 비움
+        loadStoreList();
 }
 
 function selectMapCategory(element, category) {
@@ -190,18 +198,18 @@ function fallbackFilterStoreList(category) {
         
         if (storeCategoryText) {
             if (category === '전체') {
-                card.style.display = 'block';
+                card.style.display = '';
                 filteredCount++;
             } else {
                 if (isCategoryMatch(storeCategoryText, category)) {
-                    card.style.display = 'block';
+                    card.style.display = '';
                     filteredCount++;
                 } else {
                     card.style.display = 'none';
                 }
             }
         } else {
-            card.style.display = 'block';
+            card.style.display = '';
             filteredCount++;
         }
     });
@@ -392,4 +400,93 @@ function callStore(phoneNumber) {
     } else {
         alert('전화번호 정보가 없습니다.');
     }
-} 
+}
+
+// 페이징처리
+document.addEventListener('DOMContentLoaded', function() {
+    offset = 0;
+    hasNext = true;
+    loading = false;
+    document.getElementById('storeGrid').innerHTML = "";
+    loadStoreList();
+
+    document.getElementById('loadMoreBtn').addEventListener('click', function() {
+        if (hasNext && !loading) {
+            loadStoreList();
+        }
+    });
+});
+
+// 카테고리 선택할 때마다 호출
+function selectCategory(element, category) {
+    document.querySelectorAll('.category-item').forEach(item => item.classList.remove('active'));
+    element.classList.add('active');
+    currentCategory = category;
+    offset = 0;
+    hasNext = true;
+    document.getElementById('storeGrid').innerHTML = "";
+    loadStoreList();
+}
+
+// AJAX로 목록을 받아서 append
+function loadStoreList() {
+    loading = true;
+    document.getElementById('loadMoreBtn').textContent = "로딩중...";
+    fetch(`/solfood/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`)
+        .then(res => {
+            console.log("fetch status:", res.status);
+            return res.json();
+        })
+        .then(data => {
+            console.log("ajax data:", data);
+            renderStoreList(data.list);
+            hasNext = data.hasNext;
+            offset += data.list.length;
+            if (hasNext) {
+                document.getElementById('loadMoreBtn').style.display = "block";
+                document.getElementById('loadMoreBtn').textContent = "더보기";
+            } else {
+                document.getElementById('loadMoreBtn').style.display = "none";
+            }
+        })
+        .catch(err => {
+            alert("가게 목록을 불러오지 못했습니다.");
+            console.error("fetch error:", err);
+        })
+        .finally(() => {
+            loading = false;
+        });
+}
+
+function renderStoreList(list) {
+    const container = document.getElementById('storeGrid');
+    list.forEach(store => {
+        const card = document.createElement('div');
+        card.className = "store-card";
+        card.setAttribute('data-category', store.storeCategory);
+        card.onclick = () => goToStoreDetail(store.storeId);
+        card.innerHTML = `
+            <img src="${store.storeMainimage || '/img/default-restaurant.jpg'}" alt="${store.storeName}" class="store-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">
+                <i class="bi bi-shop" style="font-size: 40px;"></i>
+            </div>
+            <div class="store-body">
+                <div class="store-name">${store.storeName}</div>
+                <div class="store-category">${store.storeCategory}</div>
+                <div style="font-size:11px; color:#666; margin-bottom:3px;">
+                    📍 ${store.storeAddress && store.storeAddress.length > 15 ? store.storeAddress.substring(0,15) + '...' : store.storeAddress}
+                </div>
+                <div style="font-size:12px;">
+                    ${store.storeAvgstar > 0 ? `⭐ ${store.storeAvgstar}점` : '⭐ 신규매장'}
+                </div>
+                ${store.storeTel && store.storeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">📞 ${store.storeTel}</div>` : ''}
+                <i class="bi bi-heart like-icon"></i>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function goToStoreDetail(storeId) {
+    window.location.href = '/solfood/user/store/detail/' + storeId;
+}

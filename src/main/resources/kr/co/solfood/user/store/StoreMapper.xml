@@ -17,6 +17,7 @@
         FROM store
         ORDER BY store_avgstar DESC, store_id DESC
     </select>
+
     <!-- 가게 ID로 가게 정보 조회 -->
     <select id="getStoreById" parameterType="int" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT
@@ -88,6 +89,51 @@
         FROM store
         WHERE store_name = #{storeName} 
         AND store_address = #{storeAddress}
+    </select>
+
+    <!-- 페이징 처리 -->
+    <select id="selectPagedStores" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            store_id,
+            store_name,
+            store_address,
+            store_latitude,
+            store_longitude,
+            store_avgstar,
+            store_intro,
+            store_mainimage,
+            store_category,
+            store_capacity,
+            store_tel
+        FROM store
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="selectPagedCategoryStores" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            store_id,
+            store_name,
+            store_address,
+            store_latitude,
+            store_longitude,
+            store_avgstar,
+            store_intro,
+            store_mainimage,
+            store_category,
+            store_capacity,
+            store_tel
+        FROM store
+        WHERE store_category = #{category}
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countAllStores" resultType="long">
+        SELECT COUNT(*) FROM store
+    </select>
+
+    <select id="countStoresByCategory" resultType="long">
+        SELECT COUNT(*) FROM store
+        WHERE store_category = #{category}
     </select>
 
 </mapper>

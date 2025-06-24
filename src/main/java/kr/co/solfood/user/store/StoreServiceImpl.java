@@ -1,5 +1,7 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.util.PageDTO;
+import kr.co.solfood.util.PageMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -56,4 +58,31 @@ public class StoreServiceImpl implements StoreService {
         return count > 0;
     }
 
+    //전체목록
+    @Override
+    public PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO) {
+        List<StoreVO> list = mapper.selectPagedStores(
+                pageDTO.getOffset(),
+                pageDTO.getPageSize()
+        );
+        long total = mapper.countAllStores();
+
+        return new PageMaker<>(list, total, pageDTO.getPageSize(),
+                pageDTO.getCurrentPage());
+    }
+
+    //카테고리별
+    @Override
+    public PageMaker<StoreVO> getPagedCategoryStoreList(String category,
+                                                        PageDTO pageDTO) {
+        List<StoreVO> list = mapper.selectPagedCategoryStores(
+                category,
+                pageDTO.getOffset(),
+                pageDTO.getPageSize()
+        );
+        long total = mapper.countStoresByCategory(category);
+
+        return new PageMaker<>(list, total, pageDTO.getPageSize(),
+                pageDTO.getCurrentPage());
+    }
 }

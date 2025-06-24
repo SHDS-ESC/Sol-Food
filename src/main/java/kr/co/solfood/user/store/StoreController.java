@@ -1,5 +1,8 @@
 package kr.co.solfood.user.store;
 
+import configuration.KakaoProperties;
+import kr.co.solfood.util.PageDTO;
+import kr.co.solfood.util.PageMaker;
 import properties.KakaoProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +30,20 @@ public class StoreController {
     @Autowired
     private KakaoProperties kakaoProperties;
 
+
     @GetMapping("")
-    public String getStoreList(@RequestParam(value = "category", required = false) String category, Model model) {
-        List<StoreVO> storeList;
+    public String getStoreList(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            Model model
+    ) {
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setCurrentPage(page);
+        pageDTO.setPageSize(pageSize);
+
+        PageMaker<StoreVO> pageMaker;
+
         if (category == null) {
             storeList = service.getAllStore();
         } else {
@@ -47,42 +56,7 @@ public class StoreController {
         return "user/store";
     }
 
-    // //Ajax용 카테고리별 목록 조회 API
-    // @GetMapping("/api/store/category/{category}")
-    // @ResponseBody
-    // public ResponseEntity<Map<String, Object>> getCategoryStoreApi(@PathVariable String category) {
-    //     List<StoreVO> storeList;
-    //     if (StoreConstants.CATEGORY_ALL.equals(category)) {
-    //         storeList = service.getAllStore();
-    //     } else {
-    //         storeList = service.getCategoryStore(category);
-    //     }
-        
-    //     Map<String, Object> response = new HashMap<>();
-    //     response.put("success", true);
-    //     response.put("data", storeList);
-    //     response.put("count", storeList.size());
-    //     response.put("category", category);
-        
-    //     return ResponseEntity.ok(response);
-    // }
-
-    
-    // 상점 상세 페이지로 이동
-    @GetMapping("/detail/{storeId}")
-    public String getStoreDetail(@PathVariable int storeId) {
-        // 해당 가게가 존재하는지 확인
-        StoreVO store = service.getStoreById(storeId);
-        if (store == null) {
-            // 존재하지 않는 가게면 404 페이지 표시
-            return "error/404";
-        }
-        
-        // 리뷰 리스트 페이지로 리다이렉트 (상점 상세 페이지 역할)
-        return "redirect:/user/review/list?storeId=" + storeId;
-    }
-    
-    //카테고리 설정 정보 API
+    //카테고리 설정 정보 API (프론트엔드용)
     @GetMapping("/api/category/config")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getCategoryConfig() {
@@ -94,7 +68,7 @@ public class StoreController {
         
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * API 에러 응답 생성 헬퍼 메서드
      */
@@ -127,4 +101,35 @@ public class StoreController {
         Map<String, Object> errorResponse = createErrorResponse("데이터 처리 중 오류가 발생했습니다.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
+
+    // /user/store/api/list?category=한식&offset=10&pageSize=10
+    @GetMapping("/api/list")
+    @ResponseBody
+    public Map<String, Object> getStoreListAjax(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setCurrentPage(offset / pageSize + 1); // 실제로는 offset만 쓰면 됨
+        pageDTO.setPageSize(pageSize);
+
+        PageMaker<StoreVO> pageMaker;
+        if (category == null || category.equals("전체")) {
+            pageMaker = service.getPagedStoreList(pageDTO);
+        } else {
+            pageMaker = service.getPagedCategoryStoreList(category, pageDTO);
+        }
+
+        boolean hasNext = offset + pageSize < pageMaker.getCount();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", pageMaker.getList());
+        result.put("hasNext", hasNext);
+        result.put("offset", offset);
+        result.put("pageSize", pageSize);
+        result.put("totalCount", pageMaker.getCount());
+        return result;
+    }
+
 }
