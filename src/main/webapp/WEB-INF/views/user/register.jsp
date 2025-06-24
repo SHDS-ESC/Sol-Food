@@ -190,7 +190,7 @@
 <body>
   <div class="form-container">
     <div class="form-title">회원가입</div>
-    <form action="/solfood/user/join" method="post">
+    <form action="/solfood/user/register" method="post">
       <label for="companySelect">회사 *</label>
       <select id="companySelect" name="companyId" required onchange="loadDepts(this.value)">
         <option value="">-- 회사 선택 --</option>
