@@ -47,25 +47,137 @@ public class StoreController {
         return "user/store";
     }
 
-    // //Ajax용 카테고리별 목록 조회 API
-    // @GetMapping("/api/store/category/{category}")
-    // @ResponseBody
-    // public ResponseEntity<Map<String, Object>> getCategoryStoreApi(@PathVariable String category) {
-    //     List<StoreVO> storeList;
-    //     if (StoreConstants.CATEGORY_ALL.equals(category)) {
-    //         storeList = service.getAllStore();
-    //     } else {
-    //         storeList = service.getCategoryStore(category);
-    //     }
+    // 검색 API - AJAX 요청용
+    @GetMapping("/search")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> searchStores(@RequestParam String keyword) {
+        Map<String, Object> response = new HashMap<>();
         
-    //     Map<String, Object> response = new HashMap<>();
-    //     response.put("success", true);
-    //     response.put("data", storeList);
-    //     response.put("count", storeList.size());
-    //     response.put("category", category);
+        try {
+            List<StoreVO> storeList = service.searchStores(keyword);
+            
+            response.put("success", true);
+            response.put("keyword", keyword);
+            response.put("stores", storeList);  // data -> stores로 변경하여 통일
+            response.put("count", storeList.size());
+            response.put("message", "검색이 완료되었습니다.");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("가게 검색 실패: keyword={}", keyword, e);
+            response.put("success", false);
+            response.put("message", "검색 중 오류가 발생했습니다.");
+            response.put("error", e.getMessage());
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+    
+    // 가게명으로 검색 API
+    @GetMapping("/search/name")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> searchStoresByName(@RequestParam String name) {
+        Map<String, Object> response = new HashMap<>();
         
-    //     return ResponseEntity.ok(response);
-    // }
+        try {
+            List<StoreVO> storeList = service.searchStoresByName(name);
+            
+            response.put("success", true);
+            response.put("searchType", "name");
+            response.put("keyword", name);
+            response.put("stores", storeList);  // data -> stores로 변경하여 통일
+            response.put("count", storeList.size());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("가게명 검색 실패: name={}", name, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("가게명 검색 중 오류가 발생했습니다."));
+        }
+    }
+    
+    // 주소로 검색 API
+    @GetMapping("/search/address")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> searchStoresByAddress(@RequestParam String address) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            List<StoreVO> storeList = service.searchStoresByAddress(address);
+            
+            response.put("success", true);
+            response.put("searchType", "address");
+            response.put("keyword", address);
+            response.put("stores", storeList);  // data -> stores로 변경하여 통일
+            response.put("count", storeList.size());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("주소 검색 실패: address={}", address, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(createErrorResponse("주소 검색 중 오류가 발생했습니다."));
+        }
+    }
+
+    // Ajax용 전체 가게 목록 조회 API
+    @GetMapping("/stores")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getAllStoresApi() {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            List<StoreVO> storeList = service.getAllStore();
+            
+            response.put("success", true);
+            response.put("stores", storeList);
+            response.put("count", storeList.size());
+            response.put("category", "전체");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("전체 가게 목록 조회 실패", e);
+            response.put("success", false);
+            response.put("message", "가게 목록을 불러오는데 실패했습니다.");
+            response.put("error", e.getMessage());
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // Ajax용 카테고리별 목록 조회 API
+    @GetMapping("/category")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getCategoryStoreApi(@RequestParam String category) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            List<StoreVO> storeList;
+            if ("전체".equals(category)) {
+                storeList = service.getAllStore();
+            } else {
+                storeList = service.getCategoryStore(category);
+            }
+            
+            response.put("success", true);
+            response.put("stores", storeList);  // 검색 API와 동일한 키 이름 사용
+            response.put("count", storeList.size());
+            response.put("category", category);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("카테고리별 가게 조회 실패: category={}", category, e);
+            response.put("success", false);
+            response.put("message", "가게 목록을 불러오는데 실패했습니다.");
+            response.put("error", e.getMessage());
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
     
     // 상점 상세 페이지로 이동
@@ -90,7 +202,7 @@ public class StoreController {
         
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", config);
+        response.put("data", config);  // 카테고리 설정은 data로 유지
         
         return ResponseEntity.ok(response);
     }

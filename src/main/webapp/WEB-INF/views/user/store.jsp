@@ -26,8 +26,10 @@
     </div>
 
     <div class="search-bar">
-        <input type="text" class="form-control" placeholder="검색어를 입력해주세요">
-        <button class="btn btn-primary">검색</button>
+        <input type="text" id="searchInput" class="form-control" placeholder="음식점명, 주소, 카테고리를 검색해보세요">
+        <button id="searchBtn" class="btn btn-primary" onclick="performSearch()">
+            <i class="bi bi-search"></i>
+        </button>
     </div>
 
     <div class="map-category-container" id="mapCategoryContainer">

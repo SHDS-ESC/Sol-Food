@@ -32,6 +32,30 @@ public class StoreServiceImpl implements StoreService {
         return mapper.getStoreById(storeId);
     }
     
+    @Override
+    public List<StoreVO> searchStores(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getAllStore(); // 검색어가 없으면 전체 목록 반환
+        }
+        return mapper.searchStores(keyword.trim());
+    }
+    
+    @Override
+    public List<StoreVO> searchStoresByName(String storeName) {
+        if (storeName == null || storeName.trim().isEmpty()) {
+            return getAllStore();
+        }
+        return mapper.searchStoresByName(storeName.trim());
+    }
+    
+    @Override
+    public List<StoreVO> searchStoresByAddress(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            return getAllStore();
+        }
+        return mapper.searchStoresByAddress(address.trim());
+    }
+    
     // 가게 등록 (관리자/크롤링용)
     @Override
     @Transactional
