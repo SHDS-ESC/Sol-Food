@@ -179,24 +179,7 @@
         AND store_address = #{storeAddress}
     </select>
 
-    <!-- 페이징 처리 -->
-    <select id="selectPagedStores" resultType="kr.co.solfood.user.store.StoreVO">
-        SELECT
-            store_id,
-            store_name,
-            store_address,
-            store_latitude,
-            store_longitude,
-            store_avgstar,
-            store_intro,
-            store_mainimage,
-            store_category,
-            store_capacity,
-            store_tel
-        FROM store
-        LIMIT #{pageSize} OFFSET #{offset}
-    </select>
-
+    <!-- 페이징 처리 - 전체 및 카테고리별 통합 -->
     <select id="selectPagedCategoryStores" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT
             store_id,
@@ -211,7 +194,12 @@
             store_capacity,
             store_tel
         FROM store
-        WHERE store_category = #{category}
+        <where>
+            <if test="category != null and category != '' and category != '전체'">
+                AND store_category LIKE CONCAT(#{category}, '%')
+            </if>
+        </where>
+        ORDER BY store_avgstar DESC, store_id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
@@ -221,7 +209,63 @@
 
     <select id="countStoresByCategory" resultType="long">
         SELECT COUNT(*) FROM store
-        WHERE store_category = #{category}
+        <where>
+            <if test="category != null and category != '' and category != '전체'">
+                AND store_category LIKE CONCAT(#{category}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 검색 결과 페이징 처리 ( 이 부분은 검색 카테고리 선택 후 분류하는 것으로 개선 예정입니다. )-->
+    <select id="selectPagedSearchResults" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            store_id,
+            store_name,
+            store_address,
+            store_latitude,
+            store_longitude,
+            store_avgstar,
+            store_intro,
+            store_mainimage,
+            store_category,
+            store_capacity,
+            store_tel
+        FROM store
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    store_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR store_address LIKE CONCAT('%', #{keyword}, '%')
+                    OR store_category LIKE CONCAT('%', #{keyword}, '%')
+                    OR store_intro LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY 
+            CASE
+                WHEN store_name LIKE CONCAT(#{keyword}, '%') THEN 1
+                WHEN store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
+                WHEN store_category LIKE CONCAT(#{keyword}, '%') THEN 3
+                WHEN store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
+                ELSE 5
+            END,
+            store_avgstar DESC,
+            store_id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countSearchResults" resultType="long">
+        SELECT COUNT(*) FROM store
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    store_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR store_address LIKE CONCAT('%', #{keyword}, '%')
+                    OR store_category LIKE CONCAT('%', #{keyword}, '%')
+                    OR store_intro LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
     </select>
 
 </mapper>

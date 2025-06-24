@@ -77,10 +77,12 @@
         <div id="map" class="map-view" style="width:100%;height:100%;"></div>
     </div>
 
-<div id="listContainer" class="list-container">
-    <div class="store-grid" id="storeGrid"></div>
-    <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;">더보기</button>
-</div>
+    <div id="listContainer" class="list-container">
+        <div class="store-grid" id="storeGrid">
+            <!-- 초기 데이터는 JavaScript에서 동적으로 로드 -->
+        </div>
+        <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;">더보기</button>
+    </div>
 
 <div class="bottom-nav">
     <a href="#"><i class="bi bi-house"></i>홈</a>

@@ -30,9 +30,9 @@ public interface StoreService {
     // 중복 가게 체크
     boolean isDuplicateStore(StoreVO store);
 
-    //페이징 처리
-    PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO);
-
-    //카테고리별 페이징 처리
+    //페이징 처리 - 전체('전체') 및 카테고리별 통합
     PageMaker<StoreVO> getPagedCategoryStoreList(String category, PageDTO pageDTO);
+
+    //검색 결과 페이징 처리
+    PageMaker<StoreVO> getPagedSearchResults(String keyword, PageDTO pageDTO);
 }

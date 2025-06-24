@@ -25,6 +25,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import kr.co.solfood.admin.login.AdminLoginInterceptor;
 import kr.co.solfood.owner.login.OwnerLoginInterceptor;
 import kr.co.solfood.user.login.UserLoginInterceptor;
+import kr.co.solfood.common.s3.FileUploadSessionInterceptor;
 
 @Configuration
 @EnableWebMvc
@@ -83,6 +84,11 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
         return new AdminLoginInterceptor();
     }
 
+    @Bean
+    public FileUploadSessionInterceptor fileUploadSessionInterceptor() {
+        return new FileUploadSessionInterceptor();
+    }
+
     // 인터 셉터 추가
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
@@ -110,6 +116,10 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
                 .addPathPatterns("/owner/**")
                 .excludePathPatterns("/owner/login")
                 .excludePathPatterns("/owner/kakaoLogin");
+
+        // 파일 업로드 API 전용 세션 검증 인터셉터
+        registry.addInterceptor(fileUploadSessionInterceptor())
+                .addPathPatterns("/api/file/**");
     }
 
     // Swagger

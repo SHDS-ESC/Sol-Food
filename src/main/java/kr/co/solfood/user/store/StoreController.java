@@ -32,25 +32,13 @@ public class StoreController {
     @GetMapping("")
     public String getStoreList(
             @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             Model model
     ) {
-        List<StoreVO> storeList;
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setCurrentPage(page);
-        pageDTO.setPageSize(pageSize);
-
-        PageMaker<StoreVO> pageMaker;
-
-        if (category == null) {
-            storeList = service.getAllStore();
-        } else {
-            storeList = service.getCategoryStore(category);
+        // 초기 로딩은 JavaScript에서 Ajax로 처리하므로 빈 페이지만 반환
+        if (category != null) {
             model.addAttribute("currentCategory", category);
         }
         
-        model.addAttribute("store", storeList);
         model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
         return "user/store";
     }
@@ -260,12 +248,9 @@ public class StoreController {
         pageDTO.setCurrentPage(offset / pageSize + 1); // 실제로는 offset만 쓰면 됨
         pageDTO.setPageSize(pageSize);
 
-        PageMaker<StoreVO> pageMaker;
-        if (category == null || category.equals("전체")) {
-            pageMaker = service.getPagedStoreList(pageDTO);
-        } else {
-            pageMaker = service.getPagedCategoryStoreList(category, pageDTO);
-        }
+        // 전체 및 카테고리별 통합 처리
+        String searchCategory = (category == null) ? "전체" : category;
+        PageMaker<StoreVO> pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
 
         boolean hasNext = offset + pageSize < pageMaker.getCount();
 
@@ -275,6 +260,41 @@ public class StoreController {
         result.put("offset", offset);
         result.put("pageSize", pageSize);
         result.put("totalCount", pageMaker.getCount());
+        return result;
+    }
+
+    // 검색용 페이징 API - /user/store/api/search?keyword=치킨&offset=0&pageSize=10
+    @GetMapping("/api/search")
+    @ResponseBody
+    public Map<String, Object> searchStoresWithPaging(
+            @RequestParam String keyword,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            PageDTO pageDTO = new PageDTO();
+            pageDTO.setCurrentPage(offset / pageSize + 1);
+            pageDTO.setPageSize(pageSize);
+
+            PageMaker<StoreVO> pageMaker = service.getPagedSearchResults(keyword, pageDTO);
+            boolean hasNext = offset + pageSize < pageMaker.getCount();
+
+            result.put("success", true);
+            result.put("list", pageMaker.getList());
+            result.put("hasNext", hasNext);
+            result.put("offset", offset);
+            result.put("pageSize", pageSize);
+            result.put("totalCount", pageMaker.getCount());
+            result.put("keyword", keyword);
+
+        } catch (Exception e) {
+            log.error("페이징 검색 실패: keyword={}", keyword, e);
+            result.put("success", false);
+            result.put("message", "검색 중 오류가 발생했습니다.");
+        }
+
         return result;
     }
 

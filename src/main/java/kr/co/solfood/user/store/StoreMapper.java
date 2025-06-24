@@ -12,7 +12,7 @@ public interface StoreMapper {
 
     //카테고리별 가게 목록 조회
     List<StoreVO> selectCategoryStore(String category);
-
+    
     // 가게 ID로 가게 정보 조회
     StoreVO getStoreById(int storeId);
     
@@ -32,15 +32,19 @@ public interface StoreMapper {
     // 중복 체크 (같은 이름과 주소의 가게 개수)
     int countByNameAndAddress(StoreVO store);
 
-    //페이징 처리
-    List<StoreVO> selectPagedStores(@Param("offset") int offset,
-                                    @Param("pageSize") int pageSize);
-
+    //페이징 처리 - 전체 및 카테고리별 통합
     List<StoreVO> selectPagedCategoryStores(@Param("category") String category,
                                             @Param("offset") int offset,
                                             @Param("pageSize") int pageSize);
 
     long countAllStores();
     long countStoresByCategory(String category);
+
+    // 검색 결과 페이징 처리
+    List<StoreVO> selectPagedSearchResults(@Param("keyword") String keyword,
+                                          @Param("offset") int offset,
+                                          @Param("pageSize") int pageSize);
+
+    long countSearchResults(String keyword);
 
 }

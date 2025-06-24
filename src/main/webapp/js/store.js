@@ -18,10 +18,28 @@ document.addEventListener('DOMContentLoaded', function() {
     currentCategory = '전체';
     loadCategoryConfig();
     
-    const listContainer = document.getElementById('listContainer');
-    const listDisplay = window.getComputedStyle(listContainer).display;
-    if (listDisplay === 'block' || listDisplay === '') {
-        fallbackFilterStoreList('전체');
+    // 초기 로딩 시 페이징 방식으로 통일
+    offset = 0;
+    hasNext = true;
+    loading = false;
+    document.getElementById('storeGrid').innerHTML = "";
+    loadStoreList();
+
+    // 더보기 버튼 이벤트 리스너
+    document.getElementById('loadMoreBtn').addEventListener('click', function() {
+        if (hasNext && !loading) {
+            loadStoreList();
+        }
+    });
+
+    // 검색창 Enter 키 이벤트
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
     }
 });
 
@@ -119,29 +137,23 @@ function createMap(position) {
     }, 100);
 }
 
-// ==================== 카테고리 선택 ====================
+// ==================== 카테고리 선택 - 통합된 함수 ====================
 function selectCategory(element, category) {
+    console.log('selectCategory 호출:', category);
+    
     // 검색 모드인 경우 검색 해제
     if (isSearchMode) {
-        // 검색창 초기화
-        document.getElementById('searchInput').value = '';
-
-        // 검색 헤더 제거
-        const searchHeader = document.getElementById('searchHeader');
-        if (searchHeader) {
-            searchHeader.remove();
-        }
-
-        isSearchMode = false;
-        currentSearchKeyword = '';
+        clearSearchMode();
     }
 
+    // 카테고리 UI 업데이트
     document.querySelectorAll('.category-item').forEach(item => {
         item.classList.remove('active');
     });
     element.classList.add('active');
     currentCategory = category;
     
+    // 더보기 카테고리가 열려있으면 닫기
     const extendedCategories = document.getElementById('extendedCategories');
     const isMoreOpen = extendedCategories && extendedCategories.style.display === 'grid';
     
@@ -151,6 +163,7 @@ function selectCategory(element, category) {
         }, 300);
     }
     
+    // 현재 뷰 모드 확인
     const mapContainer = document.getElementById('mapContainer');
     const listContainer = document.getElementById('listContainer');
     const mapDisplay = window.getComputedStyle(mapContainer).display;
@@ -158,19 +171,16 @@ function selectCategory(element, category) {
     const isMapView = mapDisplay === 'flex';
     const isListView = listDisplay === 'block' || listDisplay === '';
 
-    if (isListView) {
-        fallbackFilterStoreList(category);
-    }
+    // 뷰 모드에 따른 처리
     if (isMapView) {
         searchMapCategory(category);
     }
-    if (!isMapView && !isListView) {
-        fallbackFilterStoreList(category);
-    }
-      offset = 0;
-        hasNext = true;
-        document.getElementById('storeList').innerHTML = ""; // 기존 목록 비움
+    
+    if (isListView || (!isMapView && !isListView)) {
+        // 페이징 초기화 후 새로운 카테고리 목록 로드
+        resetPagination();
         loadStoreList();
+    }
 }
 
 function selectMapCategory(element, category) {
@@ -198,62 +208,131 @@ function toggleMoreCategories() {
     }
 }
 
-// ==================== 목록 필터링 ====================
-function fallbackFilterStoreList(category) {
-    const storeCards = document.querySelectorAll('.store-card');
-    let filteredCount = 0;
-    
-    storeCards.forEach(card => {
-        let storeCategoryText = card.getAttribute('data-category');
-        
-        if (!storeCategoryText) {
-            const storeCategory = card.querySelector('.store-category');
-            if (storeCategory) {
-                storeCategoryText = storeCategory.textContent.trim();
-            }
-        }
-        
-        if (storeCategoryText) {
-            if (category === '전체') {
-                card.style.display = '';
-                filteredCount++;
-            } else {
-                if (isCategoryMatch(storeCategoryText, category)) {
-                    card.style.display = '';
-                    filteredCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            }
-        } else {
-            card.style.display = '';
-            filteredCount++;
-        }
-    });
+// ==================== 페이징 처리 - 통합된 로직 ====================
+function resetPagination() {
+    offset = 0;
+    hasNext = true;
+    loading = false;
+    document.getElementById('storeGrid').innerHTML = "";
+    document.getElementById('loadMoreBtn').style.display = "none";
 }
 
-function isCategoryMatch(storeCategory, selectedCategory) {
-    if (selectedCategory === '전체') {
-        return true;
+function loadStoreList() {
+    if (loading) return;
+    
+    loading = true;
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    
+    if (offset === 0) {
+        // 첫 로딩
+        document.getElementById('storeGrid').innerHTML = "";
+        loadMoreBtn.style.display = "none";
+    } else {
+        // 더보기
+        loadMoreBtn.textContent = "로딩중...";
+        loadMoreBtn.disabled = true;
     }
+    
+    // 검색 모드와 카테고리 모드에 따라 다른 API 호출
+    let url;
+    if (isSearchMode && currentSearchKeyword) {
+        console.log(`검색 모드 loadStoreList 호출: keyword=${currentSearchKeyword}, offset=${offset}`);
+        url = `/solfood/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}`;
+    } else {
+        console.log(`카테고리 모드 loadStoreList 호출: category=${currentCategory}, offset=${offset}`);
+        url = `/solfood/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`;
+    }
+    
+    fetch(url)
+        .then(res => {
+            console.log("fetch status:", res.status);
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log("ajax data:", data);
+            
+            // 성공 여부 확인 (검색 API는 success 필드가 있음)
+            if (data.success === false) {
+                throw new Error(data.message || '요청 실패');
+            }
+            
+            renderStoreList(data.list);
+            hasNext = data.hasNext;
+            offset += data.list.length;
+            
+            // 더보기 버튼 상태 업데이트
+            if (hasNext) {
+                loadMoreBtn.style.display = "block";
+                loadMoreBtn.textContent = "더보기";
+                loadMoreBtn.disabled = false;
+            } else {
+                loadMoreBtn.style.display = "none";
+            }
+        })
+        .catch(err => {
+            console.error("fetch error:", err);
+            alert(`목록을 불러오지 못했습니다: ${err.message}`);
+        })
+        .finally(() => {
+            loading = false;
+        });
+}
 
-    const storeCat = storeCategory.toLowerCase();
-    const selectedCat = selectedCategory.toLowerCase();
+function renderStoreList(list) {
+    const container = document.getElementById('storeGrid');
     
-    if (storeCat.includes(selectedCat)) {
-        return true;
-    }
-    
-    if (categoryConfig && categoryConfig.matchingKeywords) {
-        const keywords = categoryConfig.matchingKeywords[selectedCategory];
-        if (keywords) {
-            return keywords.some(keyword => 
-                storeCat.includes(keyword.toLowerCase())
-            );
+    // 첫 로딩이고 결과가 없을 때 메시지 표시
+    if (offset === 0 && (!list || list.length === 0)) {
+        if (isSearchMode) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
+                    <i class="bi bi-search" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                    <h3 style="margin-bottom: 8px;">검색 결과가 없습니다</h3>
+                    <p>'${currentSearchKeyword}'에 대한 검색 결과를 찾을 수 없습니다.</p>
+                    <button onclick="clearSearch()" class="btn btn-outline-primary mt-3">전체 목록 보기</button>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
+                    <i class="bi bi-shop" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                    <h3 style="margin-bottom: 8px;">가게가 없습니다</h3>
+                    <p>다른 카테고리를 선택해보세요.</p>
+                </div>
+            `;
         }
+        return;
     }
     
-    return false;
+    // 가게 카드들 추가
+    list.forEach(store => {
+        const card = document.createElement('div');
+        card.className = "store-card";
+        card.setAttribute('data-category', store.storeCategory);
+        card.onclick = () => goToStoreDetail(store.storeId);
+        card.innerHTML = `
+            <img src="${store.storeMainimage || '/img/default-restaurant.jpg'}" alt="${store.storeName}" class="store-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">
+                <i class="bi bi-shop" style="font-size: 40px;"></i>
+            </div>
+            <div class="store-body">
+                <div class="store-name">${store.storeName}</div>
+                <div class="store-category">${store.storeCategory}</div>
+                <div style="font-size:11px; color:#666; margin-bottom:3px;">
+                    📍 ${store.storeAddress && store.storeAddress.length > 15 ? store.storeAddress.substring(0,15) + '...' : store.storeAddress}
+                </div>
+                <div style="font-size:12px;">
+                    ${store.storeAvgstar > 0 ? `⭐ ${store.storeAvgstar}점` : '⭐ 신규매장'}
+                </div>
+                ${store.storeTel && store.storeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">📞 ${store.storeTel}</div>` : ''}
+                <i class="bi bi-heart like-icon"></i>
+            </div>
+        `;
+        container.appendChild(card);
+    });
 }
 
 // ==================== 지도 검색 ====================
@@ -419,102 +498,7 @@ function callStore(phoneNumber) {
     }
 }
 
-// 페이징처리
-document.addEventListener('DOMContentLoaded', function() {
-    offset = 0;
-    hasNext = true;
-    loading = false;
-    document.getElementById('storeGrid').innerHTML = "";
-    loadStoreList();
-
-    document.getElementById('loadMoreBtn').addEventListener('click', function() {
-        if (hasNext && !loading) {
-            loadStoreList();
-        }
-    });
-});
-
-// 카테고리 선택할 때마다 호출
-function selectCategory(element, category) {
-    document.querySelectorAll('.category-item').forEach(item => item.classList.remove('active'));
-    element.classList.add('active');
-    currentCategory = category;
-    offset = 0;
-    hasNext = true;
-    document.getElementById('storeGrid').innerHTML = "";
-    loadStoreList();
-}
-
-// AJAX로 목록을 받아서 append
-function loadStoreList() {
-    loading = true;
-    document.getElementById('loadMoreBtn').textContent = "로딩중...";
-    fetch(`/solfood/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`)
-        .then(res => {
-            console.log("fetch status:", res.status);
-            return res.json();
-        })
-        .then(data => {
-            console.log("ajax data:", data);
-            renderStoreList(data.list);
-            hasNext = data.hasNext;
-            offset += data.list.length;
-            if (hasNext) {
-                document.getElementById('loadMoreBtn').style.display = "block";
-                document.getElementById('loadMoreBtn').textContent = "더보기";
-            } else {
-                document.getElementById('loadMoreBtn').style.display = "none";
-            }
-        })
-        .catch(err => {
-            alert("가게 목록을 불러오지 못했습니다.");
-            console.error("fetch error:", err);
-        })
-        .finally(() => {
-            loading = false;
-        });
-}
-
-function renderStoreList(list) {
-    const container = document.getElementById('storeGrid');
-    list.forEach(store => {
-        const card = document.createElement('div');
-        card.className = "store-card";
-        card.setAttribute('data-category', store.storeCategory);
-        card.onclick = () => goToStoreDetail(store.storeId);
-        card.innerHTML = `
-            <img src="${store.storeMainimage || '/img/default-restaurant.jpg'}" alt="${store.storeName}" class="store-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">
-                <i class="bi bi-shop" style="font-size: 40px;"></i>
-            </div>
-            <div class="store-body">
-                <div class="store-name">${store.storeName}</div>
-                <div class="store-category">${store.storeCategory}</div>
-                <div style="font-size:11px; color:#666; margin-bottom:3px;">
-                    📍 ${store.storeAddress && store.storeAddress.length > 15 ? store.storeAddress.substring(0,15) + '...' : store.storeAddress}
-                </div>
-                <div style="font-size:12px;">
-                    ${store.storeAvgstar > 0 ? `⭐ ${store.storeAvgstar}점` : '⭐ 신규매장'}
-                </div>
-                ${store.storeTel && store.storeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">📞 ${store.storeTel}</div>` : ''}
-                <i class="bi bi-heart like-icon"></i>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-}
-
-function goToStoreDetail(storeId) {
-    window.location.href = '/solfood/user/store/detail/' + storeId;
-}
-
-}
-
 // ==================== 검색 기능 ====================
-
-/**
- * 검색 실행 함수
- */
 function performSearch() {
     const searchInput = document.getElementById('searchInput');
     const keyword = searchInput.value.trim();
@@ -525,85 +509,20 @@ function performSearch() {
         return;
     }
 
-    // 로딩 표시
-    showLoading(true);
-
-    // AJAX로 검색 요청
-    fetch(`/solfood/user/store/search?keyword=${encodeURIComponent(keyword)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                isSearchMode = true;
-                currentSearchKeyword = keyword;
-                displaySearchResults(data.stores || [], keyword);
-                updateSearchUI(keyword);
-            } else {
-                console.error('검색 실패:', data.message);
-                alert('검색 중 오류가 발생했습니다: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('검색 요청 실패:', error);
-            alert('검색 요청 중 오류가 발생했습니다.');
-        })
-        .finally(() => {
-            showLoading(false);
-        });
+    // 검색 모드로 전환 및 초기화
+    isSearchMode = true;
+    currentSearchKeyword = keyword;
+    resetPagination();
+    
+    // 검색 UI 업데이트
+    updateSearchUI(keyword);
+    
+    // 페이징 API로 검색 실행
+    loadStoreList();
 }
 
-/**
- * 가게 목록을 화면에 표시
- */
-function displayStoreList(stores) {
-    console.log('displayStoreList 호출됨:', stores); // 디버깅용 로그
+// displaySearchResults 함수는 renderStoreList로 통합
 
-    const storeGrid = document.querySelector('.store-grid');
-    if (!storeGrid) {
-        console.error('store-grid 요소를 찾을 수 없습니다.');
-        return;
-    }
-
-    // 기존 가게 카드들 제거
-    storeGrid.innerHTML = '';
-
-    if (!stores || stores.length === 0) {
-        console.log('가게 목록이 비어있음');
-        storeGrid.innerHTML = `
-            <div class="empty-result">
-                <i class="bi bi-shop" style="font-size: 64px; color: #ddd; margin-bottom: 20px; display: block;"></i>
-                <h3>가게가 없습니다</h3>
-                <p>다른 카테고리를 선택해보세요.</p>
-            </div>
-        `;
-        return;
-    }
-
-    console.log(`총 ${stores.length}개의 가게 데이터 처리 시작`);
-
-    // 첫 번째 가게 데이터 구조 확인
-    if (stores.length > 0) {
-        console.log('첫 번째 가게 데이터 구조:', stores[0]);
-        console.log('첫 번째 가게 데이터 키들:', Object.keys(stores[0]));
-    }
-
-    // 가게 카드들 생성
-    stores.forEach((store, index) => {
-        try {
-            const storeCard = createStoreCardElement(store);
-            if (storeCard && storeCard instanceof Node) {
-                storeGrid.appendChild(storeCard);
-            } else {
-                console.error('createStoreCardElement가 유효한 Node를 반환하지 않음:', store, storeCard);
-            }
-        } catch (error) {
-            console.error(`가게 카드 생성 실패 (index: ${index}):`, error, store);
-        }
-    });
-}
-
-/**
- * 개별 가게 카드 DOM 요소 생성
- */
 function createStoreCardElement(store) {
     try {
         // 필수 데이터 검증
@@ -709,52 +628,13 @@ function createStoreCardElement(store) {
     }
 }
 
-/**
- * 검색 결과를 화면에 표시
- */
-function displaySearchResults(stores, keyword) {
-    const storeGrid = document.querySelector('.store-grid');
-
-    if (!stores || stores.length === 0) {
-        storeGrid.innerHTML = `
-            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
-                <i class="bi bi-search" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
-                <h3 style="margin-bottom: 8px;">검색 결과가 없습니다</h3>
-                <p>'${keyword}'에 대한 검색 결과를 찾을 수 없습니다.</p>
-                <button onclick="clearSearch()" class="btn btn-outline-primary mt-3">전체 목록 보기</button>
-            </div>
-        `;
-        return;
-    }
-
-    // 검색 결과로 가게 카드 생성 - DOM 요소 방식으로 통일
-    storeGrid.innerHTML = '';
-    stores.forEach((store, index) => {
-        try {
-            const storeCard = createStoreCardElement(store);
-            if (storeCard && storeCard instanceof Node) {
-                storeGrid.appendChild(storeCard);
-            } else {
-                console.error(`검색 결과 카드 생성 실패 (index: ${index}):`, store);
-            }
-        } catch (error) {
-            console.error(`검색 결과 카드 생성 오류 (index: ${index}):`, error, store);
-        }
-    });
-
-    console.log(`검색 완료: '${keyword}'로 ${stores.length}개 가게 발견`);
-}
-
-/**
- * 검색 UI 업데이트
- */
 function updateSearchUI(keyword) {
     // 카테고리 선택 해제
     document.querySelectorAll('.category-item').forEach(item => {
         item.classList.remove('active');
     });
 
-    // 검색 상태 표시를 위한 헤더 추가 (선택적)
+    // 검색 상태 표시를 위한 헤더 추가
     const categoryContainer = document.querySelector('.category-container');
     let searchHeader = document.getElementById('searchHeader');
 
@@ -785,10 +665,7 @@ function updateSearchUI(keyword) {
     `;
 }
 
-/**
- * 검색 해제 함수
- */
-function clearSearch() {
+function clearSearchMode() {
     isSearchMode = false;
     currentSearchKeyword = '';
 
@@ -800,142 +677,25 @@ function clearSearch() {
     if (searchHeader) {
         searchHeader.remove();
     }
+}
 
-    // '전체' 카테고리 element 찾기
+function clearSearch() {
+    clearSearchMode();
+
+    // '전체' 카테고리 선택
     const allCategoryElement = document.querySelector('.category-item[onclick*="전체"]') ||
-                               document.querySelector('.category-item[data-category="전체"]') ||
                                document.querySelector('.category-item:first-child');
 
     if (allCategoryElement) {
         selectCategory(allCategoryElement, '전체');
     } else {
         // fallback: 직접 전체 목록 로드
-        loadAllStores();
+        currentCategory = '전체';
+        resetPagination();
+        loadStoreList();
     }
 }
 
-/**
- * 전체 가게 목록 직접 로드 (fallback 함수)
- */
-function loadAllStores() {
-    // 카테고리 선택 상태 초기화
-    document.querySelectorAll('.category-item').forEach(item => {
-        item.classList.remove('active');
-    });
-
-    // 첫 번째 카테고리 아이템 활성화 (보통 '전체')
-    const firstCategory = document.querySelector('.category-item');
-    if (firstCategory) {
-        firstCategory.classList.add('active');
-    }
-
-    currentCategory = '전체';
-
-    // 현재 보기 모드에 따라 적절한 로드 함수 호출
-    const mapContainer = document.getElementById('mapContainer');
-    const listContainer = document.getElementById('listContainer');
-    const mapDisplay = window.getComputedStyle(mapContainer).display;
-    const listDisplay = window.getComputedStyle(listContainer).display;
-    const isMapView = mapDisplay === 'flex';
-    const isListView = listDisplay === 'block' || listDisplay === '';
-
-    if (isListView) {
-        fallbackFilterStoreList('전체');
-    } else if (isMapView) {
-        searchMapCategory('전체');
-    } else {
-        // 기본적으로 리스트 뷰로 전환하고 전체 목록 표시
-        fallbackFilterStoreList('전체');
-    }
-
-    console.log('전체 가게 목록을 다시 로드했습니다.');
-}
-
-/**
- * 리스트 뷰로 전환
- */
-function showListView() {
-    const mapContainer = document.getElementById('mapContainer');
-    const listContainer = document.getElementById('listContainer');
-
-    if (mapContainer && listContainer) {
-        mapContainer.style.display = 'none';
-        listContainer.style.display = 'block';
-
-        // 버튼 상태 업데이트
-        const mapBtn = document.getElementById('mapViewBtn');
-        const listBtn = document.getElementById('listViewBtn');
-
-        if (mapBtn && listBtn) {
-            mapBtn.classList.remove('active');
-            listBtn.classList.add('active');
-        }
-    }
-}
-
-/**
- * 맵 뷰로 전환
- */
-function showMapView() {
-    const mapContainer = document.getElementById('mapContainer');
-    const listContainer = document.getElementById('listContainer');
-
-    if (mapContainer && listContainer) {
-        listContainer.style.display = 'none';
-        mapContainer.style.display = 'flex';
-
-        // 버튼 상태 업데이트
-        const mapBtn = document.getElementById('mapViewBtn');
-        const listBtn = document.getElementById('listViewBtn');
-
-        if (mapBtn && listBtn) {
-            listBtn.classList.remove('active');
-            mapBtn.classList.add('active');
-        }
-    }
-}
-
-/**
- * 서버에서 전체 가게 목록을 다시 가져와서 표시하는 fallback 함수
- */
-function fallbackFilterStoreList(category) {
-    showLoading(true);
-
-    const url = category === '전체' ?
-        '/solfood/user/store/stores' :
-        `/solfood/user/store/category?category=${encodeURIComponent(category)}`;
-
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('서버 응답 오류');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // 리스트 컨테이너 표시
-                showListView();
-                displayStoreList(data.stores || []);
-            } else {
-                console.error('가게 목록 조회 실패:', data.message);
-                alert('가게 목록을 불러오는데 실패했습니다.');
-            }
-        })
-        .catch(error => {
-            console.error('가게 목록 조회 오류:', error);
-            alert('가게 목록을 불러오는데 오류가 발생했습니다.');
-        })
-        .finally(() => {
-            showLoading(false);
-        });
-}
-
-// 중복된 createStoreCard 함수 제거 - createStoreCardElement로 통일
-
-/**
- * 로딩 표시 함수
- */
 function showLoading(show) {
     let loadingElement = document.getElementById('searchLoading');
 
@@ -970,17 +730,3 @@ function showLoading(show) {
         }
     }
 }
-
-/**
- * Enter 키로 검색 실행
- */
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-    }
-});

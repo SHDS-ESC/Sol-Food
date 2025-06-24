@@ -82,20 +82,7 @@ public class StoreServiceImpl implements StoreService {
         return count > 0;
     }
 
-    //전체목록
-    @Override
-    public PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO) {
-        List<StoreVO> list = mapper.selectPagedStores(
-                pageDTO.getOffset(),
-                pageDTO.getPageSize()
-        );
-        long total = mapper.countAllStores();
-
-        return new PageMaker<>(list, total, pageDTO.getPageSize(),
-                pageDTO.getCurrentPage());
-    }
-
-    //카테고리별
+    //카테고리별 (전체 포함)
     @Override
     public PageMaker<StoreVO> getPagedCategoryStoreList(String category,
                                                         PageDTO pageDTO) {
@@ -105,6 +92,20 @@ public class StoreServiceImpl implements StoreService {
                 pageDTO.getPageSize()
         );
         long total = mapper.countStoresByCategory(category);
+
+        return new PageMaker<>(list, total, pageDTO.getPageSize(),
+                pageDTO.getCurrentPage());
+    }
+
+    //검색 결과 페이징
+    @Override
+    public PageMaker<StoreVO> getPagedSearchResults(String keyword, PageDTO pageDTO) {
+        List<StoreVO> list = mapper.selectPagedSearchResults(
+                keyword,
+                pageDTO.getOffset(),
+                pageDTO.getPageSize()
+        );
+        long total = mapper.countSearchResults(keyword);
 
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
