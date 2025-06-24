@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {configuration.MvcConfig.class})
+@ContextConfiguration(classes = {config.MvcConfig.class})
 @WebAppConfiguration
 public class AdminTest {
 
