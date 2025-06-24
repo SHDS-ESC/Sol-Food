@@ -10,7 +10,8 @@
                 users_name LIKE CONCAT('%', #{query}, '%')
             </if>
         </where>
-        ORDER BY users_id
+        ORDER BY U.users_id
+        LIMIT #{offset}, #{pageSize}
     </select>
 
     <select id="userManagementChartByYears" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
@@ -61,6 +62,17 @@
         <where>
             <if test="query != null and query != ''">
                 store_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getUsersCount" resultType="int">
+        SELECT COUNT(*)
+        FROM users U
+        JOIN department D ON U.department_id = D.department_id
+        <where>
+            <if test="query != null and query != ''">
+                users_name LIKE CONCAT('%', #{query}, '%')
             </if>
         </where>
     </select>
