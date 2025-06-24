@@ -90,7 +90,7 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
                 .addPathPatterns("/user/**")
                 .excludePathPatterns("/user/login")
                 .excludePathPatterns("/user/native-login")
-                .excludePathPatterns("/user/join")
+                .excludePathPatterns("/user/register")
                 .excludePathPatterns("/user/company/depts")
                 .excludePathPatterns("/user/search-pwd")
                 .excludePathPatterns("/user/find-pwd")

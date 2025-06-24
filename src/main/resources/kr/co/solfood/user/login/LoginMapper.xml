@@ -52,7 +52,7 @@
     <select id="selectUser" parameterType="kr.co.solfood.user.login.LoginRequest" resultType="kr.co.solfood.user.login.UserVO">
         SELECT *
         FROM users
-        WHERE users_email = #{usersEmail} AND users_pwd = #{usersPwd}
+        WHERE users_email = #{usersEmail} AND users_pwd = md5(#{usersPwd})
     </select>
 
     <!--비밀번호 찾기-->
