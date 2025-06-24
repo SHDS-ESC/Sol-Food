@@ -438,7 +438,6 @@
                 type: 'GET',
                 data: {query: query, currentPage: page, pageSize: size},
                 success: function (response) {
-
                     const userListBody = $('#userListBody');
                     userListBody.empty();
                     const userList = response.userList;

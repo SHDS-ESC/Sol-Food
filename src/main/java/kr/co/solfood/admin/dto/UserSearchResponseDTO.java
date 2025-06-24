@@ -1,10 +1,13 @@
 package kr.co.solfood.admin.dto;
 
+import kr.co.solfood.util.PageDTO;
+import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-public class UserSearchResponseDTO{
+@Data
+public class UserSearchResponseDTO extends PageDTO {
     private long usersId;
     private int companyId;
     private int departmentId;
