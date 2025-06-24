@@ -86,9 +86,108 @@
     .btn-cancel:hover {
       background-color: #d1d5db;
     }
+
+    /* 프로필 이미지 업로드 스타일 */
+    .profile-upload-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    
+    .profile-preview-container {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      cursor: pointer;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid #e5e7eb;
+      transition: border-color 0.2s ease;
+    }
+    
+    .profile-preview-container:hover {
+      border-color: #6366f1;
+    }
+    
+    .profile-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .profile-upload-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      font-size: 12px;
+    }
+    
+    .profile-preview-container:hover .profile-upload-overlay {
+      opacity: 1;
+    }
+    
+    .camera-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+    
+    .btn-upload {
+      background-color: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-upload:hover {
+      background-color: #e5e7eb;
+      border-color: #9ca3af;
+    }
+    
+    /* 업로드 진행률 스타일 */
+    .upload-progress {
+      margin-top: 12px;
+      text-align: center;
+    }
+    
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    
+    .progress-text {
+      font-size: 12px;
+      color: #6b7280;
+    }
   </style>
 </head>
-
+<body>
   <div class="form-container">
     <div class="form-title">회원가입</div>
     <form action="/solfood/user/join" method="post">
@@ -130,8 +229,34 @@
       <label>전화번호 *</label>
       <input type="tel" name="usersTel" placeholder="010-0000-0000" required>
 
+      <!-- 프로필 이미지 업로드 -->
+      <label>프로필 이미지</label>
+      <div class="profile-upload-container">
+        <div class="profile-preview-container" onclick="document.getElementById('profileImageInput').click()">
+          <img id="profilePreview" class="profile-preview" 
+               src="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800" 
+               alt="프로필 미리보기">
+          <div class="profile-upload-overlay">
+            <i class="camera-icon">📷</i>
+            <span>사진 변경</span>
+          </div>
+        </div>
+        <input type="file" id="profileImageInput" accept="image/*" onchange="handleProfileImageUpload(this)" style="display: none;">
+        <button type="button" class="btn-upload" onclick="document.getElementById('profileImageInput').click()">
+          사진 선택
+        </button>
+      </div>
+      
+      <!-- 업로드 진행률 -->
+      <div id="uploadProgress" class="upload-progress" style="display: none;">
+        <div class="progress-bar-container">
+          <div id="uploadProgressBar" class="progress-bar"></div>
+        </div>
+        <span id="uploadProgressText" class="progress-text">0%</span>
+      </div>
+
       <!-- Hidden Fields -->
-      <input type="hidden" name="usersProfile" value="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800">
+      <input type="hidden" id="usersProfile" name="usersProfile" value="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800">
       <input type="hidden" name="usersPoint" value="0">
       <input type="hidden" name="usersLoginType" value="native">
 
@@ -142,8 +267,53 @@
     </form>
   </div>
 
+<script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
 <script>
   const contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
+  
+  /**
+   * 프로필 이미지 업로드 처리 (s3Upload.js와 호환)
+   */
+  async function handleProfileImageUpload(input) {
+    if (!input.files || !input.files[0]) return;
+    
+    const file = input.files[0];
+    
+    try {
+      // 로딩 UI 표시
+      showUploadProgress(true);
+      
+      // 파일 미리보기
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        updateProfilePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+      
+      // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
+      const s3Url = await s3Uploader.uploadProfileImage(file, function(progress) {
+        updateUploadProgress(progress);
+      });
+      
+      // 업로드 성공 - hidden input에 S3 URL 저장
+      document.getElementById('usersProfile').value = s3Url;
+      
+      console.log('프로필 이미지 업로드 완료:', s3Url);
+      
+    } catch (error) {
+      console.error('프로필 이미지 업로드 실패:', error);
+      alert('프로필 이미지 업로드에 실패했습니다: ' + error.message);
+      
+      // 원래 이미지로 복원
+      updateProfilePreview('https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800');
+    } finally {
+      // 2초 후 진행률 숨김
+      setTimeout(() => {
+        showUploadProgress(false);
+      }, 2000);
+    }
+  }
+  
   // ajax 로 회사 선택 후 부서 리스트 조회
   function loadDepts(companyId){
     console.log(contextPath)
@@ -170,5 +340,5 @@
   }
 
 </script>
-</head>
+</body>
 </html>
