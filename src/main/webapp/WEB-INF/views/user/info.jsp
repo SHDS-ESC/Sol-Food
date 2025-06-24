@@ -157,8 +157,10 @@
 
         <div class="form-actions">
             <button type="submit"  class="btn btn-submit">수정하기</button>
-            <button type="button" class="btn btn-cancel" onclick="history.back()">탈퇴하기</button>
         </div>
+    </form>
+    <form id="withdrawForm" action="/solfood/user/mypage/withdraw" method="post" style="display: inline;">
+        <button type="submit" class="btn btn-cancel">탈퇴하기</button>
     </form>
 </div>
 <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>

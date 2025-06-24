@@ -18,4 +18,11 @@ public class MypageServiceImpl implements MypageService {
     public void updateUserInfo(UserVO userVO) {
         mypageMapper.update(userVO);
     }
+
+    // 마이페이지 > 탈퇴
+    @Override
+    public boolean withdrawUser(long usersId) {
+       int result = mypageMapper.updateStatusToWithdraw(usersId);
+       return result == 1; // 1건 수정되면 성공
+    }
 }
