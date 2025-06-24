@@ -1,6 +1,8 @@
 package kr.co.solfood.admin;
 
 import kr.co.solfood.admin.dto.ChartRequestDTO;
+import kr.co.solfood.admin.dto.OwnerSearchDTO;
+import kr.co.solfood.admin.dto.OwnerSearchResponseDTO;
 import kr.co.solfood.admin.home.AdminHomeService;
 import kr.co.solfood.admin.home.AdminMapper;
 import kr.co.solfood.user.login.LoginMapper;
@@ -68,4 +70,14 @@ public class AdminTest {
         List<ChartRequestDTO> dayList = adminHomeService.userManagementChart("일간");
         assertFalse(dayList.isEmpty(), "일간 차트 데이터가 비어있으면 안됩니다.");
     }
+
+    @Test
+    @DisplayName("점주 리스트 매퍼 테스트")
+    public void getOwners() {
+        OwnerSearchDTO dto = new OwnerSearchDTO();
+        List<OwnerSearchResponseDTO> owners = adminMapper.getOwners(dto);
+        assertFalse(owners.isEmpty(), "점주 검색 결과가 비어있으면 안됩니다.");
+    }
+
+
 }
