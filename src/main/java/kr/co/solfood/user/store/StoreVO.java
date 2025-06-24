@@ -1,9 +1,10 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.util.PageDTO;
 import lombok.Data;
 
 @Data
-public class StoreVO {
+public class StoreVO extends PageDTO {
     private int storeId;           // store_id
     private String storeName;      // store_name
     private String storeAddress;   // store_address
