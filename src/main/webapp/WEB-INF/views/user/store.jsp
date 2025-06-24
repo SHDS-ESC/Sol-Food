@@ -75,60 +75,9 @@
         <div id="map" class="map-view" style="width:100%;height:100%;"></div>
     </div>
 
-    <div id="listContainer" class="list-container">
-        <div class="store-grid">
-            <c:forEach items="${store}" var="store">
-                <div class="store-card" data-category="${store.storeCategory}" onclick="goToStoreDetail('${store.storeId}')">
-                    <c:choose>
-                        <c:when test="${empty store.storeMainimage || store.storeMainimage eq '/img/default-restaurant.jpg'}">
-                            <div class="store-img" style="background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; color: #6c757d;">
-                                <i class="bi bi-shop" style="font-size: 40px;"></i>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <img src="${store.storeMainimage}" alt="${store.storeName}" class="store-img"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">
-                                <i class="bi bi-shop" style="font-size: 40px;"></i>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-                    <div class="store-body">
-                        <div class="store-name">${store.storeName}</div>
-                        <div class="store-category">${store.storeCategory}</div>
-                        <c:if test="${not empty store.storeAddress}">
-                            <div style="font-size: 11px; color: #666; margin-bottom: 3px;">
-                                📍 <c:choose>
-                                    <c:when test="${fn:length(store.storeAddress) > 15}">
-                                        ${fn:substring(store.storeAddress, 0, 15)}...
-                                    </c:when>
-                                    <c:otherwise>
-                                        ${store.storeAddress}
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                        </c:if>
-                        <div style="font-size: 12px;">
-                            <c:choose>
-                                <c:when test="${store.storeAvgstar > 0}">
-                                    ⭐ ${store.storeAvgstar}점
-                                </c:when>
-                                <c:otherwise>
-                                    ⭐ 신규매장
-                                </c:otherwise>
-                            </c:choose>
-                        </div>
-                        <c:if test="${not empty store.storeTel && store.storeTel ne '정보없음'}">
-                            <div style="font-size: 10px; color: #28a745; margin-top: 2px;">
-                                📞 ${store.storeTel}
-                            </div>
-                        </c:if>
-                        <i class="bi bi-heart like-icon"></i>
-                    </div>
-                </div>
-            </c:forEach>
-        </div>
-    </div>
+<div id="listContainer" class="list-container">
+    <div class="store-grid" id="storeGrid"></div>
+    <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;">더보기</button>
 </div>
 
 <div class="bottom-nav">

@@ -147,7 +147,7 @@ body {
 
 .store-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 140px));
     gap: 12px;
     padding: 10px 15px;
 }
@@ -477,4 +477,29 @@ body {
 
 .map-view .map-category-container {
     display: block;
-} 
+}
+
+.pagination-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.pagination {
+    margin: 0;
+}
+
+.page-link {
+    color: #333;
+    border-radius: 4px;
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.page-link:hover {
+    background-color: #e9ecef;
+    color: #333;
+}
