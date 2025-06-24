@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
@@ -33,13 +34,18 @@ public class MypageController {
         UserVO userVO = (UserVO) sess.getAttribute("userLoginSession");
         model.addAttribute("user", userVO);
         model.addAttribute("companyList", companyList);
+
+        // 회원가입 진행 세션 플래그 설정 (S3 업로드 보안용)
+        sess.setAttribute("joinInProgress", true);
+        sess.setAttribute("uploadCount", 0);
+        sess.setMaxInactiveInterval(30 * 60); // 30분 후 만료
         return "user/info";
     }
 
     // 마이페이지 > 내정보 post
     @PostMapping("/info")
     public String updateMyPageInfo(@ModelAttribute UserVO userVO,
-                                   HttpSession sess) {
+                                   HttpSession sess, HttpServletRequest request) {
 
         // 1. 로그인한 사용자 정보 가져오기
         UserVO loginUser = (UserVO) sess.getAttribute("userLoginSession");
@@ -50,11 +56,19 @@ public class MypageController {
         // 2. userId 설정
         userVO.setUsersId(loginUser.getUsersId());
 
+
         // 3. service update
         mypageService.updateUserInfo(userVO);
 
+        // 회원가입 완료 후 세션 정리
+        sess.removeAttribute("joinInProgress");
+        sess.removeAttribute("uploadCount");
+
+        // 수정된 로그인 세션 새로 저장
+        sess.setAttribute("userLoginSession", userVO);
+
         // 4. 세션정보 갱신
-        return "redirect:mypage";
+        return "redirect:/";
     }
 
 }
