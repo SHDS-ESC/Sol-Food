@@ -1,6 +1,7 @@
 package kr.co.solfood.user.store;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -30,4 +31,16 @@ public interface StoreMapper {
     
     // 중복 체크 (같은 이름과 주소의 가게 개수)
     int countByNameAndAddress(StoreVO store);
+
+    //페이징 처리
+    List<StoreVO> selectPagedStores(@Param("offset") int offset,
+                                    @Param("pageSize") int pageSize);
+
+    List<StoreVO> selectPagedCategoryStores(@Param("category") String category,
+                                            @Param("offset") int offset,
+                                            @Param("pageSize") int pageSize);
+
+    long countAllStores();
+    long countStoresByCategory(String category);
+
 }

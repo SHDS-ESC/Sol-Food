@@ -1,5 +1,7 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.util.PageDTO;
+import kr.co.solfood.util.PageMaker;
 import properties.KakaoProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,8 +30,19 @@ public class StoreController {
     private KakaoProperties kakaoProperties;
 
     @GetMapping("")
-    public String getStoreList(@RequestParam(value = "category", required = false) String category, Model model) {
+    public String getStoreList(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            Model model
+    ) {
         List<StoreVO> storeList;
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setCurrentPage(page);
+        pageDTO.setPageSize(pageSize);
+
+        PageMaker<StoreVO> pageMaker;
+
         if (category == null) {
             storeList = service.getAllStore();
         } else {
@@ -52,69 +60,69 @@ public class StoreController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> searchStores(@RequestParam String keyword) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
             List<StoreVO> storeList = service.searchStores(keyword);
-            
+
             response.put("success", true);
             response.put("keyword", keyword);
             response.put("stores", storeList);  // data -> stores로 변경하여 통일
             response.put("count", storeList.size());
             response.put("message", "검색이 완료되었습니다.");
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("가게 검색 실패: keyword={}", keyword, e);
             response.put("success", false);
             response.put("message", "검색 중 오류가 발생했습니다.");
             response.put("error", e.getMessage());
-            
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
+
     // 가게명으로 검색 API
     @GetMapping("/search/name")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> searchStoresByName(@RequestParam String name) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
             List<StoreVO> storeList = service.searchStoresByName(name);
-            
+
             response.put("success", true);
             response.put("searchType", "name");
             response.put("keyword", name);
             response.put("stores", storeList);  // data -> stores로 변경하여 통일
             response.put("count", storeList.size());
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("가게명 검색 실패: name={}", name, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(createErrorResponse("가게명 검색 중 오류가 발생했습니다."));
         }
     }
-    
+
     // 주소로 검색 API
     @GetMapping("/search/address")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> searchStoresByAddress(@RequestParam String address) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
             List<StoreVO> storeList = service.searchStoresByAddress(address);
-            
+
             response.put("success", true);
             response.put("searchType", "address");
             response.put("keyword", address);
             response.put("stores", storeList);  // data -> stores로 변경하여 통일
             response.put("count", storeList.size());
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("주소 검색 실패: address={}", address, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -127,23 +135,23 @@ public class StoreController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getAllStoresApi() {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
             List<StoreVO> storeList = service.getAllStore();
-            
+
             response.put("success", true);
             response.put("stores", storeList);
             response.put("count", storeList.size());
             response.put("category", "전체");
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("전체 가게 목록 조회 실패", e);
             response.put("success", false);
             response.put("message", "가게 목록을 불러오는데 실패했습니다.");
             response.put("error", e.getMessage());
-            
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -153,7 +161,7 @@ public class StoreController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getCategoryStoreApi(@RequestParam String category) {
         Map<String, Object> response = new HashMap<>();
-        
+
         try {
             List<StoreVO> storeList;
             if ("전체".equals(category)) {
@@ -161,20 +169,20 @@ public class StoreController {
             } else {
                 storeList = service.getCategoryStore(category);
             }
-            
+
             response.put("success", true);
             response.put("stores", storeList);  // 검색 API와 동일한 키 이름 사용
             response.put("count", storeList.size());
             response.put("category", category);
-            
+
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("카테고리별 가게 조회 실패: category={}", category, e);
             response.put("success", false);
             response.put("message", "가게 목록을 불러오는데 실패했습니다.");
             response.put("error", e.getMessage());
-            
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -202,7 +210,7 @@ public class StoreController {
         
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        response.put("data", config);  // 카테고리 설정은 data로 유지
+        response.put("data", config);
         
         return ResponseEntity.ok(response);
     }
@@ -239,4 +247,35 @@ public class StoreController {
         Map<String, Object> errorResponse = createErrorResponse("데이터 처리 중 오류가 발생했습니다.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
+
+    // /user/store/api/list?category=한식&offset=10&pageSize=10
+    @GetMapping("/api/list")
+    @ResponseBody
+    public Map<String, Object> getStoreListAjax(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setCurrentPage(offset / pageSize + 1); // 실제로는 offset만 쓰면 됨
+        pageDTO.setPageSize(pageSize);
+
+        PageMaker<StoreVO> pageMaker;
+        if (category == null || category.equals("전체")) {
+            pageMaker = service.getPagedStoreList(pageDTO);
+        } else {
+            pageMaker = service.getPagedCategoryStoreList(category, pageDTO);
+        }
+
+        boolean hasNext = offset + pageSize < pageMaker.getCount();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", pageMaker.getList());
+        result.put("hasNext", hasNext);
+        result.put("offset", offset);
+        result.put("pageSize", pageSize);
+        result.put("totalCount", pageMaker.getCount());
+        return result;
+    }
+
 }
