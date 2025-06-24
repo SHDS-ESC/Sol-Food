@@ -1,6 +1,5 @@
 package kr.co.solfood.user.store;
 
-import configuration.KakaoProperties;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import properties.KakaoProperties;
@@ -38,6 +37,7 @@ public class StoreController {
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             Model model
     ) {
+        List<StoreVO> storeList;
         PageDTO pageDTO = new PageDTO();
         pageDTO.setCurrentPage(page);
         pageDTO.setPageSize(pageSize);
