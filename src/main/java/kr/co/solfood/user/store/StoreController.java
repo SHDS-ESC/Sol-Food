@@ -1,18 +1,21 @@
 package kr.co.solfood.user.store;
 
+import configuration.KakaoProperties;
+import kr.co.solfood.util.PageDTO;
+import kr.co.solfood.util.PageMaker;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Controller
 @RequestMapping("/user/store")
 public class StoreController {
@@ -25,17 +28,30 @@ public class StoreController {
     @Autowired
     private KakaoProperties kakaoProperties;
 
-        @GetMapping("")
-    public String getStoreList(@RequestParam(value = "category", required = false) String category, Model model) {
-        List<StoreVO> storeList;
+
+    @GetMapping("")
+    public String getStoreList(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            Model model
+    ) {
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setCurrentPage(page);
+        pageDTO.setPageSize(pageSize);
+
+        PageMaker<StoreVO> pageMaker;
+
         if (category == null) {
-            storeList = service.getAllStore();
+            pageMaker = service.getPagedStoreList(pageDTO);
         } else {
-            storeList = service.getCategoryStore(category);
+            pageMaker = service.getPagedCategoryStoreList(category, pageDTO);
             model.addAttribute("currentCategory", category);
         }
 
-        model.addAttribute("store", storeList);
+        // PageMaker 안에 list, totalPageCount, curPage 등 모든 정보 있음!
+        model.addAttribute("store", pageMaker.getList());
+        model.addAttribute("paging", pageMaker);
         model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
         return "user/store";
     }
@@ -118,6 +134,36 @@ public class StoreController {
         log.error("데이터베이스 접근 예외 발생", e);
         Map<String, Object> errorResponse = createErrorResponse("데이터 처리 중 오류가 발생했습니다.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    // /user/store/api/list?category=한식&offset=10&pageSize=10
+    @GetMapping("/api/list")
+    @ResponseBody
+    public Map<String, Object> getStoreListAjax(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+
+        PageDTO pageDTO = new PageDTO();
+        pageDTO.setCurrentPage(offset / pageSize + 1); // 실제로는 offset만 쓰면 됨
+        pageDTO.setPageSize(pageSize);
+
+        PageMaker<StoreVO> pageMaker;
+        if (category == null || category.equals("전체")) {
+            pageMaker = service.getPagedStoreList(pageDTO);
+        } else {
+            pageMaker = service.getPagedCategoryStoreList(category, pageDTO);
+        }
+
+        boolean hasNext = offset + pageSize < pageMaker.getCount();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", pageMaker.getList());
+        result.put("hasNext", hasNext);
+        result.put("offset", offset);
+        result.put("pageSize", pageSize);
+        result.put("totalCount", pageMaker.getCount());
+        return result;
     }
 
 }

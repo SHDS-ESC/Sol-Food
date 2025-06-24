@@ -1,5 +1,8 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.util.PageDTO;
+import kr.co.solfood.util.PageMaker;
+
 import java.util.List;
 
 public interface StoreService {
@@ -18,4 +21,9 @@ public interface StoreService {
     // 중복 가게 체크
     boolean isDuplicateStore(StoreVO store);
 
+    //페이징 처리
+    PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO);
+
+    //카테고리별 페이징 처리
+    PageMaker<StoreVO> getPagedCategoryStoreList(String category, PageDTO pageDTO);
 }
