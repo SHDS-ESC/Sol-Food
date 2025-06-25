@@ -404,7 +404,10 @@
                 firstPage = response.firstPage;
                 renderPagination(firstPage, lastPage, page);
 
-                $('.pagination').index(1).addClass('active').attr('aria-current', 'page');
+                $('.pagination .page-item')
+                    .eq(currentPage - 1)
+                    .addClass('active')
+                    .attr('aria-current', 'page');
             },
             error: function () {
                 alert('검색 중 오류가 발생했습니다.');
