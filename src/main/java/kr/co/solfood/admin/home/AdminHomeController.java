@@ -1,16 +1,11 @@
 package kr.co.solfood.admin.home;
 
-import kr.co.solfood.admin.dto.ChartRequestDTO;
-import kr.co.solfood.admin.dto.OwnerSearchDTO;
-import kr.co.solfood.admin.dto.OwnerSearchResponseDTO;
+import kr.co.solfood.admin.dto.*;
 import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.util.PageMaker;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -33,15 +28,18 @@ public class AdminHomeController {
 
     @GetMapping("/home/user-management")
     public String userManagement(Model model) {
-        List<UserVO> userList = adminHomeService.getUsers("");
+        UserSearchRequestDTO userSearchRequestDTO = new UserSearchRequestDTO();
+        userSearchRequestDTO.setCurrentPage(START_PAGE);
+        userSearchRequestDTO.setPageSize(PAGE_GROUP_AMOUNT);
+        PageMaker<UserSearchResponseDTO> userList = adminHomeService.getUsers(userSearchRequestDTO);
         model.addAttribute("userList", userList);
         return "admin/user-management/home";
     }
 
     @ResponseBody
     @GetMapping("/home/user-management/search")
-    public List<UserVO> userSearch(@RequestParam String query, Model model) {
-        return adminHomeService.getUsers(query);
+    public PageMaker<UserSearchResponseDTO> getUsers(UserSearchRequestDTO userSearchRequestDTO, Model model) {
+        return adminHomeService.getUsers(userSearchRequestDTO);
     }
 
     @ResponseBody
@@ -64,5 +62,10 @@ public class AdminHomeController {
     @GetMapping("/home/owner-management/search")
     public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO, Model model) {
         return adminHomeService.getOwners(ownerSearchRequestDTO);
+    }
+
+    @GetMapping("/home/payment-management")
+    public String paymentManagement(Model model) {
+        return "admin/payment-management/home";
     }
 }

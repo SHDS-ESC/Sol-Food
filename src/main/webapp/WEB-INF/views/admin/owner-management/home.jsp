@@ -185,10 +185,10 @@
     <!-- Sidebar -->
     <nav class="side-menu">
         <h4>🌿 관리자 메뉴</h4>
-        <a href="${pageContext.request.contextPath}/admin/home" class="nav-link">홈</a>
-        <a href="${pageContext.request.contextPath}/admin/home/user-management" class="nav-link">사용자</a>
-        <a href="${pageContext.request.contextPath}/admin/home/owner-management" class="nav-link active">점주</a>
-        <a href="#" class="nav-link">결제</a>
+        <a href="<c:url value="/admin/home"/>" class="nav-link">홈</a>
+        <a href="<c:url value="/admin/home/user-management"/>" class="nav-link ">사용자</a>
+        <a href="<c:url value="/admin/home/owner-management"/>" class="nav-link active">점주</a>
+        <a href="<c:url value="/admin/home/payment-management"/>" class="nav-link">결제</a>
         <a href="#" class="nav-link">정책</a>
         <div class="mt-auto">
             <small class="text-muted">© 2025 YourCompany</small>
@@ -270,24 +270,24 @@
                             <td>
                                 <label>
                                     <select>
-                                        <option value="ACTIVE" ${owner.ownerStatus == '승인완료' ? 'selected' : ''}>
+                                        <option value="ACTIVE" ${owner.ownerStatus == '활성' ? 'selected' : ''}>
                                             <c:choose>
-                                                <c:when test="${owner.ownerStatus == '승인완료'}">
-                                                    <span class="status-active">승인완료</span>
+                                                <c:when test="${owner.ownerStatus == '활성'}">
+                                                    <span class="status-active">활성</span>
                                                 </c:when>
-                                                <c:when test="${owner.ownerStatus == '승인대기'}">
-                                                    <span class="status-inactive">승인대기</span>
+                                                <c:when test="${owner.ownerStatus == '비활성'}">
+                                                    <span class="status-inactive">비활성</span>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <span class="status-pending">승인거절</span>
+                                                    <span class="status-pending">대기중</span>
                                                 </c:otherwise>
                                             </c:choose>
                                         </option>
-                                        <option value="INACTIVE" ${owner.ownerStatus == '승인대기' ? 'selected' : ''}>
-                                            <span class="status-inactive">승인대기</span>
+                                        <option value="INACTIVE" ${owner.ownerStatus == '비활성' ? 'selected' : ''}>
+                                            <span class="status-inactive">비활성</span>
                                         </option>
-                                        <option value="PENDING" ${owner.ownerStatus == '승인거절' ? 'selected' : ''}>
-                                            <span class="status-inactive"> 승인거절</span>
+                                        <option value="PENDING" ${owner.ownerStatus == '대기중' ? 'selected' : ''}>
+                                            <span class="status-inactive"> 대기중</span>
                                         </option>
                                     </select>
                                 </label>
@@ -404,7 +404,10 @@
                 firstPage = response.firstPage;
                 renderPagination(firstPage, lastPage, page);
 
-                $('.pagination').index(1).addClass('active').attr('aria-current', 'page');
+                $('.pagination .page-item')
+                    .eq(currentPage - 1)
+                    .addClass('active')
+                    .attr('aria-current', 'page');
             },
             error: function () {
                 alert('검색 중 오류가 발생했습니다.');

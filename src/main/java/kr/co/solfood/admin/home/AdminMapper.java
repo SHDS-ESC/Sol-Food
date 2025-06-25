@@ -1,8 +1,6 @@
 package kr.co.solfood.admin.home;
 
-import kr.co.solfood.admin.dto.ChartRequestDTO;
-import kr.co.solfood.admin.dto.OwnerSearchDTO;
-import kr.co.solfood.admin.dto.OwnerSearchResponseDTO;
+import kr.co.solfood.admin.dto.*;
 import kr.co.solfood.user.login.UserVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -10,7 +8,9 @@ import java.util.List;
 
 @Mapper
 public interface AdminMapper {
-    List<UserVO> getUsers(String query);
+    List<UserSearchResponseDTO> getUsers(UserSearchRequestDTO userSearchRequestDTO);
+
+    int getUsersCount(UserSearchRequestDTO userSearchRequestDTO);
 
     List<ChartRequestDTO> userManagementChartByYears();
 

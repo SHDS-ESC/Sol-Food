@@ -337,8 +337,8 @@
                 const pic = o.storeMainImage
                     ? `<img src="${o.storeMainImage}" class="avatar"/>`
                     : `<div class="avatar"><svg width="24" height="24" fill="#adb5bd"><circle cx="12" cy="8" r="4"/><path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/></svg></div>`;
-                const cls = o.ownerStatus==='승인완료'?'status-active':o.ownerStatus==='승인대기'?'status-inactive':'status-pending';
-                $b.append(`<tr>kf
+                const cls = o.ownerStatus==='활성'?'status-active':o.ownerStatus==='비활성'?'status-inactive':'status-pending';
+                $b.append(`<tr>
           <td>${o.ownerId}</td><td>${pic}</td><td>${o.storeName}</td><td>${o.ownerEmail}</td><td>${o.storeCategory}</td>
           <td>${o.storeAvgStar}</td><td>${o.ownerTel}</td><td>${o.storeTel}</td><td>${o.storeAddress}</td><td>${o.storeIntro}</td>
           <td><span class="${cls}">${o.ownerStatus}</span></td>

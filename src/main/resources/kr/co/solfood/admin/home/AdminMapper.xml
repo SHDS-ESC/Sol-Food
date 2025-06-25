@@ -76,10 +76,4 @@
             </if>
         </where>
     </select>
-
-    <select id="updateOwnerStatus" parameterType="kr.co.solfood.admin.dto.OwnerStatusUpdateDTO">
-        UPDATE owner
-        SET owner_status = #{ownerStatus}
-        WHERE owner_id = #{ownerId}
-    </select>
 </mapper>
