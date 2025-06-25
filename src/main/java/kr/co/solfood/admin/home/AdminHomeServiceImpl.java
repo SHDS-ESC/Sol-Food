@@ -44,4 +44,9 @@ public class AdminHomeServiceImpl implements AdminHomeService {
         return new PageMaker<>(ownerSearchResponseDTO,size,ownerSearchRequestDTO.getPageSize(),ownerSearchRequestDTO.getCurrentPage());
     }
 
+    @Override
+    public void updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO) {
+        adminMapper.updateOwnerStatus(ownerStatusUpdateDTO);
+    }
+
 }
