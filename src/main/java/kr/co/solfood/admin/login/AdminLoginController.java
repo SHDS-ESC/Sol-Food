@@ -1,13 +1,14 @@
 package kr.co.solfood.admin.login;
 
+import kr.co.solfood.admin.home.AdminHomeService;
+import org.springframework.web.bind.annotation.*;
 import properties.KakaoProperties;
 import properties.ServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,19 +16,25 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminLoginController {
 
-    @Autowired
-    private KakaoProperties kakaoProperties;
+    private final AdminLoginService adminLoginService;
 
     @Autowired
-    private ServerProperties serverProperties;
+    public AdminLoginController(AdminLoginService adminLoginService, KakaoProperties kakaoProperties, ServerProperties serverProperties) {
+        this.adminLoginService = adminLoginService;
+    }
 
     // 유저 로그인 페이지
     @GetMapping("/login")
-    public void login(Model model) {
-        model.addAttribute("apiKey", kakaoProperties.getRestApiKey());
-        Map<String, String> serverMap = new HashMap<>();
-        serverMap.put("ip", serverProperties.getIp());
-        serverMap.put("port", serverProperties.getPort());
-        model.addAttribute("serverMap", serverMap);
+    public void login() {
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam("password") String password, HttpSession session) {
+        if(adminLoginService.login(password) != null) {
+            session.setAttribute("adminLoginSession", adminLoginService.login(password));
+            return "redirect:home";
+        } else {
+           return "redirect:login";
+        }
     }
 }
