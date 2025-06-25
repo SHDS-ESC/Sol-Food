@@ -44,4 +44,9 @@ public class AdminHomeServiceImpl implements AdminHomeService {
         }
     }
 
+    @Override
+    public void updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO) {
+        adminMapper.updateOwnerStatus(ownerStatusUpdateDTO);
+    }
+
 }

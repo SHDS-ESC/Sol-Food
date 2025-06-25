@@ -31,7 +31,7 @@ public class AdminHomeController {
         UserSearchRequestDTO userSearchRequestDTO = new UserSearchRequestDTO();
         userSearchRequestDTO.setCurrentPage(START_PAGE);
         userSearchRequestDTO.setPageSize(PAGE_GROUP_AMOUNT);
-        PageMaker<UserSearchResponseDTO> userList = adminHomeService.getUsers(userSearchRequestDTO);
+        PageMaker<UserSearchResponseDTO> userList = adminHomeService.getUsers(  userSearchRequestDTO);
         model.addAttribute("userList", userList);
         return "admin/user-management/home";
     }
@@ -66,6 +66,13 @@ public class AdminHomeController {
 
     @GetMapping("/home/payment-management")
     public String paymentManagement() {
+        return "admin/payment-management/home";
+    }
+
+    @ResponseBody
+    @GetMapping("/home/payment-management/status-update")
+    public String OwnerStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
+        adminHomeService.updateOwnerStatus(new OwnerStatusUpdateDTO(ownerId, status));
         return "admin/payment-management/home";
     }
 }

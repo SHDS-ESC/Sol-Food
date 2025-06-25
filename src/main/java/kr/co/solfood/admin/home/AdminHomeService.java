@@ -12,4 +12,6 @@ public interface AdminHomeService {
     List<ChartRequestDTO> userManagementChart(String date);
 
     PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO);
+
+    void updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO);
 }
