@@ -61,7 +61,8 @@ public class FileUploadController {
             }
             
             // AWS SDK v2로 Pre-signed URL 생성 (성능 향상)
-            String presignedUrl = s3ServiceV2.generateProfileUploadUrl(fileExtension);
+            String fileName = "profile_" + System.currentTimeMillis() + "." + fileExtension;
+            String presignedUrl = s3ServiceV2.generatePresignedUploadUrl(fileName);
             
             // 응답 데이터 구성
             response.put("success", true);
@@ -69,11 +70,11 @@ public class FileUploadController {
             response.put("message", "업로드 URL 생성 완료 (v2 최적화)");
             
             // 업로드 후 접근할 파일 이름 추출 (클라이언트에서 사용)
-            String fileName = extractFileNameFromUrl(presignedUrl);
-            response.put("fileName", fileName);
+            String fileNameFromUrl = extractFileNameFromUrl(presignedUrl);
+            response.put("fileName", fileNameFromUrl);
             
             // 개선: 공개 URL을 미리 제공하여 3번째 API 호출 제거 (v2)
-            String publicUrl = s3ServiceV2.getPublicUrl(fileName);
+            String publicUrl = s3ServiceV2.getPublicFileUrl(fileNameFromUrl);
             response.put("publicUrl", publicUrl);
             
             return ResponseEntity.ok(response);
@@ -107,7 +108,7 @@ public class FileUploadController {
             }
             
             // AWS SDK v2로 공개 URL 생성 (성능 향상)
-            String publicUrl = s3ServiceV2.getPublicUrl(fileName);
+            String publicUrl = s3ServiceV2.getPublicFileUrl(fileName);
             
             response.put("success", true);
             response.put("fileUrl", publicUrl);

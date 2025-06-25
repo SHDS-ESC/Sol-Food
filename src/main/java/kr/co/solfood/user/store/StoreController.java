@@ -1,5 +1,11 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.user.category.CategoryService;
+import kr.co.solfood.user.category.CategoryVO;
+import kr.co.solfood.user.menu.MenuService;
+import kr.co.solfood.user.menu.MenuVO;
+import kr.co.solfood.user.review.ReviewService;
+import kr.co.solfood.user.review.ReviewVO;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import properties.KakaoProperties;
@@ -11,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,23 +31,51 @@ public class StoreController {
     private StoreService service;
 
     @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
     private CategoryProperties categoryProperties;
     
     @Autowired
     private KakaoProperties kakaoProperties;
 
-    @GetMapping("")
+    @Autowired
+    private ReviewService reviewService;
+
+    @Autowired
+    private MenuService menuService;
+
+    // 별점 개수 상수
+    private static final int STAR_COUNT = 5;
+
+    @GetMapping({"", "/list"})
     public String getStoreList(
             @RequestParam(value = "category", required = false) String category,
             Model model
     ) {
-        // 초기 로딩은 JavaScript에서 Ajax로 처리하므로 빈 페이지만 반환
-        if (category != null) {
-            model.addAttribute("currentCategory", category);
+        try {
+            // 데이터베이스에서 카테고리 목록 조회
+            if (categoryService != null) {
+                List<CategoryVO> categories = categoryService.getAllCategories();
+                model.addAttribute("categories", categories);
+            } else {
+                model.addAttribute("categories", new ArrayList<CategoryVO>());
+            }
+            
+            // 초기 로딩은 JavaScript에서 Ajax로 처리하므로 빈 페이지만 반환
+            if (category != null) {
+                model.addAttribute("currentCategory", category);
+            }
+            
+            model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
+            
+        } catch (Exception e) {
+            log.error("카테고리 목록 조회 실패", e);
+            model.addAttribute("categories", new ArrayList<CategoryVO>());
+            model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
         }
         
-        model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
-        return "user/store";
+        return "user/store/list";
     }
 
     // 검색 API - AJAX 요청용
@@ -175,10 +210,46 @@ public class StoreController {
         }
     }
 
+    // 가게 상세 페이지 (기존 review/list 기능)
+    @GetMapping("/detail")
+    public String getStoreDetail(@RequestParam(required = false) Integer storeId, Model model) {
+        if (storeId == null) {
+            return "redirect:/user/store/list";
+        }
+        
+        try {
+            // 가게 정보 조회
+            StoreVO store = service.getStoreById(storeId);
+            if (store == null) {
+                return "redirect:/user/store/list";
+            }
+            
+            // 해당 가게의 리뷰 목록 조회
+            List<ReviewVO> reviewList = reviewService.getReviewsByStoreId(storeId);
+            
+            // 해당 가게의 메뉴 목록 조회
+            List<MenuVO> menuList = menuService.getMenusByStoreId(storeId);
+            
+            model.addAttribute("reviewList", reviewList);
+            model.addAttribute("storeId", storeId);
+            model.addAttribute("store", store);
+            model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
+            model.addAttribute("menuList", menuList);
+            
+            // 해당 가게의 평균 별점 및 통계 조회
+            addStoreStatistics(model, storeId);
+            
+            return "user/store/detail";
+            
+        } catch (Exception e) {
+            log.error("가게 상세 페이지 조회 중 오류 발생. storeId: {}", storeId, e);
+            return "redirect:/user/store/list";
+        }
+    }
     
-    // 상점 상세 페이지로 이동
+    // 상점 상세 페이지로 이동 (기졸 메서드)
     @GetMapping("/detail/{storeId}")
-    public String getStoreDetail(@PathVariable int storeId) {
+    public String getStoreDetailById(@PathVariable int storeId) {
         // 해당 가게가 존재하는지 확인
         StoreVO store = service.getStoreById(storeId);
         if (store == null) {
@@ -186,8 +257,8 @@ public class StoreController {
             return "error/404";
         }
         
-        // 리뷰 리스트 페이지로 리다이렉트 (상점 상세 페이지 역할)
-        return "redirect:/user/review/list?storeId=" + storeId;
+        // 가게 상세 페이지로 리다이렉트
+        return "redirect:/user/store/detail?storeId=" + storeId;
     }
     
     //카테고리 설정 정보 API
@@ -201,6 +272,31 @@ public class StoreController {
         response.put("data", config);
         
         return ResponseEntity.ok(response);
+    }
+    
+    // 카테고리 목록 API
+    @GetMapping("/api/categories")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getCategories() {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            List<CategoryVO> categories = categoryService.getAllCategories();
+            
+            response.put("success", true);
+            response.put("categories", categories);
+            response.put("count", categories.size());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("카테고리 목록 조회 실패", e);
+            response.put("success", false);
+            response.put("message", "카테고리 목록을 불러오는데 실패했습니다.");
+            response.put("error", e.getMessage());
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
     
     /**
@@ -243,24 +339,37 @@ public class StoreController {
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+        
+        try {
+            PageDTO pageDTO = new PageDTO();
+            pageDTO.setCurrentPage(offset / pageSize + 1);
+            pageDTO.setPageSize(pageSize);
 
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setCurrentPage(offset / pageSize + 1); // 실제로는 offset만 쓰면 됨
-        pageDTO.setPageSize(pageSize);
+            String searchCategory = (category == null) ? "전체" : category;
+            PageMaker<StoreVO> pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
+            boolean hasNext = offset + pageSize < pageMaker.getCount();
 
-        // 전체 및 카테고리별 통합 처리
-        String searchCategory = (category == null) ? "전체" : category;
-        PageMaker<StoreVO> pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
-
-        boolean hasNext = offset + pageSize < pageMaker.getCount();
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("list", pageMaker.getList());
-        result.put("hasNext", hasNext);
-        result.put("offset", offset);
-        result.put("pageSize", pageSize);
-        result.put("totalCount", pageMaker.getCount());
-        return result;
+            Map<String, Object> result = new HashMap<>();
+            result.put("list", pageMaker.getList());
+            result.put("hasNext", hasNext);
+            result.put("offset", offset);
+            result.put("pageSize", pageSize);
+            result.put("totalCount", pageMaker.getCount());
+            
+            return result;
+            
+        } catch (Exception e) {
+            log.error("API 호출 중 에러 발생", e);
+            
+            Map<String, Object> errorResult = new HashMap<>();
+            errorResult.put("error", true);
+            errorResult.put("message", e.getMessage());
+            errorResult.put("list", List.of());
+            errorResult.put("hasNext", false);
+            errorResult.put("totalCount", 0);
+            
+            return errorResult;
+        }
     }
 
     // 검색용 페이징 API - /user/store/api/search?keyword=치킨&offset=0&pageSize=10
@@ -296,6 +405,27 @@ public class StoreController {
         }
 
         return result;
+    }
+
+    // 가게의 통계 정보를 모델에 추가하는 private 메서드
+    private void addStoreStatistics(Model model, Integer storeId) {
+        Double avgStar = reviewService.getAverageStarByStoreId(storeId);
+        Integer totalCount = reviewService.getTotalCountByStoreId(storeId);
+        Map<String, Object> starCountsMap = reviewService.getStarCountsByStoreId(storeId);
+        
+        // 별점별 개수를 배열로 변환 (1점부터 5점까지)
+        long[] starCounts = new long[STAR_COUNT];
+        if (starCountsMap != null) {
+            starCounts[4] = ((Number) starCountsMap.get("star5")).longValue(); // 5점
+            starCounts[3] = ((Number) starCountsMap.get("star4")).longValue(); // 4점
+            starCounts[2] = ((Number) starCountsMap.get("star3")).longValue(); // 3점
+            starCounts[1] = ((Number) starCountsMap.get("star2")).longValue(); // 2점
+            starCounts[0] = ((Number) starCountsMap.get("star1")).longValue(); // 1점
+        }
+        
+        model.addAttribute("avgStar", avgStar != null ? avgStar : 0.0);
+        model.addAttribute("totalCount", totalCount != null ? totalCount : 0);
+        model.addAttribute("starCounts", starCounts);
     }
 
 }

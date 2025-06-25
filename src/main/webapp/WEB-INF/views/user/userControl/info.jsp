@@ -175,7 +175,7 @@
         /* 현재 사용자 부서 id */
         const selectedDeptId = "${user.departmentId}";
 
-        fetch("/solfood/user/company/depts?companyId=" + companyId)
+        fetch("/solfood/user/userControl/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
                 data.forEach(dept => {
@@ -190,7 +190,7 @@
             })
             .catch(error => {
                 console.error("부서 불러오기 실패", error);
-                console.log(contextPath + "/user/company/depts?companyId=" + companyId)
+                console.log(contextPath + "/user/userControl/company/depts?companyId=" + companyId)
             });
     }
 

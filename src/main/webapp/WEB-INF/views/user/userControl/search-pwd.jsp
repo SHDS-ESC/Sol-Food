@@ -6,7 +6,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>로그인</title>
+    <title>비밀번호찾기</title>
     <style>
         body {
             background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
@@ -119,27 +119,19 @@
 </head>
 <body>
 <div class="login-container">
-    <div class="login-title">로그인</div>
-    <form action="/solfood/user/native-login" method="post">
-        <label for="usersEmail">이메일</label>
-        <input type="text" placeholder="example@domain.com" name="usersEmail" id="usersEmail" required> <br>
+    <div class="login-title">비밀번호 찾기</div>
+    <form action="/solfood/user/userControl/search-pwd" method="post">
 
-        <label for="usersPwd">비밀번호</label>
-        <input type="password" placeholder="비밀번호입력" name="usersPwd" id="usersPwd" required> <br> <br>
+        <label>이메일 *</label>
+        <input type="email" name="usersEmail" required placeholder="example@domain.com">
 
+        <label>이름 *</label>
+        <input type="text" name="usersName" required> <br> <br>
 
-        <button type="submit" class="btn btn-submit">로그인</button> <br> <br>
+        <button type="submit" class="btn btn-submit">비밀번호 찾기</button> <br> <br>
     </form>
-    <a href="search-id">아이디 찾기</a>
-    <a href="search-pwd">비밀번호 찾기</a>
-    <a href="register">회원가입</a> <br> <br> <br>
-    <a id="login-kakao-btn"
-       class="kakao"
-       href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/user/kakaoLogin&response_type=code">
-        <img src="https://k.kakaocdn.net/14/dn/btroDszwNrM/I6efHub1SN5KCJqLm1Ovx1/o.jpg"
-             alt="카카오 로그인 버튼"
-             width="222"/>
-    </a>
+    <a href="join">회원가입</a>
+    <a href="login">로그인</a>
 </div>
 </body>
 </html>

@@ -190,7 +190,7 @@
 <body>
   <div class="form-container">
     <div class="form-title">회원가입</div>
-    <form action="/solfood/user/register" method="post">
+    <form action="/solfood/user/userControl/register" method="post">
       <label for="companySelect">회사 *</label>
       <select id="companySelect" name="companyId" required onchange="loadDepts(this.value)">
         <option value="">-- 회사 선택 --</option>
@@ -323,7 +323,7 @@
 
     if (!companyId) return;
 
-    fetch("/solfood/user/company/depts?companyId=" + companyId)
+            fetch("/solfood/user/userControl/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
               data.forEach(dept => {
@@ -335,7 +335,7 @@
             })
             .catch(error => {
               console.error("부서 불러오기 실패", error);
-              console.log(contextPath + "/user/company/depts?companyId=" + companyId)
+              console.log(contextPath + "/user/userControl/company/depts?companyId=" + companyId)
             });
   }
 

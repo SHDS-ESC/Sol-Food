@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -23,7 +22,7 @@ public class MypageController {
 
     @GetMapping("")
     public String myPage(Model model) {
-        return "user/mypage";
+        return "user/userControl/mypage";
     }
 
     // 마이페이지 > 내정보 get
@@ -33,7 +32,7 @@ public class MypageController {
         UserVO userVO = (UserVO) sess.getAttribute("userLoginSession");
         model.addAttribute("user", userVO);
         model.addAttribute("companyList", companyList);
-        return "user/info";
+        return "user/userControl/info";
     }
 
     // 마이페이지 > 내정보 post
@@ -44,7 +43,7 @@ public class MypageController {
         // 1. 로그인한 사용자 정보 가져오기
         UserVO loginUser = (UserVO) sess.getAttribute("userLoginSession");
         if(loginUser == null){
-            return "redirect:login"; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
+            return "redirect:/user/userControl/login"; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
         }
 
         // 2. userId 설정
@@ -54,7 +53,7 @@ public class MypageController {
         mypageService.updateUserInfo(userVO);
 
         // 4. 세션정보 갱신
-        return "redirect:mypage";
+        return "redirect:/user/mypage";
     }
 
 }

@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Random;
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/user/userControl")
 public class LoginController {
 
     private final LoginService service;
@@ -56,7 +56,7 @@ public class LoginController {
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         UserVO kakaoLogin = service.confirmAccessToken(code);
         sess.setAttribute("userLoginSession", kakaoLogin);
-        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:extra" : "redirect:/";
+        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:/user/userControl/extra" : "redirect:/";
     }
 
     // 카카오 추가 정보 페이지
@@ -92,7 +92,7 @@ public class LoginController {
             return "redirect:/";
         } else {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
-            return "/user/login"; // 로그인 페이지로 다시 이동
+            return "user/userControl/login"; // 로그인 페이지로 다시 이동
         }
     }
 
@@ -117,7 +117,7 @@ public class LoginController {
            service.setNewPwd(req); // req vo 전달
            model.addAttribute("newPwd", newPwd);
        }
-        return "/user/find-pwd";
+        return "user/userControl/find-pwd";
     }
 
 
@@ -132,7 +132,7 @@ public class LoginController {
         session.setAttribute("uploadCount", 0);
         session.setMaxInactiveInterval(30 * 60); // 30분 후 만료
 
-        return "/user/register";
+        return "user/userControl/register";
     }
 
     // 회원가입 post
@@ -145,7 +145,7 @@ public class LoginController {
         sess.removeAttribute("joinInProgress");
         sess.removeAttribute("uploadCount");
 
-        return "redirect:login";
+        return "redirect:/user/userControl/login";
     }
 
     // 부서

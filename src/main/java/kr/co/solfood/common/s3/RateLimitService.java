@@ -1,5 +1,6 @@
 package kr.co.solfood.common.s3;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -10,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Service
 public class RateLimitService {
     
@@ -37,7 +39,7 @@ public class RateLimitService {
             }
         }, CLEANUP_INTERVAL, CLEANUP_INTERVAL);
         
-        System.out.println("✅ Rate Limit 서비스 초기화 완료 (파일 기반 캐시)");
+        log.info("Rate Limit 서비스 초기화 완료 (파일 기반 캐시)");
     }
     
     /**
@@ -52,7 +54,7 @@ public class RateLimitService {
         
         // 분당 최대 요청 수 초과 시 차단
         if (requests.size() >= MAX_REQUESTS_PER_MINUTE) {
-            System.out.println("🚫 Rate Limit 차단: IP " + clientIP + " (" + requests.size() + "회)");
+            log.warn("Rate Limit 차단: IP {} ({}회)", clientIP, requests.size());
             return true;
         }
         
@@ -69,7 +71,7 @@ public class RateLimitService {
         try {
             Path path = Paths.get(CACHE_FILE_PATH);
             if (!Files.exists(path)) {
-                System.out.println("Rate Limit 캐시 파일이 없음 - 새로 시작");
+                log.debug("Rate Limit 캐시 파일이 없음 - 새로 시작");
                 return;
             }
             
@@ -91,10 +93,10 @@ public class RateLimitService {
                     }
                 }
                 
-                System.out.println("✅ Rate Limit 캐시 로드 완료: " + requestTracker.size() + "개 IP");
+                log.info("Rate Limit 캐시 로드 완료: {}개 IP", requestTracker.size());
             }
         } catch (Exception e) {
-            System.err.println("⚠️ Rate Limit 캐시 로드 실패 (새로 시작): " + e.getMessage());
+            log.warn("Rate Limit 캐시 로드 실패 (새로 시작): {}", e.getMessage());
         }
     }
     
@@ -120,9 +122,9 @@ public class RateLimitService {
             }
             
             oos.writeObject(dataToSave);
-            System.out.println("💾 Rate Limit 캐시 저장 완료: " + dataToSave.size() + "개 IP");
+            log.info("Rate Limit 캐시 저장 완료: {}개 IP", dataToSave.size());
         } catch (Exception e) {
-            System.err.println("❌ Rate Limit 캐시 저장 실패: " + e.getMessage());
+            log.error("Rate Limit 캐시 저장 실패: {}", e.getMessage());
         }
     }
     
@@ -146,6 +148,6 @@ public class RateLimitService {
             }
         }
         
-        System.out.println("🧹 Rate Limit 정리 완료: " + requestTracker.size() + "개 IP 유지");
+        log.info("Rate Limit 정리 완료: {}개 IP 유지", requestTracker.size());
     }
 } 
