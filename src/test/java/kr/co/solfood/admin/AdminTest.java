@@ -1,11 +1,12 @@
 package kr.co.solfood.admin;
 
-import kr.co.solfood.admin.dto.*;
+import kr.co.solfood.admin.dto.ChartRequestDTO;
+import kr.co.solfood.admin.dto.OwnerSearchDTO;
+import kr.co.solfood.admin.dto.OwnerSearchResponseDTO;
 import kr.co.solfood.admin.home.AdminHomeService;
 import kr.co.solfood.admin.home.AdminMapper;
 import kr.co.solfood.user.login.LoginMapper;
 import kr.co.solfood.user.login.UserVO;
-import kr.co.solfood.util.PageMaker;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,14 +38,14 @@ public class AdminTest {
     @Test
     @DisplayName("유저 홈 리스트 조회 (전체)테스트")
     public void getUsersListAll() {
-        List<UserSearchResponseDTO> list = adminMapper.getUsers(new UserSearchRequestDTO());
+        List<UserVO> list = adminMapper.getUsers("");
         assumeTrue(!list.isEmpty());
     }
 
     @Test
     @DisplayName("유저 홈 리스트 검색 (특정 쿼리)테스트")
     public void getUsersSize() {
-        Optional<UserSearchResponseDTO> list = adminMapper.getUsers(new UserSearchRequestDTO()).stream().findFirst();
+        Optional<UserVO> list = adminMapper.getUsers("박지원").stream().findFirst();
         assertTrue(list.isPresent());
     }
 
@@ -52,7 +53,7 @@ public class AdminTest {
     @DisplayName("유저 홈 리스트 검색 (특정 쿼리)테스트 - 리스트 검색 결과 검증")
     public void getUsersName() {
         String name = "박지원";
-        List<UserSearchResponseDTO> list = adminMapper.getUsers(new UserSearchRequestDTO());
+        List<UserVO> list = adminMapper.getUsers(name);
         assertFalse(list.isEmpty(), "검색 결과가 비어있으면 안됩니다.");
         assertEquals(name, list.get(0).getUsersName(), "검색된 사용자의 이름이 일치해야 합니다.");
     }

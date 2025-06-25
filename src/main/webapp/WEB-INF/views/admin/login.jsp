@@ -1,108 +1,64 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+         pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>로그인</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #28a745;
-            --secondary-color: #f0fdf4;
-            --accent-color: #1e7e34;
-            --card-bg: #ffffff;
-            --text-color: #343a40;
-        }
-
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-
         body {
-            background-color: var(--secondary-color);
-            color: var(--text-color);
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
         }
-
-        .login-card {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 1.25rem;
-            box-shadow: 0 8px 32px rgba(40, 167, 69, 0.08);
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .login-card h2 {
-            margin-bottom: 1.5rem;
-            color: var(--primary-color);
+        .login-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 48px 40px 36px 40px;
             text-align: center;
+            min-width: 340px;
+        }
+        .login-title {
+            font-size: 2rem;
             font-weight: 700;
+            color: #3730a3;
+            margin-bottom: 32px;
         }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            margin-bottom: .25rem;
+        .kakao {
             display: inline-block;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(255, 205, 0, 0.15);
+            transition: transform 0.15s, box-shadow 0.15s;
         }
-
-        .form-group input {
-            width: 100%;
-            padding: .75rem;
-            border: 1px solid #dee2e6;
-            border-radius: .5rem;
-            font-size: 1rem;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: .75rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: .5rem;
-        }
-
-        .login-footer {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: .9rem;
-        }
-
-        .login-footer a {
-            color: var(--accent-color);
-            text-decoration: none;
+        .kakao:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 6px 16px rgba(255, 205, 0, 0.25);
         }
     </style>
+    <script>
+        let msg = '${msg}';
+        if (msg) {
+            alert(msg);
+        }
+    </script>
 </head>
 <body>
-<div class="login-card">
-    <h2>관리자 로그인</h2>
-    <form action="${pageContext.request.contextPath}/admin/login" method="post">
-        <div class="form-group">
-            <input type="password"
-                   id="password"
-                   name="password"
-                   placeholder="비밀번호 입력"
-                   required>
-        </div>
-
-        <button type="submit" class="btn btn-success btn-login">로그인</button>
-    </form>
-    <div class="login-footer">
-        <a href="${pageContext.request.contextPath}/forgot-password">비밀번호를 잊으셨나요?</a>
-    </div>
+<div class="login-container">
+    <div class="login-title">로그인</div>
+    <a id="login-kakao-btn"
+       class="kakao"
+       href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/user/kakaoLogin&response_type=code">
+        <img src="https://k.kakaocdn.net/14/dn/btroDszwNrM/I6efHub1SN5KCJqLm1Ovx1/o.jpg"
+             alt="카카오 로그인 버튼"
+             width="222"/>
+    </a>
 </div>
 </body>
 </html>
