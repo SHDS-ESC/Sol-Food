@@ -89,6 +89,9 @@
 </div>
 
 <script src="<c:url value='/js/store.js' />"></script>
+<script>
+window.loginUserId = "${sessionScope.loginUser.usersId}";
+</script>
 
 </body>
 </html>

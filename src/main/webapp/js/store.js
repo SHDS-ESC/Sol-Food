@@ -119,41 +119,32 @@ function createMap(position) {
 
 // ==================== 카테고리 선택 ====================
 function selectCategory(element, category) {
-    document.querySelectorAll('.category-item').forEach(item => {
-        item.classList.remove('active');
-    });
+    document.querySelectorAll('.category-item').forEach(item => item.classList.remove('active'));
     element.classList.add('active');
     currentCategory = category;
-    
+    offset = 0;
+    hasNext = true;
+    loadStoreList(true);
+
+    // "더보기" 접기/펼치기 등 부가 UI
     const extendedCategories = document.getElementById('extendedCategories');
     const isMoreOpen = extendedCategories && extendedCategories.style.display === 'grid';
-    
     if (isMoreOpen) {
         setTimeout(() => {
             toggleMoreCategories();
         }, 300);
     }
-    
+
+    // 지도/목록 동기화
     const mapContainer = document.getElementById('mapContainer');
     const listContainer = document.getElementById('listContainer');
     const mapDisplay = window.getComputedStyle(mapContainer).display;
     const listDisplay = window.getComputedStyle(listContainer).display;
     const isMapView = mapDisplay === 'flex';
     const isListView = listDisplay === 'block' || listDisplay === '';
-
-    if (isListView) {
-        fallbackFilterStoreList(category);
-    }
-    if (isMapView) {
-        searchMapCategory(category);
-    }
-    if (!isMapView && !isListView) {
-        fallbackFilterStoreList(category);
-    }
-      offset = 0;
-        hasNext = true;
-        document.getElementById('storeList').innerHTML = ""; // 기존 목록 비움
-        loadStoreList();
+    if (isListView) fallbackFilterStoreList(category);
+    if (isMapView) searchMapCategory(category);
+    if (!isMapView && !isListView) fallbackFilterStoreList(category);
 }
 
 function selectMapCategory(element, category) {
@@ -417,29 +408,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// 카테고리 선택할 때마다 호출
-function selectCategory(element, category) {
-    document.querySelectorAll('.category-item').forEach(item => item.classList.remove('active'));
-    element.classList.add('active');
-    currentCategory = category;
-    offset = 0;
-    hasNext = true;
-    document.getElementById('storeGrid').innerHTML = "";
-    loadStoreList();
-}
 
 // AJAX로 목록을 받아서 append
-function loadStoreList() {
+function loadStoreList(isInit = false) {
     loading = true;
     document.getElementById('loadMoreBtn').textContent = "로딩중...";
+
     fetch(`/solfood/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`)
-        .then(res => {
-            console.log("fetch status:", res.status);
-            return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
-            console.log("ajax data:", data);
-            renderStoreList(data.list);
+            if (isInit) {
+                document.getElementById('storeGrid').innerHTML = ""; // 카테고리 바꿀 때만 초기화
+                offset = 0;
+            }
+            renderStoreList(data.list); // 새 목록만 append
             hasNext = data.hasNext;
             offset += data.list.length;
             if (hasNext) {
@@ -458,13 +440,20 @@ function loadStoreList() {
         });
 }
 
+
+
 function renderStoreList(list) {
     const container = document.getElementById('storeGrid');
+    const usersId = window.loginUserId;
+
     list.forEach(store => {
         const card = document.createElement('div');
         card.className = "store-card";
         card.setAttribute('data-category', store.storeCategory);
-        card.onclick = () => goToStoreDetail(store.storeId);
+
+        const likedClass = store.liked ? 'liked' : '';
+        const heartIcon = store.liked ? 'bi-heart-fill' : 'bi-heart';
+
         card.innerHTML = `
             <img src="${store.storeMainimage || '/img/default-restaurant.jpg'}" alt="${store.storeName}" class="store-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">
@@ -480,13 +469,52 @@ function renderStoreList(list) {
                     ${store.storeAvgstar > 0 ? `⭐ ${store.storeAvgstar}점` : '⭐ 신규매장'}
                 </div>
                 ${store.storeTel && store.storeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">📞 ${store.storeTel}</div>` : ''}
-                <i class="bi bi-heart like-icon"></i>
+                <button
+                    class="like-btn ${likedClass}"
+                    data-store-id="${store.storeId}"
+                    data-users-id="${usersId}"
+                    aria-label="찜">
+                    <i class="bi ${heartIcon}"></i>
+                </button>
             </div>
         `;
+
+        // 카드 클릭(상세이동)
+        card.addEventListener('click', () => goToStoreDetail(store.storeId));
+
+        // 하트 버튼 클릭(버블링 방지)
+        const likeBtn = card.querySelector('.like-btn');
+        likeBtn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            toggleLike(this);
+        });
+
         container.appendChild(card);
     });
 }
 
-function goToStoreDetail(storeId) {
-    window.location.href = '/solfood/user/store/detail/' + storeId;
+function toggleLike(btn) {
+    const storeId = btn.dataset.storeId;
+    const isLiked = btn.classList.contains('liked');
+    const url = isLiked ?'/solfood/user/like/cancel' : '/solfood/user/like/add';
+    const urlWithParams = `${url}?storeId=${encodeURIComponent(storeId)}`;
+
+    fetch(urlWithParams)
+        .then(res => res.json())
+        .then(res => {
+            if (res.result === "success") {
+                if (isLiked) {
+                    btn.classList.remove('liked');
+                    btn.querySelector('i').className = 'bi bi-heart';
+                } else {
+                    btn.classList.add('liked');
+                    btn.querySelector('i').className = 'bi bi-heart-fill';
+                }
+            } else {
+                alert('찜 처리 중 오류가 발생했습니다.');
+            }
+        })
+        .catch(() => {
+            alert('서버와 통신 중 오류가 발생했습니다.');
+        });
 }
