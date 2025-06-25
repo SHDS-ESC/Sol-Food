@@ -90,11 +90,11 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
                 .addPathPatterns("/user/**")
                 .excludePathPatterns("/user/login")
                 .excludePathPatterns("/user/kakaoLogin");
-//
-//        registry.addInterceptor(adminLoginInterceptor())
-//                .addPathPatterns("/admin/**")
-//                .excludePathPatterns("/admin/login")
-//                .excludePathPatterns("/admin/kakaoLogin");
+
+        registry.addInterceptor(adminLoginInterceptor())
+                .addPathPatterns("/admin/**")
+                .excludePathPatterns("/admin/login")
+                .excludePathPatterns("/admin/kakaoLogin");
 
         registry.addInterceptor(ownerLoginInterceptor())
                 .addPathPatterns("/owner/**")

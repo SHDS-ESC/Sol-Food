@@ -206,10 +206,10 @@
     <!-- Sidebar -->
     <nav class="side-menu">
         <h4>🌿 관리자 메뉴</h4>
-        <a href="#" class="nav-link">홈</a>
-        <a href="#" class="nav-link active">사용자</a>
-        <a href="#" class="nav-link">점주</a>
-        <a href="#" class="nav-link">결제</a>
+        <a href="<c:url value="/admin/home"/>" class="nav-link">홈</a>
+        <a href="<c:url value="/admin/home/user-management"/>" class="nav-link active">사용자</a>
+        <a href="<c:url value="/admin/home/owner-management"/>" class="nav-link">점주</a>
+        <a href="<c:url value="/admin/home/payment-management"/>" class="nav-link">결제</a>
         <a href="#" class="nav-link">정책</a>
         <div class="mt-auto">
             <small class="text-muted">© 2025 YourCompany</small>
@@ -236,7 +236,7 @@
             </div>
         </div>
         <div class="chart-card">
-            <p class="text-muted fst-italic mb-3">최근 6개월간 가입자 수 변화</p>
+            <p class="text-muted fst-italic mb-3">연간 가입자 수 변화</p>
             <!-- 기존 <img> 대신 -->
             <canvas id="signupChart" width="800" height="250"></canvas>
         </div>
@@ -468,7 +468,6 @@
             $('.filter-btns button').removeClass('active');
             // 클릭된 버튼에 active 클래스 추가
             $(this).addClass('active');
-
             const date = $(this).attr('name');
 
             $.ajax({
@@ -480,8 +479,9 @@
                     const countList = response.map(item => item.columnCount);
                     const canvas = document.getElementById('signupChart');
                     const chartCtx = canvas.getContext('2d');
+                    const label = $('.btn.btn-outline-success.active').attr('name') + ' 가입자 수 변화';
+                    $('.text-muted').text(label + ' 가입자 수 변화');
 
-                    // 기존 차트가 있다면 파괴
                     if (signupChart !== null) {
                         signupChart.destroy();
                     }

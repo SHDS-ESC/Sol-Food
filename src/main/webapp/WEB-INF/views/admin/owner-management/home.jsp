@@ -185,10 +185,10 @@
     <!-- Sidebar -->
     <nav class="side-menu">
         <h4>🌿 관리자 메뉴</h4>
-        <a href="${pageContext.request.contextPath}/admin/home" class="nav-link">홈</a>
-        <a href="${pageContext.request.contextPath}/admin/home/user-management" class="nav-link">사용자</a>
-        <a href="${pageContext.request.contextPath}/admin/home/owner-management" class="nav-link active">점주</a>
-        <a href="#" class="nav-link">결제</a>
+        <a href="<c:url value="/admin/home"/>" class="nav-link">홈</a>
+        <a href="<c:url value="/admin/home/user-management"/>" class="nav-link ">사용자</a>
+        <a href="<c:url value="/admin/home/owner-management"/>" class="nav-link active">점주</a>
+        <a href="<c:url value="/admin/home/payment-management"/>" class="nav-link">결제</a>
         <a href="#" class="nav-link">정책</a>
         <div class="mt-auto">
             <small class="text-muted">© 2025 YourCompany</small>
