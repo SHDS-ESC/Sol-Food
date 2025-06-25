@@ -270,24 +270,24 @@
                             <td>
                                 <label>
                                     <select>
-                                        <option value="ACTIVE" ${owner.ownerStatus == '활성' ? 'selected' : ''}>
+                                        <option value="ACTIVE" ${owner.ownerStatus == '승인완료' ? 'selected' : ''}>
                                             <c:choose>
-                                                <c:when test="${owner.ownerStatus == '활성'}">
-                                                    <span class="status-active">활성</span>
+                                                <c:when test="${owner.ownerStatus == '승인완료'}">
+                                                    <span class="status-active">승인완료</span>
                                                 </c:when>
-                                                <c:when test="${owner.ownerStatus == '비활성'}">
-                                                    <span class="status-inactive">비활성</span>
+                                                <c:when test="${owner.ownerStatus == '승인대기'}">
+                                                    <span class="status-inactive">승인대기</span>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <span class="status-pending">대기중</span>
+                                                    <span class="status-pending">승인거절</span>
                                                 </c:otherwise>
                                             </c:choose>
                                         </option>
-                                        <option value="INACTIVE" ${owner.ownerStatus == '비활성' ? 'selected' : ''}>
-                                            <span class="status-inactive">비활성</span>
+                                        <option value="INACTIVE" ${owner.ownerStatus == '승인대기' ? 'selected' : ''}>
+                                            <span class="status-inactive">승인대기</span>
                                         </option>
-                                        <option value="PENDING" ${owner.ownerStatus == '대기중' ? 'selected' : ''}>
-                                            <span class="status-inactive"> 대기중</span>
+                                        <option value="PENDING" ${owner.ownerStatus == '승인거절' ? 'selected' : ''}>
+                                            <span class="status-inactive"> 승인거절</span>
                                         </option>
                                     </select>
                                 </label>
@@ -404,10 +404,7 @@
                 firstPage = response.firstPage;
                 renderPagination(firstPage, lastPage, page);
 
-                $('.pagination .page-item')
-                    .eq(currentPage - 1)
-                    .addClass('active')
-                    .attr('aria-current', 'page');
+                $('.pagination').index(1).addClass('active').attr('aria-current', 'page');
             },
             error: function () {
                 alert('검색 중 오류가 발생했습니다.');

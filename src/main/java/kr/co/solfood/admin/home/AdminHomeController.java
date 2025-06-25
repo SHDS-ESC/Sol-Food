@@ -38,7 +38,7 @@ public class AdminHomeController {
 
     @ResponseBody
     @GetMapping("/home/user-management/search")
-    public PageMaker<UserSearchResponseDTO> userSearch(@RequestParam UserSearchRequestDTO userSearchRequestDTO, Model model) {
+    public PageMaker<UserSearchResponseDTO> getUsers(UserSearchRequestDTO userSearchRequestDTO, Model model) {
         return adminHomeService.getUsers(userSearchRequestDTO);
     }
 
