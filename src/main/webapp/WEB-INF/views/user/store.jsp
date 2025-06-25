@@ -26,8 +26,10 @@
     </div>
 
     <div class="search-bar">
-        <input type="text" class="form-control" placeholder="검색어를 입력해주세요">
-        <button class="btn btn-primary">검색</button>
+        <input type="text" id="searchInput" class="form-control" placeholder="음식점명, 주소, 카테고리를 검색해보세요">
+        <button id="searchBtn" class="btn btn-primary" onclick="performSearch()">
+            <i class="bi bi-search"></i>
+        </button>
     </div>
 
     <div class="map-category-container" id="mapCategoryContainer">
@@ -75,10 +77,12 @@
         <div id="map" class="map-view" style="width:100%;height:100%;"></div>
     </div>
 
-<div id="listContainer" class="list-container">
-    <div class="store-grid" id="storeGrid"></div>
-    <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;">더보기</button>
-</div>
+    <div id="listContainer" class="list-container">
+        <div class="store-grid" id="storeGrid">
+            <!-- 초기 데이터는 JavaScript에서 동적으로 로드 -->
+        </div>
+        <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;">더보기</button>
+    </div>
 
 <div class="bottom-nav">
     <a href="#"><i class="bi bi-house"></i>홈</a>

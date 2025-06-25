@@ -34,6 +34,30 @@ public class StoreServiceImpl implements StoreService {
         return mapper.getStoreById(storeId);
     }
     
+    @Override
+    public List<StoreVO> searchStores(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getAllStore(); // 검색어가 없으면 전체 목록 반환
+        }
+        return mapper.searchStores(keyword.trim());
+    }
+    
+    @Override
+    public List<StoreVO> searchStoresByName(String storeName) {
+        if (storeName == null || storeName.trim().isEmpty()) {
+            return getAllStore();
+        }
+        return mapper.searchStoresByName(storeName.trim());
+    }
+    
+    @Override
+    public List<StoreVO> searchStoresByAddress(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            return getAllStore();
+        }
+        return mapper.searchStoresByAddress(address.trim());
+    }
+    
     // 가게 등록 (관리자/크롤링용)
     @Override
     @Transactional
@@ -58,20 +82,7 @@ public class StoreServiceImpl implements StoreService {
         return count > 0;
     }
 
-    //전체목록
-    @Override
-    public PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO) {
-        List<StoreVO> list = mapper.selectPagedStores(
-                pageDTO.getOffset(),
-                pageDTO.getPageSize()
-        );
-        long total = mapper.countAllStores();
-
-        return new PageMaker<>(list, total, pageDTO.getPageSize(),
-                pageDTO.getCurrentPage());
-    }
-
-    //카테고리별
+    //카테고리별 (전체 포함)
     @Override
     public PageMaker<StoreVO> getPagedCategoryStoreList(String category,
                                                         PageDTO pageDTO) {
@@ -81,6 +92,20 @@ public class StoreServiceImpl implements StoreService {
                 pageDTO.getPageSize()
         );
         long total = mapper.countStoresByCategory(category);
+
+        return new PageMaker<>(list, total, pageDTO.getPageSize(),
+                pageDTO.getCurrentPage());
+    }
+
+    //검색 결과 페이징
+    @Override
+    public PageMaker<StoreVO> getPagedSearchResults(String keyword, PageDTO pageDTO) {
+        List<StoreVO> list = mapper.selectPagedSearchResults(
+                keyword,
+                pageDTO.getOffset(),
+                pageDTO.getPageSize()
+        );
+        long total = mapper.countSearchResults(keyword);
 
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());

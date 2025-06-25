@@ -57,7 +57,7 @@ public class S3ServiceV2 {
         }
     }
     
-    @PreDestroy
+    @PreDestroy // Bean 소멸 전 연결 해제
     public void cleanup() {
         if (s3Client != null) {
             s3Client.close();
