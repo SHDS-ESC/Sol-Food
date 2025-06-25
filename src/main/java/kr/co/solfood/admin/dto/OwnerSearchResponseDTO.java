@@ -11,7 +11,7 @@ public class OwnerSearchResponseDTO extends PageDTO {
     String storeName;
     String ownerEmail;
     String storeCategory;
-    int storeAvgStar;
+    Integer storeAvgStar;
     String ownerTel;
     String storeTel;
     String storeAddress;

@@ -25,6 +25,13 @@ public class AdminHomeServiceImpl implements AdminHomeService {
     }
 
     @Override
+    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO) {
+        List<OwnerSearchResponseDTO> ownerSearchResponseDTO = adminMapper.getOwners(ownerSearchRequestDTO);
+        int size = adminMapper.getOwnersCount(ownerSearchRequestDTO);
+        return new PageMaker<>(ownerSearchResponseDTO,size,ownerSearchRequestDTO.getPageSize(),ownerSearchRequestDTO.getCurrentPage());
+    }
+
+    @Override
     public List<ChartRequestDTO> userManagementChart(String date) {
         switch (date) {
             case "월간":
@@ -35,13 +42,6 @@ public class AdminHomeServiceImpl implements AdminHomeService {
             default:
                 return adminMapper.userManagementChartByYears();
         }
-    }
-
-    @Override
-    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO) {
-        List<OwnerSearchResponseDTO> ownerSearchResponseDTO = adminMapper.getOwners(ownerSearchRequestDTO);
-        int size = adminMapper.getOwnersCount(ownerSearchRequestDTO);
-        return new PageMaker<>(ownerSearchResponseDTO,size,ownerSearchRequestDTO.getPageSize(),ownerSearchRequestDTO.getCurrentPage());
     }
 
 }

@@ -1,20 +1,20 @@
 package kr.co.solfood.admin.home;
 
 import kr.co.solfood.admin.dto.*;
-import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.util.PageMaker;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminHomeController {
-
     private final AdminHomeService adminHomeService;
-
     private final int START_PAGE = 1;
     private final int PAGE_GROUP_AMOUNT = 10;
 
@@ -23,7 +23,7 @@ public class AdminHomeController {
     }
 
     @GetMapping("/home")
-    public void home(Model model) {
+    public void home() {
     }
 
     @GetMapping("/home/user-management")
@@ -60,12 +60,12 @@ public class AdminHomeController {
 
     @ResponseBody
     @GetMapping("/home/owner-management/search")
-    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO, Model model) {
+    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO) {
         return adminHomeService.getOwners(ownerSearchRequestDTO);
     }
 
     @GetMapping("/home/payment-management")
-    public String paymentManagement(Model model) {
+    public String paymentManagement() {
         return "admin/payment-management/home";
     }
 }
