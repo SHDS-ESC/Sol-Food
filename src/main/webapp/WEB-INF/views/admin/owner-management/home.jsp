@@ -271,25 +271,9 @@
                             <td>
                                 <label>
                                     <select class="status-select">
-                                        <option value="승인완료" ${owner.ownerStatus == '승인완료' ? 'selected' : ''}>
-                                            <c:choose>
-                                                <c:when test="${owner.ownerStatus == '승인완료'}">
-                                                    <span class="status-active">승인완료</span>
-                                                </c:when>
-                                                <c:when test="${owner.ownerStatus == '승인대기'}">
-                                                    <span class="status-inactive">승인대기</span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="status-pending">승인거절</span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </option>
-                                        <option value="승인대기" ${owner.ownerStatus == '승인대기' ? 'selected' : ''}>
-                                            <span class="status-inactive">승인대기</span>
-                                        </option>
-                                        <option value="승인거절" ${owner.ownerStatus == '승인거절' ? 'selected' : ''}>
-                                            <span class="status-inactive">승인거절</span>
-                                        </option>
+                                        <option value="승인완료" ${owner.ownerStatus == '승인완료' ? 'selected' : ''}>승인완료</option>
+                                        <option value="승인대기" ${owner.ownerStatus == '승인대기' ? 'selected' : ''}>승인대기</option>
+                                        <option value="승인거절" ${owner.ownerStatus == '승인거절' ? 'selected' : ''}>승인거절</option>
                                     </select>
                                 </label>
                             </td>
