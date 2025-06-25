@@ -10,6 +10,9 @@ import kr.co.solfood.user.store.StoreVO;
 import java.util.List;
 import java.util.Map;
 
+import static kr.co.solfood.user.review.ReviewConstants.*;
+import static kr.co.solfood.user.review.ReviewValidator.*;
+
 @Service
 public class ReviewServiceImpl implements ReviewService {
     
@@ -48,9 +51,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional(readOnly = true)
     public ReviewVO getReviewById(Integer reviewId) {
-        if (reviewId == null) {
-            throw new IllegalArgumentException("리뷰 ID가 필요합니다.");
-        }
+        validateReviewId(reviewId);
         return reviewMapper.selectReviewById(reviewId);
     }
     
@@ -65,18 +66,14 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public boolean updateReview(ReviewVO review) {
         validateReview(review);
-        if (review.getReviewId() == null) {
-            throw new IllegalArgumentException("리뷰 ID가 필요합니다.");
-        }
+        validateReviewId(review.getReviewId());
         return reviewMapper.updateReview(review) > 0;
     }
     
     @Override
     @Transactional
     public boolean deleteReview(Integer reviewId) {
-        if (reviewId == null) {
-            throw new IllegalArgumentException("리뷰 ID가 필요합니다.");
-        }
+        validateReviewId(reviewId);
         return reviewMapper.deleteReview(reviewId) > 0;
     }
     
@@ -92,27 +89,21 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional(readOnly = true)
     public List<ReviewVO> getReviewsByStoreId(Integer storeId) {
-        if (storeId == null) {
-            throw new IllegalArgumentException("가게 ID가 필요합니다.");
-        }
+        validateStoreId(storeId);
         return reviewMapper.selectReviewsByStoreId(storeId);
     }
     
     @Override
     @Transactional(readOnly = true)
     public StoreVO getStoreById(Integer storeId) {
-        if (storeId == null) {
-            throw new IllegalArgumentException("가게 ID가 필요합니다.");
-        }
+        validateStoreId(storeId);
         return storeMapper.getStoreById(storeId);
     }
     
     @Override
     @Transactional(readOnly = true)
     public Double getAverageStarByStoreId(Integer storeId) {
-        if (storeId == null) {
-            throw new IllegalArgumentException("가게 ID가 필요합니다.");
-        }
+        validateStoreId(storeId);
         Double avg = reviewMapper.selectAverageStarByStoreId(storeId);
         return avg != null ? avg : 0.0;
     }
@@ -120,9 +111,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional(readOnly = true)
     public Integer getTotalCountByStoreId(Integer storeId) {
-        if (storeId == null) {
-            throw new IllegalArgumentException("가게 ID가 필요합니다.");
-        }
+        validateStoreId(storeId);
         Integer count = reviewMapper.selectTotalCountByStoreId(storeId);
         return count != null ? count : 0;
     }
@@ -130,44 +119,12 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional(readOnly = true)
     public Map<String, Object> getStarCountsByStoreId(Integer storeId) {
-        if (storeId == null) {
-            throw new IllegalArgumentException("가게 ID가 필요합니다.");
-        }
+        validateStoreId(storeId);
         return reviewMapper.selectStarCountsByStoreId(storeId);
     }
     
     @Override
     public boolean isValidStarRating(Integer star) {
-        return star != null && star >= MIN_STAR_RATING && star <= MAX_STAR_RATING;
-    }
-    
-    /**
-     * 리뷰 유효성 검증 private 메서드
-     */
-    private void validateReview(ReviewVO review) {
-        if (review == null) {
-            throw new IllegalArgumentException("리뷰 정보가 없습니다.");
-        }
-        
-        if (review.getStoreId() == null) {
-            throw new IllegalArgumentException("가게 ID가 필요합니다.");
-        }
-        
-        if (review.getUsersId() == null) {
-            throw new IllegalArgumentException("사용자 ID가 필요합니다.");
-        }
-        
-        if (!isValidStarRating(review.getReviewStar())) {
-            throw new IllegalArgumentException("별점은 " + MIN_STAR_RATING + "점에서 " + MAX_STAR_RATING + "점 사이여야 합니다.");
-        }
-        
-        if (review.getReviewContent() == null || review.getReviewContent().trim().isEmpty()) {
-            throw new IllegalArgumentException("리뷰 내용은 비어있을 수 없습니다.");
-        }
-        
-        // 리뷰 내용 길이 제한 (예: 1000자)
-        if (review.getReviewContent().length() > 1000) {
-            throw new IllegalArgumentException("리뷰 내용은 1000자를 초과할 수 없습니다.");
-        }
+        return ReviewValidator.isValidStarRating(star);
     }
 }
