@@ -1,0 +1,16 @@
+package kr.co.solfood.payments.payment;
+
+import java.util.List;
+
+import kr.co.solfood.user.login.UserVO;
+
+public interface PaymentService {
+    // 중복 충전 방지 (imp_uid 중복 체크)
+    boolean isAlreadyProcessed(String imp_uid);
+    // 포인트 적립 (트랜잭션 처리)
+    void updateUserPoint(UserVO user);
+    // imp_uid 기록
+    void saveProcessedImpUid(String imp_uid);
+    // Payment 내역 조회
+    List<PaymentVO> getPaymentHistory(long usersId, int page, int size);
+}

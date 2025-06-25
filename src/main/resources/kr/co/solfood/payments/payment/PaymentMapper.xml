@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.payments.payment.PaymentMapper">
+
+    <select id="isAlreadyProcessed" parameterType="String" resultType="Boolean">
+        SELECT COUNT(*) > 0
+        FROM payment
+        WHERE imp_uid = #{imp_uid}
+    </select>
+
+    <update id="updateUserPoint" parameterType="kr.co.solfood.user.login.UserVO">
+        UPDATE users
+        SET users_point = #{usersPoint}
+        WHERE users_id = #{usersId}
+    </update>
+
+    <insert id="saveProcessedImpUid" parameterType="String">
+        INSERT INTO payment (imp_uid, created_at)
+        VALUES (#{imp_uid}, NOW())
+    </insert>
+
+</mapper>

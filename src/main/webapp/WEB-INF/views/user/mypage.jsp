@@ -13,6 +13,7 @@
     <script src="${pageContext.request.contextPath}/resources/js/payment.js"></script>
     <script>
         $(function() {
+            return;
             $(".btn-charge").click(function() {
                 requestPayment({
                     impCode: "${impCode}", // Controller에서 내려준 값
@@ -31,6 +32,8 @@
                             url: "/payment/verifyIamport/" + rsp.imp_uid,
                             success: function(data) {
                                 alert("결제 완료!");
+                                // 뒤로 가기 막는 페이지 이동
+                                window.location.replace("${pageContext.request.contextPath}/user/mypage");
                             },
                             error: function() {
                                 alert("서버 검증 실패");
@@ -55,8 +58,8 @@
     </div>
     <hr>
     <div>
-        <button class="btn btn-charge">충전하기</button>
-        <button class="btn btn-cancel">충전내역보기</button>
+        <button class="btn btn-charge" onclick="location.href='${pageContext.request.contextPath}/user/charge'">충전하기</button>
+        <button class="btn btn-cancel" onclick="location.href='${pageContext.request.contextPath}/user/mypage/charge-history'">충전내역보기</button>
     </div>
     <!-- <a href="${pageContext.request.contextPath}/">메인으로</a> -->
 </div>

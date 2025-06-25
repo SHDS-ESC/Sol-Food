@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.payments.charge.ChargeMapper">
+
+    <resultMap id="chargeMap" type="kr.co.solfood.payments.charge.ChargeVO">
+        <id property="chargeId" column="charge_id"/>
+        <result property="usersId" column="users_id"/>
+        <result property="impUid" column="charge_impuid"/>
+        <result property="merchantUid" column="charge_merchant_uid"/>
+        <result property="payMethod" column="charge_method"/>
+        <result property="pgProvider" column="charge_pg_provider"/>
+        <result property="pgTid" column="charge_pg_tid"/>
+        <result property="receiptUrl" column="charge_receipt_url"/>
+        <result property="status" column="charge_status"/>
+        <result property="statusDetail" column="charge_status_detail"/>
+        <result property="amount" column="charge_amount"/>
+        <result property="cancelAmount" column="charge_cancel_amount"/>
+        <result property="buyerName" column="charge_buyer_name"/>
+        <result property="buyerEmail" column="charge_buyer_email"/>
+        <result property="buyerTel" column="charge_buyer_tel"/>
+        <result property="failReason" column="charge_fail_reason"/>
+        <result property="cancelReason" column="charge_cancel_reason"/>
+        <result property="paidAt" column="charge_paid_at"/>
+        <result property="cancelledAt" column="charge_cancelled_at"/>
+        <result property="createdAt" column="charge_created_at"/>
+        <result property="updatedAt" column="charge_updated_at"/>
+    </resultMap>
+
+    <select id="isAlreadyProcessed" parameterType="String" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM charge
+        WHERE charge_impuid = #{imp_uid}
+    </select>
+
+    <update id="updateUserPoint" parameterType="kr.co.solfood.user.login.UserVO">
+        UPDATE users
+        SET users_point = #{usersPoint}
+        WHERE users_id = #{usersId}
+    </update>
+
+    <insert id="saveProcessedImpUid" parameterType="kr.co.solfood.payments.charge.ChargeVO">
+        INSERT INTO charge (charge_impuid, charge_created_at)
+        VALUES (#{impUid}, NOW())
+    </insert>
+
+    <insert id="insertCharge" parameterType="kr.co.solfood.payments.charge.ChargeVO">
+        INSERT INTO charge (
+            users_id,
+            charge_impuid,
+            charge_merchant_uid,
+            charge_method,
+            charge_pg_provider,
+            charge_pg_tid,
+            charge_receipt_url,
+            charge_status,
+            charge_status_detail,
+            charge_amount,
+            charge_cancel_amount,
+            charge_buyer_name,
+            charge_buyer_email,
+            charge_buyer_tel,
+            charge_fail_reason,
+            charge_cancel_reason,
+            charge_paid_at,
+            charge_cancelled_at,
+            charge_created_at,
+            charge_updated_at
+        ) VALUES (
+            #{usersId},
+            #{impUid},
+            #{merchantUid},
+            #{payMethod},
+            #{pgProvider},
+            #{pgTid},
+            #{receiptUrl},
+            #{status},
+            #{statusDetail},
+            #{amount},
+            #{cancelAmount},
+            #{buyerName},
+            #{buyerEmail},
+            #{buyerTel},
+            #{failReason},
+            #{cancelReason},
+            #{paidAt},
+            #{cancelledAt},
+            #{createdAt},
+            #{updatedAt}
+        )
+    </insert>
+
+</mapper>
