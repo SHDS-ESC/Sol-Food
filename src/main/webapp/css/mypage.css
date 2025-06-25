@@ -1,0 +1,154 @@
+body {
+            background: #f5d6db;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .mypage-app {
+            background: #fff;
+            width: 340px;
+            min-height: 95vh;
+            border-radius: 20px;
+            box-shadow: 0 2px 18px rgba(0,0,0,0.08);
+            margin-top: 20px;
+            padding-bottom: 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .mypage-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 18px 0 18px;
+        }
+        .mypage-btn {
+            border: 1px solid #888;
+            background: #fff;
+            border-radius: 6px;
+            padding: 7px 18px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .menu-text {
+            font-size: 15px;
+            color: #444;
+            font-weight: 500;
+        }
+        .profile-thumb {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #aaa;
+            border-radius: 50%;
+            background: #fff;
+        }
+        .profile-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 14px 0 7px 0;
+        }
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f5d6db;
+            box-shadow: 0 2px 8px #f5d6db;
+        }
+        .nickname {
+            margin-top: 6px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #444;
+        }
+        .point-box {
+            width: 85%;
+            background: #faf3f7;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 17px 14px 11px 14px;
+            margin: 14px 0;
+            cursor: pointer;
+            text-align: left;
+        }
+        .point-title {
+            font-size: 17px;
+            color: #444;
+            margin-bottom: 3px;
+        }
+        .point-amount {
+            font-size: 28px;
+            font-weight: 500;
+            color: #242424;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .arrow {
+            font-size: 24px;
+            color: #c49baf;
+            margin-left: 10px;
+        }
+        .mypage-menu {
+            width: 88%;
+            margin: 20px 0 18px 0;
+        }
+        .menu-row {
+            display: flex;
+            width: 100%;
+        }
+        .menu-item {
+            flex: 1;
+            background: #f8f4f7;
+            border: 1px solid #e2d1d1;
+            border-radius: 10px;
+            margin: 6px;
+            height: 84px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: box-shadow 0.2s;
+        }
+        .menu-item:hover {
+            box-shadow: 0 2px 10px #fad4ec55;
+        }
+        /* 아이콘 커스텀 (SVG 예시, 실제 사용시 경로 변경!) */
+        .icon { margin-bottom: 8px; }
+        .icon.user { width:30px; height:30px; background:url('img/icon_user.png') center/contain no-repeat; }
+        .icon.heart { width:30px; height:30px; background:url('img/icon_heart.png') center/contain no-repeat; }
+        .icon.doc { width:30px; height:30px; background:url('img/icon_doc.png') center/contain no-repeat; }
+        .icon.pay { width:30px; height:30px; background:url('img/icon_pay.png') center/contain no-repeat; }
+        /* 하단 네비 */
+        .nav {
+            display: flex;
+            width: 100%;
+            justify-content: space-around;
+            margin-top: 24px;
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+        }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+        .nav-btn.active {
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px #efb9ca;
+            background: #f5d6db;
+        }
+        .icon.profile { width:28px; height:28px; background:url('img/icon_profile.png') center/contain no-repeat; }
+        .icon.home { width:28px; height:28px; background:url('img/icon_home.png') center/contain no-repeat; }
