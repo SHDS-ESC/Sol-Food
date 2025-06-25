@@ -4,6 +4,7 @@ import kr.co.solfood.admin.dto.*;
 import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.util.PageMaker;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,7 @@ public class AdminHomeServiceImpl implements AdminHomeService {
     }
 
     @Override
+    @Transactional
     public void updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO) {
         adminMapper.updateOwnerStatus(ownerStatusUpdateDTO);
     }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/home")
 public class AdminHomeController {
     private final AdminHomeService adminHomeService;
     private final int START_PAGE = 1;
@@ -22,11 +22,11 @@ public class AdminHomeController {
         this.adminHomeService = adminHomeService;
     }
 
-    @GetMapping("/home")
+    @GetMapping("")
     public void home() {
     }
 
-    @GetMapping("/home/user-management")
+    @GetMapping("/user-management")
     public String userManagement(Model model) {
         UserSearchRequestDTO userSearchRequestDTO = new UserSearchRequestDTO();
         userSearchRequestDTO.setCurrentPage(START_PAGE);
@@ -37,18 +37,18 @@ public class AdminHomeController {
     }
 
     @ResponseBody
-    @GetMapping("/home/user-management/search")
+    @GetMapping("/user-management/search")
     public PageMaker<UserSearchResponseDTO> getUsers(UserSearchRequestDTO userSearchRequestDTO, Model model) {
         return adminHomeService.getUsers(userSearchRequestDTO);
     }
 
     @ResponseBody
-    @GetMapping("/home/user-management/chart")
+    @GetMapping("/user-management/chart")
     public List<ChartRequestDTO> getChartData(@RequestParam("date") String date) {
         return adminHomeService.userManagementChart(date);
     }
 
-    @GetMapping("/home/owner-management")
+    @GetMapping("/owner-management")
     public String ownerManagement(Model model) {
         OwnerSearchDTO ownerSearchDTO = new OwnerSearchDTO();
         ownerSearchDTO.setCurrentPage(START_PAGE);
@@ -59,18 +59,18 @@ public class AdminHomeController {
     }
 
     @ResponseBody
-    @GetMapping("/home/owner-management/search")
+    @GetMapping("/owner-management/search")
     public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO) {
         return adminHomeService.getOwners(ownerSearchRequestDTO);
     }
 
-    @GetMapping("/home/payment-management")
+    @GetMapping("/payment-management")
     public String paymentManagement() {
         return "admin/payment-management/home";
     }
 
     @ResponseBody
-    @GetMapping("/home/payment-management/status-update")
+    @GetMapping("/payment-management/status-update")
     public String OwnerStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
         adminHomeService.updateOwnerStatus(new OwnerStatusUpdateDTO(ownerId, status));
         return "admin/payment-management/home";
