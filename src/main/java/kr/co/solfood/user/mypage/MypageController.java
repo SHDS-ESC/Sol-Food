@@ -1,5 +1,6 @@
 package kr.co.solfood.user.mypage;
 
+import kr.co.solfood.user.like.LikeService;
 import kr.co.solfood.user.login.CompanyVO;
 import kr.co.solfood.user.login.LoginService;
 import kr.co.solfood.user.login.UserVO;
@@ -18,8 +19,12 @@ public class MypageController {
 
     @Autowired
     private LoginService loginService;
+
     @Autowired
     private MypageService mypageService;
+
+    @Autowired
+    private LikeService likeService;
 
     @GetMapping("")
     public String myPage(Model model) {
