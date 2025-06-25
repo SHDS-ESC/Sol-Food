@@ -1,5 +1,6 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import properties.KakaoProperties;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,19 +108,26 @@ public class StoreController {
     @GetMapping("/api/list")
     @ResponseBody
     public Map<String, Object> getStoreListAjax(
+            HttpSession session,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
 
+        //로그인 유저ID 가져오기
+        Long usersId = null;
+        Object sessionObj = session.getAttribute("userLoginSession");
+        if (sessionObj != null) {
+            usersId = ((UserVO) sessionObj).getUsersId();
+        }
         PageDTO pageDTO = new PageDTO();
         pageDTO.setCurrentPage(offset / pageSize + 1); // 실제로는 offset만 쓰면 됨
         pageDTO.setPageSize(pageSize);
 
         PageMaker<StoreVO> pageMaker;
         if (category == null || category.equals("전체")) {
-            pageMaker = service.getPagedStoreList(pageDTO);
+            pageMaker = service.getPagedStoreList(pageDTO, usersId);
         } else {
-            pageMaker = service.getPagedCategoryStoreList(category, pageDTO);
+            pageMaker = service.getPagedCategoryStoreList(category, pageDTO, usersId);
         }
 
         boolean hasNext = offset + pageSize < pageMaker.getCount();

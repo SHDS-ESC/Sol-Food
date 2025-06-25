@@ -22,8 +22,8 @@ public interface StoreService {
     boolean isDuplicateStore(StoreVO store);
 
     //페이징 처리
-    PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO);
+    PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO, Long usersId);
 
     //카테고리별 페이징 처리
-    PageMaker<StoreVO> getPagedCategoryStoreList(String category, PageDTO pageDTO);
+    PageMaker<StoreVO> getPagedCategoryStoreList(String category, PageDTO pageDTO, Long usersId);
 }

@@ -60,10 +60,11 @@ public class StoreServiceImpl implements StoreService {
 
     //전체목록
     @Override
-    public PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO) {
+    public PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO, Long usersId) {
         List<StoreVO> list = mapper.selectPagedStores(
                 pageDTO.getOffset(),
-                pageDTO.getPageSize()
+                pageDTO.getPageSize(),
+                usersId //null이면 찜하지 않은 상태로 조회
         );
         long total = mapper.countAllStores();
 
@@ -74,11 +75,12 @@ public class StoreServiceImpl implements StoreService {
     //카테고리별
     @Override
     public PageMaker<StoreVO> getPagedCategoryStoreList(String category,
-                                                        PageDTO pageDTO) {
+                                                        PageDTO pageDTO, Long usersId) {
         List<StoreVO> list = mapper.selectPagedCategoryStores(
                 category,
                 pageDTO.getOffset(),
-                pageDTO.getPageSize()
+                pageDTO.getPageSize(),
+                usersId //null이면 찜하지 않은 상태로 조회
         );
         long total = mapper.countStoresByCategory(category);
 

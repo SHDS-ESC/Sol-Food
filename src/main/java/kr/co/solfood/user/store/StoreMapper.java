@@ -25,13 +25,16 @@ public interface StoreMapper {
 
     //페이징 처리
     List<StoreVO> selectPagedStores(@Param("offset") int offset,
-                                    @Param("pageSize") int pageSize);
+                                    @Param("pageSize") int pageSize,
+                                    @Param("usersId") Long usersId);
 
     List<StoreVO> selectPagedCategoryStores(@Param("category") String category,
                                             @Param("offset") int offset,
-                                            @Param("pageSize") int pageSize);
+                                            @Param("pageSize") int pageSize,
+                                            @Param("usersId") Long usersId);
 
     long countAllStores();
     long countStoresByCategory(String category);
+
 
 }

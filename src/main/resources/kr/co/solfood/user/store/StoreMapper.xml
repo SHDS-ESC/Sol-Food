@@ -104,26 +104,33 @@
             store_mainimage,
             store_category,
             store_capacity,
-            store_tel
-        FROM store
+            CASE WHEN ul.store_id IS NOT NULL THEN 1 ELSE 0 END as liked
+        FROM store s
+        LEFT JOIN user_likes ul ON s.store_id = ul.store_id
+        AND ul.users_id = #{usersId}
+        ORDER BY s.store_id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
     <select id="selectPagedCategoryStores" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT
-            store_id,
-            store_name,
-            store_address,
-            store_latitude,
-            store_longitude,
-            store_avgstar,
-            store_intro,
-            store_mainimage,
-            store_category,
-            store_capacity,
-            store_tel
-        FROM store
-        WHERE store_category = #{category}
+            s.store_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.store_category,
+            s.store_capacity,
+            s.store_tel,
+            CASE WHEN ul.store_id IS NOT NULL THEN 1 ELSE 0 END as liked
+        FROM store s
+        LEFT JOIN user_likes ul ON s.store_id = ul.store_id
+            AND ul.users_id = #{usersId}
+        WHERE s.store_category = #{category}
+        ORDER BY s.store_id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
