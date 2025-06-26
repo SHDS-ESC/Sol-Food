@@ -24,7 +24,13 @@ public class MypageController {
     private MypageService mypageService;
 
     @GetMapping("")
-    public String myPage(Model model) {
+    public String myPage(Model model, HttpSession sess) {
+        UserVO userVO = (UserVO) sess.getAttribute("userLoginSession");
+        if(userVO == null){
+            return "redirect:/user/userControl/login";
+        }
+
+        model.addAttribute("currentUser", userVO);
         return "user/userControl/mypage";
     }
 
@@ -64,8 +70,21 @@ public class MypageController {
         sess.removeAttribute("mypageInProgress");
         sess.removeAttribute("uploadCount");
 
-        // 수정된 로그인 세션 새로 저장
-        sess.setAttribute("userLoginSession", userVO);
+        // 기존 세션 정보를 유지하면서 수정된 정보만 업데이트
+        if(userVO.getUsersNickname() != null && !userVO.getUsersNickname().trim().isEmpty()) {
+            loginUser.setUsersNickname(userVO.getUsersNickname());
+        }
+        if(userVO.getUsersProfile() != null && !userVO.getUsersProfile().trim().isEmpty()) {
+            loginUser.setUsersProfile(userVO.getUsersProfile());
+        }
+        loginUser.setCompanyId(userVO.getCompanyId());
+        loginUser.setDepartmentId(userVO.getDepartmentId());
+        loginUser.setUsersEmail(userVO.getUsersEmail());
+        loginUser.setUsersTel(userVO.getUsersTel());
+        loginUser.setUsersName(userVO.getUsersName());
+        loginUser.setUsersGender(userVO.getUsersGender());
+        loginUser.setUsersBirth(userVO.getUsersBirth());
+        sess.setAttribute("userLoginSession", loginUser);
 
         // 4. 세션정보 갱신
         return "redirect:/";
@@ -91,6 +110,8 @@ public class MypageController {
             redirectAttributes.addFlashAttribute("msg", "탈퇴 실패");
             return "redirect:/user/mypage/info";
         }
+
+
     }
 
 }

@@ -190,7 +190,10 @@
 <body>
   <div class="form-container">
     <div class="form-title">회원가입</div>
+<<<<<<<<< Temporary merge branch 1:src/main/webapp/WEB-INF/views/user/userControl/register.jsp
     <form action="/solfood/user/userControl/register" method="post">
+=========
+    <form action="/solfood/user/register" method="post">
       <!-- 프로필 이미지 업로드 -->
       <label>프로필 이미지</label>
       <div class="profile-upload-container">
@@ -217,6 +220,7 @@
         <span id="uploadProgressText" class="progress-text">0%</span>
       </div>
 
+>>>>>>>>> Temporary merge branch 2:src/main/webapp/WEB-INF/views/user/register.jsp
       <label for="companySelect">회사 *</label>
       <select id="companySelect" name="companyId" required onchange="loadDepts(this.value)">
         <option value="">-- 회사 선택 --</option>
