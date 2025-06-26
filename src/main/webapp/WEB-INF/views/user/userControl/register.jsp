@@ -191,6 +191,32 @@
   <div class="form-container">
     <div class="form-title">회원가입</div>
     <form action="/solfood/user/userControl/register" method="post">
+      <!-- 프로필 이미지 업로드 -->
+      <label>프로필 이미지</label>
+      <div class="profile-upload-container">
+        <div class="profile-preview-container" onclick="document.getElementById('profileImageInput').click()">
+          <img id="profilePreview" class="profile-preview"
+               src="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800"
+               alt="프로필 미리보기">
+          <div class="profile-upload-overlay">
+            <i class="camera-icon">📷</i>
+            <span>사진 변경</span>
+          </div>
+        </div>
+        <input type="file" id="profileImageInput" accept="image/*" onchange="handleProfileImageUpload(this)" style="display: none;">
+        <button type="button" class="btn-upload" onclick="document.getElementById('profileImageInput').click()">
+          사진 선택
+        </button>
+      </div>
+
+      <!-- 업로드 진행률 -->
+      <div id="uploadProgress" class="upload-progress" style="display: none;">
+        <div class="progress-bar-container">
+          <div id="uploadProgressBar" class="progress-bar"></div>
+        </div>
+        <span id="uploadProgressText" class="progress-text">0%</span>
+      </div>
+
       <label for="companySelect">회사 *</label>
       <select id="companySelect" name="companyId" required onchange="loadDepts(this.value)">
         <option value="">-- 회사 선택 --</option>
@@ -229,31 +255,6 @@
       <label>전화번호 *</label>
       <input type="tel" name="usersTel" placeholder="010-0000-0000" required>
 
-      <!-- 프로필 이미지 업로드 -->
-      <label>프로필 이미지</label>
-      <div class="profile-upload-container">
-        <div class="profile-preview-container" onclick="document.getElementById('profileImageInput').click()">
-          <img id="profilePreview" class="profile-preview" 
-               src="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800" 
-               alt="프로필 미리보기">
-          <div class="profile-upload-overlay">
-            <i class="camera-icon">📷</i>
-            <span>사진 변경</span>
-          </div>
-        </div>
-        <input type="file" id="profileImageInput" accept="image/*" onchange="handleProfileImageUpload(this)" style="display: none;">
-        <button type="button" class="btn-upload" onclick="document.getElementById('profileImageInput').click()">
-          사진 선택
-        </button>
-      </div>
-      
-      <!-- 업로드 진행률 -->
-      <div id="uploadProgress" class="upload-progress" style="display: none;">
-        <div class="progress-bar-container">
-          <div id="uploadProgressBar" class="progress-bar"></div>
-        </div>
-        <span id="uploadProgressText" class="progress-text">0%</span>
-      </div>
 
       <!-- Hidden Fields -->
       <input type="hidden" id="usersProfile" name="usersProfile" value="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800">

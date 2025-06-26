@@ -18,5 +18,12 @@
         WHERE users_id = #{usersId}
     </update>
 
+    <update id="updateStatusToWithdraw" parameterType="long" >
+        UPDATE users
+        SET
+            users_status = 'inactive'
+        WHERE users_id = #{usersId}
+    </update>
+
 
 </mapper>
