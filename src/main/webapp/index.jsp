@@ -379,9 +379,6 @@
                 <a href = "<c:url value = "user/mypage"/>" class = "btn btn-primary">
                     <i class = "fas fa-user"></i> 마이 페이지
                 </a>
-                <a href = "<c:url value = "user/payment"/>" class = "btn btn-primary">
-                    <i class = "fas fa-user"></i> 결제 페이지
-                </a>
             </div>
         </div>
     </section>

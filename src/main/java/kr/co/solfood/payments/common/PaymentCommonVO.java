@@ -29,4 +29,10 @@ public abstract class PaymentCommonVO {
     protected java.sql.Timestamp createdAt;     // 레코드 생성일시
     protected java.sql.Timestamp updatedAt;     // 레코드 수정일시
 
+    /**
+     * 실제로 취소되었는지 확인 (1970-01-01이 아닌 경우)
+     */
+    public boolean isActuallyCancelled() {
+        return cancelledAt != null && cancelledAt.getTime() > 0;
+    }
 }

@@ -46,7 +46,19 @@ public class ChargeServiceImpl implements ChargeService {
 
     @Override
     public List<ChargeVO> getChargeHistory(long usersId, int page, int size) {
-        return chargeMapper.getChargeHistory(usersId, page, size);
+        int offset = (page - 1) * size;
+        return chargeMapper.getChargeHistory(usersId, offset, size);
+    }   
+
+    // 취소/환불 관련 메서드 구현
+    @Override
+    public ChargeVO getChargeByImpUid(String impUid) {
+        return chargeMapper.getChargeByImpUid(impUid);
+    }
+
+    @Override
+    public void updateCharge(ChargeVO chargeVO) {
+        chargeMapper.updateCharge(chargeVO);
     }
 
 }

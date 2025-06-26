@@ -16,4 +16,8 @@ public interface ChargeService {
     void insertCharge(ChargeVO vo);
     // Charge 내역 조회
     List<ChargeVO> getChargeHistory(long usersId, int page, int size);
+    
+    // 취소/환불 관련 메서드
+    ChargeVO getChargeByImpUid(String impUid);
+    void updateCharge(ChargeVO chargeVO);
 }

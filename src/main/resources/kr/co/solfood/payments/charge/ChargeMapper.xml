@@ -91,4 +91,28 @@
         )
     </insert>
 
+    <select id="getChargeHistory" resultMap="chargeMap">
+        SELECT *
+        FROM charge
+        WHERE users_id = #{usersId} AND charge_status = 'paid'
+        ORDER BY charge_created_at DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <select id="getChargeByImpUid" parameterType="String" resultMap="chargeMap">
+        SELECT *
+        FROM charge
+        WHERE charge_impuid = #{impUid}
+    </select>
+
+    <update id="updateCharge" parameterType="kr.co.solfood.payments.charge.ChargeVO">
+        UPDATE charge
+        SET charge_cancel_amount = #{cancelAmount},
+            charge_cancel_reason = #{cancelReason},
+            charge_cancelled_at = #{cancelledAt},
+            charge_status = #{status},
+            charge_updated_at = #{updatedAt}
+        WHERE charge_impuid = #{impUid}
+    </update>
+
 </mapper>

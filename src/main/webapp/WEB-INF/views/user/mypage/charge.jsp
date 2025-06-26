@@ -276,20 +276,17 @@
                                 merchant_uid: rsp.merchant_uid
                             },
                             success: function(data) {
-                                console.log("Ajax 성공:", data); // 디버깅 로그 추가
+                                console.log("Ajax 성공:", data);
 
-                                swal({
+                                Swal.fire({
                                     title: "충전이 완료되었습니다!",
                                     text: "마이페이지로 이동합니다.",
                                     icon: "success",
-                                    button: "확인",
+                                    confirmButtonText: "확인",
                                     timer: 1500
                                 }).then(function() {
                                     window.location.replace(nextPath);
                                 });
-
-                                // 뒤로가기 방지, 다음 페이지로 replace 처리
-                                window.location.replace(nextPath);
                             },
                             error: function(xhr, status, error) {
                                 console.log("Ajax 실패 - Status:", status, "Error:", error); // 디버깅 로그 추가
