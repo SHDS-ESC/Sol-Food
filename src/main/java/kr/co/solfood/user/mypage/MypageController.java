@@ -7,7 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
@@ -32,13 +35,18 @@ public class MypageController {
         UserVO userVO = (UserVO) sess.getAttribute("userLoginSession");
         model.addAttribute("user", userVO);
         model.addAttribute("companyList", companyList);
+
+        // 마이페이지 진행 세션 플래그 설정 (S3 업로드 보안용)
+        sess.setAttribute("mypageInProgress", true);
+        sess.setAttribute("uploadCount", 0);
+        sess.setMaxInactiveInterval(30 * 60); // 30분 후 만료
         return "user/userControl/info";
     }
 
     // 마이페이지 > 내정보 post
     @PostMapping("/info")
     public String updateMyPageInfo(@ModelAttribute UserVO userVO,
-                                   HttpSession sess) {
+                                   HttpSession sess, HttpServletRequest request) {
 
         // 1. 로그인한 사용자 정보 가져오기
         UserVO loginUser = (UserVO) sess.getAttribute("userLoginSession");
@@ -52,8 +60,37 @@ public class MypageController {
         // 3. service update
         mypageService.updateUserInfo(userVO);
 
+        // 마이페이지 완료 후 세션 정리
+        sess.removeAttribute("mypageInProgress");
+        sess.removeAttribute("uploadCount");
+
+        // 수정된 로그인 세션 새로 저장
+        sess.setAttribute("userLoginSession", userVO);
+
         // 4. 세션정보 갱신
-        return "redirect:/user/mypage";
+        return "redirect:/";
+    }
+
+    // 마이페이지 > 회원탈퇴 post
+    @PostMapping("/withdraw")
+    public String withdrawUser(HttpSession sess,RedirectAttributes redirectAttributes) {
+        // 1. 로그인한 사용자 정보 가져오기
+        UserVO loginUser = (UserVO) sess.getAttribute("userLoginSession");
+        if(loginUser == null){
+            return "redirect:/user/login";  // 로그인 안되어있으면 로그인 페이지로
+        }
+        // 2. DB업데이트 - status를 "탈퇴"로 변경
+        boolean success = mypageService.withdrawUser(loginUser.getUsersId());
+
+        if(success){
+            // 3. 세션 무효화 (로그아웃 처리)
+            sess.invalidate();
+            redirectAttributes.addFlashAttribute("msg", "정상적으로 탈퇴 처리되었습니다.");
+            return "redirect:/user/login";
+        } else {
+            redirectAttributes.addFlashAttribute("msg", "탈퇴 실패");
+            return "redirect:/user/mypage/info";
+        }
     }
 
 }
