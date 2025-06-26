@@ -47,24 +47,27 @@ public class FileUploadSessionInterceptor implements HandlerInterceptor {
      * 세션 보안 검증 (기존 FileUploadController의 validateSession 로직)
      */
     private String validateSession(HttpSession session) {
-        // 1. 회원가입 진행 중인지 확인
+        // 1. 회원가입 or 마이페이지 수정
         Boolean joinInProgress = (Boolean) session.getAttribute("joinInProgress");
-        if (joinInProgress == null || !joinInProgress) {
-            return "허용되지 않은 접근입니다. 회원가입 페이지에서 시작해주세요.";
+        Boolean mypageInProgress = (Boolean) session.getAttribute("mypageInProgress");
+        
+        // 둘 중 하나라도 true면 통과
+        if ((joinInProgress != null && joinInProgress) || (mypageInProgress != null && mypageInProgress)) {
+            // 2. 세션당 업로드 횟수 제한 확인
+            Integer uploadCount = (Integer) session.getAttribute("uploadCount");
+            if (uploadCount == null) {
+                uploadCount = 0;
+                session.setAttribute("uploadCount", uploadCount);
+            }
+            
+            if (uploadCount >= MAX_UPLOADS_PER_SESSION) {
+                return "업로드 횟수를 초과했습니다. (최대 " + MAX_UPLOADS_PER_SESSION + "회)";
+            }
+            
+            return null; // 검증 통과
         }
         
-        // 2. 세션당 업로드 횟수 제한 확인
-        Integer uploadCount = (Integer) session.getAttribute("uploadCount");
-        if (uploadCount == null) {
-            uploadCount = 0;
-            session.setAttribute("uploadCount", uploadCount);
-        }
-        
-        if (uploadCount >= MAX_UPLOADS_PER_SESSION) {
-            return "업로드 횟수를 초과했습니다. (최대 " + MAX_UPLOADS_PER_SESSION + "회)";
-        }
-        
-        return null; // 검증 통과
+        return "허용되지 않은 접근입니다. 회원가입 또는 마이페이지에서 시작해주세요.";
     }
     
     /**
