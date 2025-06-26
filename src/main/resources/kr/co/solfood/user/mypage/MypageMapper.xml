@@ -18,5 +18,28 @@
         WHERE users_id = #{usersId}
     </update>
 
+    <select id="getLikedStores" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.category_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.store_tel
+        FROM store s
+        JOIN user_likes ul ON s.store_id = ul.store_id
+        WHERE ul.users_id = #{usersId}
+        LIMIT #{StoreVO.pageSize} OFFSET #{StoreVO.offset}
+    </select>
+
+    <select id="countLikedStores" resultType="int">
+        SELECT COUNT(*)
+        FROM user_likes
+        WHERE users_id = #{usersId}
+    </select>
 
 </mapper>

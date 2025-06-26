@@ -15,7 +15,9 @@ public interface MypageMapper {
     // 마이페이지 > 찜한 가게 목록 조회
     List<StoreVO> getLikedStores(
             @Param("usersId") Long usersId,
-            @Param("offset") int offset,
-            @Param("pageSize") int pageSize
+            @Param("StoreVO") StoreVO storeVO
     );
+
+    // 찜한 가게의 총 개수 조회
+    int countLikedStores(@Param("usersId") Long usersId);
 }
