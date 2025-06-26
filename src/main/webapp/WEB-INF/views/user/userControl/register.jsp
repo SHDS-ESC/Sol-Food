@@ -190,7 +190,7 @@
 <body>
   <div class="form-container">
     <div class="form-title">회원가입</div>
-    <form action="/solfood/user/register" method="post">
+    <form action="/solfood/user/userControl/register" method="post">
       <!-- 프로필 이미지 업로드 -->
       <label>프로필 이미지</label>
       <div class="profile-upload-container">
@@ -254,7 +254,6 @@
 
       <label>전화번호 *</label>
       <input type="tel" name="usersTel" placeholder="010-0000-0000" required>
-
 
 
       <!-- Hidden Fields -->
@@ -325,7 +324,7 @@
 
     if (!companyId) return;
 
-    fetch("/solfood/user/company/depts?companyId=" + companyId)
+            fetch("/solfood/user/userControl/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
               data.forEach(dept => {
@@ -337,7 +336,7 @@
             })
             .catch(error => {
               console.error("부서 불러오기 실패", error);
-              console.log(contextPath + "/user/company/depts?companyId=" + companyId)
+              console.log(contextPath + "/user/userControl/company/depts?companyId=" + companyId)
             });
   }
 

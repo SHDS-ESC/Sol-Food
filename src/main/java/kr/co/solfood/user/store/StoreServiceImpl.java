@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j  // error 로깅을 위해 유지
+@Slf4j
 @Service
 @Primary
 public class StoreServiceImpl implements StoreService {
@@ -37,7 +37,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public List<StoreVO> searchStores(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            return getAllStore(); // 검색어가 없으면 전체 목록 반환
+            return getAllStore();
         }
         return mapper.searchStores(keyword.trim());
     }
@@ -58,11 +58,9 @@ public class StoreServiceImpl implements StoreService {
         return mapper.searchStoresByAddress(address.trim());
     }
     
-    // 가게 등록 (관리자/크롤링용)
     @Override
     @Transactional
     public boolean insertStore(StoreVO store) {
-        // 중복 체크
         if (isDuplicateStore(store)) {
             return false;
         }
@@ -82,22 +80,20 @@ public class StoreServiceImpl implements StoreService {
         return count > 0;
     }
 
-    //카테고리별 (전체 포함)
     @Override
-    public PageMaker<StoreVO> getPagedCategoryStoreList(String category,
-                                                        PageDTO pageDTO) {
+    public PageMaker<StoreVO> getPagedCategoryStoreList(String category, PageDTO pageDTO) {
         List<StoreVO> list = mapper.selectPagedCategoryStores(
                 category,
                 pageDTO.getOffset(),
                 pageDTO.getPageSize()
         );
+        
         long total = mapper.countStoresByCategory(category);
-
+        
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
     }
 
-    //검색 결과 페이징
     @Override
     public PageMaker<StoreVO> getPagedSearchResults(String keyword, PageDTO pageDTO) {
         List<StoreVO> list = mapper.selectPagedSearchResults(

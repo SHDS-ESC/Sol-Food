@@ -84,6 +84,26 @@ function showList() {
 
 // ==================== 지도 초기화 ====================
 function initializeMap() {
+    // 카카오맵 SDK가 로딩될 때까지 대기
+    if (window.kakaoMapSDKPromise) {
+        window.kakaoMapSDKPromise
+            .then(() => {
+                initializeMapWithSDK();
+            })
+            .catch((error) => {
+                console.error('카카오맵 SDK 로딩 실패로 지도를 초기화할 수 없습니다:', error);
+            });
+    } else {
+        // fallback: SDK가 이미 로드된 경우
+        if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.LatLng) {
+            initializeMapWithSDK();
+        } else {
+            console.error('카카오맵 SDK를 사용할 수 없습니다.');
+        }
+    }
+}
+
+function initializeMapWithSDK() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             position => {
@@ -106,7 +126,18 @@ function initializeMap() {
 }
 
 function createMap(position) {
+    try {
+        if (!kakao || !kakao.maps) {
+            console.error('카카오맵 SDK를 사용할 수 없습니다.');
+            return;
+        }
+        
     const mapContainer = document.getElementById('map');
+        if (!mapContainer) {
+            console.error('지도 컨테이너를 찾을 수 없습니다.');
+            return;
+        }
+        
     const mapOption = {
         center: position,
         level: 3
@@ -133,54 +164,36 @@ function createMap(position) {
         document.querySelectorAll('.map-category-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector('.map-category-btn[onclick*="전체"]').classList.add('active');
+            const allCategoryBtn = document.querySelector('.map-category-btn[onclick*="전체"]');
+            if (allCategoryBtn) {
+                allCategoryBtn.classList.add('active');
+            }
     }, 100);
+    } catch (error) {
+        console.error('지도 생성 중 오류 발생:', error);
+    }
 }
 
 // ==================== 카테고리 선택 - 통합된 함수 ====================
 function selectCategory(element, category) {
-    console.log('selectCategory 호출:', category);
-    
-    // 검색 모드인 경우 검색 해제
-    if (isSearchMode) {
-        clearSearchMode();
-    }
-
-    // 카테고리 UI 업데이트
+    // 모든 카테고리 버튼에서 active 클래스 제거
     document.querySelectorAll('.category-item').forEach(item => {
         item.classList.remove('active');
     });
+    
+    // 선택된 카테고리에 active 클래스 추가
     element.classList.add('active');
+    
+    // 현재 카테고리 업데이트
     currentCategory = category;
+    currentSearchKeyword = null; // 검색 키워드 초기화
     
-    // 더보기 카테고리가 열려있으면 닫기
-    const extendedCategories = document.getElementById('extendedCategories');
-    const isMoreOpen = extendedCategories && extendedCategories.style.display === 'grid';
+    // 페이지네이션 초기화 및 목록 로드
+    resetPagination();
+    loadStoreList();
     
-    if (isMoreOpen) {
-        setTimeout(() => {
-            toggleMoreCategories();
-        }, 300);
-    }
-    
-    // 현재 뷰 모드 확인
-    const mapContainer = document.getElementById('mapContainer');
-    const listContainer = document.getElementById('listContainer');
-    const mapDisplay = window.getComputedStyle(mapContainer).display;
-    const listDisplay = window.getComputedStyle(listContainer).display;
-    const isMapView = mapDisplay === 'flex';
-    const isListView = listDisplay === 'block' || listDisplay === '';
-
-    // 뷰 모드에 따른 처리
-    if (isMapView) {
-        searchMapCategory(category);
-    }
-    
-    if (isListView || (!isMapView && !isListView)) {
-        // 페이징 초기화 후 새로운 카테고리 목록 로드
-        resetPagination();
-        loadStoreList();
-    }
+    // 검색 UI 정리
+    clearSearchMode();
 }
 
 function selectMapCategory(element, category) {
@@ -233,35 +246,26 @@ function loadStoreList() {
         loadMoreBtn.disabled = true;
     }
     
-    // 검색 모드와 카테고리 모드에 따라 다른 API 호출
-    let url;
-    if (isSearchMode && currentSearchKeyword) {
-        console.log(`검색 모드 loadStoreList 호출: keyword=${currentSearchKeyword}, offset=${offset}`);
-        url = `/solfood/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}`;
+    const isSearchMode = currentSearchKeyword && currentSearchKeyword.trim() !== '';
+    let apiUrl;
+    
+    if (isSearchMode) {
+        apiUrl = `/solfood/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}`;
     } else {
-        console.log(`카테고리 모드 loadStoreList 호출: category=${currentCategory}, offset=${offset}`);
-        url = `/solfood/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`;
+        apiUrl = `/solfood/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`;
     }
     
-    fetch(url)
+    fetch(apiUrl)
         .then(res => {
-            console.log("fetch status:", res.status);
-            if (!res.ok) {
-                throw new Error(`HTTP ${res.status}`);
-            }
+            if (!res.ok) throw new Error('API 호출 실패');
             return res.json();
         })
         .then(data => {
-            console.log("ajax data:", data);
-            
-            // 성공 여부 확인 (검색 API는 success 필드가 있음)
-            if (data.success === false) {
-                throw new Error(data.message || '요청 실패');
-            }
-            
-            renderStoreList(data.list);
             hasNext = data.hasNext;
-            offset += data.list.length;
+            const storeList = data.list || [];
+            
+            renderStoreList(storeList);
+            offset += storeList.length;
             
             // 더보기 버튼 상태 업데이트
             if (hasNext) {
@@ -272,9 +276,9 @@ function loadStoreList() {
                 loadMoreBtn.style.display = "none";
             }
         })
-        .catch(err => {
-            console.error("fetch error:", err);
-            alert(`목록을 불러오지 못했습니다: ${err.message}`);
+        .catch(error => {
+            console.error('목록 로드 실패:', error);
+            alert('목록을 불러오지 못했습니다: ' + error.message);
         })
         .finally(() => {
             loading = false;
@@ -283,6 +287,10 @@ function loadStoreList() {
 
 function renderStoreList(list) {
     const container = document.getElementById('storeGrid');
+    
+    if (!container) {
+        return;
+    }
     
     // 첫 로딩이고 결과가 없을 때 메시지 표시
     if (offset === 0 && (!list || list.length === 0)) {
@@ -307,31 +315,12 @@ function renderStoreList(list) {
         return;
     }
     
-    // 가게 카드들 추가
-    list.forEach(store => {
-        const card = document.createElement('div');
-        card.className = "store-card";
-        card.setAttribute('data-category', store.storeCategory);
-        card.onclick = () => goToStoreDetail(store.storeId);
-        card.innerHTML = `
-            <img src="${store.storeMainimage || '/img/default-restaurant.jpg'}" alt="${store.storeName}" class="store-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">
-                <i class="bi bi-shop" style="font-size: 40px;"></i>
-            </div>
-            <div class="store-body">
-                <div class="store-name">${store.storeName}</div>
-                <div class="store-category">${store.storeCategory}</div>
-                <div style="font-size:11px; color:#666; margin-bottom:3px;">
-                    📍 ${store.storeAddress && store.storeAddress.length > 15 ? store.storeAddress.substring(0,15) + '...' : store.storeAddress}
-                </div>
-                <div style="font-size:12px;">
-                    ${store.storeAvgstar > 0 ? `⭐ ${store.storeAvgstar}점` : '⭐ 신규매장'}
-                </div>
-                ${store.storeTel && store.storeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">📞 ${store.storeTel}</div>` : ''}
-                <i class="bi bi-heart like-icon"></i>
-            </div>
-        `;
-        container.appendChild(card);
+    // 가게 카드들 생성
+    list.forEach((store, index) => {
+        const card = createStoreCardElement(store);
+        if (card) {
+            container.appendChild(card);
+        }
     });
 }
 
@@ -367,6 +356,12 @@ function placesSearchCB(data, status, pagination) {
 }
 
 function displayMarker(place) {
+    try {
+        if (!kakao || !kakao.maps) {
+            console.error('카카오맵 SDK를 사용할 수 없습니다.');
+            return;
+        }
+        
     const marker = new kakao.maps.Marker({
         map: map,
         position: new kakao.maps.LatLng(place.y, place.x)
@@ -386,6 +381,9 @@ function displayMarker(place) {
         currentInfoWindow = infowindow;
         infowindow.open(map, marker);
     });
+    } catch (error) {
+        console.error('마커 생성 중 오류 발생:', error);
+    }
 }
 
 function createDetailedInfoWindow(place) {
@@ -423,14 +421,6 @@ function createDetailedInfoWindow(place) {
     content += '<i class="bi bi-tag store-info-icon"></i>';
     content += '<span>' + place.category_name + '</span>';
     content += '</div>';
-    
-    if (place.distance) {
-        content += '<div class="store-info-item">';
-        content += '<i class="bi bi-map store-info-icon"></i>';
-        content += '<span>약 ' + place.distance + 'm</span>';
-        content += '</div>';
-    }
-    
     content += '</div>';
     content += '<div class="infowindow-buttons">';
     content += '<button class="info-btn btn-detail" onclick="goToStoreDetailFromMap(\'' + place.place_name + '\', \'' + place.id + '\')">';
@@ -483,11 +473,11 @@ function extractCategoryTag(categoryName) {
 }
 
 function goToStoreDetail(storeId) {
-    window.location.href = '/solfood/user/store/detail/' + storeId;
+    window.location.href = '/solfood/user/store/detail?storeId=' + storeId;
 }
 
 function goToStoreDetailFromMap(placeName, placeId) {
-    window.location.href = '/solfood/user/list?storeId=1';
+    window.location.href = '/solfood/user/store/detail?storeId=1';
 }
 
 function callStore(phoneNumber) {
@@ -729,4 +719,10 @@ function showLoading(show) {
             loadingElement.style.display = 'none';
         }
     }
+}
+
+// ==================== 더보기 버튼 관련 ====================
+function loadMoreStores() {
+    if (loading || !hasNext) return;
+    loadStoreList();
 }

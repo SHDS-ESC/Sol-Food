@@ -24,8 +24,14 @@ public class MypageController {
     private MypageService mypageService;
 
     @GetMapping("")
-    public String myPage(Model model) {
-        return "user/mypage";
+    public String myPage(Model model, HttpSession sess) {
+        UserVO userVO = (UserVO) sess.getAttribute("userLoginSession");
+        if(userVO == null){
+            return "redirect:/user/userControl/login";
+        }
+        
+        model.addAttribute("currentUser", userVO);
+        return "user/userControl/mypage";
     }
 
     // 마이페이지 > 내정보 get
@@ -40,7 +46,7 @@ public class MypageController {
         sess.setAttribute("mypageInProgress", true);
         sess.setAttribute("uploadCount", 0);
         sess.setMaxInactiveInterval(30 * 60); // 30분 후 만료
-        return "user/info";
+        return "user/userControl/info";
     }
 
     // 마이페이지 > 내정보 post
@@ -51,7 +57,7 @@ public class MypageController {
         // 1. 로그인한 사용자 정보 가져오기
         UserVO loginUser = (UserVO) sess.getAttribute("userLoginSession");
         if(loginUser == null){
-            return "redirect:login"; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
+            return "redirect:/user/userControl/login"; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
         }
 
         // 2. userId 설정
@@ -64,8 +70,21 @@ public class MypageController {
         sess.removeAttribute("mypageInProgress");
         sess.removeAttribute("uploadCount");
 
-        // 수정된 로그인 세션 새로 저장
-        sess.setAttribute("userLoginSession", userVO);
+        // 기존 세션 정보를 유지하면서 수정된 정보만 업데이트
+        if(userVO.getUsersNickname() != null && !userVO.getUsersNickname().trim().isEmpty()) {
+            loginUser.setUsersNickname(userVO.getUsersNickname());
+        }
+        if(userVO.getUsersProfile() != null && !userVO.getUsersProfile().trim().isEmpty()) {
+            loginUser.setUsersProfile(userVO.getUsersProfile());
+        }
+        loginUser.setCompanyId(userVO.getCompanyId());
+        loginUser.setDepartmentId(userVO.getDepartmentId());
+        loginUser.setUsersEmail(userVO.getUsersEmail());
+        loginUser.setUsersTel(userVO.getUsersTel());
+        loginUser.setUsersName(userVO.getUsersName());
+        loginUser.setUsersGender(userVO.getUsersGender());
+        loginUser.setUsersBirth(userVO.getUsersBirth());
+        sess.setAttribute("userLoginSession", loginUser);
 
         // 4. 세션정보 갱신
         return "redirect:/";

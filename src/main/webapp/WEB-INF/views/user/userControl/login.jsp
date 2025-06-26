@@ -119,7 +119,7 @@
 <body>
 <div class="login-container">
     <div class="login-title">로그인</div>
-    <form action="/solfood/user/native-login" method="post">
+    <form action="/solfood/user/userControl/native-login" method="post">
         <label for="usersEmail">이메일</label>
         <input type="text" placeholder="example@domain.com" name="usersEmail" id="usersEmail" required> <br>
 
@@ -134,7 +134,7 @@
     <a href="register">회원가입</a> <br> <br> <br>
     <a id="login-kakao-btn"
        class="kakao"
-       href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/user/kakaoLogin&response_type=code">
+               href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/user/userControl/kakaoLogin&response_type=code">
         <img src="https://k.kakaocdn.net/14/dn/btroDszwNrM/I6efHub1SN5KCJqLm1Ovx1/o.jpg"
              alt="카카오 로그인 버튼"
              width="222"/>

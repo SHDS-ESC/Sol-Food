@@ -384,7 +384,6 @@
             .section-title {
                 font-size: 2rem;
             }
-        }
 
         /* 스크롤 애니메이션 */
         .scroll-reveal {
@@ -420,10 +419,10 @@
                             <i class="fas fa-user-circle"></i> 
                             ${sessionScope.userLoginSession.usersName}님 환영합니다!
                         </li>
-                        <li><a href="<c:url value="/user/logout"/>">로그아웃</a></li>
+                        <li><a href="<c:url value="/user/userControl/logout"/>">로그아웃</a></li>
                     </c:when>
                     <c:otherwise>
-                        <li><a href="<c:url value="/user/login"/>">로그인</a></li>
+                        <li><a href="<c:url value="/user/userControl/login"/>">로그인</a></li>
                     </c:otherwise>
                 </c:choose>
             </ul>
@@ -441,15 +440,15 @@
                         <a href="<c:url value="/user/mypage"/>" class="btn btn-primary">
                             <i class="fas fa-user"></i> 마이페이지
                         </a>
-                        <a href="<c:url value="/user/store"/>" class="btn btn-primary">
+                        <a href="<c:url value="/user/store/list"/>" class="btn btn-primary">
                             <i class="fas fa-store"></i> 맛집 찾기
                         </a>
                     </c:when>
                     <c:otherwise>
-                        <a href="<c:url value="/user/login"/>" class="btn btn-primary">
+                        <a href="<c:url value="/user/userControl/login"/>" class="btn btn-primary">
                             <i class="fas fa-user"></i> 시작하기
                         </a>
-                        <a href="<c:url value="/user/join"/>" class="btn btn-secondary">
+                        <a href="<c:url value="/user/userControl/register"/>" class="btn btn-secondary">
                             <i class="fas fa-user-plus"></i> 회원가입
                         </a>
                     </c:otherwise>

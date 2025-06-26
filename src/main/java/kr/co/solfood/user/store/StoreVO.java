@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class StoreVO extends PageDTO {
     private int storeId;           // store_id
+    private int categoryId;        // category_id (FK)
     private String storeName;      // store_name
     private String storeAddress;   // store_address
     private double storeLatitude;  // store_latitude
@@ -13,7 +14,10 @@ public class StoreVO extends PageDTO {
     private int storeAvgstar;      // store_avgstar
     private String storeIntro;     // store_intro
     private String storeMainimage; // store_mainimage
-    private String storeCategory;  // store_category
-    private int storeCapacity;     // store_capacity
     private String storeTel;       // store_tel
+    
+    // JOIN으로 가져오는 카테고리 정보
+    private String storeCategory;  // category.category_name (alias)
+
+
 }
