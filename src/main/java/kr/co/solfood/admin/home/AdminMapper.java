@@ -22,5 +22,5 @@ public interface AdminMapper {
 
     int getOwnersCount(OwnerSearchDTO ownerSearchRequestDTO);
 
-    void updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO);
+    int updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO);
 }

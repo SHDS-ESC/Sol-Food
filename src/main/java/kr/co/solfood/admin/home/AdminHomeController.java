@@ -2,6 +2,8 @@ package kr.co.solfood.admin.home;
 
 import kr.co.solfood.admin.dto.*;
 import kr.co.solfood.util.PageMaker;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin/home")
+@Slf4j
 public class AdminHomeController {
     private final AdminHomeService adminHomeService;
     private final int START_PAGE = 1;
@@ -31,7 +34,7 @@ public class AdminHomeController {
         UserSearchRequestDTO userSearchRequestDTO = new UserSearchRequestDTO();
         userSearchRequestDTO.setCurrentPage(START_PAGE);
         userSearchRequestDTO.setPageSize(PAGE_GROUP_AMOUNT);
-        PageMaker<UserSearchResponseDTO> userList = adminHomeService.getUsers(  userSearchRequestDTO);
+        PageMaker<UserSearchResponseDTO> userList = adminHomeService.getUsers(userSearchRequestDTO);
         model.addAttribute("userList", userList);
         return "admin/user-management/home";
     }
@@ -70,9 +73,13 @@ public class AdminHomeController {
     }
 
     @ResponseBody
-    @GetMapping("/payment-management/status-update")
+    @GetMapping("/owner-management/status-update")
     public String OwnerStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
-        adminHomeService.updateOwnerStatus(new OwnerStatusUpdateDTO(ownerId, status));
-        return "admin/payment-management/home";
+        try {
+            adminHomeService.updateOwnerStatus(new OwnerStatusUpdateDTO(ownerId, status));
+        } catch (IllegalArgumentException e) {
+            log.info("Owner status update failed: {}", e.getMessage());
+        }
+        return "admin/owner-management/home";
     }
 }
