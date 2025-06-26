@@ -33,7 +33,7 @@
                 <div class="icon user"></div>
                 <div>내 정보</div>
             </div>
-            <div class="menu-item" onclick="alert('찜 페이지로 이동!')">
+            <div class="menu-item" onclick="location.href='mypage/like'">
                 <div class="icon heart"></div>
                 <div>찜</div>
             </div>
@@ -56,5 +56,6 @@
         <button class="nav-btn active"><span class="icon profile"></span></button>
     </div>
 </div>
+<script src="<c:url value='/js/mypage.js' />"></script>
 </body>
 </html>
