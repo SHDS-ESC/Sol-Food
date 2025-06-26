@@ -23,7 +23,6 @@ public class LikeController {
         UserVO loginUser = (UserVO) session.getAttribute("userLoginSession"); // ★ 여기 key명을 반드시 일치!
         long usersId = loginUser.getUsersId();
         boolean success = service.addLike((int) usersId, storeId);
-        System.out.println(success);
         Map<String, Object> result = new HashMap<>();
         result.put("result", success ? "success" : "fail" );
         return result;
@@ -36,7 +35,6 @@ public class LikeController {
         UserVO loginUser = (UserVO) session.getAttribute("userLoginSession"); // 세션에서 꺼냄
         long usersId = loginUser.getUsersId();
         boolean success = service.cancelLike((int) usersId, storeId);
-
         Map<String, Object> result = new HashMap<>();
         result.put("result", success ? "success" : "fail");
         return result;
