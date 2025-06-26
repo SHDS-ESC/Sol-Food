@@ -28,7 +28,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/user/store")
 public class StoreController {
-    
+
     @Autowired
     private StoreService service;
 
@@ -37,7 +37,7 @@ public class StoreController {
 
     @Autowired
     private CategoryProperties categoryProperties;
-    
+
     @Autowired
     private KakaoProperties kakaoProperties;
 
@@ -96,13 +96,33 @@ public class StoreController {
         }
 
         // Getter 메서드들
-        public List<StoreVO> getList() { return list; }
-        public boolean isHasNext() { return hasNext; }
-        public int getOffset() { return offset; }
-        public int getPageSize() { return pageSize; }
-        public long getTotalCount() { return totalCount; }
-        public boolean isError() { return error; }
-        public String getMessage() { return message; }
+        public List<StoreVO> getList() {
+            return list;
+        }
+
+        public boolean isHasNext() {
+            return hasNext;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public int getPageSize() {
+            return pageSize;
+        }
+
+        public long getTotalCount() {
+            return totalCount;
+        }
+
+        public boolean isError() {
+            return error;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 
     /**
@@ -134,12 +154,29 @@ public class StoreController {
         }
 
         // Getter 메서드들
-        public boolean isSuccess() { return success; }
-        public String getKeyword() { return keyword; }
-        public String getSearchType() { return searchType; }
-        public List<StoreVO> getStores() { return stores; }
-        public int getCount() { return count; }
-        public String getMessage() { return message; }
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getKeyword() {
+            return keyword;
+        }
+
+        public String getSearchType() {
+            return searchType;
+        }
+
+        public List<StoreVO> getStores() {
+            return stores;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 
     /**
@@ -154,7 +191,7 @@ public class StoreController {
         private String message;
 
         private CategoryResponseVO(boolean success, List<CategoryVO> categories, String category,
-                                 List<StoreVO> stores, String message) {
+                                   List<StoreVO> stores, String message) {
             this.success = success;
             this.categories = categories;
             this.category = category;
@@ -178,12 +215,29 @@ public class StoreController {
         }
 
         // Getter 메서드들
-        public boolean isSuccess() { return success; }
-        public List<CategoryVO> getCategories() { return categories; }
-        public String getCategory() { return category; }
-        public List<StoreVO> getStores() { return stores; }
-        public int getCount() { return count; }
-        public String getMessage() { return message; }
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public List<CategoryVO> getCategories() {
+            return categories;
+        }
+
+        public String getCategory() {
+            return category;
+        }
+
+        public List<StoreVO> getStores() {
+            return stores;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 
     // ========================= 페이지 렌더링 메서드들 =========================
@@ -286,11 +340,11 @@ public class StoreController {
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(
-                pageMaker.getList(),
-                hasNext,
-                offset,
-                pageSize,
-                pageMaker.getCount()
+                    pageMaker.getList(),
+                    hasNext,
+                    offset,
+                    pageSize,
+                    pageMaker.getCount()
             );
 
         } catch (Exception e) {
@@ -318,11 +372,11 @@ public class StoreController {
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(
-                pageMaker.getList(),
-                hasNext,
-                offset,
-                pageSize,
-                pageMaker.getCount()
+                    pageMaker.getList(),
+                    hasNext,
+                    offset,
+                    pageSize,
+                    pageMaker.getCount()
             );
 
         } catch (Exception e) {
@@ -464,7 +518,7 @@ public class StoreController {
         Double avgStar = reviewService.getAverageStarByStoreId(storeId);
         Integer totalCount = reviewService.getTotalCountByStoreId(storeId);
         Map<String, Object> starCountsMap = reviewService.getStarCountsByStoreId(storeId);
-        
+
         // 별점별 개수를 배열로 변환 (1점부터 5점까지)
         long[] starCounts = new long[STAR_COUNT];
         if (starCountsMap != null) {
@@ -492,7 +546,7 @@ public class StoreController {
         StoreSearchResponseVO response = StoreSearchResponseVO.error("", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
-    
+
     /**
      * 데이터베이스 예외 전역 처리
      */
@@ -503,42 +557,4 @@ public class StoreController {
         StoreSearchResponseVO response = StoreSearchResponseVO.error("", "데이터 처리 중 오류가 발생했습니다.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-
-    // /user/store/api/list?category=한식&offset=10&pageSize=10
-    @GetMapping("/api/list")
-    @ResponseBody
-    public Map<String, Object> getStoreListAjax(
-            HttpSession session,
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-
-        //로그인 유저ID 가져오기
-        Long usersId = null;
-        Object sessionObj = session.getAttribute("userLoginSession");
-        if (sessionObj != null) {
-            usersId = ((UserVO) sessionObj).getUsersId();
-        }
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setCurrentPage(offset / pageSize + 1); // 실제로는 offset만 쓰면 됨
-        pageDTO.setPageSize(pageSize);
-
-        PageMaker<StoreVO> pageMaker;
-        if (category == null || category.equals("전체")) {
-            pageMaker = service.getPagedStoreList(pageDTO, usersId);
-        } else {
-            pageMaker = service.getPagedCategoryStoreList(category, pageDTO, usersId);
-        }
-
-        boolean hasNext = offset + pageSize < pageMaker.getCount();
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("list", pageMaker.getList());
-        result.put("hasNext", hasNext);
-        result.put("offset", offset);
-        result.put("pageSize", pageSize);
-        result.put("totalCount", pageMaker.getCount());
-        return result;
-    }
-
 }

@@ -3,6 +3,9 @@ package kr.co.solfood.user.mypage;
 import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.user.store.StoreVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface MypageMapper {
