@@ -468,7 +468,7 @@
             const ownerId = $(this).closest('tr').find('td:first').text();
             console.log(status, ownerId);
             $.ajax({
-                url: ctx + '/admin/home/payment-management/status-update',
+                url: ctx + '/admin/home/owner-management/status-update',
                 type: 'GET',
                 data: {
                     ownerId: ownerId,
