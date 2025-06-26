@@ -146,9 +146,6 @@ body {
 }
 
 .store-grid {
-   /* display: grid;
-    grid-template-columns: repeat(2, minmax(0, 140px));
-    gap: 50px;*/
     padding: 10px 15px;
     justify-content: space-between;
     display:flex;
@@ -485,29 +482,134 @@ body {
     display: block;
 }
 
-.pagination-container {
-    margin-top: 20px;
-    margin-bottom: 20px;
+/* ==================== 검색 관련 스타일 ==================== */
+
+.search-bar {
+    position: relative;
 }
 
-.pagination {
-    margin: 0;
-}
-
-.page-link {
-    color: #333;
-    border-radius: 4px;
-    margin: 0 2px;
-}
-
-.page-item.active .page-link {
-    background-color: #007bff;
+.search-bar input:focus {
     border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-.page-link:hover {
-    background-color: #e9ecef;
+.search-bar button {
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.search-bar button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.search-bar button i {
+    line-height: 1;
+}
+
+#searchHeader {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-result-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.search-result-empty i {
+    font-size: 64px;
+    color: #ddd;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.search-result-empty h3 {
     color: #333;
+    margin-bottom: 12px;
+    font-size: 1.5em;
+}
+
+.search-result-empty p {
+    margin-bottom: 24px;
+    font-size: 1.1em;
+}
+
+/* 검색 로딩 스피너 개선 */
+#searchLoading {
+    backdrop-filter: blur(2px);
+}
+
+#searchLoading .spinner-border {
+    width: 2rem;
+    height: 2rem;
+}
+
+/* 검색 결과 하이라이트 효과 */
+.store-card {
+    transition: all 0.3s ease;
+}
+
+.store-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.search-mode .store-card {
+    border-left: 3px solid transparent;
+}
+
+.search-mode .store-card.highlight {
+    border-left-color: #007bff;
+    background: linear-gradient(to right, rgba(0,123,255,0.05), transparent);
+}
+
+/* 검색 헤더 버튼 */
+#searchHeader button {
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+
+#searchHeader button:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+/* ==================== 빈 결과 화면 스타일 ==================== */
+
+.empty-result {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+    grid-column: 1 / -1; /* 전체 그리드 너비 차지 */
+}
+
+.empty-result h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.empty-result p {
+    color: #999;
+    margin: 0;
+    font-size: 14px;
 }
 
 

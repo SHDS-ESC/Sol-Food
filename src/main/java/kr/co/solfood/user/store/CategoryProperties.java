@@ -1,11 +1,20 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.user.category.CategoryService;
+import kr.co.solfood.user.category.CategoryVO;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
+@Slf4j
 @Component
 public class CategoryProperties {
+    
+    @Autowired(required = false)
+    private CategoryService categoryService;
     
     // 카테고리별 검색 키워드 매핑
     private static final Map<String, String> SEARCH_KEYWORDS = new HashMap<>();
@@ -56,9 +65,57 @@ public class CategoryProperties {
         MATCHING_KEYWORDS.put("베이커리", Arrays.asList("베이커리", "빵집", "bakery"));
     }
     
-    // 모든 카테고리 목록 반환
+    // 데이터베이스에서 카테고리 목록을 실시간으로 가져오기
+    private List<CategoryVO> dbCategories = new ArrayList<>();
+    
+    @PostConstruct
+    private void initializeDatabaseCategories() {
+        try {
+            if (categoryService != null) {
+                dbCategories = categoryService.getAllCategories();
+                log.info("데이터베이스에서 카테고리 {} 개 로드 완료", dbCategories.size());
+            } else {
+                log.warn("CategoryService가 아직 초기화되지 않았습니다. 기본 카테고리를 사용합니다.");
+            }
+        } catch (Exception e) {
+            log.error("데이터베이스 카테고리 로드 실패, 기본 카테고리 사용", e);
+        }
+    }
+    
+    // 모든 카테고리 목록 반환 (데이터베이스 우선, 실패 시 기본값)
     public List<String> getAllCategories() {
-        return new ArrayList<>(SEARCH_KEYWORDS.keySet());
+        try {
+            // CategoryService가 사용 가능할 때만 데이터베이스에서 조회
+            if (categoryService != null) {
+                List<CategoryVO> currentCategories = categoryService.getAllCategories();
+                List<String> categoryNames = new ArrayList<>();
+                for (CategoryVO category : currentCategories) {
+                    categoryNames.add(category.getCategoryName());
+                }
+                return categoryNames;
+            } else {
+                log.warn("CategoryService가 없어서 기본 카테고리 반환");
+                return new ArrayList<>(SEARCH_KEYWORDS.keySet());
+            }
+        } catch (Exception e) {
+            log.warn("데이터베이스 카테고리 조회 실패, 기본 카테고리 반환", e);
+            return new ArrayList<>(SEARCH_KEYWORDS.keySet());
+        }
+    }
+    
+    // 데이터베이스 카테고리 객체 목록 반환
+    public List<CategoryVO> getAllCategoryObjects() {
+        try {
+            if (categoryService != null) {
+                return categoryService.getAllCategories();
+            } else {
+                log.warn("CategoryService가 없어서 빈 목록 반환");
+                return new ArrayList<>();
+            }
+        } catch (Exception e) {
+            log.error("카테고리 객체 목록 조회 실패", e);
+            return new ArrayList<>();
+        }
     }
     
     // 카테고리별 검색 키워드 반환
@@ -78,6 +135,29 @@ public class CategoryProperties {
         config.put("searchKeywords", SEARCH_KEYWORDS);
         config.put("matchingKeywords", MATCHING_KEYWORDS);
         config.put("categories", getAllCategories());
+        
+        // 데이터베이스 카테고리 정보도 포함
+        try {
+            if (categoryService != null) {
+                List<CategoryVO> categoryObjects = getAllCategoryObjects();
+                List<Map<String, Object>> categoryList = new ArrayList<>();
+                
+                for (CategoryVO category : categoryObjects) {
+                    Map<String, Object> categoryInfo = new HashMap<>();
+                    categoryInfo.put("id", category.getCategoryId());
+                    categoryInfo.put("name", category.getCategoryName());
+                    categoryInfo.put("image", category.getCategoryImage());
+                    categoryList.add(categoryInfo);
+                }
+                
+                config.put("categoryObjects", categoryList);
+            } else {
+                log.warn("CategoryService가 없어서 카테고리 객체 정보 제외");
+            }
+        } catch (Exception e) {
+            log.error("카테고리 객체 정보 구성 실패", e);
+        }
+        
         return config;
     }
 } 

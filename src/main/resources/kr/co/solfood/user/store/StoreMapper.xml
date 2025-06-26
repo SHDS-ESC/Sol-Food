@@ -7,53 +7,152 @@
    <!-- 전체 목록 조회 -->
     <select id="selectAllStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT 
-            store_id,
-            store_name, 
-            store_category, 
-            store_avgstar, 
-            store_mainimage,
-            store_address,
-            store_tel
-        FROM store
-        ORDER BY store_avgstar DESC, store_id DESC
+            s.store_id,
+            s.store_name,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
+            s.store_mainimage,
+            s.store_address,
+            s.store_tel
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        ORDER BY s.store_avgstar DESC, s.store_id DESC
     </select>
 
     <!-- 가게 ID로 가게 정보 조회 -->
     <select id="getStoreById" parameterType="int" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT
-            store_id,
-            store_name,
-            store_address,
-            store_latitude,
-            store_longitude,
-            store_avgstar,
-            store_intro,
-            store_mainimage,
-            store_category,
-            store_capacity,
-            store_tel
-        FROM store
-        WHERE store_id = #{storeId}
+            s.store_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_tel
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        WHERE s.store_id = #{storeId}
     </select>
 
     <!-- 카테고리별 조회 (성능 개선: 인덱스 활용하도록 수정) -->
     <select id="selectCategoryStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT 
-            store_id,
-            store_name, 
-            store_category, 
-            store_avgstar, 
-            store_mainimage,
-            store_address,
-            store_tel
-        FROM store
+            s.store_id,
+            s.store_name,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
+            s.store_mainimage,
+            s.store_address,
+            s.store_tel
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
         <where>
             <if test="category != null and category != '' and category != '전체'">
-                AND store_category LIKE CONCAT(#{category}, '%')
+                AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
         </where>
-        ORDER BY store_avgstar DESC, store_id DESC
+        ORDER BY s.store_avgstar DESC, s.store_id DESC
         LIMIT 100
+    </select>
+
+    <!-- 통합 검색: 가게명, 주소, 카테고리에서 검색 -->
+    <select id="searchStores" parameterType="string" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.store_name,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
+            s.store_mainimage,
+            s.store_address,
+            s.store_tel
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    s.store_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_address LIKE CONCAT('%', #{keyword}, '%')
+                    OR COALESCE(c.category_name, '전체') LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_intro LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY
+            CASE
+                WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
+                WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
+                WHEN COALESCE(c.category_name, '전체') LIKE CONCAT(#{keyword}, '%') THEN 3
+                WHEN s.store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
+                ELSE 5
+            END,
+            s.store_avgstar DESC,
+            s.store_id DESC
+        LIMIT 100
+    </select>
+
+    <!-- 가게명으로 검색 -->
+    <select id="searchStoresByName" parameterType="string" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.store_name,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
+            s.store_mainimage,
+            s.store_address,
+            s.store_tel
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        <where>
+            <if test="storeName != null and storeName != ''">
+                AND s.store_name LIKE CONCAT('%', #{storeName}, '%')
+            </if>
+        </where>
+        ORDER BY
+            CASE
+                WHEN s.store_name LIKE CONCAT(#{storeName}, '%') THEN 1
+                WHEN s.store_name LIKE CONCAT('%', #{storeName}, '%') THEN 2
+                ELSE 3
+            END,
+            s.store_avgstar DESC,
+            s.store_id DESC
+        LIMIT 50
+    </select>
+
+    <!-- 주소로 검색 -->
+    <select id="searchStoresByAddress" parameterType="string" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.store_name,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
+            s.store_mainimage,
+            s.store_address,
+            s.store_tel
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        <where>
+            <if test="address != null and address != ''">
+                AND s.store_address LIKE CONCAT('%', #{address}, '%')
+            </if>
+        </where>
+        ORDER BY
+            CASE
+                WHEN s.store_address LIKE CONCAT(#{address}, '%') THEN 1
+                WHEN s.store_address LIKE CONCAT('%', #{address}, '%') THEN 2
+                ELSE 3
+            END,
+            s.store_avgstar DESC,
+            s.store_id DESC
+        LIMIT 50
     </select>
 
     <!-- 새 가게 정보 추가 (크롤링용) -->
@@ -66,8 +165,7 @@
             store_avgstar, 
             store_intro, 
             store_mainimage, 
-            store_category, 
-            store_capacity, 
+            category_id,
             store_tel
         ) VALUES (
             #{storeName}, 
@@ -77,8 +175,7 @@
             #{storeAvgstar}, 
             #{storeIntro}, 
             #{storeMainimage}, 
-            #{storeCategory}, 
-            #{storeCapacity}, 
+            #{categoryId},
             #{storeTel}
         )
     </insert>
@@ -91,27 +188,7 @@
         AND store_address = #{storeAddress}
     </select>
 
-    <!-- 페이징 처리 -->
-    <select id="selectPagedStores" resultType="kr.co.solfood.user.store.StoreVO">
-        SELECT
-            store_id,
-            store_name,
-            store_address,
-            store_latitude,
-            store_longitude,
-            store_avgstar,
-            store_intro,
-            store_mainimage,
-            store_category,
-            store_capacity,
-            CASE WHEN ul.store_id IS NOT NULL THEN 1 ELSE 0 END as liked
-        FROM store s
-        LEFT JOIN user_likes ul ON s.store_id = ul.store_id
-        AND ul.users_id = #{usersId}
-        ORDER BY s.store_id DESC
-        LIMIT #{pageSize} OFFSET #{offset}
-    </select>
-
+    <!-- 페이징 처리 - 전체 및 카테고리별 통합 -->
     <select id="selectPagedCategoryStores" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT
             s.store_id,
@@ -122,15 +199,17 @@
             s.store_avgstar,
             s.store_intro,
             s.store_mainimage,
-            s.store_category,
-            s.store_capacity,
-            s.store_tel,
-            CASE WHEN ul.store_id IS NOT NULL THEN 1 ELSE 0 END as liked
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_tel
         FROM store s
-        LEFT JOIN user_likes ul ON s.store_id = ul.store_id
-            AND ul.users_id = #{usersId}
-        WHERE s.store_category = #{category}
-        ORDER BY s.store_id DESC
+        LEFT JOIN category c ON s.category_id = c.category_id
+        <where>
+            <if test="category != null and category != '' and category != '전체'">
+                AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
+            </if>
+        </where>
+        ORDER BY s.store_avgstar DESC, s.store_id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
@@ -139,8 +218,67 @@
     </select>
 
     <select id="countStoresByCategory" resultType="long">
-        SELECT COUNT(*) FROM store
-        WHERE store_category = #{category}
+        SELECT COUNT(*) FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        <where>
+            <if test="category != null and category != '' and category != '전체'">
+                AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 검색 결과 페이징 처리 ( 이 부분은 검색 카테고리 선택 후 분류하는 것으로 개선 예정입니다. )-->
+    <select id="selectPagedSearchResults" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_tel
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    s.store_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_address LIKE CONCAT('%', #{keyword}, '%')
+                    OR COALESCE(c.category_name, '전체') LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_intro LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY
+            CASE
+                WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
+                WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
+                WHEN COALESCE(c.category_name, '전체') LIKE CONCAT(#{keyword}, '%') THEN 3
+                WHEN s.store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
+                ELSE 5
+            END,
+            s.store_avgstar DESC,
+            s.store_id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <select id="countSearchResults" resultType="long">
+        SELECT COUNT(*) FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    s.store_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_address LIKE CONCAT('%', #{keyword}, '%')
+                    OR COALESCE(c.category_name, '전체') LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_intro LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
     </select>
 
 </mapper>

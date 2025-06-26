@@ -8,6 +8,9 @@ public interface MypageService {
     // 마이페이지 > 내정보 업데이트
     void updateUserInfo(UserVO userVO);
 
+    // 마이페이지 > 탈퇴하기
+    boolean withdrawUser(long usersId);
+
     // 마이페이지 > 내 찜 목록
     PageMaker<StoreVO> getLikedStores(Long usersId, StoreVO storeVO);
 

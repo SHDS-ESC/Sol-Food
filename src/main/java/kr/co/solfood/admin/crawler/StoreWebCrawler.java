@@ -2,9 +2,11 @@ package kr.co.solfood.admin.crawler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.solfood.user.category.CategoryService;
 import kr.co.solfood.user.store.CategoryProperties;
 import kr.co.solfood.user.store.StoreService;
 import kr.co.solfood.user.store.StoreVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import properties.KakaoProperties;
@@ -17,6 +19,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class StoreWebCrawler {
 
@@ -25,6 +28,9 @@ public class StoreWebCrawler {
     
     @Autowired
     private CategoryProperties categoryProperties;
+    
+    @Autowired
+    private CategoryService categoryService;
     
     @Autowired
     private KakaoProperties kakaoProperties;
@@ -50,7 +56,7 @@ public class StoreWebCrawler {
                     .collect(java.util.stream.Collectors.toList());
             
             for (String category : categories) {
-                System.out.println("크롤링 중: " + category + " 카테고리");
+                log.info("크롤링 중: {} 카테고리", category);
                 List<StoreVO> categoryRestaurants = searchRestaurantsByCategory(category, hongdaeLat, hongdaeLng);
                 restaurantList.addAll(categoryRestaurants);
                 
@@ -58,7 +64,7 @@ public class StoreWebCrawler {
                 Thread.sleep(1000);
             }
             
-            System.out.println("총 " + restaurantList.size() + "개 음식점 정보 수집 완료!");
+            log.info("총 {}개 음식점 정보 수집 완료!", restaurantList.size());
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,7 +115,7 @@ public class StoreWebCrawler {
                 stores = parseKakaoResponse(response.toString(), category);
                 
             } else {
-                System.err.println("API 호출 실패: " + responseCode);
+                log.error("API 호출 실패: {}", responseCode);
             }
             
         } catch (Exception e) {
@@ -140,6 +146,10 @@ public class StoreWebCrawler {
                     // 카테고리 설정 - 표준화된 카테고리 사용
                     String originalCategory = document.get("category_name").asText();
                     String standardCategory = mapToStandardCategory(originalCategory, category);
+                    
+                    // 카테고리 ID 설정
+                    Integer categoryId = categoryService.getCategoryIdByName(standardCategory);
+                    store.setCategoryId(categoryId);
                     store.setStoreCategory(standardCategory);
                     
                     store.setStoreAddress(document.get("road_address_name").asText());
@@ -156,7 +166,6 @@ public class StoreWebCrawler {
                     store.setStoreAvgstar(0); // 초기 별점
                     store.setStoreIntro("홍대입구역 주변 " + category + " 맛집"); // 기본 소개
                     store.setStoreMainimage("/img/default-restaurant.jpg"); // 기본 이미지
-                    store.setStoreCapacity(20); // 기본 수용 인원
                     
                     stores.add(store);
                 }
@@ -205,11 +214,11 @@ public class StoreWebCrawler {
      */
     public void saveCrawledData() {
         try {
-            System.out.println("홍대입구역 주변 음식점 크롤링 시작...");
+            log.info("홍대입구역 주변 음식점 크롤링 시작...");
             
             List<StoreVO> restaurants = crawlHongdaeRestaurants();
             
-            System.out.println("데이터베이스 저장 시작...");
+            log.info("데이터베이스 저장 시작...");
             int savedCount = 0;
             
             for (StoreVO restaurant : restaurants) {
@@ -219,23 +228,22 @@ public class StoreWebCrawler {
                         // 실제 저장 로직
                         if (storeService.insertStore(restaurant)) {
                             savedCount++;
-                            System.out.println("저장 완료: " + restaurant.getStoreName());
+                            log.debug("저장 완료: {}", restaurant.getStoreName());
                         } else {
-                            System.err.println("저장 실패: " + restaurant.getStoreName());
+                            log.warn("저장 실패: {}", restaurant.getStoreName());
                         }
                     } else {
-                        System.out.println("중복 건너뜀: " + restaurant.getStoreName());
+                        log.debug("중복 건너뜀: {}", restaurant.getStoreName());
                     }
                 } catch (Exception e) {
-                    System.err.println("저장 실패: " + restaurant.getStoreName() + " - " + e.getMessage());
+                    log.error("저장 실패: {} - {}", restaurant.getStoreName(), e.getMessage());
                 }
             }
             
-            System.out.println("크롤링 완료! 총 " + savedCount + "개 음식점 저장됨");
+            log.info("크롤링 완료! 총 {}개 음식점 저장됨", savedCount);
             
         } catch (Exception e) {
-            System.err.println("크롤링 중 오류 발생: " + e.getMessage());
-            e.printStackTrace();
+            log.error("크롤링 중 오류 발생: {}", e.getMessage(), e);
         }
     }
 

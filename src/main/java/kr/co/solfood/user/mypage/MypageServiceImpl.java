@@ -31,7 +31,12 @@ public class MypageServiceImpl implements MypageService {
         mypageMapper.update(userVO);
     }
 
-
+    // 마이페이지 > 탈퇴
+    @Override
+    public boolean withdrawUser(long usersId) {
+       int result = mypageMapper.updateStatusToWithdraw(usersId);
+       return result == 1; // 1건 수정되면 성공
+    }
 
     // 페이징 처리를 위한 PageMaker 생성
     public PageMaker<StoreVO> getLikedStores(Long usersId, StoreVO storeVO) {

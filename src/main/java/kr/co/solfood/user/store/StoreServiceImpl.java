@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Slf4j  // error 로깅을 위해 유지
+@Slf4j
 @Service
 @Primary
 public class StoreServiceImpl implements StoreService {
@@ -34,7 +34,30 @@ public class StoreServiceImpl implements StoreService {
         return mapper.getStoreById(storeId);
     }
     
-    // 가게 등록 (관리자/크롤링용)
+    @Override
+    public List<StoreVO> searchStores(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getAllStore();
+        }
+        return mapper.searchStores(keyword.trim());
+    }
+
+    @Override
+    public List<StoreVO> searchStoresByName(String storeName) {
+        if (storeName == null || storeName.trim().isEmpty()) {
+            return getAllStore();
+        }
+        return mapper.searchStoresByName(storeName.trim());
+    }
+
+    @Override
+    public List<StoreVO> searchStoresByAddress(String address) {
+        if (address == null || address.trim().isEmpty()) {
+            return getAllStore();
+        }
+        return mapper.searchStoresByAddress(address.trim());
+    }
+
     @Override
     @Transactional
     public boolean insertStore(StoreVO store) {
@@ -60,13 +83,14 @@ public class StoreServiceImpl implements StoreService {
 
     //전체목록
     @Override
-    public PageMaker<StoreVO> getPagedStoreList(PageDTO pageDTO, Long usersId) {
-        List<StoreVO> list = mapper.selectPagedStores(
+    public PageMaker<StoreVO> getPagedCategoryStoreList(String category, PageDTO pageDTO) {
+        List<StoreVO> list = mapper.selectPagedCategoryStores(
+                category,
                 pageDTO.getOffset(),
-                pageDTO.getPageSize(),
-                usersId //null이면 찜하지 않은 상태로 조회
+                pageDTO.getPageSize()
         );
-        long total = mapper.countAllStores();
+
+        long total = mapper.countStoresByCategory(category);
 
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
@@ -74,15 +98,13 @@ public class StoreServiceImpl implements StoreService {
 
     //카테고리별
     @Override
-    public PageMaker<StoreVO> getPagedCategoryStoreList(String category,
-                                                        PageDTO pageDTO, Long usersId) {
-        List<StoreVO> list = mapper.selectPagedCategoryStores(
-                category,
+    public PageMaker<StoreVO> getPagedSearchResults(String keyword, PageDTO pageDTO) {
+        List<StoreVO> list = mapper.selectPagedSearchResults(
+                keyword,
                 pageDTO.getOffset(),
-                pageDTO.getPageSize(),
-                usersId //null이면 찜하지 않은 상태로 조회
+                pageDTO.getPageSize()
         );
-        long total = mapper.countStoresByCategory(category);
+        long total = mapper.countSearchResults(keyword);
 
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());

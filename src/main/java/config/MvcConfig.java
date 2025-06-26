@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -25,7 +26,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import kr.co.solfood.admin.login.AdminLoginInterceptor;
 import kr.co.solfood.owner.login.OwnerLoginInterceptor;
 import kr.co.solfood.user.login.UserLoginInterceptor;
+import kr.co.solfood.common.s3.FileUploadSessionInterceptor;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = {"kr.co.solfood", "util", "config", "properties"}) // 컴포넌트 스캔
@@ -40,12 +45,12 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     // DB 연결 여부 확인
     @Override
     public void afterPropertiesSet() {
-        System.out.println("Name:"+dataSource.getClass().getName());
+        log.info("DataSource Name: {}", dataSource.getClass().getName());
 
         try (Connection conn = dataSource.getConnection()) {
-            System.out.println("✅ DB 연결 성공: " + conn.getMetaData().getURL());
+            log.info("✅ DB 연결 성공: {}", conn.getMetaData().getURL());
         } catch (Exception e) {
-            System.err.println("❌ DB 연결 실패: " + e.getMessage());
+            log.error("❌ DB 연결 실패: {}", e.getMessage());
         }
     }
 
@@ -83,23 +88,26 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
         return new AdminLoginInterceptor();
     }
 
+    @Bean
+    public FileUploadSessionInterceptor fileUploadSessionInterceptor() {
+        return new FileUploadSessionInterceptor();
+    }
+
     // 인터 셉터 추가
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userLoginInterceptor())
                 .addPathPatterns("/user/**")
-                .excludePathPatterns("/user/login")
-                .excludePathPatterns("/user/native-login")
-                .excludePathPatterns("/user/register")
-                .excludePathPatterns("/user/company/depts")
-                .excludePathPatterns("/user/search-pwd")
-                .excludePathPatterns("/user/find-pwd")
-                .excludePathPatterns("/user/search-id")
-                .excludePathPatterns("/user/kakaoLogin")
-                .excludePathPatterns("/user/store/**")          // 상점 목록/상세는 로그인 없이 접근 가능
-                .excludePathPatterns("/user/review/list")       // 리뷰 목록은 로그인 없이 접근 가능
-                .excludePathPatterns("/user/review/detail/**")  // 리뷰 상세보기는 로그인 없이 접근 가능
-                .excludePathPatterns("/user/review/search");    // 리뷰 검색은 로그인 없이 접근 가능
+                .excludePathPatterns("/user/userControl/login")
+                .excludePathPatterns("/user/userControl/native-login")
+                .excludePathPatterns("/user/userControl/register")
+                .excludePathPatterns("/user/userControl/company/depts")
+                .excludePathPatterns("/user/userControl/search-pwd")
+                .excludePathPatterns("/user/userControl/find-pwd")
+                .excludePathPatterns("/user/userControl/search-id")
+                .excludePathPatterns("/user/userControl/kakaoLogin")
+                .excludePathPatterns("/user/userControl/extra")
+                .excludePathPatterns("/user/store/**");         // 상점 목록/상세는 로그인 없이 접근 가능
 
         registry.addInterceptor(adminLoginInterceptor())
                 .addPathPatterns("/admin/**")
@@ -110,6 +118,10 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
                 .addPathPatterns("/owner/**")
                 .excludePathPatterns("/owner/login")
                 .excludePathPatterns("/owner/kakaoLogin");
+
+        // 파일 업로드 API 전용 세션 검증 인터셉터
+        registry.addInterceptor(fileUploadSessionInterceptor())
+                .addPathPatterns("/api/file/**");
     }
 
     // Swagger
@@ -118,5 +130,14 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
         registry.addResourceHandler("/swagger-ui/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/")
                 .resourceChain(false);
+    }
+
+    // 파일업로드
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver cmr = new CommonsMultipartResolver();
+        cmr.setMaxUploadSize(1024 * 1024 * 5);
+        cmr.setDefaultEncoding("UTF-8");
+        return cmr;
     }
 }
