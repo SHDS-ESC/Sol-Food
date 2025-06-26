@@ -110,12 +110,11 @@
         }
         a{margin-right: 10px}
     </style>
-    <script>
-        let msg = '${msg}';
-        if (msg) {
-            alert(msg);
-        }
-    </script>
+    <c:if test="${not empty msg}">
+        <script>
+            alert('${msg}');
+        </script>
+    </c:if>
 </head>
 <body>
 <div class="login-container">
