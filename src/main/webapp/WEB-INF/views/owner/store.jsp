@@ -516,7 +516,8 @@
       <div class="menu-actions">
         <div class="filter-tabs">
         </div>
-          <button class="add-menu-btn" onclick="openAddModal()">
+<%--          <button class="add-menu-btn" onclick="openAddModal()">--%>
+          <button class="add-menu-btn" onclick="location.href='store/add'">
             <span>➕</span>
             상점 등록
           </button>
@@ -613,6 +614,11 @@
 
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
+  function logout(){
+    if(confirm("로그아웃 하시겠습니까?😊")){
+      window.location.href="/solfood/owner/logout";
+    }
+  }
   let editingMenuId = null;
 
   $(document).ready(function () {

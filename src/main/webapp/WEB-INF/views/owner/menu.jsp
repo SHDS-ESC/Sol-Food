@@ -518,7 +518,8 @@
       <div class="menu-actions">
         <div class="filter-tabs">
         </div>
-        <button class="add-menu-btn" onclick="openAddModal()">
+<%--        <button class="add-menu-btn" onclick="openAddModal()">--%>
+        <button class="add-menu-btn"   onclick = "location.href = 'menu/add' ">
           <span>➕</span>
           메뉴 추가
         </button>
@@ -621,135 +622,23 @@
   </div>
 </div>
 
-<%--<script>
-  // 메뉴 데이터
-  let menus = [
-    {
-      id: 1,
-      name: "불고기 정식",
-      description: "부드러운 한우 불고기와 다양한 반찬",
-      price: 15000,
-      image: "https://images.unsplash.com/photo-1590301157890-4810ed352733?w=300&h=200&fit=crop",
-      category: "main"
-    },
-    {
-      id: 2,
-      name: "김치찌개",
-      description: "매콤달콤한 김치찌개",
-      price: 9000,
-      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300&h=200&fit=crop",
-      category: "soup"
-    },
-    {
-      id: 3,
-      name: "된장찌개",
-      description: "깊은 맛의 전통 된장찌개",
-      price: 8000,
-      image: "https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300&h=200&fit=crop",
-      category: "soup"
-    },
-    {
-      id: 4,
-      name: "제육볶음",
-      description: "매콤한 양념 돼지고기 볶음",
-      price: 12000,
-      image: "https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?w=300&h=200&fit=crop",
-      category: "main"
-    },
-    {
-      id: 5,
-      name: "순두부찌개",
-      description: "부드러운 순두부와 해산물",
-      price: 8500,
-      image: "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=300&h=200&fit=crop",
-      category: "soup"
-    },
-    {
-      id: 6,
-      name: "비빔밥",
-      description: "신선한 나물과 고추장 양념",
-      price: 10000,
-      image: "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=300&h=200&fit=crop",
-      category: "main"
+<script>
+  function logout() {
+    if (confirm("로그아웃 하시겠습니까?😊")) {
+      window.location.href = "/solfood/owner/logout";
     }
-  ];
-
+  }
   let editingMenuId = null;
 
-  // 페이지 로드 시 메뉴 렌더링
+  // 페이지 로드
   document.addEventListener('DOMContentLoaded', function() {
-    renderMenus();
     setupEventListeners();
   });
 
-  // 메뉴 렌더링
-  function renderMenus(filter = 'all') {
-    const menuGrid = document.getElementById('menuGrid');
-    let filteredMenus = menus;
-
-    if (filter !== 'all') {
-      filteredMenus = menus.filter(menu => menu.category === filter);
-    }
-
-    menuGrid.innerHTML = filteredMenus.map(menu => `
-                <div class="menu-card">
-                    <img src="${menu.image}" alt="${menu.name}" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=${encodeURIComponent(menu.name)}'">
-                    <div class="menu-info">
-                        <div class="menu-name">${menu.name}</div>
-                        <div class="menu-description">${menu.description}</div>
-                        <div class="menu-price">₩${menu.price.toLocaleString()}</div>
-                        <div class="menu-actions-card">
-                            <button class="edit-btn" onclick="editMenu(${menu.id})">수정</button>
-                            <button class="delete-btn" onclick="deleteMenu(${menu.id})">삭제</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-  }
 
   // 이벤트 리스너 설정
   function setupEventListeners() {
-    // 탭 버튼 클릭
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        renderMenus(this.dataset.category);
-      });
-    });
 
-    // 사이드바 메뉴 클릭
-    document.querySelectorAll('.sidebar-menu a').forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
-        this.classList.add('active');
-
-        const tab = this.dataset.tab;
-        const headerTitle = document.querySelector('.header-title');
-
-        switch(tab) {
-          case 'overview':
-            headerTitle.textContent = '개요';
-            break;
-          case 'menu':
-            headerTitle.textContent = '메뉴 관리';
-            break;
-          case 'orders':
-            headerTitle.textContent = '주문 관리';
-            break;
-          case 'calendar':
-            headerTitle.textContent = '일정 관리';
-            break;
-          case 'testimonials':
-            headerTitle.textContent = '고객 후기';
-            break;
-          case 'faq':
-            headerTitle.textContent = 'FAQ';
-            break;
-        }
-      });
-    });
 
     // 메뉴 폼 제출
     document.getElementById('menuForm').addEventListener('submit', function(e) {
@@ -759,35 +648,13 @@
   }
 
   // 메뉴 추가 모달 열기
-  function openAddModal() {
-    editingMenuId = null;
-    document.getElementById('modalTitle').textContent = '메뉴 추가';
-    document.getElementById('menuForm').reset();
-    document.getElementById('menuModal').style.display = 'block';
-  }
+  // function openAddModal() {
+  //   editingMenuId = null;
+  //   document.getElementById('modalTitle').textContent = '메뉴 추가';
+  //   document.getElementById('menuForm').reset();
+  //   document.getElementById('menuModal').style.display = 'block';
+  // }
 
-  // 메뉴 수정
-  function editMenu(id) {
-    const menu = menus.find(m => m.id === id);
-    if (!menu) return;
-
-    editingMenuId = id;
-    document.getElementById('modalTitle').textContent = '메뉴 수정';
-    document.getElementById('menuName').value = menu.name;
-    document.getElementById('menuDescription').value = menu.description;
-    document.getElementById('menuPrice').value = menu.price;
-    document.getElementById('menuImage').value = menu.image;
-    document.getElementById('menuCategory').value = menu.category;
-    document.getElementById('menuModal').style.display = 'block';
-  }
-
-  // 메뉴 삭제
-  function deleteMenu(id) {
-    if (confirm('정말로 이 메뉴를 삭제하시겠습니까?')) {
-      menus = menus.filter(m => m.id !== id);
-      renderMenus();
-    }
-  }
 
   // 메뉴 저장
   function saveMenu() {
@@ -813,7 +680,6 @@
     }
 
     closeModal();
-    renderMenus();
   }
 
   // 모달 닫기
@@ -822,20 +688,9 @@
     editingMenuId = null;
   }
 
-  // 로그아웃
-  function logout() {
-      if (confirm('로그아웃 하시겠습니까?')) {
-      window.location.href = '${pageContext.request.contextPath}/owner/login';
-    }
-  }
+
  
-  // 모달 외부 클릭 시 닫기
-  window.onclick = function(event) {
-    const modal = document.getElementById('menuModal');
-    if (event.target === modal) {
-      closeModal();
-    }
-  }
-</script>--%>
+
+</script>
 </body>
 </html>

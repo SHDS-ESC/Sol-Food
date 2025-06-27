@@ -18,12 +18,6 @@ public class OwnerLoginController {
     @Autowired
     private OwnerLoginService service;
 
-    @Autowired
-    private KakaoProperties kakaoProperties;
-
-    @Autowired
-    private ServerProperties serverProperties;
-
     // 점주 루트 경로 - index 페이지로 리다이렉트
     @GetMapping("/")
     public String root() {
@@ -59,13 +53,12 @@ public class OwnerLoginController {
         }
     }
 
-    /*
-    * @GetMapping("/extra")
-    public void extra(Model model) {
-        List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
-        model.addAttribute("companyList", companyList);
+    // 점주 로그아웃 get
+    @GetMapping("/logout")
+    public String logout(HttpSession sess){
+        sess.invalidate(); // 세션 종료
+        return "redirect:login";
     }
-    * */
 
 
 }
