@@ -57,31 +57,6 @@ public class S3ServiceV2 {
     /**
      * 🚀 Pre-signed URL 생성 (성능 최적화)
      */
-    // public String generatePresignedUploadUrl(String fileName) {
-    //     try {
-    //         String keyName = "uploads/" + UUID.randomUUID().toString() + "/" + fileName;
-            
-    //         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-    //             .bucket(s3Properties.getBucket())
-    //             .key(keyName)
-    //             .build();
-                
-    //         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-    //             .signatureDuration(Duration.ofMinutes(15))
-    //             .putObjectRequest(putObjectRequest)
-    //             .build();
-                
-    //         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-            
-    //         log.info("Pre-signed URL v2 생성 완료: {}", fileName);
-    //         return presignedRequest.url().toString();
-            
-    //     } catch (Exception e) {
-    //         log.error("Pre-signed URL v2 생성 실패: {}", e.getMessage());
-    //         e.printStackTrace();
-    //         throw new RuntimeException("파일 업로드 URL 생성에 실패했습니다.", e);
-    //     }
-    // }
     public String generatePresignedUploadUrl(String fileExtension) {
         try {
             // 고유한 파일명 생성

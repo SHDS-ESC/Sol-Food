@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import properties.KakaoProperties;
 
+import static kr.co.solfood.user.review.ReviewConstants.*;
+
 @Controller
 @RequestMapping("/user/review")
 public class ReviewController {
@@ -42,13 +44,13 @@ public class ReviewController {
     public String reviewWrite(@ModelAttribute ReviewVO review, RedirectAttributes redirectAttributes) {
         try {
             if (!reviewService.isValidStarRating(review.getReviewStar())) {
-                redirectAttributes.addFlashAttribute("error", "올바른 별점을 선택해주세요.");
+                redirectAttributes.addFlashAttribute("error", MSG_INVALID_STAR_RATING);
                 return "redirect:/user/review/write?storeId=" + review.getStoreId();
             }
             
             reviewService.registerReview(review);
             logger.info("리뷰 등록 성공. 제목: {}, 가게ID: {}", review.getReviewTitle(), review.getStoreId());
-            redirectAttributes.addFlashAttribute("success", "리뷰가 성공적으로 등록되었습니다.");
+            redirectAttributes.addFlashAttribute("success", MSG_REVIEW_REGISTER_SUCCESS);
             
             return "redirect:/user/store/detail?storeId=" + review.getStoreId();
             
@@ -59,7 +61,7 @@ public class ReviewController {
             
         } catch (Exception e) {
             logger.error("리뷰 등록 중 오류 발생", e);
-            redirectAttributes.addFlashAttribute("error", "리뷰 등록 중 오류가 발생했습니다.");
+            redirectAttributes.addFlashAttribute("error", MSG_REVIEW_REGISTER_ERROR);
             return "redirect:/user/review/write?storeId=" + review.getStoreId();
         }
     }
@@ -70,7 +72,7 @@ public class ReviewController {
         try {
             ReviewVO review = reviewService.getReviewById(reviewId);
             if (review == null) {
-                redirectAttributes.addFlashAttribute("error", "존재하지 않는 리뷰입니다.");
+                redirectAttributes.addFlashAttribute("error", MSG_REVIEW_NOT_FOUND);
                 return "redirect:/user/store/list";
             }
             
@@ -82,7 +84,7 @@ public class ReviewController {
             
         } catch (Exception e) {
             logger.error("리뷰 수정 페이지 조회 중 오류 발생. reviewId: {}", reviewId, e);
-            redirectAttributes.addFlashAttribute("error", "리뷰 정보를 불러오는 중 오류가 발생했습니다.");
+            redirectAttributes.addFlashAttribute("error", MSG_REVIEW_LOAD_ERROR);
             return "redirect:/user/store/list";
         }
     }
@@ -93,7 +95,7 @@ public class ReviewController {
         try {
             reviewService.updateReview(review);
             logger.info("리뷰 수정 성공. reviewId: {}", review.getReviewId());
-            redirectAttributes.addFlashAttribute("success", "리뷰가 성공적으로 수정되었습니다.");
+            redirectAttributes.addFlashAttribute("success", MSG_REVIEW_UPDATE_SUCCESS);
             
             return "redirect:/user/store/detail?storeId=" + review.getStoreId();
             
@@ -104,7 +106,7 @@ public class ReviewController {
             
         } catch (Exception e) {
             logger.error("리뷰 수정 중 오류 발생. reviewId: {}", review.getReviewId(), e);
-            redirectAttributes.addFlashAttribute("error", "리뷰 수정 중 오류가 발생했습니다.");
+            redirectAttributes.addFlashAttribute("error", MSG_REVIEW_UPDATE_ERROR);
             return "redirect:/user/review/edit/" + review.getReviewId();
         }
     }
@@ -117,7 +119,7 @@ public class ReviewController {
             ReviewVO review = reviewService.getReviewById(reviewId);
             
             if (review == null) {
-                redirectAttributes.addFlashAttribute("error", "존재하지 않는 리뷰입니다.");
+                redirectAttributes.addFlashAttribute("error", MSG_REVIEW_NOT_FOUND);
                 return "redirect:/user/store/list";
             }
             
@@ -125,13 +127,13 @@ public class ReviewController {
             reviewService.deleteReview(reviewId);
             
             logger.info("리뷰 삭제 성공. reviewId: {}", reviewId);
-            redirectAttributes.addFlashAttribute("success", "리뷰가 성공적으로 삭제되었습니다.");
+            redirectAttributes.addFlashAttribute("success", MSG_REVIEW_DELETE_SUCCESS);
             
             return "redirect:/user/store/detail?storeId=" + storeId;
             
         } catch (Exception e) {
             logger.error("리뷰 삭제 중 오류 발생. reviewId: {}", reviewId, e);
-            redirectAttributes.addFlashAttribute("error", "리뷰 삭제 중 오류가 발생했습니다.");
+            redirectAttributes.addFlashAttribute("error", MSG_REVIEW_DELETE_ERROR);
             return "redirect:/user/store/list";
         }
     }

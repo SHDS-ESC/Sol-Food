@@ -3,7 +3,6 @@ package kr.co.solfood.admin.crawler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.solfood.user.category.CategoryService;
-import kr.co.solfood.user.store.CategoryProperties;
 import kr.co.solfood.user.store.StoreService;
 import kr.co.solfood.user.store.StoreVO;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +26,6 @@ public class StoreWebCrawler {
     private StoreService storeService;
     
     @Autowired
-    private CategoryProperties categoryProperties;
-    
-    @Autowired
     private CategoryService categoryService;
     
     @Autowired
@@ -49,11 +45,12 @@ public class StoreWebCrawler {
             double hongdaeLat = 37.5565;
             double hongdaeLng = 126.9241;
             
-            // CategoryProperties에서 카테고리 목록 가져오기 ("전체" 제외)
-            List<String> allCategories = categoryProperties.getAllCategories();
-            List<String> categories = allCategories.stream()
-                    .filter(category -> !"전체".equals(category))
+            // 카테고리 목록 가져오기 ("전체" 제외)
+            List<String> allCategories = categoryService.getAllCategories().stream()
+                    .map(category -> category.getCategoryName())
+                    .filter(name -> !"전체".equals(name))
                     .collect(java.util.stream.Collectors.toList());
+            List<String> categories = allCategories;
             
             for (String category : categories) {
                 log.info("크롤링 중: {} 카테고리", category);
@@ -80,9 +77,8 @@ public class StoreWebCrawler {
         List<StoreVO> stores = new ArrayList<>();
         
         try {
-            // CategoryProperties에서 검색 키워드 가져오기
-            String searchKeyword = categoryProperties.getSearchKeyword(category);
-            String query = URLEncoder.encode(searchKeyword + " 음식점", "UTF-8");
+            // 간단한 키워드 생성 (카테고리명 + 음식점)
+            String query = URLEncoder.encode(category + " 음식점", "UTF-8");
             String urlString = KAKAO_LOCAL_API_URL + 
                 "?query=" + query + 
                 "&category_group_code=FD6" + // 음식점 카테고리 코드
@@ -182,30 +178,12 @@ public class StoreWebCrawler {
      * 카카오 API 카테고리를 표준 카테고리로 매핑
      */
     private String mapToStandardCategory(String originalCategory, String searchCategory) {
+        // 간단한 매핑: 원본 카테고리가 없으면 검색 카테고리 사용
         if (originalCategory == null || originalCategory.isEmpty()) {
-            return searchCategory; // 기본값으로 검색 카테고리 사용
+            return searchCategory;
         }
         
-        // 카카오 API 카테고리를 소문자로 변환하여 분석
-        String lowerCategory = originalCategory.toLowerCase();
-        
-        // CategoryProperties를 활용한 스마트 매핑
-        List<String> allCategories = categoryProperties.getAllCategories();
-        
-        for (String category : allCategories) {
-            if ("전체".equals(category)) continue;
-            
-            // 해당 카테고리의 매칭 키워드들을 확인
-            List<String> matchingKeywords = categoryProperties.getMatchingKeywords(category);
-            
-            for (String keyword : matchingKeywords) {
-                if (lowerCategory.contains(keyword.toLowerCase())) {
-                    return category; // 매칭되는 표준 카테고리 반환
-                }
-            }
-        }
-        
-        // 매칭되지 않으면 검색 카테고리 사용
+        // 기본적으로 검색 카테고리 사용 (DB 카테고리와 일치)
         return searchCategory;
     }
 
@@ -254,9 +232,8 @@ public class StoreWebCrawler {
         List<StoreVO> stores = new ArrayList<>();
         
         try {
-            // 키워드가 카테고리인지 확인하고 해당하는 검색 키워드 사용
-            String searchKeyword = categoryProperties.getSearchKeyword(keyword);
-            String query = URLEncoder.encode(searchKeyword, "UTF-8");
+            // 간단한 키워드 처리
+            String query = URLEncoder.encode(keyword, "UTF-8");
             String urlString = KAKAO_LOCAL_API_URL + 
                 "?query=" + query + 
                 "&category_group_code=FD6" +

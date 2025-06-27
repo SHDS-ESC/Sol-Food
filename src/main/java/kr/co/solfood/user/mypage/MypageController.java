@@ -3,6 +3,8 @@ package kr.co.solfood.user.mypage;
 import kr.co.solfood.user.login.CompanyVO;
 import kr.co.solfood.user.login.LoginService;
 import kr.co.solfood.user.login.UserVO;
+import kr.co.solfood.util.CustomException;
+import kr.co.solfood.util.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +29,19 @@ public class MypageController {
     public String myPage(Model model, HttpSession sess) {
         UserVO userVO = (UserVO) sess.getAttribute("userLoginSession");
         if(userVO == null){
-            return "redirect:/user/userControl/login";
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
+//
+// CustomException 사용 예시 -> 비밀번호가 null 이거나 비어 있으면 ERROR ! -> kakao-login 시 에러 발생하므로 주석 처리
+// 테스트 용으로 주석 남겨두고 추후 삭제할 것.
+//
+//        if(userVO.getUsersPwd() == null || userVO.getUsersPwd().trim().isEmpty()) {
+//            throw new CustomException(ErrorCode.PASSWORD_NOT_FOUND);
+//        }
+
         model.addAttribute("currentUser", userVO);
-        return "user/userControl/mypage";
+        return "redirect:/user/login";
     }
 
     // 마이페이지 > 내정보 get
@@ -46,7 +56,7 @@ public class MypageController {
         sess.setAttribute("mypageInProgress", true);
         sess.setAttribute("uploadCount", 0);
         sess.setMaxInactiveInterval(30 * 60); // 30분 후 만료
-        return "user/userControl/info";
+        return "user/login/info";
     }
 
     // 마이페이지 > 내정보 post
@@ -57,7 +67,7 @@ public class MypageController {
         // 1. 로그인한 사용자 정보 가져오기
         UserVO loginUser = (UserVO) sess.getAttribute("userLoginSession");
         if(loginUser == null){
-            return "redirect:/user/userControl/login"; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
+            return "redirect:/user/login"; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
         }
 
         // 2. userId 설정

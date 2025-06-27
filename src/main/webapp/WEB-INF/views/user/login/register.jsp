@@ -190,10 +190,7 @@
 <body>
   <div class="form-container">
     <div class="form-title">회원가입</div>
-<<<<<<<<< Temporary merge branch 1:src/main/webapp/WEB-INF/views/user/userControl/register.jsp
-    <form action="/solfood/user/userControl/register" method="post">
-=========
-    <form action="/solfood/user/register" method="post">
+    <form action="/solfood/user/login/register" method="post">
       <!-- 프로필 이미지 업로드 -->
       <label>프로필 이미지</label>
       <div class="profile-upload-container">
@@ -220,7 +217,6 @@
         <span id="uploadProgressText" class="progress-text">0%</span>
       </div>
 
->>>>>>>>> Temporary merge branch 2:src/main/webapp/WEB-INF/views/user/register.jsp
       <label for="companySelect">회사 *</label>
       <select id="companySelect" name="companyId" required onchange="loadDepts(this.value)">
         <option value="">-- 회사 선택 --</option>
@@ -327,7 +323,7 @@
 
     if (!companyId) return;
 
-            fetch("/solfood/user/userControl/company/depts?companyId=" + companyId)
+            fetch("/solfood/user/login/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
               data.forEach(dept => {
@@ -339,7 +335,7 @@
             })
             .catch(error => {
               console.error("부서 불러오기 실패", error);
-              console.log(contextPath + "/user/userControl/company/depts?companyId=" + companyId)
+              console.log(contextPath + "/user/login/company/depts?companyId=" + companyId)
             });
   }
 
