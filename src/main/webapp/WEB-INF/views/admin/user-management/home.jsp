@@ -318,7 +318,15 @@
                             <td>${user.departmentName}</td>
                             <td>${user.usersBirth}</td>
                             <td>${user.usersGender}</td>
-                            <td>${user.usersStatus}</td>
+                            <td>
+                                <div class="page-selector">
+                                    <select class="status_selector" style="width: 100px;">
+                                        <option value="${user.usersStatus}">활성</option>
+                                        <option value="비활성">비활성</option>
+                                        <option value="정지">정지</option>
+                                    </select>
+                                </div>
+                            </td>
                         </tr>
                     </c:forEach>
                     </tbody>
@@ -536,6 +544,7 @@
         $('.filter-btns button[name="연간"]').click();
 
         const $pageSize = $('.form-select');
+        const $pagination = $('.pagination');
 
         // 검색 폼 제출
         $('#searchForm').on('submit', function (e) {
@@ -546,7 +555,7 @@
         });
 
         // 페이지 번호 클릭
-        $('.pagination').on('click', '.page-item:not(.previous):not(.next) .page-link', function (e) {
+        $pagination.on('click', '.page-item:not(.previous):not(.next) .page-link', function (e) {
             e.preventDefault();
             const query = $('#searchForm').find('input[name="query"]').val();
             currentPage = parseInt($(this).text(), 10);
@@ -555,14 +564,14 @@
         });
 
         // Previous 클릭
-        $('.pagination').on('click', '.previous .page-link', function (e) {
+        $pagination.on('click', '.previous .page-link', function (e) {
             e.preventDefault();
             const query = $('#searchForm').find('input[name="query"]').val();
             searchUsers(query, firstPage - $pageSize.val(), $pageSize.val());
         });
 
         // Next 클릭
-        $('.pagination').on('click', '.next .page-link', function (e) {
+        $pagination.on('click', '.next .page-link', function (e) {
             e.preventDefault();
             const query = $('#searchForm').find('input[name="query"]').val();
             searchUsers(query, lastPage + 1, $pageSize.val());
