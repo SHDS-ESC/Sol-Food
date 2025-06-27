@@ -80,7 +80,7 @@
     </div>
     <div class="welcome">환영합니다 🎉</div>
     <div class="logout-btn">
-        <button onclick="location.href='/solfood/user/userControl/logout'">로그아웃</button>
+        <button onclick="location.href='/solfood/user/login/logout'">로그아웃</button>
     </div>
 </div>
 </body>

@@ -27,11 +27,11 @@ public class MypageController {
     public String myPage(Model model, HttpSession sess) {
         UserVO userVO = (UserVO) sess.getAttribute("userLoginSession");
         if(userVO == null){
-            return "redirect:/user/userControl/login";
+            return "redirect:/user/login";
         }
         
         model.addAttribute("currentUser", userVO);
-        return "user/userControl/mypage";
+        return "user/login/mypage";
     }
 
     // 마이페이지 > 내정보 get
@@ -46,7 +46,7 @@ public class MypageController {
         sess.setAttribute("mypageInProgress", true);
         sess.setAttribute("uploadCount", 0);
         sess.setMaxInactiveInterval(30 * 60); // 30분 후 만료
-        return "user/userControl/info";
+        return "user/login/info";
     }
 
     // 마이페이지 > 내정보 post
@@ -57,7 +57,7 @@ public class MypageController {
         // 1. 로그인한 사용자 정보 가져오기
         UserVO loginUser = (UserVO) sess.getAttribute("userLoginSession");
         if(loginUser == null){
-            return "redirect:/user/userControl/login"; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
+            return "redirect:/user/login"; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
         }
 
         // 2. userId 설정

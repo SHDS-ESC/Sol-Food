@@ -60,7 +60,7 @@
     <p>페이지를 찾을 수 없습니다.</p>
     <h5>요청 경로를 확인해주세요.</h5>
     <div>
-        <a href="<%= request.getContextPath() %>/user/userControl/login">로그인화면</a>
+        <a href="<%= request.getContextPath() %>/user/login">로그인화면</a>
     </div>
 </div>
 </body>
