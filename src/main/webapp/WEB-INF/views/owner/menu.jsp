@@ -187,7 +187,7 @@
     /* 콘텐츠 영역 */
     .content {
       flex: 1;
-      padding: 30px;
+      padding: 30px 60px;
       overflow-y: auto;
     }
 
@@ -438,6 +438,7 @@
       background: #16a34a;
     }
 
+    .breadcrumb{display: block; color: #666; }
 
   </style>
 </head>
@@ -451,13 +452,13 @@
     </div>
     <ul class="sidebar-menu">
       <li>
-        <a href="#" data-tab="store" data-tab="overview">
+        <a href="<c:url value="/owner/store" />" data-tab="store" data-tab="overview" >
           <span class="icon">📅</span>
           <span>상점 관리</span>
         </a>
       </li>
       <li>
-        <a href="#" data-tab="menu">
+        <a href="#" data-tab="menu" class="active">
           <span class="icon">🍽️</span>
           <span>메뉴 관리</span>
         </a>
@@ -469,7 +470,7 @@
         </a>
       </li>--%>
       <li>
-        <a href="#" class="active" >
+        <a href="#" >
           <span class="icon">📊</span>
           <span>매출 관리</span>
         </a>
@@ -509,16 +510,13 @@
     <!-- 콘텐츠 영역 -->
     <section class="content">
       <div class="content-header">
+        <span class="breadcrumb">🏠 메뉴 관리</span>
         <h1>메뉴 관리</h1>
-        <p>레스토랑 메뉴를 추가, 수정, 삭제할 수 있습니다.</p>
+        <p>상점의 메뉴를 추가, 수정, 삭제할 수 있습니다.</p>
       </div>
 
       <div class="menu-actions">
         <div class="filter-tabs">
-          <button class="tab-btn active" data-category="all">전체 메뉴</button>
-          <button class="tab-btn" data-category="popular">인기 메뉴</button>
-          <button class="tab-btn" data-category="new">신메뉴</button>
-          <button class="tab-btn" data-category="discount">할인 메뉴</button>
         </div>
         <button class="add-menu-btn" onclick="openAddModal()">
           <span>➕</span>
@@ -526,9 +524,56 @@
         </button>
       </div>
 
-      <div class="menu-grid" id="menuGrid">
-        <!-- 메뉴 카드들이 여기에 동적으로 추가됩니다 -->
-      </div>
+
+        <div class="menu-grid" id="menuGrid">
+          <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1590301157890-4810ed352733?w=300&amp;h=200&amp;fit=crop" alt="불고기 정식" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%B6%88%EA%B3%A0%EA%B8%B0%20%EC%A0%95%EC%8B%9D'">
+            <div class="menu-info">
+              <div class="menu-name">불고기 정식</div>
+              <div class="menu-description">부드러운 한우 불고기와 다양한 반찬</div>
+              <div class="menu-price">₩15,000</div>
+            </div>
+          </div>
+
+          <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300&amp;h=200&amp;fit=crop" alt="된장찌개" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%90%9C%EC%9E%A5%EC%B0%8C%EA%B0%9C'">
+            <div class="menu-info">
+              <div class="menu-name">된장찌개</div>
+              <div class="menu-description">깊은 맛의 전통 된장찌개</div>
+              <div class="menu-price">₩8,000</div>
+            </div>
+          </div>
+
+
+          <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?w=300&amp;h=200&amp;fit=crop" alt="제육볶음" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EC%A0%9C%EC%9C%A1%EB%B3%B6%EC%9D%8C'">
+            <div class="menu-info">
+              <div class="menu-name">잡채</div>
+              <div class="menu-description">매콤하고 달콤한 잡채</div>
+              <div class="menu-price">₩12,000</div>
+            </div>
+          </div>
+
+          <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=300&amp;h=200&amp;fit=crop" alt="순두부찌개" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EC%88%9C%EB%91%90%EB%B6%80%EC%B0%8C%EA%B0%9C'">
+            <div class="menu-info">
+              <div class="menu-name">순두부찌개</div>
+              <div class="menu-description">부드러운 순두부와 해산물</div>
+              <div class="menu-price">₩8,500</div>
+            </div>
+          </div>
+
+          <div class="menu-card">
+            <img src="https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=300&amp;h=200&amp;fit=crop" alt="비빔밥" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%B9%84%EB%B9%94%EB%B0%A5'">
+            <div class="menu-info">
+              <div class="menu-name">비빔밥</div>
+              <div class="menu-description">신선한 나물과 고추장 양념</div>
+              <div class="menu-price">₩10,000</div>
+            </div>
+          </div>
+
+        </div>
+
     </section>
   </main>
 
