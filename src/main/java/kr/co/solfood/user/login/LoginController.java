@@ -53,7 +53,7 @@ public class LoginController {
 
     // 카카오 로그인
     @Transactional
-    @GetMapping("/kakaoLogin")
+    @GetMapping("/kakao-login")
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         UserVO kakaoLogin = service.confirmAccessToken(code);
         sess.setAttribute("userLoginSession", kakaoLogin);
