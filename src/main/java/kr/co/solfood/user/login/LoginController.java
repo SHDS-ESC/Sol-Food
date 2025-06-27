@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Random;
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/user/login")
 public class LoginController {
 
     private final LoginService service;
@@ -41,22 +41,23 @@ public class LoginController {
     }
 
     // 유저 로그인 페이지
-    @GetMapping("/login")
-    public void login(Model model) {
+    @GetMapping("")
+    public String login(Model model) {
         model.addAttribute("apiKey", kakaoProperties.getRestApiKey());
         Map<String, String> serverMap = new HashMap<>();
         serverMap.put("ip", serverProperties.getIp());
         serverMap.put("port", serverProperties.getPort());
         model.addAttribute("serverMap", serverMap);
+        return "user/login/loginpage";
     }
 
     // 카카오 로그인
     @Transactional
-    @GetMapping("/kakaoLogin")
+    @GetMapping("/kakao-login")
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         UserVO kakaoLogin = service.confirmAccessToken(code);
         sess.setAttribute("userLoginSession", kakaoLogin);
-        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:extra" : "redirect:mypage";
+        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:/user/login/extra" : "redirect:/";
     }
 
     // 카카오 추가 정보 페이지
@@ -73,14 +74,14 @@ public class LoginController {
         UserVO userVo = service.register(kakaoAddVO);
         System.out.println("브이오" + kakaoAddVO);
         sess.setAttribute("userLoginSession", userVo);
-        return "redirect:mypage";
+        return "redirect:/";
     }
 
     // 로그 아웃
     @GetMapping("/logout")
     public String logout(HttpSession sess) {
         sess.invalidate();
-        return "redirect:login";
+        return "redirect:/";
     }
 
     // 자체 로그인
@@ -89,10 +90,10 @@ public class LoginController {
         UserVO userVo = service.nativeLogin(req);
         if(userVo !=null){
             sess.setAttribute("userLoginSession", userVo);
-            return "redirect:mypage";
+            return "redirect:/";
         } else {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
-            return "/user/login"; // 로그인 페이지로 다시 이동
+            return "user/login/loginpage"; // 로그인 페이지로 다시 이동
         }
     }
 
@@ -117,24 +118,35 @@ public class LoginController {
            service.setNewPwd(req); // req vo 전달
            model.addAttribute("newPwd", newPwd);
        }
-        return "/user/find-pwd";
+        return "user/login/find-pwd";
     }
 
 
     // 회원가입
-    @GetMapping("/join")
-    public String join(Model model) {
+    @GetMapping("/register")
+    public String join(Model model, HttpSession session) {
         List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
         model.addAttribute("companyList", companyList);
-        return "/user/join";
+
+        // 회원가입 진행 세션 플래그 설정 (S3 업로드 보안용)
+        session.setAttribute("joinInProgress", true);
+        session.setAttribute("uploadCount", 0);
+        session.setMaxInactiveInterval(30 * 60); // 30분 후 만료
+
+        return "user/login/register";
     }
 
     // 회원가입 post
     @Transactional
-    @PostMapping("/join")
-    public String join(UserVO kakaoAddVO, HttpSession sess) {
+    @PostMapping("/register")
+    public String register(UserVO kakaoAddVO, HttpSession sess) {
         service.register(kakaoAddVO);
-        return "redirect:login";
+
+        // 회원가입 완료 후 세션 정리
+        sess.removeAttribute("joinInProgress");
+        sess.removeAttribute("uploadCount");
+
+        return "redirect:/user/login";
     }
 
     // 부서

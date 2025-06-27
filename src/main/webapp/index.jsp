@@ -68,6 +68,29 @@
             color: #ffd700;
         }
 
+        .welcome-message {
+            color: #ffd700 !important;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .welcome-message i {
+            font-size: 1.2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
         /* 히어로 섹션 */
         .hero {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -304,6 +327,41 @@
                 display: none;
             }
 
+            .nav-menu.mobile-visible {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(102, 126, 234, 0.95);
+                padding: 1rem;
+                gap: 1rem;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            }
+
+            .welcome-message {
+                font-size: 0.9rem;
+                text-align: center;
+                padding: 0.5rem;
+                background: rgba(255, 215, 0, 0.1);
+                border-radius: 5px;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+        }
+
             .hero h1 {
                 font-size: 2.5rem;
             }
@@ -326,7 +384,6 @@
             .section-title {
                 font-size: 2rem;
             }
-        }
 
         /* 스크롤 애니메이션 */
         .scroll-reveal {
@@ -348,12 +405,26 @@
             <a href="#" class="logo">
                 <i class="fas fa-leaf"></i> Sol-Food
             </a>
-            <ul class="nav-menu">
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu" id="navMenu">
                 <li><a href="#home">홈</a></li>
                 <li><a href="#features">서비스</a></li>
                 <li><a href="#about">소개</a></li>
                 <li><a href="#contact">문의</a></li>
-                <li><a href="<c:url value="/user/login"/>">로그인</a></li>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.userLoginSession}">
+                        <li class="welcome-message">
+                            <i class="fas fa-user-circle"></i> 
+                            ${sessionScope.userLoginSession.usersName}님 환영합니다!
+                        </li>
+                        <li><a href="<c:url value="/user/login/logout"/>">로그아웃</a></li>
+                    </c:when>
+                    <c:otherwise>
+                        <li><a href="<c:url value="/user/login"/>">로그인</a></li>
+                    </c:otherwise>
+                </c:choose>
             </ul>
         </nav>
     </header>
@@ -364,17 +435,26 @@
             <h1>건강한 식단의 시작</h1>
             <p>Sol-Food와 함께 맞춤형 영양 관리로 건강한 라이프스타일을 만들어보세요</p>
             <div class="cta-buttons">
-                <a href="<c:url value="/user/login"/>" class="btn btn-primary">
-                    <i class="fas fa-user"></i> 시작하기
-                </a>
+                <c:choose>
+                    <c:when test="${not empty sessionScope.userLoginSession}">
+                        <a href="<c:url value="/user/mypage"/>" class="btn btn-primary">
+                            <i class="fas fa-user"></i> 마이페이지
+                        </a>
+                        <a href="<c:url value="/user/store/list"/>" class="btn btn-primary">
+                            <i class="fas fa-store"></i> 맛집 찾기
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="<c:url value="/user/login"/>" class="btn btn-primary">
+                            <i class="fas fa-user"></i> 시작하기
+                        </a>
+                        <a href="<c:url value="/user/login/register"/>" class="btn btn-secondary">
+                            <i class="fas fa-user-plus"></i> 회원가입
+                        </a>
+                    </c:otherwise>
+                </c:choose>
                 <a href="#features" class="btn btn-secondary">
                     <i class="fas fa-info-circle"></i> 자세히 보기
-                </a>
-                <a href = "<c:url value = "user/main"/>" class = "btn btn-primary">
-                    <i class = "fas fa-user"></i> 리뷰 메인 페이지
-                </a>
-                <a href = "<c:url value = "user/store"/>" class = "btn btn-primary">
-                    <i class = "fas fa-user"></i> 상점 메인 페이지
                 </a>
             </div>
         </div>
@@ -491,6 +571,12 @@
     </footer>
 
     <script>
+        // 모바일 메뉴 토글 함수
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('mobile-visible');
+        }
+
         // 스크롤 애니메이션
         function revealOnScroll() {
             const reveals = document.querySelectorAll('.scroll-reveal');
