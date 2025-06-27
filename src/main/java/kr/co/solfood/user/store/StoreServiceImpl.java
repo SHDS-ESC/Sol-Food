@@ -41,7 +41,7 @@ public class StoreServiceImpl implements StoreService {
         }
         return mapper.searchStores(keyword.trim());
     }
-    
+
     @Override
     public List<StoreVO> searchStoresByName(String storeName) {
         if (storeName == null || storeName.trim().isEmpty()) {
@@ -49,7 +49,7 @@ public class StoreServiceImpl implements StoreService {
         }
         return mapper.searchStoresByName(storeName.trim());
     }
-    
+
     @Override
     public List<StoreVO> searchStoresByAddress(String address) {
         if (address == null || address.trim().isEmpty()) {
@@ -57,10 +57,11 @@ public class StoreServiceImpl implements StoreService {
         }
         return mapper.searchStoresByAddress(address.trim());
     }
-    
+
     @Override
     @Transactional
     public boolean insertStore(StoreVO store) {
+        // 중복 체크
         if (isDuplicateStore(store)) {
             return false;
         }
@@ -80,6 +81,7 @@ public class StoreServiceImpl implements StoreService {
         return count > 0;
     }
 
+    //전체목록
     @Override
     public PageMaker<StoreVO> getPagedCategoryStoreList(String category, PageDTO pageDTO) {
         List<StoreVO> list = mapper.selectPagedCategoryStores(
@@ -87,13 +89,14 @@ public class StoreServiceImpl implements StoreService {
                 pageDTO.getOffset(),
                 pageDTO.getPageSize()
         );
-        
+
         long total = mapper.countStoresByCategory(category);
-        
+
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
     }
 
+    //카테고리별
     @Override
     public PageMaker<StoreVO> getPagedSearchResults(String keyword, PageDTO pageDTO) {
         List<StoreVO> list = mapper.selectPagedSearchResults(

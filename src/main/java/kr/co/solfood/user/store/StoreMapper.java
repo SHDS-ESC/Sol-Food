@@ -12,19 +12,19 @@ public interface StoreMapper {
 
     //카테고리별 가게 목록 조회
     List<StoreVO> selectCategoryStore(String category);
-    
+
     // 가게 ID로 가게 정보 조회
     StoreVO getStoreById(int storeId);
     
     // 검색어로 가게 검색 (가게명, 주소, 카테고리 통합 검색)
     List<StoreVO> searchStores(String keyword);
-    
+
     // 가게명으로 검색
     List<StoreVO> searchStoresByName(String storeName);
-    
+
     // 주소로 검색
     List<StoreVO> searchStoresByAddress(String address);
-    
+
     // 크롤링 전용 메서드들
     // 새 가게 정보 추가
     int insertStore(StoreVO store);

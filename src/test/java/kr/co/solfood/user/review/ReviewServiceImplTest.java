@@ -195,44 +195,44 @@
 //
 //        // 사용하지 않는 메서드들은 기본 구현
 //        @Override
-////        public Map<String, Object> selectStarCounts() { return new HashMap<>(); }
-////
-////        @Override
-////        public List<ReviewVO> selectReviewsByRestaurant(String restaurantName) { return testReviewList; }
-////
-////        @Override
-////        public Double selectAverageStarByStoreId(Integer storeId) { return 4.2; }
-////
-////        @Override
-////        public Integer selectTotalCountByStoreId(Integer storeId) { return 15; }
-////
-////        @Override
-////        public Map<String, Object> selectStarCountsByStoreId(Integer storeId) { return new HashMap<>(); }
-////    }
-////
-////    /**
-////     * StoreMapper의 가짜 구현체 - 가게 정보 관련 최소 기능만 제공
-////     */
-////    static class TestStoreMapper implements StoreMapper {
-////        @Override
-////        public StoreVO getStoreById(int storeId) {
-////            StoreVO store = new StoreVO();
-////            store.setStoreId(storeId);
-////            store.setStoreName("테스트 음식점");
-////            return store;
-////        }
-////
-////        // 기본 구현만 제공
-////        @Override
-////        public List<StoreVO> selectAllStore() { return Arrays.asList(); }
-////
-////        @Override
-////        public List<StoreVO> selectCategoryStore(String category) { return Arrays.asList(); }
-////
-////        @Override
-////        public int insertStore(StoreVO store) { return 1; }
-////
-////        @Override
-////        public int countByNameAndAddress(StoreVO store) { return 0; }
-////    }
-////}
+//        public Map<String, Object> selectStarCounts() { return new HashMap<>(); }
+//
+//        @Override
+//        public List<ReviewVO> selectReviewsByRestaurant(String restaurantName) { return testReviewList; }
+//
+//        @Override
+//        public Double selectAverageStarByStoreId(Integer storeId) { return 4.2; }
+//
+//        @Override
+//        public Integer selectTotalCountByStoreId(Integer storeId) { return 15; }
+//
+//        @Override
+//        public Map<String, Object> selectStarCountsByStoreId(Integer storeId) { return new HashMap<>(); }
+//    }
+//
+//    /**
+//     * StoreMapper의 가짜 구현체 - 가게 정보 관련 최소 기능만 제공
+//     */
+//    static class TestStoreMapper implements StoreMapper {
+//        @Override
+//        public StoreVO getStoreById(int storeId) {
+//            StoreVO store = new StoreVO();
+//            store.setStoreId(storeId);
+//            store.setStoreName("테스트 음식점");
+//            return store;
+//        }
+//
+//        // 기본 구현만 제공
+//        @Override
+//        public List<StoreVO> selectAllStore() { return Arrays.asList(); }
+//
+//        @Override
+//        public List<StoreVO> selectCategoryStore(String category) { return Arrays.asList(); }
+//
+//        @Override
+//        public int insertStore(StoreVO store) { return 1; }
+//
+//        @Override
+//        public int countByNameAndAddress(StoreVO store) { return 0; }
+//    }
+//}
