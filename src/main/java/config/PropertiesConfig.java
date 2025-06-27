@@ -37,7 +37,7 @@ public class PropertiesConfig {
     @Bean
     public KakaoProperties kakaoProperties(
             @Value("${kakao.restApiKey}") String restApiKey,
-            @Value("${kakao.js.key}") String jsApiKey
+            @Value("${kakao.jsApiKey}") String jsApiKey
             ) {
         KakaoProperties props = new KakaoProperties(restApiKey, jsApiKey);
         return props;
