@@ -3,6 +3,8 @@ package kr.co.solfood.user.mypage;
 import kr.co.solfood.user.login.CompanyVO;
 import kr.co.solfood.user.login.LoginService;
 import kr.co.solfood.user.login.UserVO;
+import kr.co.solfood.util.CustomException;
+import kr.co.solfood.util.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +29,19 @@ public class MypageController {
     public String myPage(Model model, HttpSession sess) {
         UserVO userVO = (UserVO) sess.getAttribute("userLoginSession");
         if(userVO == null){
-            return "redirect:/user/login";
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
-        
+
+//
+// CustomException 사용 예시 -> 비밀번호가 null 이거나 비어 있으면 ERROR ! -> kakao-login 시 에러 발생하므로 주석 처리
+// 테스트 용으로 주석 남겨두고 추후 삭제할 것.
+//
+//        if(userVO.getUsersPwd() == null || userVO.getUsersPwd().trim().isEmpty()) {
+//            throw new CustomException(ErrorCode.PASSWORD_NOT_FOUND);
+//        }
+
         model.addAttribute("currentUser", userVO);
-        return "user/login/mypage";
+        return "redirect:/user/login";
     }
 
     // 마이페이지 > 내정보 get
