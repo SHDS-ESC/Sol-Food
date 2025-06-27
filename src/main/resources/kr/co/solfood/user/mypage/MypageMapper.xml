@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.user.mypage.MypageMapper">
+    <update id="update" parameterType="kr.co.solfood.user.login.UserVO">
+        UPDATE users
+        SET
+            company_id = #{companyId},
+            department_id = #{departmentId},
+            users_email = #{usersEmail},
+            users_nickname = #{usersNickname},
+            users_name = #{usersName},
+            users_birth = #{usersBirth},
+            users_gender = #{usersGender},
+            users_tel = #{usersTel},
+            users_profile = #{usersProfile}
+        WHERE users_id = #{usersId}
+    </update>
+
+    <update id="updateStatusToWithdraw" parameterType="long" >
+        UPDATE users
+        SET
+            users_status = 'inactive'
+        WHERE users_id = #{usersId}
+    </update>
+
+
+</mapper>
