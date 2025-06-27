@@ -38,10 +38,9 @@
 
     <!--점주 상점 조회-->
     <select id="selectStoreById" parameterType="int" resultType="kr.co.solfood.owner.store.OwnerStoreVO">
-        SELECT s.*
-        FROM owner o
-                 JOIN store s ON o.store_id = s.store_id
-        WHERE o.owner_id=#{ownerId};
+        SELECT *
+        FROM store
+        WHERE owner_id=#{ownerId};
     </select>
 
 
