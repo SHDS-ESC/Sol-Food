@@ -146,19 +146,22 @@ body {
 }
 
 .store-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 140px));
-    gap: 12px;
     padding: 10px 15px;
+    justify-content: space-between;
+    display:flex;
+    width100%;
+    flex-wrap:wrap;
 }
 
 .store-card {
+    width: 49%;
     border: 1px solid #ccc;
     border-radius: 10px;
     overflow: hidden;
     background: #fff;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom:10px;
 }
 
 .store-card:hover {
@@ -607,4 +610,29 @@ body {
     color: #999;
     margin: 0;
     font-size: 14px;
+}
+
+
+.like-btn {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    padding: 0;
+}
+
+.like-btn .bi-heart {
+    color: #bbb;
+    font-size: 20px;
+    transition: color 0.2s;
+}
+
+.like-btn.liked .bi-heart-fill {
+    color: #ff4d6d;
+    font-size: 20px;
+    transition: color 0.2s;
 }

@@ -144,10 +144,10 @@
     </div>
 
 <div class="bottom-nav">
-    <a href="#"><i class="bi bi-house"></i>홈</a>
+    <a href="/solfood/"><i class="bi bi-house"></i>홈</a>
     <a href="#"><i class="bi bi-list-check"></i>리스트</a>
     <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-    <a href="#"><i class="bi bi-heart-fill"></i>찜</a>
+    <a href="/solfood/user/mypage/like"><i class="bi bi-heart-fill"></i>찜</a>
     <a href="#"><i class="bi bi-person-circle"></i>마이</a>
 </div>
 
