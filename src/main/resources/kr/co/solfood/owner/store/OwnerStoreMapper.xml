@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.owner.store.OwnerStoreMapper">
+
+    <!--카테고리 조회-->
+    <select id="selectAllCategory" resultType="kr.co.solfood.owner.store.OwnerCategoryVO">
+        SELECT *
+        FROM category
+    </select>
+
+    <!--상점 등록-->
+    <insert id="insertStore" parameterType="kr.co.solfood.owner.store.OwnerStoreVO">
+        INSERT INTO store (
+            category_id,
+            store_name,
+            store_address,
+            store_latitude,
+            store_longitude,
+            store_intro,
+            store_mainimage,
+            store_tel
+        )
+        VALUES (
+            #{categoryId},
+            #{storeName},
+            #{storeAddress},
+            #{storeLatitude},
+            #{storeLongitude},
+            #{storeIntro},
+            null,
+            #{storeTel}
+        )
+    </insert>
+
+
+
+    <!--점주 상점 조회-->
+    <select id="selectStoreById" parameterType="int" resultType="kr.co.solfood.owner.store.OwnerStoreVO">
+        SELECT *
+        FROM store
+        WHERE owner_id=#{ownerId};
+    </select>
+
+
+</mapper>

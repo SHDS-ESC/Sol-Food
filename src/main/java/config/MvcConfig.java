@@ -103,13 +103,13 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
 
         registry.addInterceptor(adminLoginInterceptor())
                 .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/login")
-                .excludePathPatterns("/admin/kakaoLogin");
+                .excludePathPatterns("/admin/login");
 
         registry.addInterceptor(ownerLoginInterceptor())
                 .addPathPatterns("/owner/**")
                 .excludePathPatterns("/owner/login")
-                .excludePathPatterns("/owner/kakaoLogin");
+                .excludePathPatterns("/owner/register");
+
 
         // 파일 업로드 API 전용 세션 검증 인터셉터
         registry.addInterceptor(fileUploadSessionInterceptor())
