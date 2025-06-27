@@ -134,7 +134,7 @@
     <a href="<c:url value='/user/login/register'/>">회원가입</a> <br> <br> <br>
     <a id="login-kakao-btn"
        class="kakao"
-               href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/user/login/kakaoLogin&response_type=code">
+               href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/user/login/kakao-login&response_type=code">
         <img src="https://k.kakaocdn.net/14/dn/btroDszwNrM/I6efHub1SN5KCJqLm1Ovx1/o.jpg"
              alt="카카오 로그인 버튼"
              width="222"/>
