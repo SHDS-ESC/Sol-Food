@@ -1,19 +1,18 @@
 package kr.co.solfood.admin.login;
 
-import kr.co.solfood.admin.home.AdminHomeService;
-import org.springframework.web.bind.annotation.*;
-import properties.KakaoProperties;
-import properties.ServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import properties.KakaoProperties;
+import properties.ServerProperties;
 
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/login")
 public class AdminLoginController {
 
     private final AdminLoginService adminLoginService;
@@ -24,17 +23,17 @@ public class AdminLoginController {
     }
 
     // 유저 로그인 페이지
-    @GetMapping("/login")
+    @GetMapping("")
     public void login() {
     }
 
-    @PostMapping("/login")
+    @PostMapping("")
     public String login(@RequestParam("password") String password, HttpSession session) {
-        if(adminLoginService.login(password) != null) {
+        try {
             session.setAttribute("adminLoginSession", adminLoginService.login(password));
             return "redirect:home";
-        } else {
-           return "redirect:login";
+        } catch (IllegalArgumentException e) {
+            return "redirect:login";
         }
     }
 }

@@ -15,6 +15,10 @@ public class AdminLoginServiceImpl implements AdminLoginService {
 
     @Override
     public AdminVO login(String password) {
-       return adminLoginMapper.login(password);
+        AdminVO adminVO = adminLoginMapper.login(password);
+        if (adminVO == null) {
+            throw new IllegalArgumentException("잘못된 비밀번호 입니다.");
+        }
+        return adminVO;
     }
 }

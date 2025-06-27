@@ -249,8 +249,8 @@
         $(this).addClass('active');
         const period = $(this).attr('name');
         $.getJSON(ctx + '/admin/home/user-management/chart', { date: period }, data => {
-            const labels = data.map(d => d.rowCreatedAt);
-            const counts = data.map(d => d.columnCount);
+            const labels = data.map(d => d.createdAt);
+            const counts = data.map(d => d.userCount);
             const c = document.getElementById('signupChart').getContext('2d');
             if (signupChart) signupChart.destroy();
             signupChart = new Chart(c, {
