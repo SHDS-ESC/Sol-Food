@@ -1,3 +1,10 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: fzaca
+  Date: 2025-06-18
+  Time: 오전 11:23
+  To change this template use File | Settings | File Templates.
+--%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -6,7 +13,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>비밀번호찾기</title>
+    <title>아이디찾기</title>
     <style>
         body {
             background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
@@ -31,32 +38,6 @@
             color: #3730a3;
             margin-bottom: 32px;
         }
-        .kakao {
-            display: inline-block;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(255, 205, 0, 0.15);
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .kakao:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 6px 16px rgba(255, 205, 0, 0.25);
-        }
-        .form-container {
-            background: #fff;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 480px;
-        }
-        .form-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #4338ca;
-            margin-bottom: 24px;
-            text-align: center;
-        }
         label {
             display: block;
             margin-top: 16px;
@@ -78,14 +59,7 @@
             outline: none;
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
         }
-        .form-actions {
-            margin-top: 32px;
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
         .btn {
-            flex: 1;
             padding: 12px;
             border-radius: 8px;
             border: none;
@@ -93,6 +67,7 @@
             cursor: pointer;
             transition: 0.2s ease;
             width: 222px;
+            margin: 10px;
         }
         .btn-submit {
             background-color: #6366f1;
@@ -119,19 +94,19 @@
 </head>
 <body>
 <div class="login-container">
-    <div class="login-title">비밀번호 찾기</div>
-    <form action="/solfood/user/userControl/search-pwd" method="post">
-
-        <label>이메일 *</label>
-        <input type="email" name="usersEmail" required placeholder="example@domain.com">
+    <div class="login-title">아이디 찾기</div>
+    <form action="/solfood/user/login/search-id" method="post">
 
         <label>이름 *</label>
-        <input type="text" name="usersName" required> <br> <br>
+        <input type="text" name="usersName" required placeholder="이름을 입력하세요">
 
-        <button type="submit" class="btn btn-submit">비밀번호 찾기</button> <br> <br>
+        <label>전화번호 *</label>
+        <input type="tel" name="usersTel" required placeholder="010-0000-0000"> <br> <br>
+
+        <button type="submit" class="btn btn-submit">아이디 찾기</button> <br> <br>
     </form>
-    <a href="join">회원가입</a>
-    <a href="login">로그인</a>
+    <a href="<c:url value='/user/login/register'/>">회원가입</a>
+    <a href="<c:url value='/user/login'/>">로그인</a>
 </div>
 </body>
 </html>

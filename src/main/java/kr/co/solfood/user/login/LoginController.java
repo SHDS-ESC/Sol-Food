@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Random;
 
 @Controller
-@RequestMapping("/user/userControl")
+@RequestMapping("/user/login")
 public class LoginController {
 
     private final LoginService service;
@@ -41,22 +41,23 @@ public class LoginController {
     }
 
     // 유저 로그인 페이지
-    @GetMapping("/login")
-    public void login(Model model) {
+    @GetMapping("")
+    public String login(Model model) {
         model.addAttribute("apiKey", kakaoProperties.getRestApiKey());
         Map<String, String> serverMap = new HashMap<>();
         serverMap.put("ip", serverProperties.getIp());
         serverMap.put("port", serverProperties.getPort());
         model.addAttribute("serverMap", serverMap);
+        return "user/login/loginpage";
     }
 
     // 카카오 로그인
     @Transactional
-    @GetMapping("/kakaoLogin")
+    @GetMapping("/kakao-login")
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         UserVO kakaoLogin = service.confirmAccessToken(code);
         sess.setAttribute("userLoginSession", kakaoLogin);
-        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:/user/userControl/extra" : "redirect:/";
+        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:/user/login/extra" : "redirect:/";
     }
 
     // 카카오 추가 정보 페이지
@@ -92,7 +93,7 @@ public class LoginController {
             return "redirect:/";
         } else {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
-            return "user/userControl/login"; // 로그인 페이지로 다시 이동
+            return "user/login/loginpage"; // 로그인 페이지로 다시 이동
         }
     }
 
@@ -117,7 +118,7 @@ public class LoginController {
            service.setNewPwd(req); // req vo 전달
            model.addAttribute("newPwd", newPwd);
        }
-        return "user/userControl/find-pwd";
+        return "user/login/find-pwd";
     }
 
 
@@ -132,7 +133,7 @@ public class LoginController {
         session.setAttribute("uploadCount", 0);
         session.setMaxInactiveInterval(30 * 60); // 30분 후 만료
 
-        return "user/userControl/register";
+        return "user/login/register";
     }
 
     // 회원가입 post
@@ -145,7 +146,7 @@ public class LoginController {
         sess.removeAttribute("joinInProgress");
         sess.removeAttribute("uploadCount");
 
-        return "redirect:/user/userControl/login";
+        return "redirect:/user/login";
     }
 
     // 부서

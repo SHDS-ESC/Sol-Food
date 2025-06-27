@@ -4,7 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -71,6 +74,31 @@ public class CategoryServiceImpl implements CategoryService {
         } catch (Exception e) {
             log.error("카테고리명 '{}' ID 조회 실패", categoryName, e);
             return 1; // 예외 발생 시 기본값 반환
+        }
+    }
+    
+    @Override
+    public Map<String, Object> getCategoryConfig() {
+        try {
+            Map<String, Object> config = new HashMap<>();
+            
+            List<CategoryVO> categoryObjects = getAllCategories();
+            List<Map<String, Object>> categoryList = new ArrayList<>();
+            
+            for (CategoryVO category : categoryObjects) {
+                Map<String, Object> categoryInfo = new HashMap<>();
+                categoryInfo.put("id", category.getCategoryId());
+                categoryInfo.put("name", category.getCategoryName());
+                categoryInfo.put("image", category.getCategoryImage());
+                categoryList.add(categoryInfo);
+            }
+            
+            config.put("categories", categoryList);
+            return config;
+            
+        } catch (Exception e) {
+            log.error("카테고리 설정 정보 구성 실패", e);
+            return new HashMap<>();
         }
     }
 } 

@@ -38,6 +38,9 @@ public class ReviewValidator {
         if (storeId == null) {
             throw new IllegalArgumentException(ERROR_STORE_ID_REQUIRED);
         }
+        if (storeId <= 0) {
+            throw new IllegalArgumentException(ERROR_INVALID_STORE_ID);
+        }
     }
     
     /**
@@ -46,6 +49,9 @@ public class ReviewValidator {
     public static void validateUserId(Integer userId) {
         if (userId == null) {
             throw new IllegalArgumentException(ERROR_USER_ID_REQUIRED);
+        }
+        if (userId <= 0) {
+            throw new IllegalArgumentException(ERROR_INVALID_USER_ID);
         }
     }
     
@@ -76,7 +82,7 @@ public class ReviewValidator {
      */
     public static void validateTitle(String title) {
         if (title != null && title.length() > MAX_TITLE_LENGTH) {
-            throw new IllegalArgumentException("리뷰 제목은 " + MAX_TITLE_LENGTH + "자를 초과할 수 없습니다.");
+            throw new IllegalArgumentException(ERROR_TITLE_TOO_LONG);
         }
     }
     

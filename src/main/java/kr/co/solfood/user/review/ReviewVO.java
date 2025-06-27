@@ -7,18 +7,12 @@ import lombok.AllArgsConstructor;
 import java.util.Date;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import static kr.co.solfood.user.review.ReviewConstants.*;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewVO {
-    
-    // === 상수 정의 ===
-    public static final String STATUS_ACTIVE = "Y";
-    public static final String STATUS_INACTIVE = "N";
-    public static final int MIN_STAR_RATING = 1;
-    public static final int MAX_STAR_RATING = 5;
-    public static final int MAX_CONTENT_LENGTH = 1000;
-    public static final int MAX_TITLE_LENGTH = 100;
     
     private Integer reviewId;
     private Integer usersId;
