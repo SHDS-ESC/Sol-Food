@@ -23,8 +23,6 @@ public class FileUploadController {
     @Autowired
     private RateLimitService rateLimitService;
     
-    // 세션 검증 로직은 FileUploadSessionInterceptor로 이동
-    
     /**
      * 프로필 이미지 업로드용 Pre-signed URL 생성 API
      */

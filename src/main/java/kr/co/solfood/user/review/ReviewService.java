@@ -7,11 +7,6 @@ import kr.co.solfood.user.store.StoreVO;
 
 public interface ReviewService {
     
-    // === 상수 정의 ===
-    int MIN_STAR_RATING = 1;
-    int MAX_STAR_RATING = 5;
-    int DEFAULT_PAGE_SIZE = 10;
-    
     // 리뷰 목록 조회
     List<ReviewVO> getReviewList();
     
