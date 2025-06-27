@@ -11,6 +11,11 @@ public class PageDTO {
     int pageSize = 10;
     int offset = 0;
 
+    public PageDTO() {
+        this.currentPage = 1;
+        this.pageSize = DEFAULT_PAGE_SIZE;
+    }
+
     public void setCurrentPage(int currentPage) {
         this.currentPage = Math.max(currentPage, 1);
     }
