@@ -66,5 +66,10 @@ public class OwnerStoreController {
         }
     }
 
+    @GetMapping("/add")
+    public String addStore() {
+        return "owner/addStore";
+    }
+
 
 }
