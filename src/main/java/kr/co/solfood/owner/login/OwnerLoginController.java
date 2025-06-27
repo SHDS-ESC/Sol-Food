@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/owner")
@@ -32,15 +30,6 @@ public class OwnerLoginController {
         return "redirect:/owner/index";
     }
 
-
-    // 점주 대시보드 메인 페이지
-    @GetMapping("/main")
-    public String index(Model model) {
-        // 여기에 필요한 데이터를 모델에 추가할 수 있습니다
-//        model.addAttribute("ownerName", "관리자님");
-//        model.addAttribute("restaurantName", "Sol Food");
-        return "owner/main";
-    }
 
     // 점주 회원가입 get
     @GetMapping("/register")
@@ -63,17 +52,20 @@ public class OwnerLoginController {
         OwnerVO ownerVO = service.login(vo);
         if(ownerVO != null){
             sess.setAttribute("ownerLoginSession", ownerVO);
-            return "redirect:main";
+            return "redirect:store";
         }
         else {
-            System.out.println("로그인실패");
             return "redirect:login";
         }
     }
 
-    // 임시 페이지 get
-    @GetMapping("/temp")
-    public void temp(){}
+    /*
+    * @GetMapping("/extra")
+    public void extra(Model model) {
+        List<CompanyVO> companyList = service.getCompanyList(); // 회사 리스트 가져오기
+        model.addAttribute("companyList", companyList);
+    }
+    * */
 
 
 }
