@@ -1,0 +1,517 @@
+/* =========================
+   가게 상세페이지 스타일
+   ========================= */
+
+/* === CSS 변수 === */
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --light-gray: #f5f5f5;
+    --dark-gray: #6c757d;
+    --border-color: #ddd;
+    --text-color: #333;
+}
+
+/* === 기본 초기화 === */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Malgun Gothic', 'Arial', sans-serif;
+    background: #f5f5f5;
+}
+
+/* === 전체 레이아웃 === */
+.store-detail-page body {
+    height: 100vh;
+    overflow: hidden;
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: #fff;
+}
+
+/* === 평점 요약 섹션 === */
+.summary {
+    background: #fff;
+    padding: 24px 16px 12px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.summary .score {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.summary .stars {
+    color: #ffc107;
+    font-size: 1.2em;
+}
+
+.summary .count {
+    color: #888;
+    font-size: 0.95em;
+    margin-bottom: 10px;
+}
+
+.summary .bar-group {
+    margin: 8px 0 0 0;
+}
+
+.summary .bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.summary .bar-label {
+    width: 18px;
+    font-size: 0.9em;
+    color: #888;
+}
+
+.summary .bar-bg {
+    background: #eee;
+    border-radius: 4px;
+    flex: 1;
+    height: 8px;
+    margin: 0 6px;
+    overflow: hidden;
+}
+
+.summary .bar-fill {
+    background: #ffc107;
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.summary .bar-percent {
+    width: 32px;
+    font-size: 0.9em;
+    color: #888;
+    text-align: right;
+}
+
+/* === 대표 메뉴 이미지 === */
+.featured-menu {
+    background: #fff;
+    padding: 0;
+    border-bottom: 1px solid #eee;
+}
+
+.menu-hero {
+    position: relative;
+    height: 150px;
+    overflow: hidden;
+}
+
+.menu-hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.menu-hero-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: white;
+    padding: 24px 16px 16px 16px;
+}
+
+.menu-hero-overlay h2 {
+    font-size: 1.5em;
+    margin-bottom: 4px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.menu-hero-overlay p {
+    font-size: 1em;
+    opacity: 0.9;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+/* === 탭 메뉴 === */
+.tabs {
+    display: flex;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tab.active {
+    color: #222;
+    border-bottom: 2px solid #222;
+}
+
+.tab:hover {
+    background: #f8f9fa;
+}
+
+/* === 스크롤 가능한 콘텐츠 === */
+.scrollable-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 270px;
+    background: #f5f5f5;
+    transition: padding-top 0.3s ease;
+}
+
+.scrollable-content.review-mode {
+    padding-top: 260px;
+}
+
+.content-section {
+    display: none;
+    padding: 0 0 60px 0;
+}
+
+.content-section.active {
+    display: block;
+}
+
+/* === 메뉴 섹션 === */
+.menu-list {
+    padding: 30px 20px 60px 20px;
+}
+
+.menu-item {
+    background: #fff;
+    margin: 16px 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 18px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.menu-item.hidden {
+    display: none;
+}
+
+.menu-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.menu-info {
+    flex: 1;
+}
+
+.menu-info h3 {
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 1.2em;
+}
+
+.menu-price {
+    color: #ff6b35;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* === 지도 섹션 === */
+.map-container {
+    padding: 30px 20px 60px 20px;
+}
+
+.store-info-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.store-info-header h3 {
+    color: #333;
+    margin-bottom: 8px;
+    font-size: 1.3em;
+}
+
+.store-info-header p {
+    color: #666;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+#map {
+    width: 100%;
+    height: 300px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+#map * {
+    font-family: 'Malgun Gothic', 'Arial', sans-serif !important;
+}
+
+.store-info {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.store-info h3 {
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 1.2em;
+}
+
+.store-info p {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+/* === 리뷰 섹션 === */
+.review-list {
+    padding: 20px 20px 60px 20px;
+}
+
+.review-card {
+    background: #fff;
+    margin: 12px 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 20px 16px;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.review-header .username {
+    font-weight: bold;
+    color: #333;
+}
+
+.review-header .stars {
+    color: #ffc107;
+    font-size: 1.1em;
+}
+
+.review-image {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 12px 0;
+    display: block;
+    overflow: hidden;
+}
+
+.review-image img {
+    width: 100%;
+    height: auto;
+    min-height: 150px;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+.review-content {
+    color: #333;
+    line-height: 1.6;
+    margin: 12px 0;
+    font-size: 0.95em;
+}
+
+.review-menu {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9em;
+    color: #666;
+    margin: 12px 0;
+    border-left: 3px solid #ffc107;
+}
+
+.review-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.9em;
+}
+
+.review-actions span {
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.review-actions span:hover {
+    color: #333;
+}
+
+.review-response {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+    border-left: 3px solid #007bff;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.no-reviews {
+    text-align: center;
+    padding: 60px 20px;
+    color: #888;
+    font-size: 1.1em;
+}
+
+/* === 카테고리 필터 === */
+.category-filter {
+    padding: 20px 16px 0 16px;
+    background: #fff;
+}
+
+.category-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 16px;
+}
+
+.category-tab {
+    background: #f8f9fa;
+    color: #666;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.category-tab.active {
+    background: #333;
+    color: #fff;
+    border-color: #333;
+}
+
+.category-tab:hover {
+    background: #e9ecef;
+}
+
+.category-tab.active:hover {
+    background: #444;
+}
+
+/* === 거리 정보 === */
+.distance-info {
+    background: #fff;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #666;
+    border-bottom: 1px solid #eee;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === 표시/숨김 클래스 === */
+.show {
+    display: block !important;
+    opacity: 1 !important;
+    animation: slideIn 0.3s ease;
+}
+
+.hide {
+    display: none !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* 리뷰 탭에서 대표 사진 완전히 숨기기 */
+.tab[data-tab="review"].active ~ .scrollable-content .featured-menu,
+body.review-mode .featured-menu,
+.featured-menu.hide {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+}
+
+/* 리뷰 리스트 첫 번째 아이템 여백 조정 */
+.review-list .review-card:first-child {
+    margin-top: 0;
+}
+
+ 

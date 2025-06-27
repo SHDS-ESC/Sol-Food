@@ -2,9 +2,10 @@ package kr.co.solfood.admin.crawler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.co.solfood.user.store.CategoryProperties;
+import kr.co.solfood.user.category.CategoryService;
 import kr.co.solfood.user.store.StoreService;
 import kr.co.solfood.user.store.StoreVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import properties.KakaoProperties;
@@ -17,6 +18,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class StoreWebCrawler {
 
@@ -24,7 +26,7 @@ public class StoreWebCrawler {
     private StoreService storeService;
     
     @Autowired
-    private CategoryProperties categoryProperties;
+    private CategoryService categoryService;
     
     @Autowired
     private KakaoProperties kakaoProperties;
@@ -43,14 +45,15 @@ public class StoreWebCrawler {
             double hongdaeLat = 37.5565;
             double hongdaeLng = 126.9241;
             
-            // CategoryProperties에서 카테고리 목록 가져오기 ("전체" 제외)
-            List<String> allCategories = categoryProperties.getAllCategories();
-            List<String> categories = allCategories.stream()
-                    .filter(category -> !"전체".equals(category))
+            // 카테고리 목록 가져오기 ("전체" 제외)
+            List<String> allCategories = categoryService.getAllCategories().stream()
+                    .map(category -> category.getCategoryName())
+                    .filter(name -> !"전체".equals(name))
                     .collect(java.util.stream.Collectors.toList());
+            List<String> categories = allCategories;
             
             for (String category : categories) {
-                System.out.println("크롤링 중: " + category + " 카테고리");
+                log.info("크롤링 중: {} 카테고리", category);
                 List<StoreVO> categoryRestaurants = searchRestaurantsByCategory(category, hongdaeLat, hongdaeLng);
                 restaurantList.addAll(categoryRestaurants);
                 
@@ -58,7 +61,7 @@ public class StoreWebCrawler {
                 Thread.sleep(1000);
             }
             
-            System.out.println("총 " + restaurantList.size() + "개 음식점 정보 수집 완료!");
+            log.info("총 {}개 음식점 정보 수집 완료!", restaurantList.size());
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -74,9 +77,8 @@ public class StoreWebCrawler {
         List<StoreVO> stores = new ArrayList<>();
         
         try {
-            // CategoryProperties에서 검색 키워드 가져오기
-            String searchKeyword = categoryProperties.getSearchKeyword(category);
-            String query = URLEncoder.encode(searchKeyword + " 음식점", "UTF-8");
+            // 간단한 키워드 생성 (카테고리명 + 음식점)
+            String query = URLEncoder.encode(category + " 음식점", "UTF-8");
             String urlString = KAKAO_LOCAL_API_URL + 
                 "?query=" + query + 
                 "&category_group_code=FD6" + // 음식점 카테고리 코드
@@ -109,7 +111,7 @@ public class StoreWebCrawler {
                 stores = parseKakaoResponse(response.toString(), category);
                 
             } else {
-                System.err.println("API 호출 실패: " + responseCode);
+                log.error("API 호출 실패: {}", responseCode);
             }
             
         } catch (Exception e) {
@@ -140,6 +142,10 @@ public class StoreWebCrawler {
                     // 카테고리 설정 - 표준화된 카테고리 사용
                     String originalCategory = document.get("category_name").asText();
                     String standardCategory = mapToStandardCategory(originalCategory, category);
+                    
+                    // 카테고리 ID 설정
+                    Integer categoryId = categoryService.getCategoryIdByName(standardCategory);
+                    store.setCategoryId(categoryId);
                     store.setStoreCategory(standardCategory);
                     
                     store.setStoreAddress(document.get("road_address_name").asText());
@@ -156,7 +162,6 @@ public class StoreWebCrawler {
                     store.setStoreAvgstar(0); // 초기 별점
                     store.setStoreIntro("홍대입구역 주변 " + category + " 맛집"); // 기본 소개
                     store.setStoreMainimage("/img/default-restaurant.jpg"); // 기본 이미지
-                    store.setStoreCapacity(20); // 기본 수용 인원
                     
                     stores.add(store);
                 }
@@ -173,30 +178,12 @@ public class StoreWebCrawler {
      * 카카오 API 카테고리를 표준 카테고리로 매핑
      */
     private String mapToStandardCategory(String originalCategory, String searchCategory) {
+        // 간단한 매핑: 원본 카테고리가 없으면 검색 카테고리 사용
         if (originalCategory == null || originalCategory.isEmpty()) {
-            return searchCategory; // 기본값으로 검색 카테고리 사용
+            return searchCategory;
         }
         
-        // 카카오 API 카테고리를 소문자로 변환하여 분석
-        String lowerCategory = originalCategory.toLowerCase();
-        
-        // CategoryProperties를 활용한 스마트 매핑
-        List<String> allCategories = categoryProperties.getAllCategories();
-        
-        for (String category : allCategories) {
-            if ("전체".equals(category)) continue;
-            
-            // 해당 카테고리의 매칭 키워드들을 확인
-            List<String> matchingKeywords = categoryProperties.getMatchingKeywords(category);
-            
-            for (String keyword : matchingKeywords) {
-                if (lowerCategory.contains(keyword.toLowerCase())) {
-                    return category; // 매칭되는 표준 카테고리 반환
-                }
-            }
-        }
-        
-        // 매칭되지 않으면 검색 카테고리 사용
+        // 기본적으로 검색 카테고리 사용 (DB 카테고리와 일치)
         return searchCategory;
     }
 
@@ -205,11 +192,11 @@ public class StoreWebCrawler {
      */
     public void saveCrawledData() {
         try {
-            System.out.println("홍대입구역 주변 음식점 크롤링 시작...");
+            log.info("홍대입구역 주변 음식점 크롤링 시작...");
             
             List<StoreVO> restaurants = crawlHongdaeRestaurants();
             
-            System.out.println("데이터베이스 저장 시작...");
+            log.info("데이터베이스 저장 시작...");
             int savedCount = 0;
             
             for (StoreVO restaurant : restaurants) {
@@ -219,23 +206,22 @@ public class StoreWebCrawler {
                         // 실제 저장 로직
                         if (storeService.insertStore(restaurant)) {
                             savedCount++;
-                            System.out.println("저장 완료: " + restaurant.getStoreName());
+                            log.debug("저장 완료: {}", restaurant.getStoreName());
                         } else {
-                            System.err.println("저장 실패: " + restaurant.getStoreName());
+                            log.warn("저장 실패: {}", restaurant.getStoreName());
                         }
                     } else {
-                        System.out.println("중복 건너뜀: " + restaurant.getStoreName());
+                        log.debug("중복 건너뜀: {}", restaurant.getStoreName());
                     }
                 } catch (Exception e) {
-                    System.err.println("저장 실패: " + restaurant.getStoreName() + " - " + e.getMessage());
+                    log.error("저장 실패: {} - {}", restaurant.getStoreName(), e.getMessage());
                 }
             }
             
-            System.out.println("크롤링 완료! 총 " + savedCount + "개 음식점 저장됨");
+            log.info("크롤링 완료! 총 {}개 음식점 저장됨", savedCount);
             
         } catch (Exception e) {
-            System.err.println("크롤링 중 오류 발생: " + e.getMessage());
-            e.printStackTrace();
+            log.error("크롤링 중 오류 발생: {}", e.getMessage(), e);
         }
     }
 
@@ -246,9 +232,8 @@ public class StoreWebCrawler {
         List<StoreVO> stores = new ArrayList<>();
         
         try {
-            // 키워드가 카테고리인지 확인하고 해당하는 검색 키워드 사용
-            String searchKeyword = categoryProperties.getSearchKeyword(keyword);
-            String query = URLEncoder.encode(searchKeyword, "UTF-8");
+            // 간단한 키워드 처리
+            String query = URLEncoder.encode(keyword, "UTF-8");
             String urlString = KAKAO_LOCAL_API_URL + 
                 "?query=" + query + 
                 "&category_group_code=FD6" +

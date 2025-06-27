@@ -352,7 +352,7 @@
                 <li><a href="#features">서비스</a></li>
                 <li><a href="#about">소개</a></li>
                 <li><a href="#contact">문의</a></li>
-                <li><a href="/user/login">로그인</a></li>
+                                        <li><a href="/user/login">로그인</a></li>
             </ul>
         </nav>
     </header>

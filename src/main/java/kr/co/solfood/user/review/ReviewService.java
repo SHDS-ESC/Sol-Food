@@ -6,6 +6,7 @@ import java.util.Map;
 import kr.co.solfood.user.store.StoreVO;
 
 public interface ReviewService {
+    
     // 리뷰 목록 조회
     List<ReviewVO> getReviewList();
     
@@ -30,11 +31,8 @@ public interface ReviewService {
     // 리뷰 삭제
     boolean deleteReview(Integer reviewId);
     
-    // 식당명으로 리뷰 검색
+    // 식당명으로 리뷰 검색 (DB에서 직접 검색)
     List<ReviewVO> getReviewsByRestaurant(String restaurantName);
-    
-    // (임시) 리뷰 제목으로 검색
-    List<ReviewVO> getReviewsByTitle(String reviewTitle);
 
     // 가게ID로 리뷰 검색
     List<ReviewVO> getReviewsByStoreId(Integer storeId);
@@ -50,4 +48,7 @@ public interface ReviewService {
     
     // 특정 가게의 별점별 개수 조회
     Map<String, Object> getStarCountsByStoreId(Integer storeId);
+    
+    // 별점 유효성 검증
+    boolean isValidStarRating(Integer star);
 }
