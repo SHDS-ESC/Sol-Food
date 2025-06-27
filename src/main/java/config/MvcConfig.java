@@ -98,15 +98,7 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userLoginInterceptor())
                 .addPathPatterns("/user/**")
-                .excludePathPatterns("/user/userControl/login")
-                .excludePathPatterns("/user/userControl/native-login")
-                .excludePathPatterns("/user/userControl/register")
-                .excludePathPatterns("/user/userControl/company/depts")
-                .excludePathPatterns("/user/userControl/search-pwd")
-                .excludePathPatterns("/user/userControl/find-pwd")
-                .excludePathPatterns("/user/userControl/search-id")
-                .excludePathPatterns("/user/userControl/kakaoLogin")
-                .excludePathPatterns("/user/userControl/extra")
+                .excludePathPatterns("/user/login/**")
                 .excludePathPatterns("/user/store/**");         // 상점 목록/상세는 로그인 없이 접근 가능
 
         registry.addInterceptor(adminLoginInterceptor())

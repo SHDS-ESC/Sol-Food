@@ -6,6 +6,10 @@ import kr.co.solfood.user.menu.MenuService;
 import kr.co.solfood.user.menu.MenuVO;
 import kr.co.solfood.user.review.ReviewService;
 import kr.co.solfood.user.review.ReviewVO;
+import static kr.co.solfood.user.review.ReviewConstants.STAR_COUNT;
+import kr.co.solfood.user.store.response.CategoryResponseVO;
+import kr.co.solfood.user.store.response.StoreListResponseVO;
+import kr.co.solfood.user.store.response.StoreSearchResponseVO;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import properties.KakaoProperties;
@@ -31,9 +35,6 @@ public class StoreController {
 
     @Autowired
     private CategoryService categoryService;
-
-    @Autowired
-    private CategoryProperties categoryProperties;
     
     @Autowired
     private KakaoProperties kakaoProperties;
@@ -43,145 +44,6 @@ public class StoreController {
 
     @Autowired
     private MenuService menuService;
-
-    // 별점 개수 상수
-    private static final int STAR_COUNT = 5;
-
-    // ========================= VO 클래스들 =========================
-    
-    /**
-     * 가게 목록 API 응답 VO
-     */
-    public static class StoreListResponseVO {
-        private List<StoreVO> list;
-        private boolean hasNext;
-        private int offset;
-        private int pageSize;
-        private long totalCount;
-        private boolean error;
-        private String message;
-        
-        // 성공 응답 생성자
-        private StoreListResponseVO(List<StoreVO> list, boolean hasNext, int offset, int pageSize, long totalCount) {
-            this.list = list;
-            this.hasNext = hasNext;
-            this.offset = offset;
-            this.pageSize = pageSize;
-            this.totalCount = totalCount;
-            this.error = false;
-            this.message = null;
-        }
-        
-        // 에러 응답 생성자
-        private StoreListResponseVO(String errorMessage) {
-            this.list = List.of();
-            this.hasNext = false;
-            this.offset = 0;
-            this.pageSize = 0;
-            this.totalCount = 0;
-            this.error = true;
-            this.message = errorMessage;
-        }
-        
-        // 정적 팩토리 메서드
-        public static StoreListResponseVO success(List<StoreVO> list, boolean hasNext, int offset, int pageSize, long totalCount) {
-            return new StoreListResponseVO(list, hasNext, offset, pageSize, totalCount);
-        }
-        
-        public static StoreListResponseVO error(String message) {
-            return new StoreListResponseVO(message);
-        }
-        
-        // Getter 메서드들
-        public List<StoreVO> getList() { return list; }
-        public boolean isHasNext() { return hasNext; }
-        public int getOffset() { return offset; }
-        public int getPageSize() { return pageSize; }
-        public long getTotalCount() { return totalCount; }
-        public boolean isError() { return error; }
-        public String getMessage() { return message; }
-    }
-    
-    /**
-     * 가게 검색 API 응답 VO
-     */
-    public static class StoreSearchResponseVO {
-        private boolean success;
-        private String keyword;
-        private String searchType;
-        private List<StoreVO> stores;
-        private int count;
-        private String message;
-        
-        private StoreSearchResponseVO(boolean success, String keyword, String searchType, List<StoreVO> stores, String message) {
-            this.success = success;
-            this.keyword = keyword;
-            this.searchType = searchType;
-            this.stores = stores != null ? stores : List.of();
-            this.count = this.stores.size();
-            this.message = message;
-        }
-        
-        public static StoreSearchResponseVO success(String keyword, List<StoreVO> stores, String searchType) {
-            return new StoreSearchResponseVO(true, keyword, searchType, stores, "검색이 완료되었습니다.");
-        }
-        
-        public static StoreSearchResponseVO error(String keyword, String message) {
-            return new StoreSearchResponseVO(false, keyword, null, null, message);
-        }
-        
-        // Getter 메서드들
-        public boolean isSuccess() { return success; }
-        public String getKeyword() { return keyword; }
-        public String getSearchType() { return searchType; }
-        public List<StoreVO> getStores() { return stores; }
-        public int getCount() { return count; }
-        public String getMessage() { return message; }
-    }
-    
-    /**
-     * 카테고리 API 응답 VO
-     */
-    public static class CategoryResponseVO {
-        private boolean success;
-        private List<CategoryVO> categories;
-        private String category;
-        private List<StoreVO> stores;
-        private int count;
-        private String message;
-        
-        private CategoryResponseVO(boolean success, List<CategoryVO> categories, String category, 
-                                 List<StoreVO> stores, String message) {
-            this.success = success;
-            this.categories = categories;
-            this.category = category;
-            this.stores = stores != null ? stores : List.of();
-            this.count = this.stores.size();
-            this.message = message;
-        }
-        
-        // 카테고리 목록 응답
-        public static CategoryResponseVO categoryList(List<CategoryVO> categories) {
-            return new CategoryResponseVO(true, categories, null, null, null);
-        }
-        
-        // 카테고리별 가게 목록 응답
-        public static CategoryResponseVO storesByCategory(String category, List<StoreVO> stores) {
-            return new CategoryResponseVO(true, null, category, stores, null);
-        }
-        
-        public static CategoryResponseVO error(String message) {
-            return new CategoryResponseVO(false, null, null, null, message);
-        }
-        
-        // Getter 메서드들
-        public boolean isSuccess() { return success; }
-        public List<CategoryVO> getCategories() { return categories; }
-        public String getCategory() { return category; }
-        public List<StoreVO> getStores() { return stores; }
-        public int getCount() { return count; }
-        public String getMessage() { return message; }
-    }
 
     // ========================= 페이지 렌더링 메서드들 =========================
 
@@ -446,7 +308,7 @@ public class StoreController {
     @GetMapping("/api/category/config")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getCategoryConfig() {
-        Map<String, Object> config = categoryProperties.getCategoryConfig();
+        Map<String, Object> config = categoryService.getCategoryConfig();
         return ResponseEntity.ok(Map.of("success", true, "data", config));
     }
 
@@ -459,15 +321,15 @@ public class StoreController {
         Double avgStar = reviewService.getAverageStarByStoreId(storeId);
         Integer totalCount = reviewService.getTotalCountByStoreId(storeId);
         Map<String, Object> starCountsMap = reviewService.getStarCountsByStoreId(storeId);
-        
-        // 별점별 개수를 배열로 변환 (1점부터 5점까지)
+
         long[] starCounts = new long[STAR_COUNT];
         if (starCountsMap != null) {
-            starCounts[4] = ((Number) starCountsMap.get("star5")).longValue(); // 5점
-            starCounts[3] = ((Number) starCountsMap.get("star4")).longValue(); // 4점
-            starCounts[2] = ((Number) starCountsMap.get("star3")).longValue(); // 3점
-            starCounts[1] = ((Number) starCountsMap.get("star2")).longValue(); // 2점
-            starCounts[0] = ((Number) starCountsMap.get("star1")).longValue(); // 1점
+            for (int i = 1; i <= STAR_COUNT; i++) {
+                String key = "star" + i;
+                int arrayIndex = i - 1;
+                Object value = starCountsMap.get(key);
+                starCounts[arrayIndex] = value != null ? ((Number) value).longValue() : 0;
+            }
         }
         
         model.addAttribute("avgStar", avgStar != null ? avgStar : 0.0);

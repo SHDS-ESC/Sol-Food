@@ -17,7 +17,7 @@ public class UserLoginInterceptor implements HandlerInterceptor {
             PrintWriter out = response.getWriter();
             out.println("<script>");
             out.println("alert('로그인 후 접근 가능합니다.');");
-            out.println("location.href = '/solfood/user/userControl/login';");
+            out.println("location.href = '/solfood/user/login';");
             out.println("</script>");
             return false; // 가지 못함
         }

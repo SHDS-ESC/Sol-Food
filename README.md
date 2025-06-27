@@ -86,7 +86,7 @@
    
    # 카카오 API 키 설정
    kakao.restApiKey=YOUR_KAKAO_RESTAPI_KEY
-   kakao.js.key=YOUR_KAKAO_JS_KEY
+   kakao.jsApiKey=YOUR_KAKAO_JS_KEY
    ```
 
 4. **프로젝트 빌드 및 실행**
