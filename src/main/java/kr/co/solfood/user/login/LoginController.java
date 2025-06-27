@@ -48,7 +48,7 @@ public class LoginController {
         serverMap.put("ip", serverProperties.getIp());
         serverMap.put("port", serverProperties.getPort());
         model.addAttribute("serverMap", serverMap);
-        return "user/login/login";
+        return "user/login/loginpage";
     }
 
     // 카카오 로그인
@@ -93,7 +93,7 @@ public class LoginController {
             return "redirect:/";
         } else {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
-            return "user/login/login"; // 로그인 페이지로 다시 이동
+            return "user/login/loginpage"; // 로그인 페이지로 다시 이동
         }
     }
 
