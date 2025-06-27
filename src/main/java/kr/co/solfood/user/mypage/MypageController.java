@@ -1,10 +1,13 @@
 package kr.co.solfood.user.mypage;
 
+import kr.co.solfood.user.like.LikeService;
 import kr.co.solfood.user.login.CompanyVO;
 import kr.co.solfood.user.login.LoginService;
 import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.util.CustomException;
 import kr.co.solfood.util.ErrorCode;
+import kr.co.solfood.user.store.StoreVO;
+import kr.co.solfood.util.PageMaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +17,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user/mypage")
@@ -22,8 +27,12 @@ public class MypageController {
 
     @Autowired
     private LoginService loginService;
+
     @Autowired
     private MypageService mypageService;
+
+    @Autowired
+    private LikeService likeService;
 
     @GetMapping("")
     public String myPage(Model model, HttpSession sess) {
@@ -121,6 +130,51 @@ public class MypageController {
         }
 
 
+    }
+
+    // 마이페이지 > 찜한 가게 목록
+    @GetMapping("/like")
+    public String getLikedStores(HttpSession session, StoreVO storeVO, Model model){
+        //1. 세션에서 사용자 ID 가져오기
+        UserVO loginUser = (UserVO) session.getAttribute("userLoginSession");
+        Long usersId = loginUser.getUsersId();
+
+        //2. 찜 목록 조회
+        PageMaker<StoreVO> pageMaker = mypageService.getLikedStores(usersId, storeVO);
+
+        //3. 모델에 데이터 추가
+        model.addAttribute("pageMaker", pageMaker);
+        model.addAttribute("totalCount", pageMaker.getCount());
+
+        return "user/userControl/like";
+    }
+
+    // 마이페이지 > json
+    @GetMapping("/like/api")
+    @ResponseBody
+    public Map<String, Object> getLikedStoresApi(
+            HttpSession session,
+            StoreVO storeVO
+    ){
+        UserVO loginUser = (UserVO) session.getAttribute("userLoginSession");
+        Long usersId = loginUser.getUsersId();
+
+        PageMaker<StoreVO> pageMaker = mypageService.getLikedStoresApi(usersId, storeVO);
+
+        boolean hasNext = false;
+        if( storeVO.getOffset() + storeVO.getPageSize() < pageMaker.getCount()){
+            hasNext = true;
+        }
+
+        //json 형태로 결과 반환
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", pageMaker.getList());
+        result.put("totalCount", pageMaker.getCount());
+        result.put("offset", storeVO.getOffset());
+        result.put("pageSize", storeVO.getPageSize());
+        result.put("hasNext", hasNext);
+
+        return result;
     }
 
 }

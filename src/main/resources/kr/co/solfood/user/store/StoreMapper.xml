@@ -8,10 +8,10 @@
     <select id="selectAllStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT 
             s.store_id,
-            s.store_name, 
+            s.store_name,
             s.category_id,
             COALESCE(c.category_name, '전체') as storeCategory,
-            s.store_avgstar, 
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
             s.store_tel
@@ -43,10 +43,10 @@
     <select id="selectCategoryStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT 
             s.store_id,
-            s.store_name, 
+            s.store_name,
             s.category_id,
-            COALESCE(c.category_name, '전체') as storeCategory, 
-            s.store_avgstar, 
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
             s.store_tel
@@ -63,12 +63,12 @@
 
     <!-- 통합 검색: 가게명, 주소, 카테고리에서 검색 -->
     <select id="searchStores" parameterType="string" resultType="kr.co.solfood.user.store.StoreVO">
-        SELECT 
+        SELECT
             s.store_id,
-            s.store_name, 
+            s.store_name,
             s.category_id,
-            COALESCE(c.category_name, '전체') as storeCategory, 
-            s.store_avgstar, 
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
             s.store_tel
@@ -84,7 +84,7 @@
                 )
             </if>
         </where>
-        ORDER BY 
+        ORDER BY
             CASE
                 WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
                 WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
@@ -99,12 +99,12 @@
 
     <!-- 가게명으로 검색 -->
     <select id="searchStoresByName" parameterType="string" resultType="kr.co.solfood.user.store.StoreVO">
-        SELECT 
+        SELECT
             s.store_id,
-            s.store_name, 
+            s.store_name,
             s.category_id,
-            COALESCE(c.category_name, '전체') as storeCategory, 
-            s.store_avgstar, 
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
             s.store_tel
@@ -115,7 +115,7 @@
                 AND s.store_name LIKE CONCAT('%', #{storeName}, '%')
             </if>
         </where>
-        ORDER BY 
+        ORDER BY
             CASE
                 WHEN s.store_name LIKE CONCAT(#{storeName}, '%') THEN 1
                 WHEN s.store_name LIKE CONCAT('%', #{storeName}, '%') THEN 2
@@ -128,12 +128,12 @@
 
     <!-- 주소로 검색 -->
     <select id="searchStoresByAddress" parameterType="string" resultType="kr.co.solfood.user.store.StoreVO">
-        SELECT 
+        SELECT
             s.store_id,
-            s.store_name, 
+            s.store_name,
             s.category_id,
-            COALESCE(c.category_name, '전체') as storeCategory, 
-            s.store_avgstar, 
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
             s.store_tel
@@ -144,7 +144,7 @@
                 AND s.store_address LIKE CONCAT('%', #{address}, '%')
             </if>
         </where>
-        ORDER BY 
+        ORDER BY
             CASE
                 WHEN s.store_address LIKE CONCAT(#{address}, '%') THEN 1
                 WHEN s.store_address LIKE CONCAT('%', #{address}, '%') THEN 2
@@ -165,7 +165,7 @@
             store_avgstar, 
             store_intro, 
             store_mainimage, 
-            category_id, 
+            category_id,
             store_tel
         ) VALUES (
             #{storeName}, 
@@ -175,7 +175,7 @@
             #{storeAvgstar}, 
             #{storeIntro}, 
             #{storeMainimage}, 
-            #{categoryId}, 
+            #{categoryId},
             #{storeTel}
         )
     </insert>
@@ -253,7 +253,7 @@
                 )
             </if>
         </where>
-        ORDER BY 
+        ORDER BY
             CASE
                 WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
                 WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
