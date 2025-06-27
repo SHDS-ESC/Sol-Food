@@ -28,7 +28,7 @@
             <h3>내 찜 목록</h3>
         </div>
         <div class = "store-count">
-            <span>찜한 식당 수: <span id="likeCount">${store.totalCount}개</span></span>
+            <span>찜한 식당 수: <span id="likeCount">${totalCount}개</span></span>
         <div class="store-grid" id="storeGrid">
             <!-- JS로 동적으로 store 목록이 추가될 것 -->
         </div>
