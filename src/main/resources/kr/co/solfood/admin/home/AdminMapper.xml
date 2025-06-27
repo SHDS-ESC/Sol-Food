@@ -15,19 +15,19 @@
     </select>
 
     <select id="userManagementChartByYears" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
-        SELECT YEAR (users_created_at) AS rowCreatedAt, COUNT (*) columnCount
+        SELECT YEAR (users_created_at) AS createdAt, COUNT (*) userCount
         FROM users
         GROUP BY YEAR (users_created_at);
     </select>
 
     <select id="userManagementChartByMonths" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
-        SELECT MONTH (users_created_at) AS rowCreatedAt, COUNT (*) columnCount
+        SELECT MONTH (users_created_at) AS createdAt, COUNT (*) userCount
         FROM users
         GROUP BY MONTH (users_created_at);
     </select>
 
     <select id="userManagementChartByDays" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
-        SELECT DAY (users_created_at) AS rowCreatedAt, COUNT (*) columnCount
+        SELECT DAY (users_created_at) AS createdAt, COUNT (*) userCount
         FROM users
         GROUP BY DAY (users_created_at);
     </select>

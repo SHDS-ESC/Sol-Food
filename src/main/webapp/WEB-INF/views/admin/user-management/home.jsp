@@ -478,8 +478,8 @@
                 type: 'GET',
                 data: {date: date},
                 success: function (response) {
-                    const dateList = response.map(item => item.rowCreatedAt);
-                    const countList = response.map(item => item.columnCount);
+                    const dateList = response.map(item => item.createdAt);
+                    const countList = response.map(item => item.userCount);
                     const canvas = document.getElementById('signupChart');
                     const chartCtx = canvas.getContext('2d');
                     const label = $('.btn.btn-outline-success.active').attr('name') + ' 가입자 수 변화';

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ChartRequestDTO {
-    int rowCreatedAt;
-    int columnCount;
+    int createdAt;
+    int userCount;
 }
 
