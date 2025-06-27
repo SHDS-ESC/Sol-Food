@@ -212,7 +212,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach var="p" items="${paymentList.itemList}">
+                    <c:forEach var="p" items="${paymentList.list}">
                         <tr>
                             <td>${p.userName}</td>
                             <td>${p.shopName}</td>
@@ -229,7 +229,7 @@
                             </td>
                         </tr>
                     </c:forEach>
-                    <c:if test="${empty paymentList.itemList}">
+                    <c:if test="${empty paymentList.list}">
                         <tr>
                             <td colspan="9" class="text-center">검색 결과가 없습니다.</td>
                         </tr>
@@ -249,7 +249,7 @@
                                     <a class="page-link">${i}</a>
                                 </li>
                             </c:forEach>
-                            <li class="page-item next ${paymentList.lastPage * paymentList.pageSize >= paymentList.totalCount ? 'disabled' : ''}">
+                            <li class="page-item next ${paymentList.lastPage * paymentList.pageSize >= paymentList.count ? 'disabled' : ''}">
                                 <a class="page-link">Next</a>
                             </li>
                         </ul>
@@ -300,7 +300,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach var="r" items="${reservationList.itemList}">
+                    <c:forEach var="r" items="${reservationList.list}">
                         <tr>
                             <td>${r.userName}</td>
                             <td>${r.shopName}</td>
@@ -316,7 +316,7 @@
                             </td>
                         </tr>
                     </c:forEach>
-                    <c:if test="${empty reservationList.itemList}">
+                    <c:if test="${empty reservationList.list}">
                         <tr>
                             <td colspan="8" class="text-center">검색 결과가 없습니다.</td>
                         </tr>
@@ -336,7 +336,7 @@
                                     <a class="page-link">${i}</a>
                                 </li>
                             </c:forEach>
-                            <li class="page-item next ${reservationList.lastPage * reservationList.pageSize >= reservationList.totalCount ? 'disabled' : ''}">
+                            <li class="page-item next ${reservationList.lastPage * reservationList.pageSize >= reservationList.count ? 'disabled' : ''}">
                                 <a class="page-link">Next</a>
                             </li>
                         </ul>

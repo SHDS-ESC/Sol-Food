@@ -276,7 +276,7 @@
                     </tr>
                     </thead>
                     <tbody id="userListBody">
-                    <c:forEach var="user" items="${userList.itemList}">
+                    <c:forEach var="user" items="${userList.list}">
                         <tr>
                             <td>${user.usersId}</td>
                             <td>
@@ -432,8 +432,8 @@
             type: 'GET',
             data: {query, currentPage: page, pageSize: size},
             success: function (response) {
-                renderUserRows(response.itemList);
-                if (response.lastPage * size < response.totalCount) {
+                renderUserRows(response.list);
+                if (response.lastPage * size < response.count) {
                     $('.pagination .next').removeClass('disabled');
                 } else {
                     $('.pagination .next').addClass('disabled');

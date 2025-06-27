@@ -240,7 +240,7 @@
                     </tr>
                     </thead>
                     <tbody id="ownerListBody">
-                    <c:forEach var="owner" items="${ownerList.itemList}">
+                    <c:forEach var="owner" items="${ownerList.list}">
                         <tr>
                             <td>${owner.ownerId}</td>
                             <td>
@@ -389,9 +389,9 @@
             type: 'GET',
             data: {query, currentPage: page, pageSize: size},
             success: function (response) {
-                renderOwnerRows(response.itemList);
+                renderOwnerRows(response.list);
                 console.log(response)
-                if (response.lastPage * size < response.totalCount) {
+                if (response.lastPage * size < response.count) {
                     $('.pagination .next').removeClass('disabled');
                 } else {
                     $('.pagination .next').addClass('disabled');

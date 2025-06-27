@@ -6,37 +6,30 @@ import java.util.List;
 
 @Data
 public class PageMaker<T> {
-    private List<T> itemList;
+    //    private List<T> itemList;
     private List<T> list;
     private Integer pageCount;
     private Integer limit;
     private int curPage;
-    private long totalCount;
     private long count;
     private int totalPageCount;
     private int firstPage;
     private int lastPage;
-    private boolean isLastPage;
-    private boolean isFirstPage;
-    public PageMaker(List<T> itemList, long totalCount, Integer limit, int curPage) {
+    //private boolean isLastPage;
+    //private boolean isFirstPage;
+
+    public PageMaker(List<T> list, long count, Integer limit, int curPage) {
         final int pageGroupCount = 10; // 한그룹당 페이지 수
-        this.itemList = itemList; // 페이지에 해당 데이터
-        this.totalCount = totalCount;  //전체 data
+        this.list = list; // 페이지에 해당 데이터
+        this.count = count;  //전체 data
         this.curPage = curPage; // 현재 페이지
         if (limit != null) {
-            this.pageCount = (int) Math.ceil((double) totalCount / limit);// 전체 페이지 수 계산
+            this.pageCount = (int) Math.ceil((double) count / limit);// 전체 페이지 수 계산
             final int pageGroup = (int) Math.ceil((double) curPage / pageGroupCount); // 페이지 그룹 수 계산
-        this.count = count; // 전체 데이터 개수
-        this.curPage = curPage; //현재 페이지 번호
-        this.list = list; // 현재 페이지에 해당 데이터
-
-        if(limit != null){
-            this.pageCount = (int) Math.ceil((double)count / limit);// 전체 페이지 수 계산
-            final int pageGroup = (int) Math.ceil((double)curPage / pageGroupCount); // 페이지 그룹 수 계산
 
             // 현재 페이지 그룹의 시작 페이지와 끝 페이지 계산
             this.firstPage = ((pageGroup - 1) * limit) + 1;
-            this.lastPage = Math.min(pageGroup * limit,pageCount);
+            this.lastPage = Math.min(pageGroup * limit, pageCount);
         }
 
     }
@@ -45,3 +38,7 @@ public class PageMaker<T> {
 
     }
 }
+
+
+//total count
+//itemList
