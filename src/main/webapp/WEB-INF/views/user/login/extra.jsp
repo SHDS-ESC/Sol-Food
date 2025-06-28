@@ -143,7 +143,7 @@
     <img class="profile-img" src='${userLoginSession.usersProfile }' alt='카카오 프로필 이미지'>
     <div class="nickname">${userLoginSession.usersNickname }님</div>
     <div class="welcome">추가 정보를 입력해주세요</div>
-    <form action="<c:url value="/user/extra"/>" method="post">
+    <form action="<c:url value="/user/login/extra"/>" method="post">
         <input type="hidden" name="usersId" value="${userLoginSession.usersId}">
         <input type="hidden" name="usersEmail" value="${userLoginSession.usersEmail }">
         <input type="hidden" name="usersProfile" value="${userLoginSession.usersProfile }">
@@ -200,7 +200,7 @@
 
         if (!companyId) return;
 
-        fetch("/solfood/user/company/depts?companyId=" + companyId)
+        fetch("/solfood/user/login/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
                 data.forEach(dept => {
@@ -212,7 +212,7 @@
             })
             .catch(error => {
                 console.error("부서 불러오기 실패", error);
-                console.log(contextPath + "/user/company/depts?companyId=" + companyId)
+                console.log(contextPath + "/user/login/company/depts?companyId=" + companyId)
             });
     }
 

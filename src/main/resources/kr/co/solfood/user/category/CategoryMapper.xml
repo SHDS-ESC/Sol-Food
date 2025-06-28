@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.user.category.CategoryMapper">
+
+    <!-- 모든 카테고리 조회 -->
+    <select id="selectAllCategories" resultType="kr.co.solfood.user.category.CategoryVO">
+        SELECT 
+            category_id,
+            category_name,
+            category_image
+        FROM category
+        ORDER BY category_id
+    </select>
+
+    <!-- 카테고리 ID로 조회 -->
+    <select id="selectCategoryById" parameterType="int" resultType="kr.co.solfood.user.category.CategoryVO">
+        SELECT 
+            category_id,
+            category_name,
+            category_image
+        FROM category
+        WHERE category_id = #{categoryId}
+    </select>
+
+    <!-- 카테고리명으로 조회 -->
+    <select id="selectCategoryByName" parameterType="string" resultType="kr.co.solfood.user.category.CategoryVO">
+        SELECT 
+            category_id,
+            category_name,
+            category_image
+        FROM category
+        WHERE category_name = #{categoryName}
+    </select>
+
+</mapper> 
