@@ -57,7 +57,7 @@ class AdminHomeServiceTest {
         // Then
         Assertions.assertDoesNotThrow(() -> adminHomeService.getUsers(userSearchRequestDTO));
 
-        assertEquals(1, adminHomeService.getUsers(userSearchRequestDTO).getTotalCount());
+        assertEquals(1, adminHomeService.getUsers(userSearchRequestDTO).getCount());
     }
 
     @Test
@@ -95,7 +95,7 @@ class AdminHomeServiceTest {
         // Then
         Assertions.assertDoesNotThrow(() -> adminHomeService.getOwners(ownerSearchRequestDTO));
 
-        assertEquals(1, adminHomeService.getOwners(ownerSearchRequestDTO).getTotalCount());
+        assertEquals(1, adminHomeService.getOwners(ownerSearchRequestDTO).getCount());
     }
 
     /**
