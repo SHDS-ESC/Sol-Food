@@ -40,8 +40,7 @@ public class MypageController {
 //            throw new CustomException(ErrorCode.PASSWORD_NOT_FOUND);
 //        }
 
-        model.addAttribute("currentUser", userVO);
-        return "redirect:/user/login";
+        return "user/login/mypage";
     }
 
     // 마이페이지 > 내정보 get
