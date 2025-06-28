@@ -131,6 +131,6 @@ class AdminHomeServiceTest {
                 () -> adminHomeService.updateOwnerStatus(dto)
         );
 
-        assertEquals("유효하지 않은 ownerStatus 입니다.", ex.getMessage());
+        assertEquals("유효하지 않은 ownerStatusUpdateDTO 입니다.", ex.getMessage());
     }
 }
