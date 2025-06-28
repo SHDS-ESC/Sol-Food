@@ -8,11 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,7 +18,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 class AdminHomeControllerTest {
-
     private MockMvc adminMockMvc;
     private AdminHomeController adminHomeController;
     private AdminHomeService adminHomeService;
@@ -36,7 +32,7 @@ class AdminHomeControllerTest {
     }
 
     @Test
-    @DisplayName("admin/home GET 요청시 뷰 이름 확인")
+    @DisplayName("admin/home GET 요청시 홈 화면 이동")
     void home() throws Exception {
         adminMockMvc.perform(get("/admin/home"))
                 .andDo(print()) // 실제 응답 내용을 콘솔에 출력
@@ -45,7 +41,7 @@ class AdminHomeControllerTest {
     }
 
     @Test
-    @DisplayName("admin/home/user-management")
+    @DisplayName("admin/home/user-management GET 요청시 사용자 관리 페이지 확인")
     void userManagement() {
         // 요청 데이터 세팅
         UserSearchRequestDTO userSearchRequestDTO = new UserSearchRequestDTO();
