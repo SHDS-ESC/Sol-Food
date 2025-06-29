@@ -17,7 +17,7 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
             response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();
             out.println("alert('관리자 로그인이 필요합니다.');");
-            
+
             // Context Path를 동적으로 가져오기
             String contextPath = request.getContextPath();
             out.println("location.href = '" + contextPath + "/admin/login';");
