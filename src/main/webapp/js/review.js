@@ -159,7 +159,7 @@ function initializeReviewWriteForm() {
  * 리뷰 작성/수정 페이지 초기화
  */
 function initializeReviewWritePage() {
-    console.log('리뷰 작성/수정 페이지 초기화 시작');
+
     
     // 글자 수 카운터 초기화
     initializeCharCounters();
@@ -167,7 +167,7 @@ function initializeReviewWritePage() {
     // 리뷰 작성 폼 초기화
     initializeReviewWriteForm();
     
-    console.log('리뷰 작성/수정 페이지 초기화 완료');
+
 }
 
 /**

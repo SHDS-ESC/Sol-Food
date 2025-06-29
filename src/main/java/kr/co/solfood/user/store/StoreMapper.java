@@ -47,4 +47,21 @@ public interface StoreMapper {
 
     long countSearchResults(String keyword);
 
+    // ========================= 찜 상태 포함 메서드들 =========================
+    
+    // 가게 상세 조회 (찜 상태 포함)
+    StoreVO getStoreByIdWithLike(@Param("storeId") int storeId, @Param("usersId") long usersId);
+    
+    // 페이징 처리 - 카테고리별 (찜 상태 포함)
+    List<StoreVO> selectPagedCategoryStoresWithLike(@Param("category") String category,
+                                                    @Param("offset") int offset,
+                                                    @Param("pageSize") int pageSize,
+                                                    @Param("usersId") long usersId);
+    
+    // 검색 결과 페이징 처리 (찜 상태 포함)
+    List<StoreVO> selectPagedSearchResultsWithLike(@Param("keyword") String keyword,
+                                                   @Param("offset") int offset,
+                                                   @Param("pageSize") int pageSize,
+                                                   @Param("usersId") long usersId);
+
 }

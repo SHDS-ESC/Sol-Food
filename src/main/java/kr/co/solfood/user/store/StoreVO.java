@@ -18,6 +18,8 @@ public class StoreVO extends PageDTO {
     
     // JOIN으로 가져오는 카테고리 정보
     private String storeCategory;  // category.category_name (alias)
-
+    
+    // 찜 상태 (DB에서 직접 가져오지 않고 애플리케이션에서 설정)
+    private boolean liked;         // 현재 사용자의 찜 여부
 
 }

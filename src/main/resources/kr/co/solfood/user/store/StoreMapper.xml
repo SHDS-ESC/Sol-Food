@@ -281,4 +281,95 @@
         </where>
     </select>
 
+    <!-- ========================= 찜 상태 포함 쿼리들 ========================= -->
+    
+    <!-- 가게 상세 조회 (찜 상태 포함) -->
+    <select id="getStoreByIdWithLike" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_tel,
+            CASE WHEN ul.users_id IS NOT NULL THEN true ELSE false END as liked
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN user_likes ul ON s.store_id = ul.store_id AND ul.users_id = #{usersId}
+        WHERE s.store_id = #{storeId}
+    </select>
+
+    <!-- 페이징 처리 - 카테고리별 (찜 상태 포함) -->
+    <select id="selectPagedCategoryStoresWithLike" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_tel,
+            CASE WHEN ul.users_id IS NOT NULL THEN true ELSE false END as liked
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN user_likes ul ON s.store_id = ul.store_id AND ul.users_id = #{usersId}
+        <where>
+            <if test="category != null and category != '' and category != '전체'">
+                AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
+            </if>
+        </where>
+        ORDER BY s.store_avgstar DESC, s.store_id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 검색 결과 페이징 처리 (찜 상태 포함) -->
+    <select id="selectPagedSearchResultsWithLike" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_tel,
+            CASE WHEN ul.users_id IS NOT NULL THEN true ELSE false END as liked
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN user_likes ul ON s.store_id = ul.store_id AND ul.users_id = #{usersId}
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    s.store_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_address LIKE CONCAT('%', #{keyword}, '%')
+                    OR COALESCE(c.category_name, '전체') LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_intro LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY
+            CASE
+                WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
+                WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
+                WHEN COALESCE(c.category_name, '전체') LIKE CONCAT(#{keyword}, '%') THEN 3
+                WHEN s.store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
+                ELSE 5
+            END,
+            s.store_avgstar DESC,
+            s.store_id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
 </mapper>

@@ -106,4 +106,40 @@ public class StoreServiceImpl implements StoreService {
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
     }
+    
+    // ========================= 찜 상태 포함 메서드들 =========================
+    
+    @Override
+    public StoreVO getStoreByIdWithLike(int storeId, long usersId) {
+        return mapper.getStoreByIdWithLike(storeId, usersId);
+    }
+    
+    @Override
+    public PageMaker<StoreVO> getPagedCategoryStoreListWithLike(String category, PageDTO pageDTO, long usersId) {
+        List<StoreVO> list = mapper.selectPagedCategoryStoresWithLike(
+                category,
+                pageDTO.getOffset(),
+                pageDTO.getPageSize(),
+                usersId
+        );
+
+        long total = mapper.countStoresByCategory(category);
+
+        return new PageMaker<>(list, total, pageDTO.getPageSize(),
+                pageDTO.getCurrentPage());
+    }
+    
+    @Override
+    public PageMaker<StoreVO> getPagedSearchResultsWithLike(String keyword, PageDTO pageDTO, long usersId) {
+        List<StoreVO> list = mapper.selectPagedSearchResultsWithLike(
+                keyword,
+                pageDTO.getOffset(),
+                pageDTO.getPageSize(),
+                usersId
+        );
+        long total = mapper.countSearchResults(keyword);
+
+        return new PageMaker<>(list, total, pageDTO.getPageSize(),
+                pageDTO.getCurrentPage());
+    }
 }
