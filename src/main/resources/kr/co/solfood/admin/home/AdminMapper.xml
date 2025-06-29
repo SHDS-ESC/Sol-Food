@@ -45,7 +45,7 @@
         store_intro AS storeIntro,
         owner_status AS ownerStatus
         FROM owner O
-        JOIN store S ON O.store_id = S.store_id
+        JOIN store S ON O.owner_id = S.owner_id
         JOIN category C ON S.category_id = C.category_id
         <where>
             <if test="query != null and query != ''">
@@ -59,7 +59,7 @@
     <select id="getOwnersCount" resultType="int">
         SELECT COUNT(*)
         FROM owner O
-        JOIN store S ON O.store_id = S.store_id
+        JOIN store S ON O.owner_id = S.owner_id
         JOIN category C ON S.category_id = C.category_id
         <where>
             <if test="query != null and query != ''">
