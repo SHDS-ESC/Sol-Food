@@ -74,7 +74,7 @@ public class AdminHomeController {
 
     @ResponseBody
     @GetMapping("/home/payment-management/status-update")
-    public String OwnerStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
+    public String ownerStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
         adminHomeService.updateOwnerStatus(new OwnerStatusUpdateDTO(ownerId, status));
         return "admin/payment-management/home";
     }
