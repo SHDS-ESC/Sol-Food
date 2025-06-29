@@ -2,7 +2,7 @@ package kr.co.solfood.admin.home;
 
 import config.MvcConfig;
 import kr.co.solfood.admin.dto.OwnerSearchDTO;
-import kr.co.solfood.admin.dto.OwnerStatusUpdateDTO;
+import kr.co.solfood.admin.dto.StoreStatusUpdateDTO;
 import kr.co.solfood.admin.dto.UserSearchRequestDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -111,12 +111,12 @@ class AdminMapperTest {
 
     @Test
     @DisplayName("점주 상태 업데이트 검증 테스트")
-    void updateOwnerStatus() {
+    void updateStoreStatus() {
         // Given
-        OwnerStatusUpdateDTO ownerStatusUpdateDTO = new OwnerStatusUpdateDTO(1L, "승인완료");
+        StoreStatusUpdateDTO storeStatusUpdateDTO = new StoreStatusUpdateDTO(1L, "승인완료");
 
         // When
-        int updatedCount = adminMapper.updateOwnerStatus(ownerStatusUpdateDTO);
+        int updatedCount = adminMapper.updateStoreStatus(storeStatusUpdateDTO);
 
         // Then
         assertEquals(1, updatedCount); // Assuming no owners exist with ID 1
