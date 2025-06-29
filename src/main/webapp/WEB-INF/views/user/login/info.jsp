@@ -99,7 +99,7 @@
 
 <div class="form-container">
     <div class="form-title">마이페이지 회원정보</div>
-    <form action="/solfood/user/mypage/info" method="post" enctype="multipart/form-data">
+                    <form action="${pageContext.request.contextPath}/user/mypage/info" method="post" enctype="multipart/form-data">
 
 
         <div style="text-align: center; cursor: pointer">
@@ -159,13 +159,44 @@
             <button type="submit"  class="btn btn-submit">수정하기</button>
         </div>
     </form>
-    <form id="withdrawForm" action="/solfood/user/mypage/withdraw" method="post" style="display: inline;">
+                <form id="withdrawForm" action="${pageContext.request.contextPath}/user/mypage/withdraw" method="post" style="display: inline;">
         <button type="submit" class="btn btn-cancel">탈퇴하기</button>
     </form>
 </div>
+<script>
+    // Context Path를 JavaScript에서 사용할 수 있도록 설정
+    var contextPath = '${pageContext.request.contextPath}';
+    
+    // 프로필 이미지 미리보기 함수 (상단에 선언)
+    async function previewProfileImage(event){
+        let files = event.target.files;
+        let reader = new FileReader();
+        reader.onload = function (e){
+            let img = document.getElementById("profilePreview");
+            img.setAttribute('src',e.target.result );
+        }
+
+        const file = files[0];
+        reader.readAsDataURL(files[0]);
+
+        try {
+            // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
+            const s3Url = await s3Uploader.uploadProfileImage(file, function(progress) {
+                console.log('업로드 진행률:', progress);
+            });
+
+            // 업로드 성공 - hidden input에 S3 URL 저장
+            document.getElementById('usersProfile').value = s3Url;
+            console.log('프로필 이미지 업로드 완료:', s3Url);
+        } catch (error) {
+            console.error('프로필 이미지 업로드 실패:', error);
+            alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+        }
+    }
+</script>
+<script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
 <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
 <script>
-    const contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
     // jsp 에서 서버로부터 받은 사용자 프로필 값
     const currentProfileUrl = "${user.usersProfile}";
     const defaultProfileUrl = "https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800";
@@ -182,7 +213,7 @@
         /* 현재 사용자 부서 id */
         const selectedDeptId = "${user.departmentId}";
 
-        fetch("/solfood/user/login/company/depts?companyId=" + companyId)
+                    fetch("${pageContext.request.contextPath}/user/login/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
                 data.forEach(dept => {
@@ -211,32 +242,7 @@
 
 
 
-    // 프로필 이미지 미리보기
-    async function previewProfileImage(event){
-        let files = event.target.files;
-        let reader = new FileReader();
-        reader.onload = function (e){
-            let img = document.getElementById("profilePreview");
-            img.setAttribute('src',e.target.result );
-        }
 
-        const file = files[0]; // ✅ 이 줄이 꼭 필요합니다!
-
-        reader.readAsDataURL(files[0]);
-
-
-        // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
-        const s3Url = await s3Uploader.uploadProfileImage(file, function(progress) {
-            updateUploadProgress(progress);
-        });
-
-        // 업로드 성공 - hidden input에 S3 URL 저장
-        document.getElementById('usersProfile').value = s3Url;
-
-        console.log('프로필 이미지 업로드 완료:', s3Url);
-
-
-    }
 
     // 페이지 로딩 시 hidden input에 값 세팅
     window.addEventListener("DOMContentLoaded",()=>{

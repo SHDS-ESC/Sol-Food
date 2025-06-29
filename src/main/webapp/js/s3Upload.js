@@ -4,7 +4,7 @@
 class S3FileUploader {
     
     constructor() {
-        this.apiBasePath = '/solfood/api/file';
+        this.apiBasePath = UrlConstants.Builder.fullUrl('/api/file');
     }
     
     /**
@@ -160,7 +160,7 @@ async function handleProfileImageUpload(fileInput) {
             updateUploadProgress(progress);
         });
         
-        console.log('업로드 완료! S3 URL:', s3Url);
+                    // 업로드 완료
         
         // 프로필 이미지 미리보기 업데이트
         updateProfilePreview(s3Url);

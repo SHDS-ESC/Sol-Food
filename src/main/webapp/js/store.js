@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function loadCategoryConfig() {
-    fetch('/solfood/user/store/api/category/config')
+    fetch(UrlConstants.Builder.fullUrl('/user/store/api/category/config'))
         .then(response => response.json())
         .then(data => {
             categoryConfig = data.data || data;
@@ -267,9 +267,9 @@ function loadStoreList() {
     let apiUrl;
 
     if (isSearchActive) {
-        apiUrl = `/solfood/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}`;
+        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}`);
     } else {
-        apiUrl = `/solfood/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`;
+        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`);
     }
 
     fetch(apiUrl)
@@ -634,7 +634,7 @@ function clearSearch() {
 function toggleLike(btn) {
     const storeId = btn.dataset.storeId;
     const isLiked = btn.classList.contains('liked');
-    const url = isLiked ? '/solfood/user/like/cancel' : '/solfood/user/like/add';
+    const url = isLiked ? UrlConstants.Builder.fullUrl('/user/like/cancel') : UrlConstants.Builder.fullUrl('/user/like/add');
     const urlWithParams = `${url}?storeId=${encodeURIComponent(storeId)}`;
 
     fetch(urlWithParams)
@@ -690,11 +690,11 @@ function extractCategoryTag(categoryName) {
 }
 
 function goToStoreDetail(storeId) {
-    window.location.href = '/solfood/user/store/detail?storeId=' + storeId;
+    window.location.href = UrlConstants.Builder.storeDetail(storeId);
 }
 
 function goToStoreDetailFromMap(placeName, placeId) {
-    window.location.href = '/solfood/user/store/detail?storeId=1';
+    window.location.href = UrlConstants.Builder.storeDetail(1);
 }
 
 function callStore(phoneNumber) {

@@ -14,8 +14,12 @@
 </head>
 <body>
 <div class="mypage-app">
+    <script>
+        // Context Path를 JavaScript에서 사용할 수 있도록 설정
+        var contextPath = '${pageContext.request.contextPath}';
+    </script>
     <div class="mypage-header">
-        <button class="mypage-btn" onclick="location.href='logout'">로그아웃</button>
+        <button class="mypage-btn" onclick="location.href='${pageContext.request.contextPath}/user/login/logout'">로그아웃</button>
         <span class="menu-text">전체메뉴</span>
         <div class="profile-thumb"></div>
     </div>
@@ -30,11 +34,11 @@
     </div>
     <div class="mypage-menu">
         <div class="menu-row">
-            <div class="menu-item" onclick="location.href='mypage/info'">
+            <div class="menu-item" onclick="location.href='${pageContext.request.contextPath}/user/mypage/info'">
                 <div class="icon user"></div>
                 <div>내 정보</div>
             </div>
-            <div class="menu-item" onclick="location.href='mypage/like'">
+            <div class="menu-item" onclick="location.href='${pageContext.request.contextPath}/user/mypage/like'">
                 <div class="icon heart"></div>
                 <div>찜</div>
             </div>
