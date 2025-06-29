@@ -1,3 +1,4 @@
+<>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
@@ -185,10 +186,10 @@
     <!-- Sidebar -->
     <nav class="side-menu">
         <h4>🌿 관리자 메뉴</h4>
-        <a href="${pageContext.request.contextPath}/admin/home" class="nav-link">홈</a>
-        <a href="${pageContext.request.contextPath}/admin/home/user-management" class="nav-link">사용자</a>
-        <a href="${pageContext.request.contextPath}/admin/home/owner-management" class="nav-link active">점주</a>
-        <a href="#" class="nav-link">결제</a>
+        <a href="<c:url value="/admin/home"/>" class="nav-link">홈</a>
+        <a href="<c:url value="/admin/home/user-management"/>" class="nav-link ">사용자</a>
+        <a href="<c:url value="/admin/home/owner-management"/>" class="nav-link active">점주</a>
+        <a href="<c:url value="/admin/home/payment-management"/>" class="nav-link">결제</a>
         <a href="#" class="nav-link">정책</a>
         <div class="mt-auto">
             <small class="text-muted">© 2025 YourCompany</small>
@@ -261,7 +262,7 @@
                             </td>
                             <td>${owner.storeName}</td>
                             <td>${owner.ownerEmail}</td>
-                            <td>${owner.storeCategory}</td>
+                            <td>${owner.categoryName}</td>
                             <td>${owner.storeAvgStar}</td>
                             <td>${owner.ownerTel}</td>
                             <td>${owner.storeTel}</td>
@@ -269,26 +270,10 @@
                             <td>${owner.storeIntro}</td>
                             <td>
                                 <label>
-                                    <select>
-                                        <option value="ACTIVE" ${owner.ownerStatus == '활성' ? 'selected' : ''}>
-                                            <c:choose>
-                                                <c:when test="${owner.ownerStatus == '활성'}">
-                                                    <span class="status-active">활성</span>
-                                                </c:when>
-                                                <c:when test="${owner.ownerStatus == '비활성'}">
-                                                    <span class="status-inactive">비활성</span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="status-pending">대기중</span>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </option>
-                                        <option value="INACTIVE" ${owner.ownerStatus == '비활성' ? 'selected' : ''}>
-                                            <span class="status-inactive">비활성</span>
-                                        </option>
-                                        <option value="PENDING" ${owner.ownerStatus == '대기중' ? 'selected' : ''}>
-                                            <span class="status-inactive"> 대기중</span>
-                                        </option>
+                                    <select class="status-select">
+                                        <option value="승인완료" ${owner.ownerStatus == '승인완료' ? 'selected' : ''}>승인완료</option>
+                                        <option value="승인대기" ${owner.ownerStatus == '승인대기' ? 'selected' : ''}>승인대기</option>
+                                        <option value="승인거절" ${owner.ownerStatus == '승인거절' ? 'selected' : ''}>승인거절</option>
                                     </select>
                                 </label>
                             </td>
@@ -319,7 +304,8 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+<script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
         crossorigin="anonymous"></script>
 <script>
     const ctx = "${pageContext.request.contextPath}";
@@ -355,13 +341,29 @@
             $row.append($('<td>').html(profileHtml));
             $row.append($('<td>').text(owner.storeName || ''));
             $row.append($('<td>').text(owner.ownerEmail || ''));
-            $row.append($('<td>').text(owner.storeCategory || ''));
+            $row.append($('<td>').text(owner.categoryName || ''));
             $row.append($('<td>').text(owner.storeAvgStar || ''));
             $row.append($('<td>').text(owner.ownerTel || ''));
             $row.append($('<td>').text(owner.storeTel || ''));
             $row.append($('<td>').text(owner.storeAddress || ''));
             $row.append($('<td>').text(owner.storeIntro || ''));
-            $row.append($('<td>').text(owner.ownerStatus || ''));
+            const $tdStatus = $('<td>');
+            const $select = $('<select>').addClass('status-select');
+
+            ['승인완료', '승인대기', '승인거절'].forEach(status => {
+                const $opt = $('<option>')
+                    .val(status)
+                    .text(status);
+
+                if (owner.ownerStatus === status) {
+                    $opt.prop('selected', true);
+                }
+
+                $select.append($opt);
+            });
+
+            $tdStatus.append($select);
+            $row.append($tdStatus);
 
             $tbody.append($row);
         });
@@ -403,8 +405,6 @@
                 lastPage = response.lastPage;
                 firstPage = response.firstPage;
                 renderPagination(firstPage, lastPage, page);
-
-                $('.pagination').index(1).addClass('active').attr('aria-current', 'page');
             },
             error: function () {
                 alert('검색 중 오류가 발생했습니다.');
@@ -462,8 +462,28 @@
             currentPage = 1;
             $('#searchForm').submit();
         });
+
+        $('#ownerListBody').on('change', '.status-select', function () {
+            const status = $(this).val()
+            const ownerId = $(this).closest('tr').find('td:first').text();
+            console.log(status, ownerId);
+            $.ajax({
+                url: ctx + '/admin/home/payment-management/status-update',
+                type: 'GET',
+                data: {
+                    ownerId: ownerId,
+                    status: status
+                },
+                error: function () {
+                    alert('업데이트에 실패하였습니다.');
+                }
+            });
+
+
+        });
     });
 </script>
 </body>
 
 </html>
+</>

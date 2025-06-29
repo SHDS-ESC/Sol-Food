@@ -1,12 +1,11 @@
 package kr.co.solfood.admin.home;
 
-import kr.co.solfood.admin.dto.ChartRequestDTO;
-import kr.co.solfood.admin.dto.OwnerSearchDTO;
-import kr.co.solfood.admin.dto.OwnerSearchResponseDTO;
+import kr.co.solfood.admin.dto.*;
 import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.util.PageMaker;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,8 +18,10 @@ public class AdminHomeServiceImpl implements AdminHomeService {
     }
 
     @Override
-    public List<UserVO> getUsers(String query) {
-        return adminMapper.getUsers(query);
+    public PageMaker<UserSearchResponseDTO> getUsers(UserSearchRequestDTO userSearchRequestDTO) {
+        List<UserSearchResponseDTO> userSearchResponseDTO = adminMapper.getUsers(userSearchRequestDTO);
+        int size = adminMapper.getUsersCount(userSearchRequestDTO);
+        return new PageMaker<>(userSearchResponseDTO, size, userSearchRequestDTO.getPageSize(), userSearchRequestDTO.getCurrentPage());
     }
 
     @Override
@@ -41,6 +42,11 @@ public class AdminHomeServiceImpl implements AdminHomeService {
         List<OwnerSearchResponseDTO> ownerSearchResponseDTO = adminMapper.getOwners(ownerSearchRequestDTO);
         int size = adminMapper.getOwnersCount(ownerSearchRequestDTO);
         return new PageMaker<>(ownerSearchResponseDTO,size,ownerSearchRequestDTO.getPageSize(),ownerSearchRequestDTO.getCurrentPage());
+    }
+
+    @Override
+    public void updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO) {
+        adminMapper.updateOwnerStatus(ownerStatusUpdateDTO);
     }
 
 }

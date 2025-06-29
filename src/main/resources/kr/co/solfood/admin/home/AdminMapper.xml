@@ -10,7 +10,8 @@
                 users_name LIKE CONCAT('%', #{query}, '%')
             </if>
         </where>
-        ORDER BY users_id
+        ORDER BY U.users_id
+        LIMIT #{offset}, #{pageSize}
     </select>
 
     <select id="userManagementChartByYears" resultType="kr.co.solfood.admin.dto.ChartRequestDTO">
@@ -36,7 +37,7 @@
         store_mainimage AS storeMainImage,
         store_name AS storeName,
         owner_email AS ownerEmail,
-        store_category AS storeCategory,
+        category_name AS categoryName,
         store_avgstar AS storeAvgStar,
         owner_tel AS ownerTel,
         store_tel AS storeTel,
@@ -45,6 +46,7 @@
         owner_status AS ownerStatus
         FROM owner O
         JOIN store S ON O.store_id = S.store_id
+        JOIN category C ON S.category_id = C.category_id
         <where>
             <if test="query != null and query != ''">
                 store_name LIKE CONCAT('%', #{query}, '%')
@@ -58,10 +60,28 @@
         SELECT COUNT(*)
         FROM owner O
         JOIN store S ON O.store_id = S.store_id
+        JOIN category C ON S.category_id = C.category_id
         <where>
             <if test="query != null and query != ''">
                 store_name LIKE CONCAT('%', #{query}, '%')
             </if>
         </where>
     </select>
+
+    <select id="getUsersCount" resultType="int">
+        SELECT COUNT(*)
+        FROM users U
+        JOIN department D ON U.department_id = D.department_id
+        <where>
+            <if test="query != null and query != ''">
+                users_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
+    </select>
+
+    <update id="updateOwnerStatus" parameterType="kr.co.solfood.admin.dto.OwnerStatusUpdateDTO">
+        UPDATE owner
+        SET owner_status = #{ownerStatus}
+        WHERE owner_id = #{ownerId}
+    </update>
 </mapper>
