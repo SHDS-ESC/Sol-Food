@@ -6,7 +6,6 @@ import java.util.List;
 
 @Data
 public class PageMaker<T> {
-    //    private List<T> itemList;
     private List<T> list;
     private Integer pageCount;
     private Integer limit;
@@ -15,11 +14,10 @@ public class PageMaker<T> {
     private int totalPageCount;
     private int firstPage;
     private int lastPage;
-    //private boolean isLastPage;
-    //private boolean isFirstPage;
 
     public PageMaker(List<T> list, long count, Integer limit, int curPage) {
         final int pageGroupCount = 10; // 한그룹당 페이지 수
+        this.limit = limit; // 페이지당 데이터 수
         this.list = list; // 페이지에 해당 데이터
         this.count = count;  //전체 data
         this.curPage = curPage; // 현재 페이지
@@ -38,7 +36,3 @@ public class PageMaker<T> {
 
     }
 }
-
-
-//total count
-//itemList
