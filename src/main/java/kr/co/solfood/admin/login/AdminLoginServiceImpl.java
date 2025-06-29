@@ -1,5 +1,7 @@
 package kr.co.solfood.admin.login;
 
+import kr.co.solfood.util.CustomException;
+import kr.co.solfood.util.ErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +19,7 @@ public class AdminLoginServiceImpl implements AdminLoginService {
     public AdminVO login(String password) {
         AdminVO adminVO = adminLoginMapper.login(password);
         if (adminVO == null) {
-            throw new IllegalArgumentException("잘못된 비밀번호 입니다.");
+            throw new CustomException(ErrorCode.PASSWORD_NOT_FOUND);
         }
         return adminVO;
     }

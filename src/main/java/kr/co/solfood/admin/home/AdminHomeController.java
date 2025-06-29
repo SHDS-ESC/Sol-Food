@@ -142,7 +142,7 @@ public class AdminHomeController {
      */
     @ResponseBody
     @GetMapping("/owner-management/status-update")
-    public String OwnerStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
+    public String ownerStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
         try {
             adminHomeService.updateOwnerStatus(new OwnerStatusUpdateDTO(ownerId, status));
         } catch (IllegalArgumentException e) {
