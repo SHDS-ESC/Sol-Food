@@ -1,7 +1,6 @@
 package kr.co.solfood.admin.home;
 
 import kr.co.solfood.admin.dto.*;
-import kr.co.solfood.user.login.UserVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -22,5 +21,7 @@ public interface AdminMapper {
 
     int getOwnersCount(OwnerSearchDTO ownerSearchRequestDTO);
 
-    int updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO);
+    int updateStoreStatus(StoreStatusUpdateDTO storeStatusUpdateDTO);
+
+    OwnerSearchResponseDTO detailStoreInfo(String ownerId);
 }

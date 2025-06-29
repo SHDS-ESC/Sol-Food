@@ -137,17 +137,35 @@ public class AdminHomeController {
 
     /**
      * 어드민 페이지 < 점주 승인 상태 업데이트
+     *
      * @param ownerId 점주 ID
-     * @param status   점주 상태 (승인완료, 승인대기, 승인거절)
+     * @param status  점주 상태 (승인완료, 승인대기, 승인거절)
      */
     @ResponseBody
     @GetMapping("/owner-management/status-update")
-    public String ownerStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
+    public String storeStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
         try {
-            adminHomeService.updateOwnerStatus(new OwnerStatusUpdateDTO(ownerId, status));
+            adminHomeService.updateStoreStatus(new StoreStatusUpdateDTO(ownerId, status));
         } catch (IllegalArgumentException e) {
             log.info("Owner status update failed: {}", e.getMessage());
         }
         return "admin/owner-management/home";
+    }
+
+    /**
+     * 어드민 페이지 > 지점 상세 페이지 이동
+     *
+     * @param ownerId
+     * @return
+     */
+    @GetMapping("/owner-detail")
+    public String detailOwnerPage(@RequestParam("ownerId") String ownerId, Model model) {
+        try {
+            model.addAttribute("owner", adminHomeService.detailStoreInfo(ownerId));
+        } catch (CustomException e) {
+            log.info("Owner detail failed: {}", e.getMessage());
+            return "admin/owner-management/home";
+        }
+        return "admin/owner-management/detail";
     }
 }

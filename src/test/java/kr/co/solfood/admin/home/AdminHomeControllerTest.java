@@ -198,7 +198,7 @@ class AdminHomeControllerTest {
 
     @Test
     @DisplayName("GET 요청시 결제 검색 결과 확인")
-    void ownerStatusUpdate() {
+    void storeStatusUpdate() {
         try {
             adminMockMvc.perform(get("/admin/home/owner-management/status-update")
                             .param("ownerId", "1")

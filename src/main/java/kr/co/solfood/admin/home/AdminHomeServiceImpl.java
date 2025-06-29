@@ -59,16 +59,25 @@ public class AdminHomeServiceImpl implements AdminHomeService {
 
     @Override
     @Transactional
-    public void updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO) {
+    public void updateStoreStatus(StoreStatusUpdateDTO storeStatusUpdateDTO) {
         // 1) ID 검증
-        if (ownerStatusUpdateDTO.getOwnerId() <= 0) {
+        if (storeStatusUpdateDTO.getOwnerId() <= 0) {
             throw new IllegalArgumentException("유효하지 않은 ownerId 입니다.");
         }
 
         // 3) 업데이트
-        int updated = adminMapper.updateOwnerStatus(ownerStatusUpdateDTO);
+        int updated = adminMapper.updateStoreStatus(storeStatusUpdateDTO);
         if (updated == 0) {
-            throw new IllegalArgumentException("유효하지 않은 ownerStatusUpdateDTO 입니다.");
+            throw new IllegalArgumentException("유효하지 않은 storeStatusUpdateDTO 입니다.");
         }
+    }
+
+    @Override
+    public OwnerSearchResponseDTO detailStoreInfo(String ownerId) {
+        OwnerSearchResponseDTO ownerSearchResponseDTO = adminMapper.detailStoreInfo(ownerId);
+        if (ownerId == null || ownerSearchResponseDTO == null) {
+            throw new CustomException(ErrorCode.UNDEFINED_SEARCH);
+        }
+        return ownerSearchResponseDTO;
     }
 }

@@ -1,7 +1,7 @@
 package kr.co.solfood.admin.home;
 
 import kr.co.solfood.admin.dto.OwnerSearchDTO;
-import kr.co.solfood.admin.dto.OwnerStatusUpdateDTO;
+import kr.co.solfood.admin.dto.StoreStatusUpdateDTO;
 import kr.co.solfood.admin.dto.UserSearchRequestDTO;
 import lombok.extern.log4j.Log4j;
 import org.junit.jupiter.api.Assertions;
@@ -104,15 +104,15 @@ class AdminHomeServiceTest {
      */
     @ParameterizedTest
     @ValueSource(strings = {"승인완료", "승인대기", "승인거절"})
-    @DisplayName("updateOwnerStatus - 유효한 상태 값은 예외 없이 처리되어야 한다.")
-    void updateOwnerStatus_validStatuses_noException(String validStatus) {
+    @DisplayName("updateStoreStatus - 유효한 상태 값은 예외 없이 처리되어야 한다.")
+    void updateStoreStatus_validStatuses_noException(String validStatus) {
         // given
-        OwnerStatusUpdateDTO dto = new OwnerStatusUpdateDTO(1L, validStatus);
-        given(adminMapper.updateOwnerStatus(any(OwnerStatusUpdateDTO.class)))
+        StoreStatusUpdateDTO dto = new StoreStatusUpdateDTO(1L, validStatus);
+        given(adminMapper.updateStoreStatus(any(StoreStatusUpdateDTO.class)))
                 .willReturn(1);  // DB 업데이트 성공 상황 시뮬레이션
 
         // then
-        assertDoesNotThrow(() -> adminHomeService.updateOwnerStatus(dto));
+        assertDoesNotThrow(() -> adminHomeService.updateStoreStatus(dto));
     }
 
     /**
@@ -120,17 +120,17 @@ class AdminHomeServiceTest {
      */
     @ParameterizedTest
     @ValueSource(strings = {"잘못된상태", "", "INVALID"})
-    @DisplayName("updateOwnerStatus - 유효하지 않은 상태 값은 IllegalArgumentException 을 던져야 한다.")
-    void updateOwnerStatus_invalidStatuses_throws(String invalidStatus) {
+    @DisplayName("updateStoreStatus - 유효하지 않은 상태 값은 IllegalArgumentException 을 던져야 한다.")
+    void updateStoreStatus_invalidStatuses_throws(String invalidStatus) {
         // given
-        OwnerStatusUpdateDTO dto = new OwnerStatusUpdateDTO(1L, invalidStatus);
+        StoreStatusUpdateDTO dto = new StoreStatusUpdateDTO(1L, invalidStatus);
 
         // then
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> adminHomeService.updateOwnerStatus(dto)
+                () -> adminHomeService.updateStoreStatus(dto)
         );
 
-        assertEquals("유효하지 않은 ownerStatusUpdateDTO 입니다.", ex.getMessage());
+        assertEquals("유효하지 않은 storeStatusUpdateDTO 입니다.", ex.getMessage());
     }
 }

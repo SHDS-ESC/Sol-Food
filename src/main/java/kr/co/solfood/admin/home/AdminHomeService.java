@@ -1,7 +1,7 @@
 package kr.co.solfood.admin.home;
 
 import kr.co.solfood.admin.dto.*;
-import kr.co.solfood.user.login.UserVO;
+import kr.co.solfood.user.store.StoreVO;
 import kr.co.solfood.util.PageMaker;
 
 import java.util.List;
@@ -13,5 +13,7 @@ public interface AdminHomeService {
 
     PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO);
 
-    void updateOwnerStatus(OwnerStatusUpdateDTO ownerStatusUpdateDTO);
+    void updateStoreStatus(StoreStatusUpdateDTO storeStatusUpdateDTO);
+
+    OwnerSearchResponseDTO detailStoreInfo(String ownerId);
 }
