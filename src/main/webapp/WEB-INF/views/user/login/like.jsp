@@ -6,6 +6,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>찜 목록</title>
+    <script>
+        // Context Path를 JavaScript에서 사용할 수 있도록 설정
+        var contextPath = '${pageContext.request.contextPath}';
+    </script>
     <link href="<c:url value='/css/store.css' />" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
     <style>
@@ -34,7 +38,8 @@
         </div>
         <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;">더보기</button>
     </div>
-        <script src="<c:url value='/js/like.js' />"></script>
+        <script src="<c:url value='/js/urlConstants.js' />"></script>
+<script src="<c:url value='/js/like.js' />"></script>
         <script src="<c:url value='/js/store.js' />"></script>
 </body>
 </html>
