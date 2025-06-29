@@ -13,7 +13,7 @@ import properties.ServerProperties;
 import javax.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/login")
 public class AdminLoginController {
 
     private final AdminLoginService adminLoginService;
@@ -24,15 +24,14 @@ public class AdminLoginController {
     }
 
     // 유저 로그인 페이지
-    @GetMapping("/login")
+    @GetMapping("")
     public void login() {
     }
 
-    @PostMapping("/login")
+    @PostMapping("")
     public String login(@RequestParam("password") String password, HttpSession session) {
         try {
-            AdminVO adminVO = adminLoginService.login(password);
-            session.setAttribute("adminLoginSession", adminVO);
+            session.setAttribute("adminLoginSession", adminLoginService.login(password));
             return "redirect:home";
         } catch (CustomException e) {
             return "redirect:login";

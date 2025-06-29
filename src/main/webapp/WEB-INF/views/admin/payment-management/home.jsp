@@ -11,137 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #28a745;
-            --secondary-color: #f0fdf4;
-            --accent-color: #1e7e34;
-            --sidebar-bg: #ffffff;
-            --card-bg: #ffffff;
-            --text-color: #343a40;
-        }
-
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-        }
-
-        .side-menu {
-            width: 240px;
-            height: 100vh;
-            background: var(--sidebar-bg);
-            border-right: 1px solid #dee2e6;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .side-menu h4 {
-            color: var(--primary-color);
-            margin-bottom: 2rem;
-            font-weight: 700;
-        }
-
-        .side-menu .nav-link {
-            font-weight: 500;
-            color: var(--text-color);
-            margin-bottom: 1rem;
-            border-radius: .375rem;
-            padding: .5rem 1rem;
-            transition: background .2s, color .2s;
-        }
-
-        .side-menu .nav-link.active,
-        .side-menu .nav-link:hover {
-            background: var(--primary-color);
-            color: #fff;
-        }
-
-        .main {
-            margin-left: 260px;
-            padding: 2rem;
-            min-height: 100vh;
-        }
-
-        .store-card {
-            background: var(--card-bg);
-            border-radius: 1.25rem;
-            box-shadow: 0 8px 32px rgba(40, 167, 69, 0.08);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .search-bar {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .search-bar input,
-        .search-bar select {
-            font-size: 12px;
-        }
-
-        .search-bar button {
-            min-width: 100px;
-        }
-
-        .page-selector {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: .375rem;
-            padding: .5rem;
-            margin-bottom: 1rem;
-        }
-
-        .table thead th {
-            background: #e6f4ea;
-            color: #198754;
-            font-weight: 700;
-            border-bottom: 2px solid #b7e4c7;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .table tbody tr {
-            font-size: 12px;
-        }
-
-        .table-hover tbody tr:hover {
-            background: #f0fdf4;
-        }
-
-        .status-active {
-            color: #198754;
-            font-weight: 600;
-            background: #d1fae5;
-            padding: .25rem .75rem;
-            border-radius: .5rem;
-            font-size: .875rem;
-        }
-
-        .status-inactive {
-            color: #dc3545;
-            font-weight: 600;
-            background: #fee2e2;
-            padding: .25rem .75rem;
-            border-radius: .5rem;
-            font-size: .875rem;
-        }
-
-        #custom-nav {
-            display: flex;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-    </style>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin/payment-management.css">
 </head>
 
 <body>
@@ -212,7 +82,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach var="p" items="${paymentList.itemList}">
+                    <c:forEach var="p" items="${paymentList.list}">
                         <tr>
                             <td>${p.userName}</td>
                             <td>${p.shopName}</td>
@@ -229,7 +99,7 @@
                             </td>
                         </tr>
                     </c:forEach>
-                    <c:if test="${empty paymentList.itemList}">
+                    <c:if test="${empty paymentList.list}">
                         <tr>
                             <td colspan="9" class="text-center">검색 결과가 없습니다.</td>
                         </tr>
@@ -249,7 +119,7 @@
                                     <a class="page-link">${i}</a>
                                 </li>
                             </c:forEach>
-                            <li class="page-item next ${paymentList.lastPage * paymentList.pageSize >= paymentList.totalCount ? 'disabled' : ''}">
+                            <li class="page-item next ${paymentList.lastPage * paymentList.pageSize >= paymentList.count ? 'disabled' : ''}">
                                 <a class="page-link">Next</a>
                             </li>
                         </ul>
@@ -300,7 +170,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach var="r" items="${reservationList.itemList}">
+                    <c:forEach var="r" items="${reservationList.list}">
                         <tr>
                             <td>${r.userName}</td>
                             <td>${r.shopName}</td>
@@ -316,7 +186,7 @@
                             </td>
                         </tr>
                     </c:forEach>
-                    <c:if test="${empty reservationList.itemList}">
+                    <c:if test="${empty reservationList.list}">
                         <tr>
                             <td colspan="8" class="text-center">검색 결과가 없습니다.</td>
                         </tr>
@@ -336,7 +206,7 @@
                                     <a class="page-link">${i}</a>
                                 </li>
                             </c:forEach>
-                            <li class="page-item next ${reservationList.lastPage * reservationList.pageSize >= reservationList.totalCount ? 'disabled' : ''}">
+                            <li class="page-item next ${reservationList.lastPage * reservationList.pageSize >= reservationList.count ? 'disabled' : ''}">
                                 <a class="page-link">Next</a>
                             </li>
                         </ul>
@@ -351,6 +221,7 @@
 <!-- Bootstrap JS + jQuery -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<!-- (필요하다면 AJAX 스크립트도 owner-management 페이지와 유사하게 추가) -->
+<script>window.APP_CTX = "${pageContext.request.contextPath}";</script>
+<script src="${pageContext.request.contextPath}/js/admin/payment-management.js"></script>
 </body>
 </html>

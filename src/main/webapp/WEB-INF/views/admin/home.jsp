@@ -249,8 +249,8 @@
         $(this).addClass('active');
         const period = $(this).attr('name');
         $.getJSON(ctx + '/admin/home/user-management/chart', { date: period }, data => {
-            const labels = data.map(d => d.rowCreatedAt);
-            const counts = data.map(d => d.columnCount);
+            const labels = data.map(d => d.createdAt);
+            const counts = data.map(d => d.userCount);
             const c = document.getElementById('signupChart').getContext('2d');
             if (signupChart) signupChart.destroy();
             signupChart = new Chart(c, {
@@ -297,10 +297,10 @@
         }, resp => {
             // 렌더
             const $b = $('#userListBody').empty();
-            if (!resp.itemList.length) {
+            if (!resp.list.length) {
                 return $b.append('<tr><td colspan="10" class="text-center">검색 결과가 없습니다.</td></tr>');
             }
-            resp.itemList.forEach(u => {
+            resp.list.forEach(u => {
                 const pic = u.usersProfile
                     ? `<img src="${u.usersProfile}" class="avatar"/>`
                     : `<div class="avatar"><svg width="24" height="24" fill="#adb5bd"><circle cx="12" cy="8" r="4"/><path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/></svg></div>`;
@@ -330,10 +330,10 @@
             pageSize: $('#ownerPageSize').val()
         }, resp => {
             const $b = $('#ownerListBody').empty();
-            if (!resp.itemList.length) {
+            if (!resp.list.length) {
                 return $b.append('<tr><td colspan="11" class="text-center">검색 결과가 없습니다.</td></tr>');
             }
-            resp.itemList.forEach(o => {
+            resp.list.forEach(o => {
                 const pic = o.storeMainImage
                     ? `<img src="${o.storeMainImage}" class="avatar"/>`
                     : `<div class="avatar"><svg width="24" height="24" fill="#adb5bd"><circle cx="12" cy="8" r="4"/><path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/></svg></div>`;
@@ -364,10 +364,10 @@
             pageSize: $('#paymentPageSize').val()
         }, resp => {
             const $b = $('#paymentListBody').empty();
-            if (!resp.itemList.length) {
+            if (!resp.list.length) {
                 return $b.append('<tr><td colspan="9" class="text-center">검색 결과가 없습니다.</td></tr>');
             }
-            resp.itemList.forEach(p => {
+            resp.list.forEach(p => {
                 const cls = p.status==='승인'?'status-active':'status-inactive';
                 $b.append(`<tr>
           <td>${p.userName}</td><td>${p.shopName}</td><td>${p.orderNo}</td><td>${p.approveNo}</td><td>${p.paymentNo}</td>
@@ -394,10 +394,10 @@
             pageSize: $('#reservationPageSize').val()
         }, resp => {
             const $b = $('#reservationListBody').empty();
-            if (!resp.itemList.length) {
+            if (!resp.list.length) {
                 return $b.append('<tr><td colspan="8" class="text-center">검색 결과가 없습니다.</td></tr>');
             }
-            resp.itemList.forEach(r => {
+            resp.list.forEach(r => {
                 const cls = r.status==='승인'?'status-active':'status-inactive';
                 $b.append(`<tr>
           <td>${r.userName}</td><td>${r.shopName}</td><td>${r.orderNo}</td><td>${r.paymentNo}</td>
