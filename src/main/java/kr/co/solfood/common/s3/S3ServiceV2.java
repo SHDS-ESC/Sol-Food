@@ -74,7 +74,7 @@ public class S3ServiceV2 {
             // Pre-signed URL 생성
             PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
 
-            System.out.println("Pre-signed URL v2 생성 완료: " + fileName);
+            log.info("Pre-signed URL v2 생성 완료: {}", fileName);
             return presignedRequest.url().toString();
 
         } catch (Exception e) {

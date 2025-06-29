@@ -20,6 +20,9 @@
     
     <!-- 카카오맵 SDK -->
     <script>
+        // Context Path를 JavaScript에서 사용할 수 있도록 설정
+        var contextPath = '${pageContext.request.contextPath}';
+        
         // JSP에서 JavaScript로 데이터 전달
         window.kakaoJsKey = '${kakaoJsKey}';
         window.storeLatitude = parseFloat('${store.storeLatitude}');
@@ -239,6 +242,7 @@
     </div>
     
     <!-- 외부 JavaScript 파일 -->
+    <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
     <script src="${pageContext.request.contextPath}/js/storedetail.js"></script>
 </body>
 </html>

@@ -11,13 +11,13 @@ const pageSize = 10;
 let isEnd = false;
 
 function goToStoreDetail(storeId) {
-    window.location.href = '/solfood/user/store/detail/' + storeId;
+    window.location.href = UrlConstants.Builder.storeDetail(storeId);
 }
 
 function loadMoreStores() {
     if (isEnd) return;
 
-    let url = `/solfood/user/mypage/like/api?currentPage=${page}&pageSize=${pageSize}`;
+    let url = UrlConstants.Builder.fullUrl(`/user/mypage/like/api?currentPage=${page}&pageSize=${pageSize}`);
 
     fetch(url)
         .then(res => res.json())
@@ -102,7 +102,7 @@ function createStoreCard(store) {
 function toggleLike(btn) {
     const storeId = btn.dataset.storeId;
     const isLiked = btn.classList.contains('liked');
-    const url = isLiked ?'/solfood/user/like/cancel' : '/solfood/user/like/add';
+    const url = isLiked ? UrlConstants.Builder.fullUrl('/user/like/cancel') : UrlConstants.Builder.fullUrl('/user/like/add');
     const urlWithParams = `${url}?storeId=${encodeURIComponent(storeId)}`;
 
     fetch(urlWithParams)

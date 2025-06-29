@@ -200,7 +200,7 @@
 
         if (!companyId) return;
 
-        fetch("/solfood/user/login/company/depts?companyId=" + companyId)
+                    fetch("${pageContext.request.contextPath}/user/login/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
                 data.forEach(dept => {

@@ -40,7 +40,6 @@ function checkKakaoMapSDK() {
                kakao.maps.Map &&
                kakao.maps.Marker;
     } catch (error) {
-        console.log('카카오맵 SDK 체크 중 오류:', error);
         return false;
     }
 }
@@ -55,10 +54,8 @@ function waitForKakaoMapSDK(callback, maxAttempts = 100) {
     
     function check() {
         attempts++;
-        console.log(`카카오맵 SDK 체크 시도: ${attempts}/${maxAttempts}`);
         
         if (checkKakaoMapSDK()) {
-            console.log('카카오맵 SDK 준비 완료!');
             kakaoMapLoaded = true;
             kakaoMapLoading = false;
             callback();
@@ -143,7 +140,6 @@ function initMap() {
         });
         storeInfowindow.open(map, storeMarker);
         
-        console.log('카카오맵 초기화 완료');
         kakaoMapLoaded = true;
     } catch (error) {
         console.error('카카오맵 초기화 중 오류 발생:', error);
@@ -156,18 +152,15 @@ function initMap() {
  */
 function loadKakaoMap() {
     if (kakaoMapLoading) {
-        console.log('카카오맵 이미 로딩 중...');
         return;
     }
     
-    console.log('카카오맵 로딩 시작');
     kakaoMapLoading = true;
     
     // Promise 기반 SDK 로딩 사용
     if (window.kakaoMapSDKPromise) {
         window.kakaoMapSDKPromise
             .then(() => {
-                console.log('카카오맵 SDK 준비 완료');
                 kakaoMapLoading = false;
                 initMap();
             })
@@ -179,11 +172,9 @@ function loadKakaoMap() {
     } else {
         // fallback: 기존 방식
         if (checkKakaoMapSDK()) {
-            console.log('카카오맵 SDK 이미 로드됨');
             kakaoMapLoading = false;
             initMap();
         } else {
-            console.log('카카오맵 SDK 로딩 대기 중...');
             waitForKakaoMapSDK((success) => {
                 if (success !== false) {
                     initMap();
@@ -272,8 +263,6 @@ function initializeStarBars() {
  * @param {string} tabName - 탭 이름
  */
 function handleHeaderChange(tabName) {
-    console.log('탭 변경:', tabName);
-    
     // 모든 섹션 숨기기
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
@@ -345,14 +334,10 @@ function handleHeaderChange(tabName) {
  * 탭 이벤트 초기화
  */
 function initializeTabEvents() {
-    console.log('탭 이벤트 초기화 시작');
     const tabs = document.querySelectorAll('.tab');
-    console.log('발견된 탭 수:', tabs.length);
     
     tabs.forEach((tab, index) => {
-        console.log(`탭 ${index + 1}: data-tab="${tab.getAttribute('data-tab')}"`);
         tab.addEventListener('click', (e) => {
-            console.log('탭 클릭됨:', tab.getAttribute('data-tab'));
             e.preventDefault();
             const tabName = tab.getAttribute('data-tab');
             handleHeaderChange(tabName);
@@ -362,7 +347,6 @@ function initializeTabEvents() {
     // 기본 탭을 메뉴로 설정
     const defaultTab = document.querySelector('.tab[data-tab="menu"]');
     if (defaultTab) {
-        console.log('기본 탭(메뉴) 활성화');
         setTimeout(() => {
             handleHeaderChange('menu'); // 직접 함수 호출로 변경
         }, 100);
@@ -398,17 +382,6 @@ function initializeScrollEvents() {
  * 가게 상세페이지 초기화
  */
 function initializeStoreDetailPage() {
-    console.log('가게 상세페이지 초기화 시작');
-    
-    // DOM 요소 확인
-    const container = document.querySelector('.container');
-    const tabs = document.querySelectorAll('.tab');
-    const sections = document.querySelectorAll('.content-section');
-    
-    console.log('컨테이너:', container ? '존재' : '없음');
-    console.log('탭 수:', tabs.length);
-    console.log('섹션 수:', sections.length);
-    
     // 탭 이벤트 초기화
     initializeTabEvents();
     
@@ -420,8 +393,6 @@ function initializeStoreDetailPage() {
     
     // 스크롤 이벤트 초기화
     initializeScrollEvents();
-    
-    console.log('가게 상세페이지 초기화 완료');
 }
 
 /**
@@ -446,7 +417,7 @@ function loadStoreDetail() {
         return;
     }
     
-    fetch('/solfood/user/store/api/detail/' + storeId)
+    fetch(UrlConstants.Builder.fullUrl('/user/store/api/detail/' + storeId))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -463,7 +434,7 @@ function loadStoreDetail() {
 }
 
 function loadReviews(storeId) {
-    fetch(`/solfood/user/review/api/list?storeId=${storeId}`)
+    fetch(UrlConstants.Builder.fullUrl(`/user/review/api/list?storeId=${storeId}`))
         .then(response => response.json())
         .then(data => {
             if (data.success) {

@@ -119,7 +119,7 @@
 <body>
 <div class="login-container">
     <div class="login-title">로그인</div>
-    <form action="/solfood/user/login/native-login" method="post">
+            <form action="${pageContext.request.contextPath}/user/login/native-login" method="post">
         <label for="usersEmail">이메일</label>
         <input type="text" placeholder="example@domain.com" name="usersEmail" id="usersEmail" required> <br>
 

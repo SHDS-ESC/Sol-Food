@@ -24,6 +24,7 @@ import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import kr.co.solfood.admin.login.AdminLoginInterceptor;
+import kr.co.solfood.common.constants.UrlConstants;
 import kr.co.solfood.owner.login.OwnerLoginInterceptor;
 import kr.co.solfood.user.login.UserLoginInterceptor;
 import kr.co.solfood.common.s3.FileUploadSessionInterceptor;
@@ -33,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"kr.co.solfood", "util", "config", "properties"}) // 컴포넌트 스캔
+@ComponentScan(basePackages = {"kr.co.solfood", "config", "properties"}) // 컴포넌트 스캔
 @MapperScan(basePackages = "kr.co.solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
 @EnableTransactionManagement // 트랜잭션 활성화
 @EnableAspectJAutoProxy // AOP 활성화
@@ -97,23 +98,23 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userLoginInterceptor())
-                .addPathPatterns("/user/**")
-                .excludePathPatterns("/user/login/**")
-                .excludePathPatterns("/user/store/**");         // 상점 목록/상세는 로그인 없이 접근 가능
+                .addPathPatterns(UrlConstants.User.BASE + "/**")
+                .excludePathPatterns(UrlConstants.User.LOGIN_BASE + "/**")
+                .excludePathPatterns(UrlConstants.User.STORE_BASE + "/**");         // 상점 목록/상세는 로그인 없이 접근 가능
 
         registry.addInterceptor(adminLoginInterceptor())
-                .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/login")
-                .excludePathPatterns("/admin/kakaoLogin");
+                .addPathPatterns(UrlConstants.Admin.BASE + "/**")
+                .excludePathPatterns(UrlConstants.Admin.LOGIN)
+                .excludePathPatterns(UrlConstants.Admin.KAKAO_LOGIN);
 
         registry.addInterceptor(ownerLoginInterceptor())
-                .addPathPatterns("/owner/**")
-                .excludePathPatterns("/owner/login")
-                .excludePathPatterns("/owner/kakaoLogin");
+                .addPathPatterns(UrlConstants.Owner.BASE + "/**")
+                .excludePathPatterns(UrlConstants.Owner.LOGIN)
+                .excludePathPatterns(UrlConstants.Owner.KAKAO_LOGIN);
 
         // 파일 업로드 API 전용 세션 검증 인터셉터
         registry.addInterceptor(fileUploadSessionInterceptor())
-                .addPathPatterns("/api/file/**");
+                .addPathPatterns(UrlConstants.Api.FILE_BASE + "/**");
     }
 
     // Swagger
