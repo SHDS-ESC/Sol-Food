@@ -128,4 +128,18 @@ public final class UrlConstants {
         
         private Model() {}
     }
+    
+    /**
+     * 리다이렉트 경로
+     */
+    public static final class Redirect {
+        public static final String TO_USER_LOGIN = "redirect:" + User.LOGIN_PAGE;
+        public static final String TO_USER_REGISTER = "redirect:" + User.LOGIN_REGISTER;
+        public static final String TO_USER_MYPAGE = "redirect:" + User.MYPAGE_BASE;
+        public static final String TO_ADMIN_LOGIN = "redirect:" + Admin.LOGIN;
+        public static final String TO_OWNER_LOGIN = "redirect:" + Owner.LOGIN;
+        public static final String TO_ROOT = "redirect:" + Common.ROOT;
+        
+        private Redirect() {}
+    }
 } 

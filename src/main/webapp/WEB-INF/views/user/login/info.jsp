@@ -181,15 +181,11 @@
 
         try {
             // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
-            const s3Url = await s3Uploader.uploadProfileImage(file, function(progress) {
-                console.log('업로드 진행률:', progress);
-            });
+            const s3Url = await s3Uploader.uploadProfileImage(file);
 
             // 업로드 성공 - hidden input에 S3 URL 저장
             document.getElementById('usersProfile').value = s3Url;
-            console.log('프로필 이미지 업로드 완료:', s3Url);
         } catch (error) {
-            console.error('프로필 이미지 업로드 실패:', error);
             alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
         }
     }
@@ -227,8 +223,7 @@
                 });
             })
             .catch(error => {
-                console.error("부서 불러오기 실패", error);
-                console.log(contextPath + "/user/login/company/depts?companyId=" + companyId)
+                alert("부서 목록을 불러오지 못했습니다.");
             });
     }
 

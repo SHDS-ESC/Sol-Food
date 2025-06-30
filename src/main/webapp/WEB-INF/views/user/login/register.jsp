@@ -267,9 +267,13 @@
     </form>
   </div>
 
+<script>
+  // Context Path를 JavaScript에서 사용할 수 있도록 설정
+  var contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
+</script>
+<script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
 <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
 <script>
-  const contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
   
   /**
    * 프로필 이미지 업로드 처리 (s3Upload.js와 호환)
@@ -298,10 +302,7 @@
       // 업로드 성공 - hidden input에 S3 URL 저장
       document.getElementById('usersProfile').value = s3Url;
       
-      console.log('프로필 이미지 업로드 완료:', s3Url);
-      
     } catch (error) {
-      console.error('프로필 이미지 업로드 실패:', error);
       alert('프로필 이미지 업로드에 실패했습니다: ' + error.message);
       
       // 원래 이미지로 복원
@@ -316,8 +317,6 @@
   
   // ajax 로 회사 선택 후 부서 리스트 조회
   function loadDepts(companyId){
-    console.log(contextPath)
-    console.log(companyId);
     const deptSelect = document.getElementById("departmentId");
     deptSelect.innerHTML = `<option value="">-- 부서 선택 --</option>`;
 
@@ -330,12 +329,11 @@
                 const option = document.createElement("option");
                 option.value = dept.departmentId;
                 option.text = dept.departmentName;
-                deptSelect.appendChild(option); // ✅ 중요!
+                deptSelect.appendChild(option);
               });
             })
             .catch(error => {
-              console.error("부서 불러오기 실패", error);
-              console.log(contextPath + "/user/login/company/depts?companyId=" + companyId)
+              alert("부서 목록을 불러오지 못했습니다.");
             });
   }
 

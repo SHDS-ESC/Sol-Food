@@ -50,7 +50,6 @@ public class S3ServiceV2 {
             log.info("S3 클라이언트 v2 초기화 완료 (성능 향상)");
         } catch (Exception e) {
             log.error("S3 클라이언트 v2 초기화 실패: {}", e.getMessage());
-            e.printStackTrace();
         }
     }
     
@@ -78,8 +77,7 @@ public class S3ServiceV2 {
             return presignedRequest.url().toString();
 
         } catch (Exception e) {
-            System.err.println("Pre-signed URL v2 생성 실패: " + e.getMessage());
-            e.printStackTrace();
+            log.error("Pre-signed URL v2 생성 실패: {}", e.getMessage());
             throw new RuntimeException("파일 업로드 URL 생성에 실패했습니다.", e);
         }
     }

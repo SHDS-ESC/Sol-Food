@@ -25,12 +25,10 @@
                 script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services&autoload=false';
                 script.onload = () => {
                     kakao.maps.load(() => {
-                        console.log('가게 목록 페이지: 카카오맵 SDK 로딩 완료');
                         resolve();
                     });
                 };
                 script.onerror = () => {
-                    console.error('가게 목록 페이지: 카카오맵 SDK 로딩 실패');
                     reject();
                 };
                 document.head.appendChild(script);
@@ -151,7 +149,18 @@
     <a href="#"><i class="bi bi-person-circle"></i>마이</a>
 </div>
 
-<script src="<c:url value='/js/store.js' />"></script>
+    <script>
+        // Context Path를 JavaScript에서 사용할 수 있도록 설정
+        var contextPath = '${pageContext.request.contextPath}';
+    </script>
+    <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
+    <script>
+        // UrlConstants 로딩 확인
+        if (typeof UrlConstants === 'undefined') {
+            alert('스크립트 로딩 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+        }
+    </script>
+<script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
 
 </body>
 </html>

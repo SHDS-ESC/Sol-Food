@@ -43,12 +43,10 @@
                 script.src = 'https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services&autoload=false';
                 script.onload = () => {
                     kakao.maps.load(() => {
-                        console.log('카카오맵 SDK 로딩 완료');
                         resolve();
                     });
                 };
                 script.onerror = () => {
-                    console.error('카카오맵 SDK 로딩 실패');
                     reject();
                 };
                 document.head.appendChild(script);

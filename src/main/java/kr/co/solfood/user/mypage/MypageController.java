@@ -51,7 +51,7 @@ public class MypageController {
 //        }
 
         model.addAttribute("currentUser", userVO);
-        return UrlConstants.Redirect.TO_USER_LOGIN;
+        return UrlConstants.View.USER_MYPAGE;
     }
 
     // 마이페이지 > 내정보 get
@@ -104,7 +104,7 @@ public class MypageController {
         loginUser.setUsersName(userVO.getUsersName());
         loginUser.setUsersGender(userVO.getUsersGender());
         loginUser.setUsersBirth(userVO.getUsersBirth());
-        sess.setAttribute("userLoginSession", loginUser);
+        sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, loginUser);
 
         // 4. 세션정보 갱신
         return "redirect:/";
@@ -138,7 +138,10 @@ public class MypageController {
     @GetMapping("/like")
     public String getLikedStores(HttpSession session, StoreVO storeVO, Model model){
         //1. 세션에서 사용자 ID 가져오기
-        UserVO loginUser = (UserVO) session.getAttribute("userLoginSession");
+        UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+        if(loginUser == null){
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
         Long usersId = loginUser.getUsersId();
 
         //2. 찜 목록 조회
@@ -148,7 +151,7 @@ public class MypageController {
         model.addAttribute("pageMaker", pageMaker);
         model.addAttribute("totalCount", pageMaker.getCount());
 
-        return "user/userControl/like";
+        return "user/login/like";
     }
 
     // 마이페이지 > json
@@ -158,7 +161,10 @@ public class MypageController {
             HttpSession session,
             StoreVO storeVO
     ){
-        UserVO loginUser = (UserVO) session.getAttribute("userLoginSession");
+        UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+        if(loginUser == null){
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
         Long usersId = loginUser.getUsersId();
 
         PageMaker<StoreVO> pageMaker = mypageService.getLikedStoresApi(usersId, storeVO);
