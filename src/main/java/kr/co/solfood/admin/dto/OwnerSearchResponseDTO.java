@@ -16,5 +16,6 @@ public class OwnerSearchResponseDTO extends PageDTO {
     String storeTel;
     String storeAddress;
     String storeIntro;
-    String ownerStatus;
+    String storeStatus;
+    String storeRejectReason;
 }
