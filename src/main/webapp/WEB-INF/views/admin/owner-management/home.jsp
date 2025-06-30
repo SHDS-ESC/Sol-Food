@@ -71,12 +71,13 @@
                         <th>주소</th>
                         <th>지점 소개</th>
                         <th>상태</th>
+                        <th>거절사유</th>
                     </tr>
                     </thead>
                     <tbody id="ownerListBody">
                     <c:forEach var="owner" items="${ownerList.list}">
-                        <tr>
-                            <td>${owner.ownerId}</td>
+                        <tr onclick="location.href='${pageContext.request.contextPath}/admin/home/owner-detail?ownerId=' + $(this).children('.owner-id').text()">
+                            <td class="owner-id">${owner.ownerId}</td>
                             <td>
                                 <c:choose>
                                     <c:when test="${not empty owner.storeMainImage}">
@@ -103,14 +104,15 @@
                             <td>${owner.storeAddress}</td>
                             <td>${owner.storeIntro}</td>
                             <td>
-                                <label>
-                                    <select class="status-select">
-                                        <option value="승인완료" ${owner.ownerStatus == '승인완료' ? 'selected' : ''}>승인완료</option>
-                                        <option value="승인대기" ${owner.ownerStatus == '승인대기' ? 'selected' : ''}>승인대기</option>
-                                        <option value="승인거절" ${owner.ownerStatus == '승인거절' ? 'selected' : ''}>승인거절</option>
-                                    </select>
-                                </label>
+                                <div class="status-container">
+                        <span class="status-badge
+                            ${owner.storeStatus == '승인완료' ? 'status-approved' :
+                              owner.storeStatus == '승인대기' ? 'status-pending' : 'status-rejected'}">
+                                ${owner.storeStatus}
+                        </span>
+                                </div>
                             </td>
+                            <td>${owner.storeRejectReason}</td>
                         </tr>
                     </c:forEach>
                     </tbody>
