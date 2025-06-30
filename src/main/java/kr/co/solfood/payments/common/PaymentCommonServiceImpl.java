@@ -11,6 +11,12 @@ public class PaymentCommonServiceImpl implements PaymentCommonService {
         this.paymentCommonMapper = paymentCommonMapper;
     }
 
+
+    @Override
+    public PaymentCommonMapper getMapper() {
+        return paymentCommonMapper;
+    }
+
     @Override
     public boolean isAlreadyProcessed(String imp_uid) {
         throw new UnsupportedOperationException("isAlreadyProcessed requires domain-specific mapper. Not supported in CommonServiceImpl.");

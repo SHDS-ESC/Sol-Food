@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import kr.co.solfood.payments.common.PaymentCommonMapper;
 import kr.co.solfood.user.login.UserVO;
 
 @Service
@@ -17,16 +18,9 @@ public class PaymentServiceImpl implements PaymentService {
         this.paymentMapper = paymentMapper;
     }
 
-    // 중복 충전 방지 (imp_uid 중복 체크)
     @Override
-    public boolean isAlreadyProcessed(String imp_uid) {
-        return paymentMapper.isAlreadyProcessed(imp_uid);
-    }
-
-    // imp_uid 기록
-    @Override
-    public void saveProcessedImpUid(String imp_uid) {
-        paymentMapper.saveProcessedImpUid(imp_uid);
+    public PaymentCommonMapper getMapper() {
+        return paymentMapper;
     }
 
     // 포인트 적립 (트랜잭션 처리)
