@@ -86,6 +86,118 @@ public class CartServiceImpl implements CartService {
     }
     
     @Override
+    public boolean addToCart(HttpSession session, int menuId, int quantity, int customPrice) {
+        try {
+            // 메뉴 정보 조회
+            MenuVO menu = menuMapper.getMenuById(menuId);
+            if (menu == null) {
+                log.error("메뉴를 찾을 수 없습니다. menuId: {}", menuId);
+                return false;
+            }
+            
+            // 가게 정보 조회
+            StoreVO store = storeMapper.getStoreById(menu.getStoreId());
+            if (store == null) {
+                log.error("가게를 찾을 수 없습니다. storeId: {}", menu.getStoreId());
+                return false;
+            }
+            
+            CartVO cart = getCart(session);
+            
+            // 다른 가게의 메뉴인 경우 장바구니 초기화
+            if (!cart.isEmpty() && cart.getStoreId() != menu.getStoreId()) {
+                cart.clear();
+            }
+            
+            // 가게 정보 설정
+            if (cart.isEmpty()) {
+                cart.setStoreId(menu.getStoreId());
+                cart.setStoreName(store.getStoreName());
+            }
+            
+            // 장바구니 아이템 생성 (옵션 가격 포함)
+            CartItemVO cartItem = new CartItemVO(
+                menuId,
+                menu.getMenuName(),
+                menu.getMenuMainimage(),
+                menu.getMenuPrice(), // 기본 메뉴 가격
+                customPrice, // 옵션이 포함된 단가
+                quantity,
+                null // 옵션 정보 없음
+            );
+            
+            // 장바구니에 추가
+            cart.addItem(cartItem);
+            
+            // 세션에 저장
+            session.setAttribute(UrlConstants.Session.USER_CART, cart);
+            
+            log.info("장바구니에 메뉴 추가 완료 (옵션 포함): menuId=" + menuId + ", quantity=" + quantity + ", customPrice=" + customPrice);
+            return true;
+            
+        } catch (Exception e) {
+            log.error("장바구니 추가 중 오류 발생: {}", e.getMessage());
+            return false;
+        }
+    }
+    
+    @Override
+    public boolean addToCart(HttpSession session, int menuId, int quantity, int customPrice, String options) {
+        try {
+            // 메뉴 정보 조회
+            MenuVO menu = menuMapper.getMenuById(menuId);
+            if (menu == null) {
+                log.error("메뉴를 찾을 수 없습니다. menuId: {}", menuId);
+                return false;
+            }
+            
+            // 가게 정보 조회
+            StoreVO store = storeMapper.getStoreById(menu.getStoreId());
+            if (store == null) {
+                log.error("가게를 찾을 수 없습니다. storeId: {}", menu.getStoreId());
+                return false;
+            }
+            
+            CartVO cart = getCart(session);
+            
+            // 다른 가게의 메뉴인 경우 장바구니 초기화
+            if (!cart.isEmpty() && cart.getStoreId() != menu.getStoreId()) {
+                cart.clear();
+            }
+            
+            // 가게 정보 설정
+            if (cart.isEmpty()) {
+                cart.setStoreId(menu.getStoreId());
+                cart.setStoreName(store.getStoreName());
+            }
+            
+            // 장바구니 아이템 생성 (옵션 정보 포함)
+            CartItemVO cartItem = new CartItemVO(
+                menuId,
+                menu.getMenuName(),
+                menu.getMenuMainimage(),
+                menu.getMenuPrice(), // 기본 메뉴 가격
+                customPrice, // 옵션이 포함된 단가
+                quantity,
+                options // 옵션 정보 (JSON)
+            );
+            
+            // 장바구니에 추가
+            cart.addItem(cartItem);
+            
+            // 세션에 저장
+            session.setAttribute(UrlConstants.Session.USER_CART, cart);
+            
+            log.info("장바구니에 메뉴 추가 완료 (옵션 및 정보 포함): menuId=" + menuId + ", quantity=" + quantity + ", customPrice=" + customPrice + ", options=" + options);
+            return true;
+            
+        } catch (Exception e) {
+            log.error("장바구니 추가 중 오류 발생: {}", e.getMessage());
+            return false;
+        }
+    }
+    
+    @Override
     public boolean updateQuantity(HttpSession session, int menuId, int quantity) {
         try {
             CartVO cart = getCart(session);

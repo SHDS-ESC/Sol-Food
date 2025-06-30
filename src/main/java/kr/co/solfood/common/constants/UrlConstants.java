@@ -50,6 +50,18 @@ public final class UrlConstants {
         public static final String LIKE_ADD = LIKE_BASE + "/add";
         public static final String LIKE_CANCEL = LIKE_BASE + "/cancel";
         
+        // 장바구니 관련
+        public static final String CART_BASE = BASE + "/cart";
+        public static final String CART_ADD = CART_BASE + "/add";
+        public static final String CART_UPDATE = CART_BASE + "/update";
+        public static final String CART_REMOVE = CART_BASE + "/remove";
+        public static final String CART_CLEAR = CART_BASE + "/clear";
+        public static final String CART_COUNT = CART_BASE + "/count";
+        public static final String CART_PAYMENT_METHOD = CART_BASE + "/payment-method";
+        public static final String CART_INVITE_FRIENDS = CART_BASE + "/invite-friends";
+        public static final String CART_WAITING_APPROVAL = CART_BASE + "/waiting-approval";
+        public static final String CART_USERS_DEPARTMENT = CART_BASE + "/users/department";
+        
         private User() {}
     }
     
@@ -93,6 +105,10 @@ public final class UrlConstants {
         public static final String USER_MYPAGE = "user/login/mypage";
         public static final String USER_LOGIN_INFO = "user/login/info";
         public static final String USER_REVIEW_WRITE = "user/review/write";
+        public static final String USER_CART = "user/cart/cart";
+        public static final String USER_CART_PAYMENT_METHOD = "user/cart/payment-method";
+        public static final String USER_CART_INVITE_FRIENDS = "user/cart/invite-friends";
+        public static final String USER_CART_WAITING_APPROVAL = "user/cart/waiting-approval";
         
         private View() {}
     }
@@ -115,6 +131,11 @@ public final class UrlConstants {
     public static final class Param {
         public static final String STORE_ID = "storeId";
         public static final String REVIEW_ID = "reviewId";
+        public static final String MENU_ID = "menuId";
+        public static final String QUANTITY = "quantity";
+        public static final String DEPARTMENT_ID = "departmentId";
+        public static final String COMPANY_ID = "companyId";
+        public static final String CURRENT_USER_ID = "currentUserId";
         
         private Param() {}
     }
@@ -126,6 +147,9 @@ public final class UrlConstants {
         public static final String KAKAO_JS_KEY = "kakaoJsKey";
         public static final String SUCCESS = "success";
         public static final String ERROR = "error";
+        public static final String CART = "cart";
+        public static final String COMPANY_USERS = "companyUsers";
+        public static final String CURRENT_USER = "currentUser";
         
         private Model() {}
     }
@@ -140,6 +164,7 @@ public final class UrlConstants {
         public static final String TO_ADMIN_LOGIN = "redirect:" + Admin.LOGIN;
         public static final String TO_OWNER_LOGIN = "redirect:" + Owner.LOGIN;
         public static final String TO_ROOT = "redirect:" + Common.ROOT;
+        public static final String TO_USER_CART = "redirect:" + User.CART_BASE;
         
         private Redirect() {}
     }

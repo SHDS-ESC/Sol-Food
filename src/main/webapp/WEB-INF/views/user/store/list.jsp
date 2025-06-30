@@ -110,7 +110,9 @@
             </c:forEach>
             <c:if test="${fn:length(categories) > 8}">
                 <button class="category-item" onclick="toggleMoreCategories()">
-                    <div class="category-icon"></div>
+                    <div class="category-icon">
+                        <i id="moreIcon" class="bi bi-chevron-down" style="font-size: 24px; color: #666;"></i>
+                    </div>
                     <span class="category-name" id="moreText">더보기</span>
                 </button>
             </c:if>

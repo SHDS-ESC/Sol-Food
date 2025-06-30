@@ -53,7 +53,8 @@
             font-size: 18px;
             font-weight: 600;
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+            line-height: 1.3;
         }
         
         .item-price {
@@ -167,6 +168,38 @@
             font-size: 14px;
             margin-bottom: 15px;
         }
+        
+        .item-options {
+            margin: 8px 0 5px 0;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .option-item {
+            display: inline-block;
+            background: #e7f3ff;
+            padding: 3px 10px;
+            margin: 2px 3px 2px 0;
+            border-radius: 15px;
+            color: #0056b3;
+            border: 1px solid #b3d9ff;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .option-price {
+            color: #007bff;
+            font-weight: 600;
+        }
+        
+        .original-price {
+            font-size: 14px;
+        }
+        
+        .final-price {
+            color: #007bff;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -215,8 +248,28 @@
                             <!-- 메뉴 정보 -->
                             <div class="col">
                                 <div class="item-name">${item.menuName}</div>
+
+                                
+                                <!-- 옵션 정보 표시 -->
+                                <c:if test="${not empty item.options}">
+                                    <div class="item-options" data-menu-id="${item.menuId}" data-options-raw="${item.options}">
+                                        <small class="text-muted">옵션 로딩 중...</small>
+                                    </div>
+                                </c:if>
                                 <div class="item-price">
-                                    <fmt:formatNumber value="${item.menuPrice}" pattern="#,###"/>원
+                                    <c:choose>
+                                        <c:when test="${item.unitPrice != item.menuPrice}">
+                                            <span class="original-price text-muted text-decoration-line-through">
+                                                <fmt:formatNumber value="${item.menuPrice}" pattern="#,###"/>원
+                                            </span>
+                                            <span class="final-price ms-2">
+                                                <fmt:formatNumber value="${item.unitPrice}" pattern="#,###"/>원
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <fmt:formatNumber value="${item.menuPrice}" pattern="#,###"/>원
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </div>
                             
@@ -266,7 +319,7 @@
                                 <button class="btn btn-clear text-white" onclick="clearCart()">
                                     <i class="bi bi-trash"></i> 전체 삭제
                                 </button>
-                                <button class="btn btn-order text-white" onclick="showOrderComingSoon()">
+                                <button class="btn btn-order text-white" onclick="proceedToPayment()">
                                     <i class="bi bi-credit-card"></i> 주문하기
                                 </button>
                             </div>
@@ -284,14 +337,40 @@
         var contextPath = '${pageContext.request.contextPath}';
     </script>
     <!-- URL Constants -->
-    <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
+    <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
     <script>
-    // 주문 기능 준비 중 알림
-    function showOrderComingSoon() {
-        alert('주문 기능은 곧 추가될 예정입니다! 🚀');
-    }
+        // 결제 페이지로 이동
+        function proceedToPayment() {
+            window.location.href = UrlConstants.Builder.fullUrl('/user/cart/payment-method');
+        }
+        
+                // 옵션 정보 표시 (간단 버전)
+        function displayOptions() {
+            const allOptionElements = document.querySelectorAll('.item-options');
+            
+            allOptionElements.forEach((element, index) => {
+                const rawOptions = element.getAttribute('data-options-raw');
+                
+                if (rawOptions) {
+                    // 옵션이 있으면 간단히 "선택 옵션 적용" 표시
+                    const optionHtml = '<span class="option-item">선택 옵션 적용</span>';
+                    const small = element.querySelector('small');
+                    if (small) {
+                        small.outerHTML = optionHtml;
+                    }
+                } else {
+                    // 옵션이 없는 경우 숨김
+                    element.style.display = 'none';
+                }
+            });
+        }
+        
+        // 페이지 로드 완료 후 옵션 정보 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            displayOptions();
+        });
     </script>
     <!-- Cart JavaScript -->
-    <script src="${pageContext.request.contextPath}/js/cart.js"></script>
+    <script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
 </body>
 </html> 

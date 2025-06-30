@@ -163,7 +163,15 @@
                         </c:when>
                         <c:otherwise>
                             <c:forEach var="menu" items="${menuList}">
-                                <div class="menu-item" data-category="<c:out value='${menu.category}'/>">
+                                <div class="menu-item" 
+                                     data-category="<c:out value='${menu.category}'/>"
+                                     data-menu-id="${menu.menuId}"
+                                     data-menu-name="<c:out value='${menu.menuName}'/>"
+                                     data-menu-intro="<c:out value='${menu.menuIntro}'/>"
+                                     data-menu-price="${menu.menuPrice}"
+                                     data-menu-image="<c:out value='${menu.menuMainimage}'/>"
+                                     onclick="openMenuDetailFromElement(this)" 
+                                     style="cursor: pointer;">
                                     <img src="<c:out value='${menu.menuMainimage}'/>" alt="<c:out value='${menu.menuName}'/>" class="menu-image" onerror="this.src='https://images.unsplash.com/photo-1590301157890-4810ed352733?w=80&h=80&fit=crop'">
                                     <div class="menu-info">
                                         <h3><c:out value="${menu.menuName}"/></h3>
@@ -171,9 +179,7 @@
                                     </div>
                                     <div class="menu-price-area">
                                         <div class="menu-price">₩<fmt:formatNumber value="${menu.menuPrice}" type="number" groupingUsed="true"/></div>
-                                        <button class="cart-btn" onclick="addToCart('${menu.menuId}', 1)">
-                                            <i class="cart-icon">🛒</i> 담기
-                                        </button>
+                                        <div class="quick-add-icon">+</div>
                                     </div>
                                 </div>
                             </c:forEach>
@@ -253,6 +259,120 @@
                     </c:choose>
                 </div>
             </div>
+        </div>
+    </div>
+    
+    <!-- 메뉴 상세 모달 -->
+    <div id="menuDetailModal" class="menu-modal" style="display: none;">
+        <div class="menu-modal-overlay" onclick="closeMenuDetail()"></div>
+        <div class="menu-modal-content">
+            <!-- 모달 헤더 -->
+            <div class="menu-modal-header">
+                <button class="menu-modal-close" onclick="closeMenuDetail()">×</button>
+                <img id="modalMenuImage" src="" alt="메뉴 이미지" class="menu-modal-image">
+            </div>
+            
+            <!-- 모달 바디 -->
+            <div class="menu-modal-body">
+                <h2 id="modalMenuName" class="menu-modal-title"></h2>
+                <p id="modalMenuIntro" class="menu-modal-description"></p>
+                
+                <!-- 기본 가격 -->
+                <div class="menu-modal-price">
+                    <span class="price-label">가격</span>
+                    <span id="modalMenuPrice" class="price-value"></span>
+                </div>
+                
+                <!-- 수량 선택 -->
+                <div class="quantity-section">
+                    <span class="quantity-label">수량</span>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity()" id="decreaseBtn">-</button>
+                        <span class="quantity-value" id="quantityValue">1</span>
+                        <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                    </div>
+                </div>
+                
+                <!-- 옵션 선택 섹션들 -->
+                <div class="options-section">
+                    <!-- 모찌치 추가 옵션 -->
+                    <div class="option-group" id="optionMocchi" style="display: none;">
+                        <h4 class="option-title">모찌치 추가 <span class="option-required">필수 선택</span></h4>
+                        <div class="option-items">
+                            <label class="option-item">
+                                <input type="radio" name="mocchi" value="1" data-price="0" checked>
+                                <span class="option-text">모찌치(모짜렐라치즈치킨) 1개</span>
+                                <span class="option-price">+0원</span>
+                            </label>
+                            <label class="option-item">
+                                <input type="radio" name="mocchi" value="2" data-price="2000">
+                                <span class="option-text">모찌치(모짜렐라치즈치킨) 2개</span>
+                                <span class="option-price">+2,000원</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 뼈/순살 선택 옵션 -->
+                    <div class="option-group" id="optionMeat" style="display: none;">
+                        <h4 class="option-title">뼈/순살 선택 <span class="option-required">필수 선택</span></h4>
+                        <div class="option-items">
+                            <label class="option-item">
+                                <input type="radio" name="meat" value="bone" data-price="0" checked>
+                                <span class="option-text">뼈(국내산 신선육)</span>
+                                <span class="option-price">+0원</span>
+                            </label>
+                            <label class="option-item">
+                                <input type="radio" name="meat" value="boneless" data-price="2000">
+                                <span class="option-text">순살(닭다리살 100%)</span>
+                                <span class="option-price">+2,000원</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- 매운맛 단계 선택 -->
+                    <div class="option-group" id="optionSpicy" style="display: none;">
+                        <h4 class="option-title">매운맛 3단계 <span class="option-required">필수 선택</span></h4>
+                        <div class="option-items">
+                            <label class="option-item">
+                                <input type="radio" name="spicy" value="mild" data-price="0" checked>
+                                <span class="option-text">순한맛</span>
+                                <span class="option-price">+0원</span>
+                            </label>
+                            <label class="option-item">
+                                <input type="radio" name="spicy" value="medium" data-price="0">
+                                <span class="option-text">보통맛</span>
+                                <span class="option-price">+0원</span>
+                            </label>
+                            <label class="option-item">
+                                <input type="radio" name="spicy" value="hot" data-price="0">
+                                <span class="option-text">매운맛</span>
+                                <span class="option-price">+0원</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 하단 고정 버튼 -->
+            <div class="menu-modal-footer">
+                <button class="add-to-cart-btn" onclick="addMenuToCart()">
+                    <span class="cart-text">장바구니에 담기</span>
+                    <span class="total-price" id="totalPrice">0원</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 하단 카트 바 -->
+    <div class="bottom-cart-bar" id="bottomCartBar" style="display: none;">
+        <div class="cart-bar-content">
+            <div class="cart-info">
+                <span class="cart-item-count" id="cartItemCount">0</span>
+                <span class="cart-amount" id="cartAmount">0원</span>
+            </div>
+            <button class="cart-view-btn" onclick="goToCart()">
+                카트 보기
+            </button>
         </div>
     </div>
     

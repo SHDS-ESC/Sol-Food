@@ -10,6 +10,12 @@ public interface CartService {
     // 장바구니에 메뉴 추가
     boolean addToCart(HttpSession session, int menuId, int quantity);
     
+    // 장바구니에 메뉴 추가 (옵션 가격 포함)
+    boolean addToCart(HttpSession session, int menuId, int quantity, int customPrice);
+    
+    // 장바구니에 메뉴 추가 (옵션 정보 포함)
+    boolean addToCart(HttpSession session, int menuId, int quantity, int customPrice, String options);
+    
     // 장바구니 아이템 수량 변경
     boolean updateQuantity(HttpSession session, int menuId, int quantity);
     
