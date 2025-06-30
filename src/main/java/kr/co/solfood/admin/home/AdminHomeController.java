@@ -143,9 +143,9 @@ public class AdminHomeController {
      */
     @ResponseBody
     @GetMapping("/owner-management/status-update")
-    public String storeStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status) {
+    public String storeStatusUpdate(@RequestParam("ownerId") long ownerId, @RequestParam("status") String status, @RequestParam("storeRejectReason") String storeRejectReason) {
         try {
-            adminHomeService.updateStoreStatus(new StoreStatusUpdateDTO(ownerId, status));
+            adminHomeService.updateStoreStatus(new StoreStatusUpdateDTO(ownerId, status, storeRejectReason));
         } catch (IllegalArgumentException e) {
             log.info("Owner status update failed: {}", e.getMessage());
         }

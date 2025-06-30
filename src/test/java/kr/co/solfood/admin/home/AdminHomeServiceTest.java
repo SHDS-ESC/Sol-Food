@@ -107,9 +107,9 @@ class AdminHomeServiceTest {
     @DisplayName("updateStoreStatus - 유효한 상태 값은 예외 없이 처리되어야 한다.")
     void updateStoreStatus_validStatuses_noException(String validStatus) {
         // given
-        StoreStatusUpdateDTO dto = new StoreStatusUpdateDTO(1L, validStatus);
+        StoreStatusUpdateDTO dto = new StoreStatusUpdateDTO(1L, validStatus, "");
         given(adminMapper.updateStoreStatus(any(StoreStatusUpdateDTO.class)))
-                .willReturn(1);  // DB 업데이트 성공 상황 시뮬레이션
+                .willReturn(1);
 
         // then
         assertDoesNotThrow(() -> adminHomeService.updateStoreStatus(dto));
@@ -123,7 +123,7 @@ class AdminHomeServiceTest {
     @DisplayName("updateStoreStatus - 유효하지 않은 상태 값은 IllegalArgumentException 을 던져야 한다.")
     void updateStoreStatus_invalidStatuses_throws(String invalidStatus) {
         // given
-        StoreStatusUpdateDTO dto = new StoreStatusUpdateDTO(1L, invalidStatus);
+        StoreStatusUpdateDTO dto = new StoreStatusUpdateDTO(1L, invalidStatus,"");
 
         // then
         IllegalArgumentException ex = assertThrows(

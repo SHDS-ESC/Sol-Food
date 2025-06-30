@@ -35,7 +35,7 @@ class AdminHomeControllerTest {
     @DisplayName("admin/home GET 요청시 홈 화면 이동")
     void home() throws Exception {
         adminMockMvc.perform(get("/admin/home"))
-                .andDo(print()) // 실제 응답 내용을 콘솔에 출력
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name("admin/home"));
     }
@@ -149,7 +149,7 @@ class AdminHomeControllerTest {
 
         try {
             adminMockMvc.perform(get("/admin/home/owner-management"))
-                    .andDo(print()) // 실제 응답 내용을 콘솔에 출력
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andDo(print())
                     .andExpect(status().isOk())
@@ -176,7 +176,7 @@ class AdminHomeControllerTest {
             adminMockMvc.perform(get("/admin/home/owner-management/search")
                             .param("currentPage", "1")
                             .param("pageSize", "10"))
-                    .andDo(print()) // 실제 응답 내용을 콘솔에 출력
+                    .andDo(print())
                     .andExpect(status().isOk());
         } catch (Exception e) {
             throw new RuntimeException("Error during owner search test", e);
@@ -188,7 +188,7 @@ class AdminHomeControllerTest {
     void paymentManagement() {
         try {
             adminMockMvc.perform(get("/admin/home/payment-management"))
-                    .andDo(print()) // 실제 응답 내용을 콘솔에 출력
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(view().name("admin/payment-management/home"));
         } catch (Exception e) {
@@ -203,7 +203,7 @@ class AdminHomeControllerTest {
             adminMockMvc.perform(get("/admin/home/owner-management/status-update")
                             .param("ownerId", "1")
                             .param("status", "승인완료"))
-                    .andDo(print()) // 실제 응답 내용을 콘솔에 출력
+                    .andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(content().string("admin/owner-management/home"));
         } catch (Exception e) {
