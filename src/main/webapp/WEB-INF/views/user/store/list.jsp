@@ -1,7 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %><link href="<c:url value='/css/store.css' />" rel="stylesheet">
 <!DOCTYPE html>
 <html>
 <head>
@@ -138,7 +137,6 @@
 
     <div id="listContainer" class="list-container">
         <div class="store-grid" id="storeGrid">
-            <!-- 초기 데이터는 JavaScript에서 동적으로 로드 -->
         </div>
         <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;" onclick="loadMoreStores()">더보기</button>
     </div>

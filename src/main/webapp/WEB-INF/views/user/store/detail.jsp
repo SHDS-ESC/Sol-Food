@@ -143,26 +143,30 @@
                     </div>
                 </c:if>
                 
-                <div class="menu-list">
-                    <c:choose>
-                        <c:when test="${empty menuList}">
-                            <div class="no-reviews">아직 등록된 메뉴가 없습니다.</div>
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="menu" items="${menuList}">
-                                <div class="menu-item" data-category="<c:out value='${menu.category}'/>">
-                                    <img src="<c:out value='${menu.menuMainimage}'/>" alt="<c:out value='${menu.menuName}'/>" class="menu-image" onerror="this.src='https://images.unsplash.com/photo-1590301157890-4810ed352733?w=80&h=80&fit=crop'">
-                                    <div class="menu-info">
-                                        <h3><c:out value="${menu.menuName}"/></h3>
-                                        <p><c:out value="${menu.menuIntro}"/></p>
-                                    </div>
-                                    <div class="menu-price">₩<fmt:formatNumber value="${menu.menuPrice}" type="number" groupingUsed="true"/></div>
+
+            <div class="menu-list">
+                <c:choose>
+                    <c:when test="${empty menuList}">
+                        <div class="no-reviews">아직 등록된 메뉴가 없습니다.</div>
+                    </c:when>
+                    <c:otherwise>
+                        <c:forEach var="menu" items="${menuList}">
+                            <a href="/solfood/user/menu/detail?menuId=${menu.menuId}" class="menu-item">
+                                <img src="${menu.menuMainimage}" alt="${menu.menuName}" class="menu-image"
+                                     onerror="this.src='https://images.unsplash.com/photo-1590301157890-4810ed352733?w=80&h=80&fit=crop'">
+                                <div class="menu-info">
+                                    <h3>${menu.menuName}</h3>
+                                    <p>${menu.menuIntro}</p>
                                 </div>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
+                                <div class="menu-price">
+                                    ₩<fmt:formatNumber value="${menu.menuPrice}" type="number" groupingUsed="true"/>
+                                </div>
+                            </a>
+                        </c:forEach>
+                    </c:otherwise>
+                </c:choose>
             </div>
+
             
             <!-- 지도 섹션 -->
             <div class="content-section" id="map-section">
