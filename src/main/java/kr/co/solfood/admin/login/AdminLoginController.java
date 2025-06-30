@@ -4,6 +4,8 @@ import kr.co.solfood.common.constants.UrlConstants;
 import kr.co.solfood.util.CustomException;
 import properties.KakaoProperties;
 import properties.ServerProperties;
+import properties.KakaoProperties;
+import properties.ServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
