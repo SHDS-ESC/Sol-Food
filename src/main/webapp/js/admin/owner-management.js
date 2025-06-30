@@ -45,7 +45,7 @@ const ctx = window.APP_CTX;
                     .val(status)
                     .text(status);
 
-                if (owner.ownerStatus === status) {
+                if (owner.storeStatus === status) {
                     $opt.prop('selected', true);
                 }
 
@@ -151,24 +151,5 @@ const ctx = window.APP_CTX;
         $pageSize.on('change', function () {
             currentPage = 1;
             $('#searchForm').submit();
-        });
-
-        $('#ownerListBody').on('change', '.status-select', function () {
-            const status = $(this).val()
-            const ownerId = $(this).closest('tr').find('td:first').text();
-            console.log(status, ownerId);
-            $.ajax({
-                url: ctx + '/admin/home/owner-management/status-update',
-                type: 'GET',
-                data: {
-                    ownerId: ownerId,
-                    status: status
-                },
-                error: function () {
-                    alert('업데이트에 실패하였습니다.');
-                }
-            });
-
-
         });
     });
