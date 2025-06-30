@@ -146,7 +146,7 @@ public class MypageController {
         model.addAttribute("pageMaker", pageMaker);
         model.addAttribute("totalCount", pageMaker.getCount());
 
-        return "user/userControl/like";
+        return "user/login/like";
     }
 
     // 마이페이지 > json
