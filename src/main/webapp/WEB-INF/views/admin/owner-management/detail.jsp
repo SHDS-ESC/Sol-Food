@@ -46,10 +46,10 @@
         <!-- Store Info Card -->
         <div class="store-info-card">
             <div class="store-info-header">
-                <img src="https://via.placeholder.com/60x60/38a169/ffffff?text=Store" alt="상점 이미지" class="store-avatar">
+                <img src=${owner.storeMainImage} alt="상점 이미지" class="store-avatar">
                 <div class="store-details">
-                    <h4>맛있는 치킨집</h4>
-                    <p>owner@example.com | 서울시 강남구 테헤란로 123</p>
+                    <h4>${owner.storeName}</h4>
+                    <p>${owner.ownerEmail} | ${owner.storeAddress}</p>
                 </div>
             </div>
         </div>

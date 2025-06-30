@@ -8,8 +8,10 @@ import java.util.List;
 public class StoreStatusUpdateDTO {
     long ownerId;
     String storeStatus;
+    String storeRejectReason;
 
-    public StoreStatusUpdateDTO(long ownerId, String storeStatus) {
+    public StoreStatusUpdateDTO(long ownerId, String storeStatus, String storeRejectReason) {
+        this.storeRejectReason = storeRejectReason;
         this.ownerId = ownerId;
         setStoreStatus(storeStatus);  // 직접 호출
     }

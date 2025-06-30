@@ -1,6 +1,8 @@
 const ctx = window.APP_CTX;
+const urlParams = new URLSearchParams(window.location.search);
+const ownerId = urlParams.get('ownerId');
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -25,29 +27,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     $(document).on('change', '.status-select', function () {
         const status = $(this).val();
-        const urlParams = new URLSearchParams(window.location.search);
-        const ownerId = urlParams.get('ownerId');
-        if(status === '승인거절'){
+        if (status === '승인거절') {
             openRejectionModal()
+            return
         }
-        $.ajax({
-            url: ctx + '/admin/home/owner-management/status-update',
-            type: 'GET',
-            data: {
-                ownerId: ownerId,
-                status: status
-            },
-            error: function () {
-                alert('업데이트에 실패하였습니다.');
-            }
-        });
+        sendUpdateState(status)
     });
-
-    function showPopup() { window.open("reject-popup", "a", "width=400, height=300, left=100, top=50"); }
 });
 
+function sendUpdateState(status, storeRejectReason = '') {
+    $.ajax({
+        url: ctx + '/admin/home/owner-management/status-update',
+        type: 'GET',
+        data: {
+            ownerId: ownerId,
+            status: status,
+            storeRejectReason: storeRejectReason
+        },
+        error: function () {
+            alert('업데이트에 실패하였습니다.');
+        }
+    });
+}
+
 // Form validation and interaction
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('rejectionForm');
     const textarea = document.querySelector('textarea[name="detailedReason"]');
     const charCount = document.getElementById('charCount');
@@ -55,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const reasonOptions = document.querySelectorAll('input[name="rejectionReason"]');
 
     // Character count update
-    textarea.addEventListener('input', function() {
+    textarea.addEventListener('input', function () {
         const currentLength = this.value.length;
         charCount.textContent = currentLength;
 
@@ -70,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Reason option selection
     reasonOptions.forEach(option => {
-        option.addEventListener('change', function() {
+        option.addEventListener('change', function () {
             // Remove selected class from all options
             document.querySelectorAll('.reason-option').forEach(opt => {
                 opt.classList.remove('selected');
@@ -98,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Form submission
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const selectedReason = document.querySelector('input[name="rejectionReason"]:checked');
@@ -116,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Simulate API call
         setTimeout(() => {
             alert('거절 사유가 성공적으로 등록되었습니다.');
+            sendUpdateState("승인거절",$('.custom-textarea').val())
             closeModal();
         }, 2000);
     });
@@ -159,16 +164,15 @@ function closeModal() {
     }, 300);
 }
 
-
 // Close modal when clicking outside
-document.getElementById('rejectionModal').addEventListener('click', function(e) {
+document.getElementById('rejectionModal').addEventListener('click', function (e) {
     if (e.target === this) {
         closeModal();
     }
 });
 
 // ESC key to close modal
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         closeModal();
     }

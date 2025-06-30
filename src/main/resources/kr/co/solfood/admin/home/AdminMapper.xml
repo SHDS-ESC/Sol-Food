@@ -105,7 +105,12 @@
 
     <update id="updateStoreStatus" parameterType="kr.co.solfood.admin.dto.StoreStatusUpdateDTO">
         UPDATE store
-        SET store_status = #{storeStatus}
+        <set>
+            store_status = #{storeStatus}
+            <if test="storeRejectReason != null and storeRejectReason != ''">
+                , store_reject_reason = #{storeRejectReason}
+            </if>
+        </set>
         WHERE owner_id = #{ownerId}
     </update>
 </mapper>

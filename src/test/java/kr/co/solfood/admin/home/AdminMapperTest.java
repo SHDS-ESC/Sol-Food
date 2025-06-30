@@ -113,7 +113,7 @@ class AdminMapperTest {
     @DisplayName("점주 상태 업데이트 검증 테스트")
     void updateStoreStatus() {
         // Given
-        StoreStatusUpdateDTO storeStatusUpdateDTO = new StoreStatusUpdateDTO(1L, "승인완료");
+        StoreStatusUpdateDTO storeStatusUpdateDTO = new StoreStatusUpdateDTO(1L, "승인완료","");
 
         // When
         int updatedCount = adminMapper.updateStoreStatus(storeStatusUpdateDTO);
