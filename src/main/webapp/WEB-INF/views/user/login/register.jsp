@@ -274,7 +274,6 @@
 <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
 <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
 <script>
-  const contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
   
   /**
    * 프로필 이미지 업로드 처리 (s3Upload.js와 호환)
@@ -303,7 +302,7 @@
       // 업로드 성공 - hidden input에 S3 URL 저장
       document.getElementById('usersProfile').value = s3Url;
       
-      console.log('프로필 이미지 업로드 완료:', s3Url);
+
       
     } catch (error) {
       console.error('프로필 이미지 업로드 실패:', error);
@@ -326,7 +325,7 @@
 
     if (!companyId) return;
 
-            fetch("/solfood/user/login/company/depts?companyId=" + companyId)
+            fetch(contextPath + "/user/login/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
               data.forEach(dept => {

@@ -145,20 +145,17 @@
     </div>
 
 <div class="bottom-nav">
-    <a href="/solfood/"><i class="bi bi-house"></i>홈</a>
-    <a href="/solfood/user/cart" class="cart-nav-item">
+    <a href="${pageContext.request.contextPath}/"><i class="bi bi-house"></i>홈</a>
+    <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
         <i class="bi bi-bag"></i>장바구니
         <span class="cart-nav-badge">0</span>
     </a>
     <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-    <a href="/solfood/user/mypage/like"><i class="bi bi-heart-fill"></i>찜</a>
-    <a href="/solfood/user/mypage"><i class="bi bi-person-circle"></i>마이</a>
+    <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill"></i>찜</a>
+    <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle"></i>마이</a>
 </div>
 
-    <script>
-        // Context Path를 JavaScript에서 사용할 수 있도록 설정
-        var contextPath = '${pageContext.request.contextPath}';
-    </script>
+
     <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
     <script>
         // UrlConstants 로딩 확인

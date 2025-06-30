@@ -198,7 +198,7 @@
 
         if (!companyId) return;
 
-                    fetch("${pageContext.request.contextPath}/user/login/company/depts?companyId=" + companyId)
+                    fetch(contextPath + "/user/login/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
                 data.forEach(dept => {

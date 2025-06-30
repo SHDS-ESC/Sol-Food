@@ -209,7 +209,7 @@
         /* 현재 사용자 부서 id */
         const selectedDeptId = "${user.departmentId}";
 
-                    fetch("${pageContext.request.contextPath}/user/login/company/depts?companyId=" + companyId)
+                    fetch(contextPath + "/user/login/company/depts?companyId=" + companyId)
             .then(res => res.json())
             .then(data => {
                 data.forEach(dept => {
