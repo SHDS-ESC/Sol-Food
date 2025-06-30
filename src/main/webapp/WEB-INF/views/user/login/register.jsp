@@ -190,7 +190,7 @@
 <body>
   <div class="form-container">
     <div class="form-title">회원가입</div>
-                <form action="${pageContext.request.contextPath}/user/login/register" method="post">
+      <form action="${pageContext.request.contextPath}/user/login/register" method="post">
       <!-- 프로필 이미지 업로드 -->
       <label>프로필 이미지</label>
       <div class="profile-upload-container">
@@ -255,7 +255,6 @@
       <label>전화번호 *</label>
       <input type="tel" name="usersTel" placeholder="010-0000-0000" required>
 
-
       <!-- Hidden Fields -->
       <input type="hidden" id="usersProfile" name="usersProfile" value="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800">
       <input type="hidden" name="usersPoint" value="0">
@@ -269,12 +268,13 @@
   </div>
 
 <script>
-    // Context Path를 JavaScript에서 사용할 수 있도록 설정
-    var contextPath = '${pageContext.request.contextPath}';
+  // Context Path를 JavaScript에서 사용할 수 있도록 설정
+  var contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
 </script>
 <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
 <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
 <script>
+  const contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
   
   /**
    * 프로필 이미지 업로드 처리 (s3Upload.js와 호환)
@@ -321,35 +321,24 @@
   
   // ajax 로 회사 선택 후 부서 리스트 조회
   function loadDepts(companyId){
-                    // 부서 목록 로드
     const deptSelect = document.getElementById("departmentId");
     deptSelect.innerHTML = `<option value="">-- 부서 선택 --</option>`;
 
     if (!companyId) return;
 
-    const url = contextPath + "/user/login/company/depts?companyId=" + companyId;
-    console.log('요청 URL:', url);
-
-    fetch(url)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('네트워크 응답이 정상이 아닙니다');
-        }
-        return res.json();
-      })
-      .then(data => {
-        console.log('부서 데이터:', data);
-        data.forEach(dept => {
-          const option = document.createElement("option");
-          option.value = dept.departmentId;
-          option.text = dept.departmentName;
-          deptSelect.appendChild(option);
-        });
-      })
-      .catch(error => {
-        console.error("부서 불러오기 실패:", error);
-        alert('부서 정보를 불러오는데 실패했습니다.');
-      });
+            fetch("/solfood/user/login/company/depts?companyId=" + companyId)
+            .then(res => res.json())
+            .then(data => {
+              data.forEach(dept => {
+                const option = document.createElement("option");
+                option.value = dept.departmentId;
+                option.text = dept.departmentName;
+                deptSelect.appendChild(option);
+              });
+            })
+            .catch(error => {
+              alert("부서 목록을 불러오지 못했습니다.");
+            });
   }
 
 </script>

@@ -37,7 +37,6 @@ class S3FileUploader {
             return uploadUrlResponse.publicUrl;
             
         } catch (error) {
-            console.error('파일 업로드 실패:', error);
             throw error;
         }
     }
@@ -99,8 +98,6 @@ class S3FileUploader {
      * 업로드 완료 후 공개 URL 받기 (레거시)
      */
     async getPublicUrl(fileName) {
-        console.warn('⚠️ getPublicUrl은 레거시 메서드입니다. 이제 presigned URL 요청에서 publicUrl을 바로 받습니다.');
-        
         const response = await fetch(`${this.apiBasePath}/profile/complete`, {
             method: 'POST',
             headers: {

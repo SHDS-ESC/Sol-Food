@@ -14,7 +14,7 @@
     <script>
         // Context Path를 JavaScript에서 사용할 수 있도록 설정
         var contextPath = '${pageContext.request.contextPath}';
-        
+
         // 카카오맵 SDK 동적 로딩
         function loadKakaoMapSDK() {
             return new Promise((resolve, reject) => {
@@ -150,12 +150,24 @@
     <a href="${pageContext.request.contextPath}/"><i class="bi bi-house"></i>홈</a>
     <a href="#"><i class="bi bi-list-check"></i>리스트</a>
     <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-                    <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill"></i>찜</a>
+    <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill"></i>찜</a>
     <a href="#"><i class="bi bi-person-circle"></i>마이</a>
 </div>
 
 <script src="<c:url value='/js/urlConstants.js' />"></script>
 <script src="<c:url value='/js/store.js' />"></script>
+    <script>
+        // Context Path를 JavaScript에서 사용할 수 있도록 설정
+        var contextPath = '${pageContext.request.contextPath}';
+    </script>
+    <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
+    <script>
+        // UrlConstants 로딩 확인
+        if (typeof UrlConstants === 'undefined') {
+            alert('스크립트 로딩 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+        }
+    </script>
+<script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
 
 </body>
 </html>

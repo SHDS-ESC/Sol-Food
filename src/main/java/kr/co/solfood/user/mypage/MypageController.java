@@ -140,7 +140,7 @@ public class MypageController {
         //1. 세션에서 사용자 ID 가져오기
         UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
         if(loginUser == null){
-            return "redirect:" + UrlConstants.User.LOGIN_PAGE;
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
         Long usersId = loginUser.getUsersId();
 
@@ -163,9 +163,7 @@ public class MypageController {
     ){
         UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
         if(loginUser == null){
-            Map<String, Object> errorResult = new HashMap<>();
-            errorResult.put("error", "로그인이 필요합니다.");
-            return errorResult;
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
         Long usersId = loginUser.getUsersId();
 

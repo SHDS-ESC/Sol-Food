@@ -193,8 +193,6 @@
     const contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
     // ajax 로 회사 선택 후 부서 리스트 조회
     function loadDepts(companyId){
-        console.log(contextPath)
-        console.log(companyId);
         const deptSelect = document.getElementById("departmentId");
         deptSelect.innerHTML = `<option value="">-- 부서 선택 --</option>`;
 
@@ -207,12 +205,11 @@
                     const option = document.createElement("option");
                     option.value = dept.departmentId;
                     option.text = dept.departmentName;
-                    deptSelect.appendChild(option); // ✅ 중요!
+                    deptSelect.appendChild(option);
                 });
             })
             .catch(error => {
-                console.error("부서 불러오기 실패", error);
-                console.log(contextPath + "/user/login/company/depts?companyId=" + companyId)
+                alert("부서 목록을 불러오지 못했습니다.");
             });
     }
 

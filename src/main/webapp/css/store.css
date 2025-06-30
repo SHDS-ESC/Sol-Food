@@ -625,14 +625,23 @@ body {
     padding: 0;
 }
 
-.like-btn .bi-heart {
-    color: #bbb;
+.like-btn i {
     font-size: 20px;
     transition: color 0.2s;
 }
 
+.like-btn .bi-heart {
+    color: #bbb;
+}
+
+.like-btn .bi-heart-fill {
+    color: #ff4d6d;
+}
+
+.like-btn.liked .bi-heart {
+    color: #ff4d6d;
+}
+
 .like-btn.liked .bi-heart-fill {
     color: #ff4d6d;
-    font-size: 20px;
-    transition: color 0.2s;
 }
