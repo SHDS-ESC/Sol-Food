@@ -104,6 +104,7 @@ public final class UrlConstants {
         public static final String USER_LOGIN_SESSION = "userLoginSession";
         public static final String ADMIN_LOGIN_SESSION = "adminLoginSession";
         public static final String OWNER_LOGIN_SESSION = "ownerLoginSession";
+        public static final String USER_CART = "userCart";
         
         private Session() {}
     }

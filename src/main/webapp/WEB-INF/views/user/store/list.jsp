@@ -75,7 +75,7 @@
             <!-- 전체 카테고리 버튼 (항상 첫 번째) -->
             <button class="category-item active" onclick="selectCategory(this, '전체')">
                 <div class="category-icon">
-                    <img src="/img/category/all.png" alt="전체" onerror="this.style.display='none';">
+                    <i class="bi bi-grid-3x3-gap" style="font-size: 24px; color: #666;"></i>
                 </div>
                 <span class="category-name">전체</span>
             </button>
@@ -143,10 +143,13 @@
 
 <div class="bottom-nav">
     <a href="/solfood/"><i class="bi bi-house"></i>홈</a>
-    <a href="#"><i class="bi bi-list-check"></i>리스트</a>
+    <a href="/solfood/user/cart" class="cart-nav-item">
+        <i class="bi bi-bag"></i>장바구니
+        <span class="cart-nav-badge">0</span>
+    </a>
     <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
     <a href="/solfood/user/mypage/like"><i class="bi bi-heart-fill"></i>찜</a>
-    <a href="#"><i class="bi bi-person-circle"></i>마이</a>
+    <a href="/solfood/user/mypage"><i class="bi bi-person-circle"></i>마이</a>
 </div>
 
     <script>
@@ -157,9 +160,11 @@
     <script>
         // UrlConstants 로딩 확인
         if (typeof UrlConstants === 'undefined') {
+            console.error('UrlConstants 로딩 실패');
             alert('스크립트 로딩 오류가 발생했습니다. 페이지를 새로고침해주세요.');
         }
     </script>
+<script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
 
 </body>

@@ -112,6 +112,18 @@
                 </div>
             </div>
             
+            <!-- 상단 액션 바 -->
+            <div class="action-bar">
+                <a href="${pageContext.request.contextPath}/user/store" class="back-btn">
+                    <i class="back-icon">←</i>
+                </a>
+                <span class="store-title"><c:out value="${store.storeName}"/></span>
+                <a href="${pageContext.request.contextPath}/user/cart" class="cart-link">
+                    <i class="cart-icon">🛒</i>
+                    <span class="cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+            
             <!-- 탭 메뉴 -->
             <div class="tabs">
                 <div class="tab active" data-tab="menu">메뉴</div>
@@ -157,7 +169,12 @@
                                         <h3><c:out value="${menu.menuName}"/></h3>
                                         <p><c:out value="${menu.menuIntro}"/></p>
                                     </div>
-                                    <div class="menu-price">₩<fmt:formatNumber value="${menu.menuPrice}" type="number" groupingUsed="true"/></div>
+                                    <div class="menu-price-area">
+                                        <div class="menu-price">₩<fmt:formatNumber value="${menu.menuPrice}" type="number" groupingUsed="true"/></div>
+                                        <button class="cart-btn" onclick="addToCart('${menu.menuId}', 1)">
+                                            <i class="cart-icon">🛒</i> 담기
+                                        </button>
+                                    </div>
                                 </div>
                             </c:forEach>
                         </c:otherwise>
@@ -241,6 +258,7 @@
     
     <!-- 외부 JavaScript 파일 -->
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
+    <script src="${pageContext.request.contextPath}/js/cart.js"></script>
     <script src="${pageContext.request.contextPath}/js/storedetail.js"></script>
 </body>
 </html>

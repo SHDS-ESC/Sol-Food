@@ -41,7 +41,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // 장바구니 개수 업데이트
+    if (typeof updateCartBadge === 'function') {
+        fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+            .then(response => response.json())
+            .then(data => updateCartBadge(data.count || 0))
+            .catch(error => console.error('장바구니 개수 로드 실패:', error));
+    }
 });
+
+// ==================== 장바구니 관련 ====================
+// updateCartBadge 함수는 cart.js에서 제공됨
 
 function loadCategoryConfig() {
     fetch(UrlConstants.Builder.fullUrl('/user/store/api/category/config'))
@@ -366,7 +377,7 @@ function createStoreCardElement(store, usersId) {
         // 안전한 문자열 처리
         const safeName = String(store.storeName || '이름 없음');
         const safeCategory = String(store.storeCategory || '기타');
-        const safeImage = store.storeMainimage || '/img/default-restaurant.jpg';
+        const safeImage = store.storeMainimage || 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=200&h=120&fit=crop&crop=center';
         const safeAddress = store.storeAddress || '';
         const safeTel = store.storeTel || '';
         const safeRating = Number(store.storeAvgstar || 0);

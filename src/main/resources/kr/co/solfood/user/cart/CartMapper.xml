@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.user.cart.CartMapper">
+
+    <!-- 장바구니 조회 (사용자별) -->
+    <select id="getCartByUserId" parameterType="int" resultType="kr.co.solfood.user.cart.CartVO">
+        SELECT cart_id, users_id, store_id, store_name, created_at, updated_at
+        FROM cart
+        WHERE users_id = #{usersId}
+    </select>
+
+    <!-- 장바구니 생성 -->
+    <insert id="insertCart" parameterType="kr.co.solfood.user.cart.CartVO" useGeneratedKeys="true" keyProperty="cartId">
+        INSERT INTO cart (users_id, store_id, store_name, created_at, updated_at)
+        VALUES (#{usersId}, #{storeId}, #{storeName}, NOW(), NOW())
+    </insert>
+
+    <!-- 장바구니 업데이트 -->
+    <update id="updateCart" parameterType="kr.co.solfood.user.cart.CartVO">
+        UPDATE cart 
+        SET store_id = #{storeId}, 
+            store_name = #{storeName}, 
+            updated_at = NOW()
+        WHERE cart_id = #{cartId}
+    </update>
+
+    <!-- 장바구니 삭제 -->
+    <delete id="deleteCart" parameterType="int">
+        DELETE FROM cart WHERE cart_id = #{cartId}
+    </delete>
+
+    <!-- 장바구니 아이템 목록 조회 -->
+    <select id="getCartItems" parameterType="int" resultType="kr.co.solfood.user.cart.CartItemVO">
+        SELECT cart_item_id, cart_id, menu_id, menu_name, menu_image, menu_price, quantity, created_at, updated_at
+        FROM cart_item
+        WHERE cart_id = #{cartId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 장바구니 아이템 추가 -->
+    <insert id="insertCartItem" parameterType="kr.co.solfood.user.cart.CartItemVO" useGeneratedKeys="true" keyProperty="cartItemId">
+        INSERT INTO cart_item (cart_id, menu_id, menu_name, menu_image, menu_price, quantity, created_at, updated_at)
+        VALUES (#{cartId}, #{menuId}, #{menuName}, #{menuImage}, #{menuPrice}, #{quantity}, NOW(), NOW())
+    </insert>
+
+    <!-- 장바구니 아이템 수량 업데이트 -->
+    <update id="updateCartItemQuantity">
+        UPDATE cart_item 
+        SET quantity = #{quantity}, 
+            updated_at = NOW()
+        WHERE cart_item_id = #{cartItemId}
+    </update>
+
+    <!-- 장바구니 아이템 삭제 -->
+    <delete id="deleteCartItem" parameterType="int">
+        DELETE FROM cart_item WHERE cart_item_id = #{cartItemId}
+    </delete>
+
+    <!-- 장바구니 아이템 중복 체크 -->
+    <select id="getCartItemByMenuId" resultType="kr.co.solfood.user.cart.CartItemVO">
+        SELECT cart_item_id, cart_id, menu_id, menu_name, menu_image, menu_price, quantity, created_at, updated_at
+        FROM cart_item
+        WHERE cart_id = #{cartId} AND menu_id = #{menuId}
+    </select>
+
+    <!-- 장바구니 전체 비우기 -->
+    <delete id="clearCart" parameterType="int">
+        DELETE FROM cart_item WHERE cart_id = #{cartId}
+    </delete>
+
+    <!-- 사용자별 장바구니 아이템 개수 -->
+    <select id="getCartItemCount" parameterType="int" resultType="int">
+        SELECT COALESCE(SUM(ci.quantity), 0)
+        FROM cart c
+        LEFT JOIN cart_item ci ON c.cart_id = ci.cart_id
+        WHERE c.users_id = #{usersId}
+    </select>
+
+</mapper> 
