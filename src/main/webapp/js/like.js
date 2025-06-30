@@ -66,7 +66,7 @@ function createStoreCard(store) {
     const usersId = window.loginUserId;
 
     div.innerHTML = `
-        <img src="${store.storeMainimage ? store.storeMainimage : '/img/default-restaurant.jpg'}"
+                        <img src="${store.storeMainimage ? store.storeMainimage : 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=200&h=120&fit=crop&crop=center'}"
             alt="${store.storeName}" class="store-img"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">

@@ -393,7 +393,21 @@ function initializeStoreDetailPage() {
     
     // 스크롤 이벤트 초기화
     initializeScrollEvents();
+    
+    // 장바구니 배지 업데이트
+    if (typeof updateCartBadge === 'function') {
+        fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+            .then(response => response.json())
+            .then(data => updateCartBadge(data.count || 0))
+            .catch(error => console.error('장바구니 개수 로드 실패:', error));
+    }
 }
+
+/* ===========================
+   장바구니 관련 함수들
+   =========================== */
+
+// updateCartBadge 함수는 cart.js에서 제공됨
 
 /**
  * 페이지 로드 완료 후 초기화

@@ -24,5 +24,6 @@ public class StoreVO extends PageDTO {
     
     // 찜 상태 (DB에서 직접 가져오지 않고 애플리케이션에서 설정)
     private boolean liked;         // 현재 사용자의 찜 여부
+    private int likeCount;         // 전체 찜 개수
 
 }
