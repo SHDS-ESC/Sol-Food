@@ -2,16 +2,13 @@ package kr.co.solfood.payments.charge;
 
 import java.util.List;
 
+import kr.co.solfood.payments.common.PaymentCommonService;
 import kr.co.solfood.user.login.UserVO;
 
-public interface ChargeService {
+public interface ChargeService extends PaymentCommonService {
 
-    // 중복 충전 방지 (imp_uid 중복 체크)
-    boolean isAlreadyProcessed(String imp_uid);
     // 포인트 적립 (트랜잭션 처리)
     void updateUserPoint(UserVO user);
-    // imp_uid 기록
-    void saveProcessedImpUid(String imp_uid);
     // Charge 기록
     void insertCharge(ChargeVO vo);
     // Charge 내역 조회
