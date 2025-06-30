@@ -81,7 +81,7 @@ class ExceptionTest {
 
         // when & then
         for (String email : invalidEmails) {
-            if (email != null && email.isEmpty()) {
+            if (email != null) {
                 assertFalse(isValidEmailFormat(email), 
                     "이메일 형식이 잘못되었습니다: " + email);
             }

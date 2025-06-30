@@ -1,4 +1,4 @@
-package kr.co.solfood.admin.login;
+package kr.co.solfood.owner.login;
 
 import lombok.Data;
 

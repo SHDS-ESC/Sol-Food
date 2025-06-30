@@ -1,4 +1,4 @@
-package kr.co.solfood.admin.login;
+package kr.co.solfood.owner.login;
 
 import kr.co.solfood.common.constants.UrlConstants;
 import properties.KakaoProperties;

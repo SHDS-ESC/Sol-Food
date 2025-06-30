@@ -51,7 +51,7 @@ public class MypageController {
 //        }
 
         model.addAttribute("currentUser", userVO);
-        return UrlConstants.View.USER_MYPAGE;
+        return UrlConstants.Redirect.TO_USER_LOGIN;
     }
 
     // 마이페이지 > 내정보 get
@@ -77,7 +77,7 @@ public class MypageController {
         // 1. 로그인한 사용자 정보 가져오기
         UserVO loginUser = (UserVO) sess.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
         if(loginUser == null){
-            return "redirect:" + UrlConstants.User.LOGIN_PAGE; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
+            return UrlConstants.Redirect.TO_USER_LOGIN; // 로그인 안되어있으면 로그인 페이지로 리다이렉트
         }
 
         // 2. userId 설정
@@ -104,10 +104,10 @@ public class MypageController {
         loginUser.setUsersName(userVO.getUsersName());
         loginUser.setUsersGender(userVO.getUsersGender());
         loginUser.setUsersBirth(userVO.getUsersBirth());
-        sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, loginUser);
+        sess.setAttribute("userLoginSession", loginUser);
 
         // 4. 세션정보 갱신
-        return "redirect:" + UrlConstants.Common.ROOT;
+        return "redirect:/";
     }
 
     // 마이페이지 > 회원탈퇴 post
@@ -116,7 +116,7 @@ public class MypageController {
         // 1. 로그인한 사용자 정보 가져오기
         UserVO loginUser = (UserVO) sess.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
         if(loginUser == null){
-            return "redirect:" + UrlConstants.User.LOGIN_PAGE;  // 로그인 안되어있으면 로그인 페이지로
+            return UrlConstants.Redirect.TO_USER_LOGIN;  // 로그인 안되어있으면 로그인 페이지로
         }
         // 2. DB업데이트 - status를 "탈퇴"로 변경
         boolean success = mypageService.withdrawUser(loginUser.getUsersId());
@@ -125,7 +125,7 @@ public class MypageController {
             // 3. 세션 무효화 (로그아웃 처리)
             sess.invalidate();
             redirectAttributes.addFlashAttribute("msg", "정상적으로 탈퇴 처리되었습니다.");
-            return "redirect:" + UrlConstants.User.LOGIN_PAGE;
+            return UrlConstants.Redirect.TO_USER_LOGIN;
         } else {
             redirectAttributes.addFlashAttribute("msg", "탈퇴 실패");
             return "redirect:" + UrlConstants.User.MYPAGE_INFO;
@@ -138,10 +138,7 @@ public class MypageController {
     @GetMapping("/like")
     public String getLikedStores(HttpSession session, StoreVO storeVO, Model model){
         //1. 세션에서 사용자 ID 가져오기
-        UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
-        if(loginUser == null){
-            return "redirect:" + UrlConstants.User.LOGIN_PAGE;
-        }
+        UserVO loginUser = (UserVO) session.getAttribute("userLoginSession");
         Long usersId = loginUser.getUsersId();
 
         //2. 찜 목록 조회
@@ -151,7 +148,7 @@ public class MypageController {
         model.addAttribute("pageMaker", pageMaker);
         model.addAttribute("totalCount", pageMaker.getCount());
 
-        return "user/login/like";
+        return "user/userControl/like";
     }
 
     // 마이페이지 > json
@@ -161,12 +158,7 @@ public class MypageController {
             HttpSession session,
             StoreVO storeVO
     ){
-        UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
-        if(loginUser == null){
-            Map<String, Object> errorResult = new HashMap<>();
-            errorResult.put("error", "로그인이 필요합니다.");
-            return errorResult;
-        }
+        UserVO loginUser = (UserVO) session.getAttribute("userLoginSession");
         Long usersId = loginUser.getUsersId();
 
         PageMaker<StoreVO> pageMaker = mypageService.getLikedStoresApi(usersId, storeVO);
