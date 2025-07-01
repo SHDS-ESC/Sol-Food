@@ -3,7 +3,7 @@ package kr.co.solfood.payments.common;
 import lombok.Data;
 
 @Data
-public abstract class PaymentCommonVO {
+public abstract class CommonPaymentVO {
     // 아임포트 Payment 객체에서 주로 사용하는 필드들
     protected String impUid;           // 아임포트 결제 고유번호
     protected String merchantUid;      // 가맹점 주문번호

@@ -3,11 +3,11 @@ package kr.co.solfood.payments.common;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PaymentCommonServiceImpl implements PaymentCommonService {
+public class CommonPaymentServiceImpl implements CommonPaymentService {
 
     private final CommonPaymentMapper commonPaymentMapper;
 
-    public PaymentCommonServiceImpl(CommonPaymentMapper commonPaymentMapper) {
+    public CommonPaymentServiceImpl(CommonPaymentMapper commonPaymentMapper) {
         this.commonPaymentMapper = commonPaymentMapper;
     }
 

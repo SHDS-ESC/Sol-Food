@@ -2,10 +2,10 @@ package kr.co.solfood.payments.charge;
 
 import java.util.List;
 
-import kr.co.solfood.payments.common.PaymentCommonService;
+import kr.co.solfood.payments.common.CommonPaymentService;
 import kr.co.solfood.user.login.UserVO;
 
-public interface ChargeService extends PaymentCommonService {
+public interface ChargeService extends CommonPaymentService {
 
     // 포인트 적립 (트랜잭션 처리)
     void updateUserPoint(UserVO user);

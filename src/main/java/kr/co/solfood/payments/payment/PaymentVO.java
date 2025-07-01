@@ -1,9 +1,10 @@
 package kr.co.solfood.payments.payment;
 
+import kr.co.solfood.payments.common.CommonPaymentVO;
 import lombok.Data;
 
 @Data
-public class PaymentVO extends kr.co.solfood.payments.common.PaymentCommonVO {
+public class PaymentVO extends CommonPaymentVO {
     private int paymentId;              // 결제 PK
     private int storeId;                // 결제한 가게 ID
     private int paymentLeaderId;        // 결제한 사용자 ID
