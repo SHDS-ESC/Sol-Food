@@ -72,6 +72,7 @@
 
         .form-section {
             margin-bottom: 30px;
+            text-align: left;
         }
 
         .section-title {
@@ -102,6 +103,7 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #333;
+            text-align: left;
         }
 
         .form-group input,
@@ -286,9 +288,6 @@
 <body>
 <div class="register-container">
 <div class="profile-container">
-    <img class="profile-img" src='${user.usersProfile }' alt='카카오 프로필 이미지'>
-    <div class="nickname">${user.usersNickname }님</div>
-    <div class="welcome">추가 정보를 입력해주세요</div>
 
         <form id="registerForm" action="<c:url value="/owner/register"/>" method="post" >
             <input type="hidden" name="ownerStatus" value="활성">
