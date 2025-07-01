@@ -16,7 +16,7 @@ import java.util.List;
 
 
 @Controller
-@RequestMapping("/admin/home")
+@RequestMapping("/admin")
 @Slf4j
 public class AdminHomeController {
     private final AdminHomeService adminHomeService;
@@ -30,7 +30,7 @@ public class AdminHomeController {
     /**
      * 어드민 페이지 메인
      */
-    @GetMapping("")
+    @GetMapping("/home")
     public void home() {
     }
 
