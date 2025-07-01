@@ -16,11 +16,12 @@ public class PageMaker<T> {
     private int lastPage;
 
     public PageMaker(List<T> list, long count, Integer limit, int curPage) {
-        final int pageGroupCount = 10; // 한그룹당 페이지 수
-        this.limit = limit; // 페이지당 데이터 수
         this.list = list; // 페이지에 해당 데이터
         this.count = count;  //전체 data
+        this.limit = limit; // 페이지당 데이터 수
         this.curPage = curPage; // 현재 페이지
+        final int pageGroupCount = 10; // 한그룹당 페이지 수
+
         if (limit != null) {
             this.pageCount = (int) Math.ceil((double) count / limit);// 전체 페이지 수 계산
             final int pageGroup = (int) Math.ceil((double) curPage / pageGroupCount); // 페이지 그룹 수 계산

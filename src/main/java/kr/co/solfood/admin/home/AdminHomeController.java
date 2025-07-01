@@ -96,10 +96,10 @@ public class AdminHomeController {
     @GetMapping("/owner-management")
     public String ownerManagement(Model model) {
         try {
-            OwnerSearchDTO ownerSearchDTO = new OwnerSearchDTO();
-            ownerSearchDTO.setCurrentPage(START_PAGE);
-            ownerSearchDTO.setPageSize(PAGE_GROUP_AMOUNT);
-            PageMaker<OwnerSearchResponseDTO> ownerList = adminHomeService.getOwners(ownerSearchDTO);
+            OwnerSearchRequestDTO ownerSearchRequestDTO = new OwnerSearchRequestDTO();
+            ownerSearchRequestDTO.setCurrentPage(START_PAGE);
+            ownerSearchRequestDTO.setPageSize(PAGE_GROUP_AMOUNT);
+            PageMaker<OwnerSearchResponseDTO> ownerList = adminHomeService.getOwners(ownerSearchRequestDTO);
             model.addAttribute("ownerList", ownerList);
         } catch (CustomException e) {
             log.info("Owner management initialization failed: {}", e.getMessage());
@@ -117,7 +117,7 @@ public class AdminHomeController {
      */
     @ResponseBody
     @GetMapping("/owner-management/search")
-    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO, Model model) {
+    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchRequestDTO ownerSearchRequestDTO, Model model) {
         try {
             return adminHomeService.getOwners(ownerSearchRequestDTO);
         } catch (CustomException e) {
