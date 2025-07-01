@@ -50,23 +50,23 @@ public class AdminHomeServiceImpl implements AdminHomeService {
         switch (date) {
             case "월간":
                 list = adminMapper.userManagementChartByMonths();
-                if (list == null) {
-                    throw new CustomException(ErrorCode.INCORRECT_DATE_FORMAT);
-                }
+                confirmList(list);
                 return list;
             case "일간":
                 list = adminMapper.userManagementChartByDays();
-                if (list == null) {
-                    throw new CustomException(ErrorCode.INCORRECT_DATE_FORMAT);
-                }
+                confirmList(list);
                 return list;
             case "연간":
             default:
                 list = adminMapper.userManagementChartByYears();
-                if (list == null) {
-                    throw new CustomException(ErrorCode.INCORRECT_DATE_FORMAT);
-                }
+                confirmList(list);
                 return list;
+        }
+    }
+
+    private void confirmList(List<ChartRequestDTO> list){
+        if (list == null) {
+            throw new CustomException(ErrorCode.INCORRECT_DATE_FORMAT);
         }
     }
 
