@@ -29,7 +29,17 @@ public class OwnerStoreServiceImpl implements OwnerStoreService {
         return ownerStoreMapper.selectStoreById(id);
     }
 
+    // 상점 수정
+    @Override
+    public int updateStore(OwnerStoreVO vo) {
+        return ownerStoreMapper.updateStore(vo);
+    }
 
+    // 상점 삭제
+    @Override
+    public void deleteStore(int storeId) {
+        ownerStoreMapper.deleteSotre(storeId);
+    }
 
 
 }

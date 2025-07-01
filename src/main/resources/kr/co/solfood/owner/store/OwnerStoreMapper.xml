@@ -13,6 +13,7 @@
     <!--상점 등록-->
     <insert id="insertStore" parameterType="kr.co.solfood.owner.store.OwnerStoreVO">
         INSERT INTO store (
+            owner_id,
             category_id,
             store_name,
             store_address,
@@ -20,21 +21,22 @@
             store_longitude,
             store_intro,
             store_mainimage,
-            store_tel
+            store_tel,
+            store_status
         )
         VALUES (
+            #{ownerId},
             #{categoryId},
             #{storeName},
             #{storeAddress},
             #{storeLatitude},
             #{storeLongitude},
             #{storeIntro},
-            null,
-            #{storeTel}
+            #{storeMainimage},
+            #{storeTel},
+            #{storeStatus}
         )
     </insert>
-
-
 
     <!--점주 상점 조회-->
     <select id="selectStoreById" parameterType="int" resultType="kr.co.solfood.owner.store.OwnerStoreVO">
@@ -43,5 +45,27 @@
         WHERE owner_id=#{ownerId};
     </select>
 
+    <!--상점 수정-->
+    <update id="updateStore" parameterType="kr.co.solfood.owner.store.OwnerStoreVO">
+        UPDATE store
+        SET
+            store_name = #{storeName},
+            category_id = #{categoryId},
+            store_address = #{storeAddress},
+            store_latitude = #{storeLatitude},
+            store_longitude = #{storeLongitude},
+            store_intro = #{storeIntro},
+            store_mainimage = #{storeMainimage},
+            store_tel = #{storeTel},
+            store_status = #{storeStatus}
+        WHERE store_id = #{storeId}
+    </update>
+
+    <!--상점 삭제 -->
+    <delete id="deleteSotre" parameterType="int">
+        DELETE
+        FROM store
+        WHERE store_id = #{storeId}
+    </delete>
 
 </mapper>

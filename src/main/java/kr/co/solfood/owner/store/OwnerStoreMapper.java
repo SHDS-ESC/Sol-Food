@@ -1,6 +1,7 @@
 package kr.co.solfood.owner.store;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,4 +15,10 @@ public interface OwnerStoreMapper {
 
     // 점주 <-> 상점 조회
     OwnerStoreVO selectStoreById(int id);
+
+    // 상점 수정
+    int updateStore(OwnerStoreVO vo);
+
+    // 상점 삭제
+    void deleteSotre(@Param("storeId") int storeId);
 }
