@@ -1,6 +1,6 @@
 package kr.co.solfood.admin.home;
 
-import kr.co.solfood.admin.dto.OwnerSearchDTO;
+import kr.co.solfood.admin.dto.OwnerSearchRequestDTO;
 import kr.co.solfood.admin.dto.StoreStatusUpdateDTO;
 import kr.co.solfood.admin.dto.UserSearchRequestDTO;
 import kr.co.solfood.util.CustomException;
@@ -89,14 +89,14 @@ class AdminHomeServiceTest {
         // Given
         String query = "testOwner";
 
-        OwnerSearchDTO ownerSearchRequestDTO = new OwnerSearchDTO();
+        OwnerSearchRequestDTO ownerSearchRequestDTO = new OwnerSearchRequestDTO();
         ownerSearchRequestDTO.setQuery(query);
 
         // When
-        given(adminMapper.getOwners(any(OwnerSearchDTO.class)))
+        given(adminMapper.getOwners(any(OwnerSearchRequestDTO.class)))
                 .willReturn(new ArrayList<>());
 
-        given(adminMapper.getOwnersCount(any(OwnerSearchDTO.class)))
+        given(adminMapper.getOwnersCount(any(OwnerSearchRequestDTO.class)))
                 .willReturn(1);
 
         // Then

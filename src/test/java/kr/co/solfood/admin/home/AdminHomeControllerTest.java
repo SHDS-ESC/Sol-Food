@@ -137,14 +137,14 @@ class AdminHomeControllerTest {
     @DisplayName("GET 요청시 점주 관리 페이지 확인")
     void ownerManagement() {
         // 요청 데이터 세팅
-        OwnerSearchDTO ownerSearchDTO = new OwnerSearchDTO();
-        ownerSearchDTO.setCurrentPage(START_PAGE);
-        ownerSearchDTO.setPageSize(PAGE_GROUP_AMOUNT);
+        OwnerSearchRequestDTO ownerSearchRequestDTO = new OwnerSearchRequestDTO();
+        ownerSearchRequestDTO.setCurrentPage(START_PAGE);
+        ownerSearchRequestDTO.setPageSize(PAGE_GROUP_AMOUNT);
 
         PageMaker<OwnerSearchResponseDTO> fakeResponse = new PageMaker<>(new ArrayList<>(), 1, 10, 1);
 
         // 서비스 리턴 값 지정
-        when(adminHomeService.getOwners(Mockito.any(OwnerSearchDTO.class)))
+        when(adminHomeService.getOwners(Mockito.any(OwnerSearchRequestDTO.class)))
                 .thenReturn(fakeResponse);
 
         try {

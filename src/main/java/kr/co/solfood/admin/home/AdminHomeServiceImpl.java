@@ -30,7 +30,7 @@ public class AdminHomeServiceImpl implements AdminHomeService {
     }
 
     @Override
-    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO) {
+    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchRequestDTO ownerSearchRequestDTO) {
         List<OwnerSearchResponseDTO> ownerSearchResponseDTO = adminMapper.getOwners(ownerSearchRequestDTO);
         int size = adminMapper.getOwnersCount(ownerSearchRequestDTO);
 
