@@ -15,7 +15,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- 친구 초대 페이지 CSS -->
-    <link rel="stylesheet" href="<c:url value='/css/invite-friends.css' />">
+    <link rel="stylesheet" href="<c:url value='/css/invite-friends.css' />?v=3.0">
 </head>
 <body>
     <div class="invite-container">
@@ -25,10 +25,21 @@
             <h3 class="mb-0">함께 결제할 친구 초대</h3>
         </div>
         
+        <!-- 선택된 친구들 표시 영역 -->
+        <div class="selected-friends-section" id="selectedFriendsSection">
+            <div class="selected-friends-header">
+                <h6><i class="bi bi-people-fill"></i> 선택된 친구들</h6>
+                <span class="selected-count-badge" id="selectedCountBadge">0</span>
+            </div>
+            <div class="selected-friends-list" id="selectedFriendsList">
+                <!-- 선택된 친구들이 여기에 동적으로 표시됩니다 -->
+            </div>
+        </div>
+        
         <!-- 상태 탭 -->
         <div class="status-tabs d-flex">
-            <button class="status-tab active" data-filter="all">전체</button>
-            <button class="status-tab" data-filter="department">부서</button>
+            <button class="status-tab ${param.filter == null || param.filter == 'all' ? 'active' : ''}" data-filter="all">전체</button>
+            <button class="status-tab ${param.filter == 'department' ? 'active' : ''}" data-filter="department">부서</button>
         </div>
         
         <!-- 검색 섹션 -->
@@ -54,6 +65,7 @@
                 </div>
                 <input type="hidden" name="page" value="1">
                 <input type="hidden" name="size" value="${PAGE_SIZE}">
+                <input type="hidden" name="filter" value="${param.filter != null ? param.filter : 'all'}" id="filterInput">
                 <!-- 선택된 친구들을 hidden input으로 포함 -->
                 <input type="hidden" name="selected" value="${param.selected}" id="selectedInput">
             </form>
@@ -71,7 +83,14 @@
             <!-- 결과 정보 -->
             <div class="result-info">
                 <i class="bi bi-info-circle"></i>
-                전체 ${totalCount}명 중 ${pageMaker.list.size()}명 표시 
+                <c:choose>
+                    <c:when test="${param.filter == 'department'}">
+                        부서 내 ${totalCount}명 중 ${pageMaker.list.size()}명 표시 
+                    </c:when>
+                    <c:otherwise>
+                        전체 ${totalCount}명 중 ${pageMaker.list.size()}명 표시 
+                    </c:otherwise>
+                </c:choose>
                 (${currentPage}/${pageMaker.pageCount} 페이지)
             </div>
             
@@ -83,8 +102,10 @@
                         <c:forEach var="user" items="${pageMaker.list}">
                             <div class="friend-item" 
                                  data-friend-id="${user.usersId}" 
+                                 data-company-id="${user.companyId}"
                                  data-department-id="${user.departmentId}" 
                                  data-user-name="${user.usersName}"
+                                 data-user-profile="${user.usersProfile}"
                                  data-company-info="${user.companyName} - ${user.departmentName}"
                                  onclick="toggleFriend(this)">
                                 <div class="friend-avatar" 
@@ -130,7 +151,7 @@
                         <!-- 첫 페이지 -->
                         <c:if test="${currentPage > 1}">
                             <li class="page-item">
-                                <a class="page-link" href="?page=1&size=${PAGE_SIZE}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
+                                <a class="page-link" href="?page=1&size=${PAGE_SIZE}&filter=${param.filter != null ? param.filter : 'all'}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
                                     <i class="bi bi-chevron-double-left"></i>
                                 </a>
                             </li>
@@ -139,7 +160,7 @@
                         <!-- 이전 페이지 -->
                         <c:if test="${currentPage > 1}">
                             <li class="page-item">
-                                <a class="page-link" href="?page=${currentPage - 1}&size=${PAGE_SIZE}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
+                                <a class="page-link" href="?page=${currentPage - 1}&size=${PAGE_SIZE}&filter=${param.filter != null ? param.filter : 'all'}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
                                     <i class="bi bi-chevron-left"></i>
                                 </a>
                             </li>
@@ -148,7 +169,7 @@
                         <!-- 페이지 번호들 -->
                         <c:forEach var="pageNum" begin="${pageMaker.firstPage}" end="${pageMaker.lastPage}">
                             <li class="page-item ${currentPage == pageNum ? 'active' : ''}">
-                                <a class="page-link" href="?page=${pageNum}&size=${PAGE_SIZE}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
+                                <a class="page-link" href="?page=${pageNum}&size=${PAGE_SIZE}&filter=${param.filter != null ? param.filter : 'all'}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
                                     ${pageNum}
                                 </a>
                             </li>
@@ -157,7 +178,7 @@
                         <!-- 다음 페이지 -->
                         <c:if test="${currentPage < pageMaker.pageCount}">
                             <li class="page-item">
-                                <a class="page-link" href="?page=${currentPage + 1}&size=${PAGE_SIZE}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
+                                <a class="page-link" href="?page=${currentPage + 1}&size=${PAGE_SIZE}&filter=${param.filter != null ? param.filter : 'all'}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
                                     <i class="bi bi-chevron-right"></i>
                                 </a>
                             </li>
@@ -166,7 +187,7 @@
                         <!-- 마지막 페이지 -->
                         <c:if test="${currentPage < pageMaker.pageCount}">
                             <li class="page-item">
-                                <a class="page-link" href="?page=${pageMaker.pageCount}&size=${PAGE_SIZE}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
+                                <a class="page-link" href="?page=${pageMaker.pageCount}&size=${PAGE_SIZE}&filter=${param.filter != null ? param.filter : 'all'}<c:if test='${not empty search}'>&search=${search}</c:if><c:if test='${not empty param.selected}'>&selected=${param.selected}</c:if>">
                                     <i class="bi bi-chevron-double-right"></i>
                                 </a>
                             </li>
@@ -203,12 +224,18 @@
     <!-- 메타 데이터 -->
     <meta name="contextPath" content="${pageContext.request.contextPath}">
     
-    <!-- 현재 사용자 부서 ID -->
+    <!-- 현재 사용자 정보 -->
     <div id="currentUserData" 
+         data-current-user-id="${currentUser.usersId}"
+         data-current-user-name="${currentUser.usersName}"
+         data-current-user-profile="${currentUser.usersProfile}"
          data-current-user-department="${currentUser.departmentId}" 
+         data-current-user-company="${currentUser.companyId}"
+         data-current-user-company-name="${currentUser.companyName}"
+         data-current-user-department-name="${currentUser.departmentName}"
          style="display: none;"></div>
     
     <!-- 친구 초대 페이지 JavaScript -->
-    <script src="<c:url value='/js/invite-friends.js' />"></script>
+    <script src="<c:url value='/js/invite-friends.js' />?v=3.0"></script>
 </body>
 </html> 
