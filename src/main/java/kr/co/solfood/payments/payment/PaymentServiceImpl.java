@@ -32,7 +32,14 @@ public class PaymentServiceImpl implements PaymentService {
     // Payment 내역 조회
     @Override
     public List<PaymentVO> getPaymentHistory(long usersId, int page, int size) {
-        return paymentMapper.getPaymentHistory(usersId, page, size);
+        int offset = (page - 1) * size;
+        return paymentMapper.getPaymentHistory(usersId, offset, size);
+    }
+    
+    // Payment 정보 삽입
+    @Override
+    public void insertPayment(PaymentVO paymentVO) {
+        paymentMapper.insertPayment(paymentVO);
     }
     
 }

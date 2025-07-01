@@ -10,4 +10,6 @@ public interface PaymentService extends CommonPaymentService {
     void updateUserPoint(UserVO user);
     // Payment 내역 조회
     List<PaymentVO> getPaymentHistory(long usersId, int page, int size);
+    // Payment 정보 삽입
+    void insertPayment(PaymentVO paymentVO);
 }

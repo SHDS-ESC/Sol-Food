@@ -7,6 +7,7 @@
     <resultMap id="chargeMap" type="kr.co.solfood.payments.charge.ChargeVO">
         <id property="chargeId" column="charge_id"/>
         <result property="usersId" column="users_id"/>
+
         <result property="impUid" column="charge_impuid"/>
         <result property="merchantUid" column="charge_merchant_uid"/>
         <result property="payMethod" column="charge_method"/>
@@ -40,10 +41,7 @@
         WHERE users_id = #{usersId}
     </update>
 
-    <insert id="saveProcessedImpUid" parameterType="kr.co.solfood.payments.charge.ChargeVO">
-        INSERT INTO charge (charge_impuid, charge_created_at)
-        VALUES (#{impUid}, NOW())
-    </insert>
+
 
     <insert id="insertCharge" parameterType="kr.co.solfood.payments.charge.ChargeVO">
         INSERT INTO charge (

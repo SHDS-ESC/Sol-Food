@@ -7,6 +7,7 @@ import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,15 +59,14 @@ public class CartController {
         
         CartVO cart = cartService.getCart(session);
         model.addAttribute(UrlConstants.Model.CART, cart);
-        
         return UrlConstants.View.USER_CART;
     }
-    
+
     /**
      * 결제 방식 선택 페이지
      */
     @GetMapping("/payment-method")
-    public String paymentMethodPage(HttpSession session, Model model) {
+    public String paymentMethodPage(HttpSession session, Model model, @Value("${imp.code}") String impCode) {
         UserVO user = validateUserLogin(session);
         if (user == null) {
             return UrlConstants.Redirect.TO_USER_LOGIN;
@@ -78,6 +78,7 @@ public class CartController {
         }
         
         model.addAttribute(UrlConstants.Model.CART, cart);
+        model.addAttribute("impCode", impCode);
         return UrlConstants.View.USER_CART_PAYMENT_METHOD;
     }
     

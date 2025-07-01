@@ -197,9 +197,15 @@ public class MypageController {
     }
 
     @GetMapping("/charge-history")
-    public String chargeHistoryPage(Model model) {
+    public String chargeHistoryPage() {
         // 페이지 렌더링만 담당, 데이터는 JavaScript로 API 호출
         return "user/mypage/charge-history";
+    }
+
+    @GetMapping("/payment-history")
+    public String paymentHistoryPage() {
+        // 페이지 렌더링만 담당, 데이터는 JavaScript로 API 호출
+        return "user/mypage/payment-history";
     }
 
 }
