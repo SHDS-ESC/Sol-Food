@@ -3,6 +3,7 @@ package kr.co.solfood.admin.home;
 import kr.co.solfood.admin.dto.OwnerSearchDTO;
 import kr.co.solfood.admin.dto.StoreStatusUpdateDTO;
 import kr.co.solfood.admin.dto.UserSearchRequestDTO;
+import kr.co.solfood.util.CustomException;
 import lombok.extern.log4j.Log4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -74,6 +75,12 @@ class AdminHomeServiceTest {
         Assertions.assertDoesNotThrow(() -> adminHomeService.userManagementChart(date));
 
         assertTrue(adminHomeService.userManagementChart(date).isEmpty());
+
+        CustomException ex = assertThrows(
+                CustomException.class,
+                () -> adminHomeService.userManagementChart(null)
+        );
+        assertEquals("INCORRECT_DATE_FORMAT", ex.getErrorCode().getCode());
     }
 
     @Test
