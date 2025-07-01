@@ -13,9 +13,4 @@ public interface CommonPaymentService {
         return getMapper().isAlreadyProcessed(imp_uid);
     }
     
-    // imp_uid 기록
-    default public void saveProcessedImpUid(String imp_uid) {
-        getMapper().saveProcessedImpUid(imp_uid);
-    }
-    
 }

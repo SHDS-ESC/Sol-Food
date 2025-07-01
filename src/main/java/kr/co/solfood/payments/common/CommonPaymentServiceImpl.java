@@ -22,10 +22,5 @@ public class CommonPaymentServiceImpl implements CommonPaymentService {
         throw new UnsupportedOperationException("isAlreadyProcessed requires domain-specific mapper. Not supported in CommonServiceImpl.");
     }
 
-    @Override
-    public void saveProcessedImpUid(String imp_uid) {
-        throw new UnsupportedOperationException("saveProcessedImpUid requires domain-specific mapper. Not supported in CommonServiceImpl.");
-    }
 
-    
 }
