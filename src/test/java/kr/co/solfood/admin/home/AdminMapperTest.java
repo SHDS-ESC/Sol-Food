@@ -1,7 +1,7 @@
 package kr.co.solfood.admin.home;
 
 import config.MvcConfig;
-import kr.co.solfood.admin.dto.OwnerSearchDTO;
+import kr.co.solfood.admin.dto.OwnerSearchRequestDTO;
 import kr.co.solfood.admin.dto.StoreStatusUpdateDTO;
 import kr.co.solfood.admin.dto.UserSearchRequestDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -84,7 +84,7 @@ class AdminMapperTest {
     @DisplayName("점주 검색 결과 검증 테스트")
     void getOwners() {
         // Given
-        OwnerSearchDTO ownerSearchRequestDTO = new OwnerSearchDTO();
+        OwnerSearchRequestDTO ownerSearchRequestDTO = new OwnerSearchRequestDTO();
         ownerSearchRequestDTO.setQuery("testOwner");
 
         // When
@@ -99,7 +99,7 @@ class AdminMapperTest {
     @DisplayName("점주 검색 결과 카운트 검증 테스트")
     void getOwnersCount() {
         // Given
-        OwnerSearchDTO ownerSearchRequestDTO = new OwnerSearchDTO();
+        OwnerSearchRequestDTO ownerSearchRequestDTO = new OwnerSearchRequestDTO();
         ownerSearchRequestDTO.setQuery("");
 
         // When

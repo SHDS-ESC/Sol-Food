@@ -32,7 +32,7 @@
         GROUP BY DAY (users_created_at);
     </select>
 
-    <select id="getOwners" parameterType="kr.co.solfood.admin.dto.OwnerSearchDTO" resultType="kr.co.solfood.admin.dto.OwnerSearchResponseDTO">
+    <select id="getOwners" parameterType="kr.co.solfood.admin.dto.OwnerSearchRequestDTO" resultType="kr.co.solfood.admin.dto.OwnerSearchResponseDTO">
         SELECT O.owner_id AS ownerId,
         store_mainimage AS storeMainImage,
         store_name AS storeName,

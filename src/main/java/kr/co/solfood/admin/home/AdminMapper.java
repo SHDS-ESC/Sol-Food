@@ -17,9 +17,9 @@ public interface AdminMapper {
 
     List<ChartRequestDTO> userManagementChartByDays();
 
-    List<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO);
+    List<OwnerSearchResponseDTO> getOwners(OwnerSearchRequestDTO ownerSearchRequestDTO);
 
-    int getOwnersCount(OwnerSearchDTO ownerSearchRequestDTO);
+    int getOwnersCount(OwnerSearchRequestDTO ownerSearchRequestDTO);
 
     int updateStoreStatus(StoreStatusUpdateDTO storeStatusUpdateDTO);
 

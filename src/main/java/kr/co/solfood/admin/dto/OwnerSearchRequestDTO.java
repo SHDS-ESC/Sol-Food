@@ -5,7 +5,7 @@ import lombok.Data;
 
 
 @Data
-public class OwnerSearchDTO extends PageDTO {
+public class OwnerSearchRequestDTO extends PageDTO {
     String query;
 }
 

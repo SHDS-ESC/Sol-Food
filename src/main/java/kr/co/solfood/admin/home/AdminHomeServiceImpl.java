@@ -30,7 +30,7 @@ public class AdminHomeServiceImpl implements AdminHomeService {
     }
 
     @Override
-    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO) {
+    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchRequestDTO ownerSearchRequestDTO) {
         List<OwnerSearchResponseDTO> ownerSearchResponseDTO = adminMapper.getOwners(ownerSearchRequestDTO);
         int size = adminMapper.getOwnersCount(ownerSearchRequestDTO);
 
@@ -42,18 +42,31 @@ public class AdminHomeServiceImpl implements AdminHomeService {
 
     @Override
     public List<ChartRequestDTO> userManagementChart(String date) {
-        if(date == null || date.isEmpty()) {
+        if (date == null || date.isEmpty()) {
             throw new CustomException(ErrorCode.INCORRECT_DATE_FORMAT);
         }
 
+        List<ChartRequestDTO> list;
         switch (date) {
             case "월간":
-                return adminMapper.userManagementChartByMonths();
+                list = adminMapper.userManagementChartByMonths();
+                confirmList(list);
+                return list;
             case "일간":
-                return adminMapper.userManagementChartByDays();
+                list = adminMapper.userManagementChartByDays();
+                confirmList(list);
+                return list;
             case "연간":
             default:
-                return adminMapper.userManagementChartByYears();
+                list = adminMapper.userManagementChartByYears();
+                confirmList(list);
+                return list;
+        }
+    }
+
+    private void confirmList(List<ChartRequestDTO> list){
+        if (list == null) {
+            throw new CustomException(ErrorCode.INCORRECT_DATE_FORMAT);
         }
     }
 
