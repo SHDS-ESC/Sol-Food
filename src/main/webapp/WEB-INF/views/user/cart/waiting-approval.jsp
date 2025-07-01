@@ -76,6 +76,17 @@
     <input type="hidden" id="friendCountData" value="${friendCount != null ? friendCount : 0}">
     <input type="hidden" id="miniGameMessageData" value="<c:out value='${miniGameMessage}' escapeXml='true'/>">
     
+    <!-- 현재 사용자 정보 -->
+    <div id="currentUserData" 
+         data-current-user-id="${currentUser.usersId}"
+         data-current-user-name="${currentUser.usersName}"
+         data-current-user-profile="${currentUser.usersProfile}"
+         data-current-user-department="${currentUser.departmentId}" 
+         data-current-user-company="${currentUser.companyId}"
+         data-current-user-company-name="${currentUser.companyName}"
+         data-current-user-department-name="${currentUser.departmentName}"
+         style="display: none;"></div>
+    
     <!-- 수락 대기 페이지 JavaScript -->
     <script src="<c:url value='/js/waiting-approval.js' />"></script>
 </body>

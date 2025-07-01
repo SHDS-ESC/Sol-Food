@@ -224,10 +224,15 @@
     <!-- 메타 데이터 -->
     <meta name="contextPath" content="${pageContext.request.contextPath}">
     
-    <!-- 현재 사용자 부서 ID -->
+    <!-- 현재 사용자 정보 -->
     <div id="currentUserData" 
+         data-current-user-id="${currentUser.usersId}"
+         data-current-user-name="${currentUser.usersName}"
+         data-current-user-profile="${currentUser.usersProfile}"
          data-current-user-department="${currentUser.departmentId}" 
          data-current-user-company="${currentUser.companyId}"
+         data-current-user-company-name="${currentUser.companyName}"
+         data-current-user-department-name="${currentUser.departmentName}"
          style="display: none;"></div>
     
     <!-- 친구 초대 페이지 JavaScript -->
