@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kr.co.solfood.payments.common.PaymentCommonMapper;
+import kr.co.solfood.payments.common.CommonPaymentMapper;
 import kr.co.solfood.user.login.UserVO;
 
 @Service
@@ -19,7 +19,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public PaymentCommonMapper getMapper() {
+    public CommonPaymentMapper getMapper() {
         return paymentMapper;
     }
 

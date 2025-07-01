@@ -5,16 +5,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentCommonServiceImpl implements PaymentCommonService {
 
-    private final PaymentCommonMapper paymentCommonMapper;
+    private final CommonPaymentMapper commonPaymentMapper;
 
-    public PaymentCommonServiceImpl(PaymentCommonMapper paymentCommonMapper) {
-        this.paymentCommonMapper = paymentCommonMapper;
+    public PaymentCommonServiceImpl(CommonPaymentMapper commonPaymentMapper) {
+        this.commonPaymentMapper = commonPaymentMapper;
     }
 
 
     @Override
-    public PaymentCommonMapper getMapper() {
-        return paymentCommonMapper;
+    public CommonPaymentMapper getMapper() {
+        return commonPaymentMapper;
     }
 
     @Override
