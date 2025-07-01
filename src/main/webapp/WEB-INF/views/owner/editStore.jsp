@@ -515,17 +515,19 @@
         <!-- 콘텐츠 영역 -->
         <section class="content">
             <div class="content-header">
-                <span class="breadcrumb">🏠 상점 관리 > 상점 등록 </span>
+                <span class="breadcrumb">🏠 상점 관리 > 상점 수정 </span>
                 <h1>상점 관리</h1>
-                <p>상점 정보를 입력하여 등록해주세요 </p>
+                <p>상점 정보를 수정하고 저장하세요. </p>
             </div>
 
 
 
             <div class="menu-content">
 
-                <form id="storeForm" enctype="multipart/form-data" action="/solfood/owner/store/add" method="post">
+                <form id="storeForm" enctype="multipart/form-data" action="/solfood/owner/store/edit" method="post">
 
+                    <input  type="hidden" name="storeId" value="${store.storeId}" >
+<%--                    <input type="hidden" name="storeMainimage" value="${store.storeMainimage}" />--%>
                     <input type="hidden" id="storeStatus" name="storeStatus" value="승인대기">
                 <div class="form-group">
                             <label for="storeName">상점명</label>
@@ -572,13 +574,13 @@
                         <div class="form-group">
                             <!-- 파일 선택 버튼 (label) -->
                             <label for="storeMainimage">상점 대표 이미지</label>
-                            <input type="hidden" name="storeMainimage" id="storeMainimageId" >
+                            <input type="hidden" name="storeMainimage" id="storeMainimageId" value="${store.storeMainimage}">
                             <label for="storeMainimage" class="btn-cancel" style="display: inline-block; color: #fff; font-weight: 400">파일 선택</label>
                             <input class="btn-cancel" accept="image/*" type="file" id="storeMainimage" onchange="previewStoreMainimage(event)" style="display: none">
 
                         </div>
                         <div id="preview">
-                            <img id="storeImagePreview" src="" alt="">
+                            <img id="storeImagePreview" src="${store.storeMainimage}" alt="">
                             <button type="button" class="btn-cancel" id="deleteImageBtn" onclick="deleteImagePreview()" style="display:none; margin-top: 10px;">이미지 삭제</button>
                         </div>
                         <%--위도--%>
@@ -708,6 +710,10 @@
             let img = document.getElementById("storeImagePreview"); // 미리보기 태그
             img.setAttribute('src',e.target.result); // src 속성 설정
 
+            /*여기 수정해야될것같음*/
+
+
+
             document.getElementById("preview").style.display = "block";
             document.getElementById("deleteImageBtn").style.display = "block"; // 삭제버튼 표시
         }
@@ -724,16 +730,17 @@
         // 업로드 성공 - hidden input에 S3 URL 저장
         document.getElementById('storeMainimageId').value = s3Url;
 
-        console.log('이미지 업로드 완료:', s3Url);
+        console.log('프로필 이미지 업로드 완료:', s3Url);
 
 
     }
 
+
     // -----------------------------대표이미지 삭제----------------------------------
 
     function deleteImagePreview() {
-        document.getElementById("preview").style.display = "none";
-        document.getElementById("storeImagePreview").src = ""; // 미리보기 이미지 제거
+        document.getElementById("preview").style.display = "block";
+        document.getElementById("storeImagePreview").src = ""; // 제거
         document.getElementById("storeMainimage").value = ""; // ✅ 이 줄은 그대로 OK
         document.getElementById("deleteImageBtn").style.display = "none";
     }
@@ -756,6 +763,16 @@
 
         geocoder.addressSearch(fullAddress, callback);
     }
+    // ----------------------페이지 로드시 미리보기 ----------------------------------------
+    window.onload = function () {
+        const storeMainimage = "${store.storeMainimage}";
+        if (storeMainimage && storeMainimage.trim() !== "") {
+            document.getElementById("preview").style.display = "block";
+            document.getElementById("deleteImageBtn").style.display = "inline-block";
+        }
+    };
+
+
 </script>
 </body>
 </html>

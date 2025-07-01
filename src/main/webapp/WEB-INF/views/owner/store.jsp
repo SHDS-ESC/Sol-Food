@@ -245,78 +245,35 @@
       background: #16a34a;
     }
 
-    /* 상점 그리드 */
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
-    .menu-card {
+    .store-detail {
       background: white;
+      padding: 30px;
       border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      font-size: 18px;
+      line-height: 30px;
+      text-align: center;
     }
 
-    .menu-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    }
-
-    .menu-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-    }
-
-    .menu-info {
-      padding: 20px;
-    }
-
-    .menu-name {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .menu-description {
-      color: #666;
-      font-size: 0.9rem;
-      margin-bottom: 15px;
-      line-height: 1.4;
-    }
-
-    .menu-price {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #22c55e;
-      margin-bottom: 15px;
-    }
-
-    .menu-actions-card {
-      display: flex;
-      gap: 10px;
-    }
+    .store-detail h2{font-size: 26px}
 
     .edit-btn, .delete-btn {
-      flex: 1;
       padding: 8px 12px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-size: 0.9rem;
       transition: all 0.3s ease;
+      width: 100px;
+      margin-right: 10px;
     }
 
     .edit-btn {
-      background: #3b82f6;
+      background: #22c55e;
       color: white;
     }
 
     .edit-btn:hover {
-      background: #2563eb;
+      background: #16a34a;
     }
 
     .delete-btn {
@@ -444,8 +401,17 @@
     #preview {padding: 10px; border-radius: 6px; border:1px solid #ddd; display: none }
     #preview img{width: 100%}
 
+    .yellow{display: inline-block; color: orange}
+    .blue{display: inline-block; color: #0d6efd}
+    .red{display: inline-block; color: darkred}
+
   </style>
 </head>
+<c:if test="${not empty msg}">
+  <script>
+    alert("${msg}");
+  </script>
+</c:if>
 <body>
 <div class="dashboard">
   <!-- 사이드바 -->
@@ -513,30 +479,63 @@
         <p>상점 정보를 등록하거나 수정할 수 있습니다 </p>
       </div>
 
-      <div class="menu-actions">
-        <div class="filter-tabs">
-        </div>
-<%--          <button class="add-menu-btn" onclick="openAddModal()">--%>
-          <button class="add-menu-btn" onclick="location.href='store/add'">
-            <span>➕</span>
-            상점 등록
-          </button>
+      <c:if test="${store == null}">
+        <div class="menu-actions">
+          <div class="filter-tabs">
+          </div>
+            <button class="add-menu-btn" onclick="location.href='store/add'">
+              <span>➕</span>
+              상점 등록
+            </button>
 
-      </div>
+        </div>
+      </c:if>
 
       <div class="menu-content">
-        <!-- 항상 존재하도록 만듭니다. -->
-        <div class="menu-grid" id="menuGrid">
-          <c:if test="${store != null}">
-            <div class="menu-card">
-              <img src="${store.storeMainimage}" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%B6%88%EA%B3%A0%EA%B8%B0%20%EC%A0%95%EC%8B%9D'">
-              <div class="menu-info">
-                <div class="menu-name">상점명 : ${store.storeName}</div>
-                <div class="menu-description">상점 소개 : ${store.storeIntro}</div>
-              </div>
-            </div>
-          </c:if>
-        </div>
+
+        <c:if test="${store != null}">
+          <div class="store-detail">
+            <h2>상점명 : ${store.storeName}</h2>
+            <c:if test="${not empty store.storeMainimage}">
+              <img src="${store.storeMainimage}" style="width: 100%; max-width: 600px; border-radius: 12px; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1)">
+            </c:if>
+            <c:if test="${!not empty store.storeMainimage}">
+              <img src="https://cdn.spectory.net/src/images/noImg.gif" style="width: 100%; max-width: 400px; border-radius: 12px; margin: 20px 0;">
+            </c:if>
+            <p><strong>주소 : </strong> ${store.storeAddress}</p>
+            <p><strong>연락처 : </strong> ${store.storeTel}</p>
+            <p><strong>소개 : </strong> ${store.storeIntro}</p>
+            <p><strong>승인상태 : </strong>
+            <c:choose>
+              <c:when test="${store.storeStatus eq '승인대기' }">
+                <span class="yellow">${store.storeStatus}</span>
+              </c:when>
+              <c:when test="${store.storeStatus eq '승인완료' }">
+                <span class="blue">${store.storeStatus}</span>
+              </c:when>
+              <c:when test="${store.storeStatus eq '승인거절' }">
+                <span class="red">${store.storeStatus}</span>
+
+            <p><strong>거절사유 : </strong> ${store.storeRejectReason}</p>
+              </c:when>
+              <c:otherwise>
+                <span> ${store.storeStatus}</span>
+              </c:otherwise>
+            </c:choose>
+            </p>
+
+
+          </div>
+          <div style="margin-top: 30px; justify-content: center;display: flex;align-items: center;">
+            <button class="edit-btn" onclick="location.href='/solfood/owner/store/edit'">수정</button>
+            <form action="/solfood/owner/store/delete" method="post" style="display:inline;">
+              <input type="hidden" name="storeId" value="${store.storeId}">
+              <button type="submit" class="delete-btn" onclick="return confirm('정말 삭제하시겠습니까?🥹')">삭제</button>
+            </form>
+          </div>
+        </c:if>
+
+
       </div>
     </section>
   </main>
@@ -550,7 +549,7 @@
       <h3 id="modalTitle">상점 등록</h3>
       <p>상점 정보를 입력해주세요.</p>
     </div>
-    <form id="storeForm" enctype="multipart/form-data">
+    <form id="storeForm" enctype="multipart/form-data" >
       <div class="form-group">
         <label for="storeName">상점명</label>
         <input type="text" id="storeName" name="storeName" required>
@@ -592,9 +591,10 @@
       </div>
       <div class="form-group">
         <!-- 파일 선택 버튼 (label) -->
-        <input type="hidden" name="storeMainimage" value="null">
-<%--        <label for="storeMainimage" class="btn-cancel" style="display: inline-block; color: #fff; font-weight: 400">파일 선택</label>--%>
-<%--        <input class="btn-cancel" accept="image/*" type="file" id="storeMainimage" name="storeMainimage" onchange="previewStoreMainimage(event)" style="display: none">--%>
+        <input type="hidden" name="storeMainimage" id="storeMainimageId" >
+        <label for="storeMainimage" class="btn-cancel" style="display: inline-block; color: #fff; font-weight: 400">파일 선택</label>
+        <input class="btn-cancel" accept="image/*" type="file" id="storeMainimage" onchange="previewStoreMainimage(event)" style="display: none">
+
       </div>
       <div id="preview">
         <img id="storeImagePreview" src="" alt="">
@@ -606,104 +606,19 @@
       <input type="hidden" name="storeLongitude" id="storeLongitude" >
       <div class="modal-actions">
         <button type="button" class="btn-cancel" onclick="closeModal()">취소</button>
-        <button type="submit" class="btn-save">저장</button>
+        <button type="submit" class="btn-save">수정</button>
       </div>
     </form>
   </div>
 </div>
 
+<script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
   function logout(){
     if(confirm("로그아웃 하시겠습니까?😊")){
       window.location.href="/solfood/owner/logout";
     }
-  }
-  let editingMenuId = null;
-
-  $(document).ready(function () {
-    setupEventListeners();
-  });
-
-  // 이벤트 리스너 설정
-  function setupEventListeners() {
-    // 상점 폼 제출
-    $('#storeForm').on('submit', function (e) {
-      e.preventDefault();
-      saveStore();
-    });
-
-    // 모달 외부 클릭 시 닫기
-    // $(window).on('click', function (e) {
-    //   if ($(e.target).is('#storeModal')) {
-    //     closeModal();
-    //   }
-    // });
-  }
-
-  // 상점 등록 모달 열기
-  function openAddModal() {
-    editingMenuId = null;
-    $('#modalTitle').text('상점 등록');
-    $('#storeForm')[0].reset();
-    $('#storeModal').show();
-  }
-
-  // 상점 저장
-  function saveStore() {
-    const form = document.getElementById('storeForm');
-    const formData = new FormData(form);
-
-    fetch("/solfood/owner/store",{
-      method:"POST",
-      body:formData // 폼데이터 전송시 content-type 생략해야함
-    })
-    .then(response => {
-      if (!response.ok) throw new Error("서버 응답 실패");
-      return response.json(); // 서버에서 store정보를 받아옴
-    })
-    .then(store  => {
-      if(!store){
-        alert("상점 등록 실패");
-        return;
-      }
-      alert("상점 등록 성공");
-      closeModal();
-      // 바로 상점 정보를 DOM에 추가
-      renderStoreCard(store);
-    })
-    .catch(error => {
-      alert("상점 등록 실패: " + error);
-      console.error("에러:", error);
-    });
-  }
-
-  function renderStoreCard(store){
-    document.querySelector(".add-menu-btn").style.display = "none";
-    const grid = document.getElementById("menuGrid") || document.createElement("div");
-    grid.setAttribute("id","menuGrid");
-    grid.classList.add("menu-grid");
-
-    grid.innerHTML = `
-    <div class="menu-card">
-      <img src="${store.storeMainimage}" class="menu-image"
-           onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=No+Image'">
-      <div class="menu-info">
-        <div class="menu-name">상점명 : ${store.storeName}</div>
-        <div class="menu-description">상점 소개 : ${store.storeIntro}</div>
-      </div>
-    </div>
-  `;
-
-
-    // DOM에 삽입
-    document.querySelector(".menu-content").appendChild(grid);
-  }
-
-  // 모달 닫기
-  function closeModal() {
-    $('#storeModal').hide();
-    editingMenuId = null;
   }
 
   // --------------------------------위치 찾기---------------------------------
@@ -811,14 +726,27 @@
     const file = files[0]; // ✅ 이 줄이 꼭 필요합니다!
 
     reader.readAsDataURL(files[0]); // 첫번째 파일을 인코딩으로 읽기
+
+    // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
+    const s3Url = await s3Uploader.uploadProfileImage(file, function(progress) {
+      updateUploadProgress(progress);
+    });
+
+    // 업로드 성공 - hidden input에 S3 URL 저장
+    document.getElementById('storeMainimageId').value = s3Url;
+
+    console.log('프로필 이미지 업로드 완료:', s3Url);
+
+
   }
 
   // -----------------------------대표이미지 삭제----------------------------------
-  function deleteImagePreview(){
+
+  function deleteImagePreview() {
     document.getElementById("preview").style.display = "none";
-    document.getElementById("storeImagePreview").src = ""; // 미리보기 제거
-    document.getElementById("storeMainimage").value = ""; // 파일 input 초기화
-    document.getElementById("deleteImageBtn").style.display = "none"; // 미리보기 태그
+    document.getElementById("storeImagePreview").src = ""; // 미리보기 이미지 제거
+    document.getElementById("storeMainimage").value = ""; // ✅ 이 줄은 그대로 OK
+    document.getElementById("deleteImageBtn").style.display = "none";
   }
 
   // ----------------------------위도 경도 ---------------------------------------
