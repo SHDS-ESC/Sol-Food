@@ -12,6 +12,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="<c:url value='/css/store.css' />" rel="stylesheet">
     <script>
+        // Context Path를 JavaScript에서 사용할 수 있도록 설정
+        var contextPath = '${pageContext.request.contextPath}';
+
         // 카카오맵 SDK 동적 로딩
         function loadKakaoMapSDK() {
             return new Promise((resolve, reject) => {
@@ -25,12 +28,10 @@
                 script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services&autoload=false';
                 script.onload = () => {
                     kakao.maps.load(() => {
-                        console.log('가게 목록 페이지: 카카오맵 SDK 로딩 완료');
                         resolve();
                     });
                 };
                 script.onerror = () => {
-                    console.error('가게 목록 페이지: 카카오맵 SDK 로딩 실패');
                     reject();
                 };
                 document.head.appendChild(script);
@@ -77,7 +78,7 @@
             <!-- 전체 카테고리 버튼 (항상 첫 번째) -->
             <button class="category-item active" onclick="selectCategory(this, '전체')">
                 <div class="category-icon">
-                    <img src="/img/category/all.png" alt="전체" onerror="this.style.display='none';">
+                    <i class="bi bi-grid-3x3-gap" style="font-size: 24px; color: #666;"></i>
                 </div>
                 <span class="category-name">전체</span>
             </button>
@@ -109,7 +110,9 @@
             </c:forEach>
             <c:if test="${fn:length(categories) > 8}">
                 <button class="category-item" onclick="toggleMoreCategories()">
-                    <div class="category-icon"></div>
+                    <div class="category-icon">
+                        <i id="moreIcon" class="bi bi-chevron-down" style="font-size: 24px; color: #666;"></i>
+                    </div>
                     <span class="category-name" id="moreText">더보기</span>
                 </button>
             </c:if>
@@ -144,14 +147,27 @@
     </div>
 
 <div class="bottom-nav">
-    <a href="#"><i class="bi bi-house"></i>홈</a>
-    <a href="#"><i class="bi bi-list-check"></i>리스트</a>
+    <a href="${pageContext.request.contextPath}/"><i class="bi bi-house"></i>홈</a>
+    <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
+        <i class="bi bi-bag"></i>장바구니
+        <span class="cart-nav-badge">0</span>
+    </a>
     <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-    <a href="#"><i class="bi bi-heart-fill"></i>찜</a>
-    <a href="#"><i class="bi bi-person-circle"></i>마이</a>
+    <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill"></i>찜</a>
+    <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle"></i>마이</a>
 </div>
 
-<script src="<c:url value='/js/store.js' />"></script>
+
+    <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
+    <script>
+        // UrlConstants 로딩 확인
+        if (typeof UrlConstants === 'undefined') {
+            console.error('UrlConstants 로딩 실패');
+            alert('스크립트 로딩 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+        }
+    </script>
+<script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
+<script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
 
 </body>
 </html>

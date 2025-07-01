@@ -8,22 +8,32 @@
     <select id="selectAllStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT 
             s.store_id,
-            s.store_name, 
+            s.owner_id,
+            s.store_name,
             s.category_id,
             COALESCE(c.category_name, '전체') as storeCategory,
-            s.store_avgstar, 
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
-            s.store_tel
+            s.store_tel,
+            s.store_status,
+            COALESCE(like_counts.like_count, 0) as likeCount
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
-        ORDER BY s.store_avgstar DESC, s.store_id DESC
+        LEFT JOIN (
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
+        ) like_counts ON s.store_id = like_counts.store_id
+        WHERE s.store_status = 'approved' OR s.store_status IS NULL
+        ORDER BY COALESCE(like_counts.like_count, 0) DESC, s.store_id DESC
     </select>
 
     <!-- 가게 ID로 가게 정보 조회 -->
     <select id="getStoreById" parameterType="int" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT
             s.store_id,
+            s.owner_id,
             s.store_name,
             s.store_address,
             s.store_latitude,
@@ -33,48 +43,64 @@
             s.store_mainimage,
             s.category_id,
             COALESCE(c.category_name, '전체') as storeCategory,
-            s.store_tel
+            s.store_tel,
+            s.store_status
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
         WHERE s.store_id = #{storeId}
+        AND (s.store_status = 'approved' OR s.store_status IS NULL)
     </select>
 
     <!-- 카테고리별 조회 (성능 개선: 인덱스 활용하도록 수정) -->
     <select id="selectCategoryStore" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT 
             s.store_id,
-            s.store_name, 
+            s.store_name,
             s.category_id,
-            COALESCE(c.category_name, '전체') as storeCategory, 
-            s.store_avgstar, 
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
-            s.store_tel
+            s.store_tel,
+            COALESCE(like_counts.like_count, 0) as likeCount
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN (
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
+        ) like_counts ON s.store_id = like_counts.store_id
         <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
         </where>
-        ORDER BY s.store_avgstar DESC, s.store_id DESC
+        ORDER BY COALESCE(like_counts.like_count, 0) DESC, s.store_id DESC
         LIMIT 100
     </select>
 
     <!-- 통합 검색: 가게명, 주소, 카테고리에서 검색 -->
     <select id="searchStores" parameterType="string" resultType="kr.co.solfood.user.store.StoreVO">
-        SELECT 
+        SELECT
             s.store_id,
-            s.store_name, 
+            s.store_name,
             s.category_id,
-            COALESCE(c.category_name, '전체') as storeCategory, 
-            s.store_avgstar, 
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
-            s.store_tel
+            s.store_tel,
+            COALESCE(like_counts.like_count, 0) as likeCount
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN (
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
+        ) like_counts ON s.store_id = like_counts.store_id
         <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
             <if test="keyword != null and keyword != ''">
                 AND (
                     s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -84,7 +110,7 @@
                 )
             </if>
         </where>
-        ORDER BY 
+        ORDER BY
             CASE
                 WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
                 WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
@@ -92,65 +118,79 @@
                 WHEN s.store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
                 ELSE 5
             END,
-            s.store_avgstar DESC,
+            COALESCE(like_counts.like_count, 0) DESC,
             s.store_id DESC
         LIMIT 100
     </select>
 
     <!-- 가게명으로 검색 -->
     <select id="searchStoresByName" parameterType="string" resultType="kr.co.solfood.user.store.StoreVO">
-        SELECT 
+        SELECT
             s.store_id,
-            s.store_name, 
+            s.store_name,
             s.category_id,
-            COALESCE(c.category_name, '전체') as storeCategory, 
-            s.store_avgstar, 
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
-            s.store_tel
+            s.store_tel,
+            COALESCE(like_counts.like_count, 0) as likeCount
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN (
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
+        ) like_counts ON s.store_id = like_counts.store_id
         <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
             <if test="storeName != null and storeName != ''">
                 AND s.store_name LIKE CONCAT('%', #{storeName}, '%')
             </if>
         </where>
-        ORDER BY 
+        ORDER BY
             CASE
                 WHEN s.store_name LIKE CONCAT(#{storeName}, '%') THEN 1
                 WHEN s.store_name LIKE CONCAT('%', #{storeName}, '%') THEN 2
                 ELSE 3
             END,
-            s.store_avgstar DESC,
+            COALESCE(like_counts.like_count, 0) DESC,
             s.store_id DESC
         LIMIT 50
     </select>
 
     <!-- 주소로 검색 -->
     <select id="searchStoresByAddress" parameterType="string" resultType="kr.co.solfood.user.store.StoreVO">
-        SELECT 
+        SELECT
             s.store_id,
-            s.store_name, 
+            s.store_name,
             s.category_id,
-            COALESCE(c.category_name, '전체') as storeCategory, 
-            s.store_avgstar, 
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_avgstar,
             s.store_mainimage,
             s.store_address,
-            s.store_tel
+            s.store_tel,
+            COALESCE(like_counts.like_count, 0) as likeCount
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN (
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
+        ) like_counts ON s.store_id = like_counts.store_id
         <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
             <if test="address != null and address != ''">
                 AND s.store_address LIKE CONCAT('%', #{address}, '%')
             </if>
         </where>
-        ORDER BY 
+        ORDER BY
             CASE
                 WHEN s.store_address LIKE CONCAT(#{address}, '%') THEN 1
                 WHEN s.store_address LIKE CONCAT('%', #{address}, '%') THEN 2
                 ELSE 3
             END,
-            s.store_avgstar DESC,
+            COALESCE(like_counts.like_count, 0) DESC,
             s.store_id DESC
         LIMIT 50
     </select>
@@ -165,7 +205,7 @@
             store_avgstar, 
             store_intro, 
             store_mainimage, 
-            category_id, 
+            category_id,
             store_tel
         ) VALUES (
             #{storeName}, 
@@ -175,7 +215,7 @@
             #{storeAvgstar}, 
             #{storeIntro}, 
             #{storeMainimage}, 
-            #{categoryId}, 
+            #{categoryId},
             #{storeTel}
         )
     </insert>
@@ -192,6 +232,7 @@
     <select id="selectPagedCategoryStores" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT
             s.store_id,
+            s.owner_id,
             s.store_name,
             s.store_address,
             s.store_latitude,
@@ -201,26 +242,36 @@
             s.store_mainimage,
             s.category_id,
             COALESCE(c.category_name, '전체') as storeCategory,
-            s.store_tel
+            s.store_tel,
+            s.store_status,
+            COALESCE(like_counts.like_count, 0) as likeCount
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN (
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
+        ) like_counts ON s.store_id = like_counts.store_id
         <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
         </where>
-        ORDER BY s.store_avgstar DESC, s.store_id DESC
+        ORDER BY COALESCE(like_counts.like_count, 0) DESC, s.store_id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
     <select id="countAllStores" resultType="long">
         SELECT COUNT(*) FROM store
+        WHERE store_status = 'approved' OR store_status IS NULL
     </select>
 
     <select id="countStoresByCategory" resultType="long">
         SELECT COUNT(*) FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
         <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
@@ -231,6 +282,7 @@
     <select id="selectPagedSearchResults" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT
             s.store_id,
+            s.owner_id,
             s.store_name,
             s.store_address,
             s.store_latitude,
@@ -240,10 +292,18 @@
             s.store_mainimage,
             s.category_id,
             COALESCE(c.category_name, '전체') as storeCategory,
-            s.store_tel
+            s.store_tel,
+            s.store_status,
+            COALESCE(like_counts.like_count, 0) as likeCount
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN (
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
+        ) like_counts ON s.store_id = like_counts.store_id
         <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
             <if test="keyword != null and keyword != ''">
                 AND (
                     s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -253,7 +313,7 @@
                 )
             </if>
         </where>
-        ORDER BY 
+        ORDER BY
             CASE
                 WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
                 WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
@@ -261,7 +321,7 @@
                 WHEN s.store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
                 ELSE 5
             END,
-            s.store_avgstar DESC,
+            COALESCE(like_counts.like_count, 0) DESC,
             s.store_id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
@@ -270,6 +330,7 @@
         SELECT COUNT(*) FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
         <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
             <if test="keyword != null and keyword != ''">
                 AND (
                     s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -279,6 +340,118 @@
                 )
             </if>
         </where>
+    </select>
+
+    <!-- ========================= 찜 상태 포함 쿼리들 ========================= -->
+    
+    <!-- 가게 상세 조회 (찜 상태 포함) -->
+    <select id="getStoreByIdWithLike" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.owner_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_tel,
+            s.store_status,
+            CASE WHEN ul.users_id IS NOT NULL THEN true ELSE false END as liked
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN user_likes ul ON s.store_id = ul.store_id AND ul.users_id = #{usersId}
+        WHERE s.store_id = #{storeId}
+        AND (s.store_status = 'approved' OR s.store_status IS NULL)
+    </select>
+
+    <!-- 페이징 처리 - 카테고리별 (찜 상태 포함) -->
+    <select id="selectPagedCategoryStoresWithLike" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.owner_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_tel,
+            s.store_status,
+            CASE WHEN ul.users_id IS NOT NULL THEN true ELSE false END as liked,
+            COALESCE(like_counts.like_count, 0) as likeCount
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN user_likes ul ON s.store_id = ul.store_id AND ul.users_id = #{usersId}
+        LEFT JOIN (
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
+        ) like_counts ON s.store_id = like_counts.store_id
+        <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            <if test="category != null and category != '' and category != '전체'">
+                AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
+            </if>
+        </where>
+        ORDER BY COALESCE(like_counts.like_count, 0) DESC, s.store_id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 검색 결과 페이징 처리 (찜 상태 포함) -->
+    <select id="selectPagedSearchResultsWithLike" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT
+            s.store_id,
+            s.owner_id,
+            s.store_name,
+            s.store_address,
+            s.store_latitude,
+            s.store_longitude,
+            s.store_avgstar,
+            s.store_intro,
+            s.store_mainimage,
+            s.category_id,
+            COALESCE(c.category_name, '전체') as storeCategory,
+            s.store_tel,
+            s.store_status,
+            CASE WHEN ul.users_id IS NOT NULL THEN true ELSE false END as liked,
+            COALESCE(like_counts.like_count, 0) as likeCount
+        FROM store s
+        LEFT JOIN category c ON s.category_id = c.category_id
+        LEFT JOIN user_likes ul ON s.store_id = ul.store_id AND ul.users_id = #{usersId}
+        LEFT JOIN (
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
+        ) like_counts ON s.store_id = like_counts.store_id
+        <where>
+            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    s.store_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_address LIKE CONCAT('%', #{keyword}, '%')
+                    OR COALESCE(c.category_name, '전체') LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_intro LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY
+            CASE
+                WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
+                WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
+                WHEN COALESCE(c.category_name, '전체') LIKE CONCAT(#{keyword}, '%') THEN 3
+                WHEN s.store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
+                ELSE 5
+            END,
+            COALESCE(like_counts.like_count, 0) DESC,
+            s.store_id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
 </mapper>

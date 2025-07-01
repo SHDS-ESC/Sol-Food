@@ -164,5 +164,16 @@ public class LoginServiceImpl implements LoginService {
         mapper.setNewPwd(req);
     }
 
+    // 같은 회사의 다른 사용자들 가져오기 (초대용)
+    @Override
+    public List<UserVO> getUsersByCompanyIdExcludingCurrentUser(int companyId, long currentUserId) {
+        return mapper.getUsersByCompanyIdExcludingCurrentUser(companyId, currentUserId);
+    }
+
+    // 특정 부서의 사용자들 가져오기 (초대용)
+    @Override
+    public List<UserVO> getUsersByDepartmentIdExcludingCurrentUser(int departmentId, long currentUserId) {
+        return mapper.getUsersByDepartmentIdExcludingCurrentUser(departmentId, currentUserId);
+    }
 
 }

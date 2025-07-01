@@ -40,7 +40,6 @@ function checkKakaoMapSDK() {
                kakao.maps.Map &&
                kakao.maps.Marker;
     } catch (error) {
-        console.log('카카오맵 SDK 체크 중 오류:', error);
         return false;
     }
 }
@@ -55,10 +54,8 @@ function waitForKakaoMapSDK(callback, maxAttempts = 100) {
     
     function check() {
         attempts++;
-        console.log(`카카오맵 SDK 체크 시도: ${attempts}/${maxAttempts}`);
         
         if (checkKakaoMapSDK()) {
-            console.log('카카오맵 SDK 준비 완료!');
             kakaoMapLoaded = true;
             kakaoMapLoading = false;
             callback();
@@ -143,7 +140,6 @@ function initMap() {
         });
         storeInfowindow.open(map, storeMarker);
         
-        console.log('카카오맵 초기화 완료');
         kakaoMapLoaded = true;
     } catch (error) {
         console.error('카카오맵 초기화 중 오류 발생:', error);
@@ -156,18 +152,15 @@ function initMap() {
  */
 function loadKakaoMap() {
     if (kakaoMapLoading) {
-        console.log('카카오맵 이미 로딩 중...');
         return;
     }
     
-    console.log('카카오맵 로딩 시작');
     kakaoMapLoading = true;
     
     // Promise 기반 SDK 로딩 사용
     if (window.kakaoMapSDKPromise) {
         window.kakaoMapSDKPromise
             .then(() => {
-                console.log('카카오맵 SDK 준비 완료');
                 kakaoMapLoading = false;
                 initMap();
             })
@@ -179,11 +172,9 @@ function loadKakaoMap() {
     } else {
         // fallback: 기존 방식
         if (checkKakaoMapSDK()) {
-            console.log('카카오맵 SDK 이미 로드됨');
             kakaoMapLoading = false;
             initMap();
         } else {
-            console.log('카카오맵 SDK 로딩 대기 중...');
             waitForKakaoMapSDK((success) => {
                 if (success !== false) {
                     initMap();
@@ -272,8 +263,6 @@ function initializeStarBars() {
  * @param {string} tabName - 탭 이름
  */
 function handleHeaderChange(tabName) {
-    console.log('탭 변경:', tabName);
-    
     // 모든 섹션 숨기기
     document.querySelectorAll('.content-section').forEach(section => {
         section.classList.remove('active');
@@ -345,14 +334,10 @@ function handleHeaderChange(tabName) {
  * 탭 이벤트 초기화
  */
 function initializeTabEvents() {
-    console.log('탭 이벤트 초기화 시작');
     const tabs = document.querySelectorAll('.tab');
-    console.log('발견된 탭 수:', tabs.length);
     
     tabs.forEach((tab, index) => {
-        console.log(`탭 ${index + 1}: data-tab="${tab.getAttribute('data-tab')}"`);
         tab.addEventListener('click', (e) => {
-            console.log('탭 클릭됨:', tab.getAttribute('data-tab'));
             e.preventDefault();
             const tabName = tab.getAttribute('data-tab');
             handleHeaderChange(tabName);
@@ -362,7 +347,6 @@ function initializeTabEvents() {
     // 기본 탭을 메뉴로 설정
     const defaultTab = document.querySelector('.tab[data-tab="menu"]');
     if (defaultTab) {
-        console.log('기본 탭(메뉴) 활성화');
         setTimeout(() => {
             handleHeaderChange('menu'); // 직접 함수 호출로 변경
         }, 100);
@@ -398,17 +382,6 @@ function initializeScrollEvents() {
  * 가게 상세페이지 초기화
  */
 function initializeStoreDetailPage() {
-    console.log('가게 상세페이지 초기화 시작');
-    
-    // DOM 요소 확인
-    const container = document.querySelector('.container');
-    const tabs = document.querySelectorAll('.tab');
-    const sections = document.querySelectorAll('.content-section');
-    
-    console.log('컨테이너:', container ? '존재' : '없음');
-    console.log('탭 수:', tabs.length);
-    console.log('섹션 수:', sections.length);
-    
     // 탭 이벤트 초기화
     initializeTabEvents();
     
@@ -421,8 +394,30 @@ function initializeStoreDetailPage() {
     // 스크롤 이벤트 초기화
     initializeScrollEvents();
     
-    console.log('가게 상세페이지 초기화 완료');
+    // 장바구니 정보 업데이트
+    setTimeout(() => {
+        console.log('🔄 상세페이지 장바구니 초기화 시작');
+        
+        if (document.getElementById('bottomCartBar') && typeof fetchCartInfo === 'function') {
+            // 하단 카트 바가 있는 경우 총 금액도 함께 조회
+            console.log('🛒 하단 카트 바 초기화');
+            fetchCartInfo();
+        } else if (typeof updateCartBadge === 'function') {
+            // 하단 카트 바가 없는 경우 개수만 조회
+            console.log('🏷️ 배지만 초기화');
+            fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+                .then(response => response.json())
+                .then(data => updateCartBadge(data.count || 0))
+                .catch(error => console.error('장바구니 개수 로드 실패:', error));
+        }
+    }, 100); // 모든 요소가 완전히 로드된 후 실행
 }
+
+/* ===========================
+   장바구니 관련 함수들
+   =========================== */
+
+// updateCartBadge 함수는 cart.js에서 제공됨
 
 /**
  * 페이지 로드 완료 후 초기화
@@ -446,7 +441,7 @@ function loadStoreDetail() {
         return;
     }
     
-    fetch('/solfood/user/store/api/detail/' + storeId)
+    fetch(UrlConstants.Builder.fullUrl('/user/store/api/detail/' + storeId))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -463,7 +458,7 @@ function loadStoreDetail() {
 }
 
 function loadReviews(storeId) {
-    fetch(`/solfood/user/review/api/list?storeId=${storeId}`)
+    fetch(UrlConstants.Builder.fullUrl(`/user/review/api/list?storeId=${storeId}`))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -473,4 +468,404 @@ function loadReviews(storeId) {
         .catch(error => {
             console.error('리뷰 로드 실패:', error);
         });
-} 
+}
+
+/* ===========================
+   메뉴 모달 관련 함수들
+   =========================== */
+
+// 현재 선택된 메뉴 정보
+let currentMenuData = {
+    menuId: null,
+    menuName: '',
+    menuIntro: '',
+    menuPrice: 0,
+    menuImage: '',
+    quantity: 1,
+    options: {}
+};
+
+/**
+ * 메뉴명을 기반으로 표시할 옵션 결정
+ * @param {string} menuName - 메뉴명
+ * @returns {Array} 표시할 옵션 그룹들
+ */
+function getOptionsForMenu(menuName) {
+    const options = [];
+    
+    // 메뉴명에 따라 옵션 결정 (실제로는 DB에서 가져와야 함)
+    if (menuName.includes('모찌') || menuName.includes('모짜렐라')) {
+        options.push('mocchi');
+    }
+    
+    if (menuName.includes('한우') || menuName.includes('갈비') || menuName.includes('닭') || menuName.includes('치킨')) {
+        options.push('meat');
+    }
+    
+    if (menuName.includes('매운') || menuName.includes('불닭') || menuName.includes('김치') || menuName.includes('떡볶이')) {
+        options.push('spicy');
+    }
+    
+    return options;
+}
+
+/**
+ * 메뉴 상세 모달 열기 (data 속성 방식)
+ * @param {HTMLElement} element - 클릭된 메뉴 요소
+ */
+function openMenuDetailFromElement(element) {
+    const menuId = element.dataset.menuId;
+    const menuName = element.dataset.menuName;
+    const menuIntro = element.dataset.menuIntro;
+    const menuPrice = parseInt(element.dataset.menuPrice);
+    const menuImage = element.dataset.menuImage;
+    
+    openMenuDetail(menuId, menuName, menuIntro, menuPrice, menuImage);
+}
+
+/**
+ * 메뉴 상세 모달 열기
+ * @param {number} menuId - 메뉴 ID
+ * @param {string} menuName - 메뉴명
+ * @param {string} menuIntro - 메뉴 설명
+ * @param {number} menuPrice - 메뉴 가격
+ * @param {string} menuImage - 메뉴 이미지
+ */
+function openMenuDetail(menuId, menuName, menuIntro, menuPrice, menuImage) {
+    // 현재 메뉴 데이터 저장
+    currentMenuData = {
+        menuId: menuId,
+        menuName: menuName,
+        menuIntro: menuIntro,
+        menuPrice: menuPrice,
+        menuImage: menuImage,
+        quantity: 1,
+        options: {}
+    };
+    
+    // 모달 요소들 업데이트
+    document.getElementById('modalMenuImage').src = menuImage || 'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&h=200&fit=crop';
+    document.getElementById('modalMenuName').textContent = menuName;
+    document.getElementById('modalMenuIntro').textContent = menuIntro;
+    document.getElementById('modalMenuPrice').textContent = formatPrice(menuPrice);
+    
+    // 수량 초기화
+    document.getElementById('quantityValue').textContent = '1';
+    updateDecreaseButtonState();
+    
+    // 모든 옵션 그룹 숨기기
+    const allOptionGroups = document.querySelectorAll('.option-group');
+    allOptionGroups.forEach(group => {
+        group.style.display = 'none';
+    });
+    
+    // 현재 옵션 상태 초기화
+    currentMenuData.options = {};
+    
+    // 메뉴에 해당하는 옵션들 표시
+    const requiredOptions = getOptionsForMenu(menuName);
+    
+    if (requiredOptions.includes('mocchi')) {
+        const moccchiGroup = document.getElementById('optionMocchi');
+        if (moccchiGroup) {
+            moccchiGroup.style.display = 'block';
+            // 기본값 설정
+            const defaultOption = moccchiGroup.querySelector('input[type="radio"]:checked');
+            if (defaultOption) {
+                currentMenuData.options.mocchi = {
+                    value: defaultOption.value,
+                    price: parseInt(defaultOption.dataset.price) || 0
+                };
+            }
+        }
+    }
+    
+    if (requiredOptions.includes('meat')) {
+        const meatGroup = document.getElementById('optionMeat');
+        if (meatGroup) {
+            meatGroup.style.display = 'block';
+            // 기본값 설정
+            const defaultOption = meatGroup.querySelector('input[type="radio"]:checked');
+            if (defaultOption) {
+                currentMenuData.options.meat = {
+                    value: defaultOption.value,
+                    price: parseInt(defaultOption.dataset.price) || 0
+                };
+            }
+        }
+    }
+    
+    if (requiredOptions.includes('spicy')) {
+        const spicyGroup = document.getElementById('optionSpicy');
+        if (spicyGroup) {
+            spicyGroup.style.display = 'block';
+            // 기본값 설정
+            const defaultOption = spicyGroup.querySelector('input[type="radio"]:checked');
+            if (defaultOption) {
+                currentMenuData.options.spicy = {
+                    value: defaultOption.value,
+                    price: parseInt(defaultOption.dataset.price) || 0
+                };
+            }
+        }
+    }
+    
+    // 총 가격 계산 및 표시
+    calculateTotalPrice();
+    
+    // 모달 표시
+    const modal = document.getElementById('menuDetailModal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // 백그라운드 스크롤 방지
+}
+
+/**
+ * 메뉴 상세 모달 닫기
+ */
+function closeMenuDetail() {
+    const modal = document.getElementById('menuDetailModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // 백그라운드 스크롤 복원
+    
+    // 데이터 초기화
+    currentMenuData = {
+        menuId: null,
+        menuName: '',
+        menuIntro: '',
+        menuPrice: 0,
+        menuImage: '',
+        quantity: 1,
+        options: {}
+    };
+}
+
+/**
+ * 수량 증가
+ */
+function increaseQuantity() {
+    currentMenuData.quantity++;
+    document.getElementById('quantityValue').textContent = currentMenuData.quantity;
+    updateDecreaseButtonState();
+    calculateTotalPrice();
+}
+
+/**
+ * 수량 감소
+ */
+function decreaseQuantity() {
+    if (currentMenuData.quantity > 1) {
+        currentMenuData.quantity--;
+        document.getElementById('quantityValue').textContent = currentMenuData.quantity;
+        updateDecreaseButtonState();
+        calculateTotalPrice();
+    }
+}
+
+/**
+ * 수량 감소 버튼 상태 업데이트
+ */
+function updateDecreaseButtonState() {
+    const decreaseBtn = document.getElementById('decreaseBtn');
+    if (currentMenuData.quantity <= 1) {
+        decreaseBtn.disabled = true;
+    } else {
+        decreaseBtn.disabled = false;
+    }
+}
+
+/**
+ * 총 가격 계산
+ */
+function calculateTotalPrice() {
+    let totalPrice = currentMenuData.menuPrice;
+    
+    // 선택된 옵션들의 가격 추가 (라디오 버튼과 체크박스 모두 지원)
+    document.querySelectorAll('.option-group input:checked').forEach(input => {
+        const optionPrice = parseInt(input.dataset.price) || 0;
+        totalPrice += optionPrice;
+    });
+    
+    // 수량 곱하기
+    totalPrice *= currentMenuData.quantity;
+    
+    // 총 가격 표시
+    document.getElementById('totalPrice').textContent = formatPrice(totalPrice);
+}
+
+/**
+ * 가격 포맷팅 (원 단위)
+ * @param {number} price - 가격
+ * @returns {string} 포맷된 가격
+ */
+function formatPrice(price) {
+    return new Intl.NumberFormat('ko-KR').format(price) + '원';
+}
+
+/**
+ * 아이템 총 가격 계산 (반환용)
+ * @returns {number} 총 가격
+ */
+function calculateItemTotalPrice() {
+    let totalPrice = currentMenuData.menuPrice;
+    
+    // 선택된 옵션들의 가격 추가 (라디오 버튼과 체크박스 모두 지원)
+    document.querySelectorAll('.option-group input:checked').forEach(input => {
+        const optionPrice = parseInt(input.dataset.price) || 0;
+        totalPrice += optionPrice;
+    });
+    
+    // 수량 곱하기
+    totalPrice *= currentMenuData.quantity;
+    
+    return totalPrice;
+}
+
+/**
+ * 장바구니에 메뉴 추가
+ */
+function addMenuToCart() {
+    // 선택된 옵션들 수집
+    const selectedOptions = {};
+    document.querySelectorAll('.option-group input:checked').forEach(input => {
+        const groupName = input.name;
+        
+        if (input.type === 'radio') {
+            // 라디오 버튼: 하나만 선택
+            selectedOptions[groupName] = {
+                optionId: input.value,
+                price: parseInt(input.dataset.price) || 0,
+                text: input.parentElement.querySelector('.option-text').textContent
+            };
+        } else if (input.type === 'checkbox') {
+            // 체크박스: 여러 개 선택 가능
+            if (!selectedOptions[groupName]) {
+                selectedOptions[groupName] = [];
+            }
+            selectedOptions[groupName].push({
+                optionId: input.value,
+                price: parseInt(input.dataset.price) || 0,
+                text: input.parentElement.querySelector('.option-text').textContent
+            });
+        }
+    });
+    
+    // 장바구니 아이템 데이터 구성
+    const cartItem = {
+        menuId: currentMenuData.menuId,
+        menuName: currentMenuData.menuName,
+        menuPrice: currentMenuData.menuPrice,
+        quantity: currentMenuData.quantity,
+        options: selectedOptions,
+        totalPrice: calculateItemTotalPrice()
+    };
+    
+    console.log('🍽️ 모달에서 장바구니 추가:', cartItem);
+    
+    // 장바구니에 추가 (cart.js의 함수 사용)
+    if (typeof addToCartWithOptions === 'function') {
+        addToCartWithOptions(cartItem);
+    } else {
+        // fallback: 기본 장바구니 추가 함수 사용
+        console.log('⚠️ addToCartWithOptions 함수 없음, 기본 함수 사용');
+        addToCart(currentMenuData.menuId, currentMenuData.quantity);
+    }
+    
+    // 성공 피드백
+    showCartAddedFeedback();
+    
+    // 하단 카트 바 업데이트
+    if (document.getElementById('bottomCartBar')) {
+        setTimeout(() => fetchCartInfo(), 200); // 약간의 지연을 두어 서버 응답 시간 고려
+    }
+    
+    // 모달 닫기
+    closeMenuDetail();
+}
+
+/**
+ * 장바구니 추가 성공 피드백 표시
+ */
+function showCartAddedFeedback() {
+    // 간단한 토스트 메시지 표시
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+    toast.textContent = '🛒 장바구니에 추가되었습니다!';
+    document.body.appendChild(toast);
+    
+    // 애니메이션
+    setTimeout(() => {
+        toast.style.opacity = '1';
+    }, 10);
+    
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 1500);
+}
+
+/**
+ * 옵션 그룹들을 동적으로 렌더링
+ * @param {Array} optionGroups - 옵션 그룹 데이터
+ */
+function renderOptionGroups(optionGroups) {
+    const optionsContainer = document.getElementById('optionsContainer');
+    
+    optionGroups.forEach((group, groupIndex) => {
+        if (!group.options || group.options.length === 0) return;
+        
+        // 옵션 그룹 HTML 생성
+        const groupElement = document.createElement('div');
+        groupElement.className = 'option-group';
+        groupElement.innerHTML = `
+            <h4 class="option-title">
+                ${group.name}
+                ${group.required ? '<span class="option-required">필수 선택</span>' : ''}
+            </h4>
+            <div class="option-items">
+                ${group.options.map((option, index) => `
+                    <label class="option-item">
+                        <input type="${group.type}" 
+                               name="group_${groupIndex}" 
+                               value="${index}" 
+                               data-price="${option.price || 0}"
+                               ${option.default || index === 0 ? 'checked' : ''}>
+                        <span class="option-text">${option.name}</span>
+                        <span class="option-price">${option.price > 0 ? '+' + formatPrice(option.price) : '+0원'}</span>
+                    </label>
+                `).join('')}
+            </div>
+        `;
+        
+        optionsContainer.appendChild(groupElement);
+    });
+}
+
+/**
+ * 옵션 변경 이벤트 리스너 초기화
+ */
+function initializeOptionListeners() {
+    // 옵션 변경 시 총 가격 재계산
+    document.addEventListener('change', function(e) {
+        if ((e.target.type === 'radio' || e.target.type === 'checkbox') && e.target.closest('.option-group')) {
+            calculateTotalPrice();
+        }
+    });
+}
+
+// 옵션 리스너 초기화
+document.addEventListener('DOMContentLoaded', initializeOptionListeners); 

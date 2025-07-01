@@ -126,7 +126,7 @@
   <c:if test="${not empty newPwd}">
     <p><strong>임시 비밀번호:</strong> <c:out value="${newPwd}" /></p>
   </c:if>
-  <button type="submit" class="btn btn-submit" onclick="location.href='/solfood/user/login'">로그인</button>
+              <button type="submit" class="btn btn-submit" onclick="location.href='${pageContext.request.contextPath}/user/login'">로그인</button>
 </div>
 </body>
 </html>

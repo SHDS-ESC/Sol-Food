@@ -1,5 +1,6 @@
 package kr.co.solfood.owner.login;
 
+import kr.co.solfood.common.constants.UrlConstants;
 import properties.KakaoProperties;
 import properties.ServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class OwnerLoginController {
     // 오너 루트 경로 - index 페이지로 리다이렉트
     @GetMapping("/")
     public String root() {
-        return "redirect:/owner/index";
+        return "redirect:" + UrlConstants.Owner.INDEX;
     }
 
     // 유저 로그인 페이지

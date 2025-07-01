@@ -1,5 +1,6 @@
 package kr.co.solfood.user.login;
 
+import kr.co.solfood.common.constants.UrlConstants;
 import properties.KakaoProperties;
 import properties.ServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +57,8 @@ public class LoginController {
     @GetMapping("/kakao-login")
     public String kakaoLogin(@RequestParam String code, HttpSession sess) {
         UserVO kakaoLogin = service.confirmAccessToken(code);
-        sess.setAttribute("userLoginSession", kakaoLogin);
-        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:/user/login/extra" : "redirect:/";
+        sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, kakaoLogin);
+        return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:" + UrlConstants.User.LOGIN_EXTRA : "redirect:" + UrlConstants.Common.ROOT;
     }
 
     // 카카오 추가 정보 페이지
@@ -72,16 +73,15 @@ public class LoginController {
     @PostMapping("/extra")
     public String extra(UserVO kakaoAddVO, HttpSession sess) {
         UserVO userVo = service.register(kakaoAddVO);
-        System.out.println("브이오" + kakaoAddVO);
-        sess.setAttribute("userLoginSession", userVo);
-        return "redirect:/";
+        sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, userVo);
+        return "redirect:" + UrlConstants.Common.ROOT;
     }
 
     // 로그 아웃
     @GetMapping("/logout")
     public String logout(HttpSession sess) {
         sess.invalidate();
-        return "redirect:/";
+        return "redirect:" + UrlConstants.Common.ROOT;
     }
 
     // 자체 로그인
@@ -89,8 +89,8 @@ public class LoginController {
     public String nativeLogin(LoginRequest req, HttpSession sess, Model model) {
         UserVO userVo = service.nativeLogin(req);
         if(userVo !=null){
-            sess.setAttribute("userLoginSession", userVo);
-            return "redirect:/";
+            sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, userVo);
+            return "redirect:" + UrlConstants.Common.ROOT;
         } else {
             model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
             return "user/login/loginpage"; // 로그인 페이지로 다시 이동
@@ -146,7 +146,7 @@ public class LoginController {
         sess.removeAttribute("joinInProgress");
         sess.removeAttribute("uploadCount");
 
-        return "redirect:/user/login";
+        return "redirect:" + UrlConstants.User.LOGIN_PAGE;
     }
 
     // 부서
