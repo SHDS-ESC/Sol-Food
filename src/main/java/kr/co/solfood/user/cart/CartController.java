@@ -89,6 +89,7 @@ public class CartController {
             @RequestParam(value = CartConstants.PARAM_PAGE, defaultValue = "1") int page,
             @RequestParam(value = CartConstants.PARAM_SIZE, defaultValue = "10") int size,
             @RequestParam(value = CartConstants.PARAM_SEARCH, required = false) String search,
+            @RequestParam(value = "filter", defaultValue = "all") String filter,
             HttpSession session, Model model) {
         
         UserVO user = validateUserLogin(session);
@@ -106,43 +107,52 @@ public class CartController {
         pageDTO.setCurrentPage(page);
         pageDTO.setPageSize(size);
         
-        log.debug("친구 초대 페이지 - 페이지: {}, 크기: {}", page, size);
+        log.debug("친구 초대 페이지 - 페이지: {}, 크기: {}, 필터: " + filter, page, size);
         if (search != null) {
             log.debug("검색어: {}", search);
         }
         
-        // 검색어가 있으면 검색, 없으면 전체 조회
-        List<UserVO> companyUsers;
-        long totalCount;
+        // 필터에 따라 다른 사용자 목록 조회
+        List<UserVO> filteredUsers;
         
+        switch (filter) {
+            case "department":
+                // 부서별 필터링
+                filteredUsers = loginService.getUsersByDepartmentIdExcludingCurrentUser(
+                        user.getDepartmentId(), user.getUsersId());
+                break;
+            case "all":
+            default:
+                // 전체 (회사 전체)
+                filteredUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
+                        user.getCompanyId(), user.getUsersId());
+                break;
+        }
+        
+        // 검색어가 있으면 추가 필터링
         if (search != null && !search.trim().isEmpty()) {
-            companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
-                    user.getCompanyId(), user.getUsersId());
-            // 검색어로 필터링 (추후 DB 쿼리로 최적화 예정)
-            companyUsers = companyUsers.stream()
+            filteredUsers = filteredUsers.stream()
                     .filter(u -> u.getUsersName().contains(search.trim()))
                     .collect(java.util.stream.Collectors.toList());
-            totalCount = companyUsers.size();
-        } else {
-            companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
-                    user.getCompanyId(), user.getUsersId());
-            totalCount = companyUsers.size();
         }
+        
+        long totalCount = filteredUsers.size();
         
         // 페이징 처리 (메모리에서)
         int offset = pageDTO.getOffset();
-        int endIndex = Math.min(offset + pageDTO.getPageSize(), companyUsers.size());
-        List<UserVO> pagedUsers = companyUsers.subList(offset, endIndex);
+        int endIndex = Math.min(offset + pageDTO.getPageSize(), filteredUsers.size());
+        List<UserVO> pagedUsers = filteredUsers.subList(offset, endIndex);
         
         // PageMaker 생성
         PageMaker<UserVO> pageMaker = new PageMaker<>(pagedUsers, totalCount, size, page);
         
         model.addAttribute(UrlConstants.Model.CART, cart);
-        model.addAttribute(UrlConstants.Model.COMPANY_USERS, companyUsers);
+        model.addAttribute(UrlConstants.Model.COMPANY_USERS, filteredUsers);
         model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
         model.addAttribute("pageMaker", pageMaker);
         model.addAttribute("currentPage", page);
         model.addAttribute(CartConstants.PARAM_SEARCH, search);
+        model.addAttribute("filter", filter);
         model.addAttribute("totalCount", totalCount);
         
         return UrlConstants.View.USER_CART_INVITE_FRIENDS;
@@ -255,6 +265,60 @@ public class CartController {
             
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
             response.put("friends", selectedFriends);
+            
+        } catch (Exception e) {
+            log.error("친구 정보 조회 오류", e);
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+            response.put(CartConstants.JSON_MESSAGE, "친구 정보 조회에 실패했습니다.");
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * 친구 ID 배열로 친구들의 정보를 조회하는 API
+     */
+    @PostMapping("/get-friends-by-ids")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getFriendsByIds(
+            @RequestBody List<String> friendIds,
+            HttpSession session) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            UserVO user = validateUserLogin(session);
+            if (user == null) {
+                return ResponseEntity.ok(createLoginRequiredResponse());
+            }
+            
+            List<UserVO> friends = new ArrayList<>();
+            
+            if (friendIds != null && !friendIds.isEmpty()) {
+                // 회사 전체 사용자 목록 조회
+                List<UserVO> companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
+                        user.getCompanyId(), user.getUsersId());
+                
+                // 요청된 친구 ID들과 매칭
+                for (String friendId : friendIds) {
+                    try {
+                        int userId = Integer.parseInt(friendId);
+                        for (UserVO companyUser : companyUsers) {
+                            if (companyUser.getUsersId() == userId) {
+                                friends.add(companyUser);
+                                break;
+                            }
+                        }
+                    } catch (NumberFormatException e) {
+                        log.warn("잘못된 친구 ID 형식: {}", friendId);
+                    }
+                }
+            }
+            
+            log.debug("친구 정보 조회 - 요청: {}, 응답: {}", friendIds.size(), friends.size());
+            
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+            response.put("friends", friends);
             
         } catch (Exception e) {
             log.error("친구 정보 조회 오류", e);

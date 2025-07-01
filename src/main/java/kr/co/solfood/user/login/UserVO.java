@@ -27,6 +27,6 @@ public class UserVO {
     private String usersStatus;
     private String usersBirth;
     private String usersLoginType;
-    private String companyName; // 부서 이름
-    private String departmentName;
+    private String companyName; // 회사 이름
+    private String departmentName; // 부서 이름
 }
