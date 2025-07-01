@@ -217,6 +217,7 @@ public class CartController {
                 selectedFriendIds != null ? selectedFriendIds.size() : 0);
         
         model.addAttribute(UrlConstants.Model.CART, cart);
+        model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
         model.addAttribute("friendCount", selectedFriendIds != null ? selectedFriendIds.size() : 0);
         model.addAttribute("miniGameMessage", CartConstants.MSG_MINI_GAME_PREPARING);
         
@@ -224,7 +225,7 @@ public class CartController {
     }
     
     /**
-     * AJAX로 선택된 친구들의 정보를 실시간 조회하는 API
+     * AJAX로 선택된 친구들의 정보를 실시간 조회하는 API (현재 사용자 포함)
      */
     @GetMapping("/get-selected-friends")
     @ResponseBody
@@ -244,17 +245,36 @@ public class CartController {
             List<UserVO> selectedFriends = new ArrayList<>();
             
             if (selectedFriendIds != null && !selectedFriendIds.isEmpty()) {
-                // 실시간으로 DB에서 친구 정보 조회
+                // 회사 전체 사용자 목록 조회 (현재 사용자 제외)
                 List<UserVO> companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
                         user.getCompanyId(), user.getUsersId());
                 
                 for (String friendId : selectedFriendIds) {
                     try {
                         int userId = Integer.parseInt(friendId);
-                        for (UserVO companyUser : companyUsers) {
-                            if (companyUser.getUsersId() == userId) {
-                                selectedFriends.add(companyUser);
-                                break;
+                        
+                        // 현재 사용자인지 확인
+                        if (userId == user.getUsersId()) {
+                            // 현재 사용자는 직접 추가하고 구분 표시 추가
+                            UserVO currentUserCopy = new UserVO();
+                            currentUserCopy.setUsersId(user.getUsersId());
+                            currentUserCopy.setUsersName(user.getUsersName());
+                            currentUserCopy.setUsersProfile(user.getUsersProfile());
+                            currentUserCopy.setCompanyId(user.getCompanyId());
+                            currentUserCopy.setCompanyName(user.getCompanyName());
+                            currentUserCopy.setDepartmentId(user.getDepartmentId());
+                            currentUserCopy.setDepartmentName(user.getDepartmentName());
+                            // 현재 사용자 표시를 위한 특별한 필드 추가 (usersEmail 필드 활용)
+                            currentUserCopy.setUsersEmail("CURRENT_USER");
+                            selectedFriends.add(currentUserCopy);
+                            log.debug("현재 사용자 추가: {}", user.getUsersName());
+                        } else {
+                            // 다른 친구들은 회사 사용자 목록에서 찾기
+                            for (UserVO companyUser : companyUsers) {
+                                if (companyUser.getUsersId() == userId) {
+                                    selectedFriends.add(companyUser);
+                                    break;
+                                }
                             }
                         }
                     } catch (NumberFormatException e) {
@@ -262,6 +282,8 @@ public class CartController {
                     }
                 }
             }
+            
+            log.debug("선택된 친구들 조회 완료 - 총 {}명 (현재 사용자 포함)", selectedFriends.size());
             
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
             response.put("friends", selectedFriends);

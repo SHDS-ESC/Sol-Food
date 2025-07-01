@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const friendCountElement = document.getElementById('friendCountData');
     totalFriends = friendCountElement ? parseInt(friendCountElement.value) || 0 : 0;
     
-    console.log('페이지 로드, 총 친구 수:', totalFriends);
+    console.log('수락 대기 페이지 로드 - 총 친구 수:', totalFriends);
     loadSelectedFriends();
     updateProgress();
 });
@@ -18,7 +18,6 @@ function loadSelectedFriends() {
     if (totalFriends > 0) {
         fetchFriendsData();
     } else {
-        console.log('선택된 친구가 없음 (혼자 결제)');
         displayNoFriends();
     }
 }
@@ -34,7 +33,7 @@ function fetchFriendsData() {
     .then(data => {
         if (data.result === 'success') {
             selectedFriendsData = data.friends;
-            console.log('친구 데이터 로드 성공:', selectedFriendsData);
+            console.log('친구 데이터 로드 완료 - ' + data.friends.length + '명');
             displayFriends();
         } else {
             console.error('친구 데이터 로드 실패:', data.message);
@@ -55,13 +54,35 @@ function displayFriends() {
         const friendElement = createFriendElement(friend, index);
         friendsContainer.appendChild(friendElement);
     });
+    
+    // 현재 사용자가 포함되어 있으면 자동으로 수락 처리
+    checkAndAcceptCurrentUser();
 }
 
 function createFriendElement(friend, index) {
     const div = document.createElement('div');
-    div.className = 'friend-status pending';
+    const isCurrentUser = friend.usersEmail === 'CURRENT_USER';
+    
+    div.className = isCurrentUser ? 'friend-status accepted' : 'friend-status pending';
     div.setAttribute('data-friend-id', friend.usersId);
     div.id = 'friend-' + friend.usersId;
+    
+    // 현재 사용자인 경우 특별한 스타일 적용
+    if (isCurrentUser) {
+        div.style.background = '#d1edff';
+        div.style.borderLeft = '4px solid #007bff';
+        
+        // 현재 사용자의 회사-부서 정보가 없는 경우 JSP에서 가져오기
+        if (!friend.companyName || !friend.departmentName || 
+            friend.companyName === 'null' || friend.departmentName === 'null') {
+            const currentUserData = document.getElementById('currentUserData');
+            if (currentUserData) {
+                friend.companyName = currentUserData.getAttribute('data-current-user-company-name') || friend.companyName;
+                friend.departmentName = currentUserData.getAttribute('data-current-user-department-name') || friend.departmentName;
+                console.log('현재 사용자 회사-부서 정보 JSP에서 로드:', friend.companyName, '-', friend.departmentName);
+            }
+        }
+    }
     
     const avatarDiv = document.createElement('div');
     avatarDiv.className = 'friend-avatar';
@@ -87,11 +108,28 @@ function createFriendElement(friend, index) {
     
     const nameDiv = document.createElement('div');
     nameDiv.className = 'friend-name';
-    nameDiv.textContent = friend.usersName;
+    nameDiv.textContent = friend.usersName + (isCurrentUser ? ' (본인)' : '');
     
     const companyDiv = document.createElement('div');
     companyDiv.className = 'friend-company';
-    companyDiv.textContent = friend.companyName + ' - ' + friend.departmentName;
+    
+    // 회사명과 부서명이 있는지 확인하고 안전하게 표시
+    const companyName = friend.companyName || '회사 정보 없음';
+    const departmentName = friend.departmentName || '부서 정보 없음';
+    
+    // null, undefined, 빈 문자열 체크
+    if (friend.companyName && friend.departmentName && 
+        friend.companyName !== 'null' && friend.departmentName !== 'null') {
+        companyDiv.textContent = companyName + ' - ' + departmentName;
+    } else if (friend.companyName && friend.companyName !== 'null') {
+        companyDiv.textContent = companyName;
+    } else if (friend.departmentName && friend.departmentName !== 'null') {
+        companyDiv.textContent = departmentName;
+    } else {
+        companyDiv.textContent = '소속 정보 없음';
+        companyDiv.style.color = '#999';
+        companyDiv.style.fontStyle = 'italic';
+    }
     
     infoDiv.appendChild(nameDiv);
     infoDiv.appendChild(companyDiv);
@@ -100,20 +138,29 @@ function createFriendElement(friend, index) {
     actionsDiv.className = 'status-actions';
     
     const statusBadge = document.createElement('span');
-    statusBadge.className = 'status-badge status-pending';
-    statusBadge.textContent = '대기중';
     statusBadge.id = 'badge-' + friend.usersId;
     
-    const acceptBtn = document.createElement('button');
-    acceptBtn.className = 'accept-btn';
-    acceptBtn.textContent = '수락';
-    acceptBtn.id = 'btn-' + friend.usersId;
-    acceptBtn.onclick = function() {
-        acceptFriend(friend.usersId, index);
-    };
-    
-    actionsDiv.appendChild(statusBadge);
-    actionsDiv.appendChild(acceptBtn);
+    if (isCurrentUser) {
+        // 현재 사용자는 자동으로 수락된 상태
+        statusBadge.className = 'status-badge status-accepted';
+        statusBadge.innerHTML = '참여중 <i class="bi bi-person-check" style="margin-left: 5px;"></i>';
+        actionsDiv.appendChild(statusBadge);
+    } else {
+        // 다른 친구들은 수락 버튼 표시
+        statusBadge.className = 'status-badge status-pending';
+        statusBadge.textContent = '대기중';
+        
+        const acceptBtn = document.createElement('button');
+        acceptBtn.className = 'accept-btn';
+        acceptBtn.textContent = '수락';
+        acceptBtn.id = 'btn-' + friend.usersId;
+        acceptBtn.onclick = function() {
+            acceptFriend(friend.usersId, index);
+        };
+        
+        actionsDiv.appendChild(statusBadge);
+        actionsDiv.appendChild(acceptBtn);
+    }
     
     div.appendChild(avatarDiv);
     div.appendChild(infoDiv);
@@ -122,8 +169,28 @@ function createFriendElement(friend, index) {
     return div;
 }
 
+// 현재 사용자가 포함되어 있으면 자동으로 수락 처리
+function checkAndAcceptCurrentUser() {
+    selectedFriendsData.forEach((friend, index) => {
+        if (friend.usersEmail === 'CURRENT_USER') {
+            // 현재 사용자는 자동으로 수락된 것으로 카운트
+            acceptedFriends++;
+            console.log('현재 사용자(' + friend.usersName + ') 자동 수락');
+        }
+    });
+    
+    updateProgress();
+}
+
 function acceptFriend(friendId, index) {
     console.log('친구 수락:', friendId, 'index:', index);
+    
+    // 현재 사용자는 이미 수락된 상태이므로 처리하지 않음
+    const friend = selectedFriendsData.find(f => f.usersId === friendId);
+    if (friend && friend.usersEmail === 'CURRENT_USER') {
+        console.log('현재 사용자는 이미 수락된 상태입니다.');
+        return;
+    }
     
     const friendElement = document.querySelector(`[data-friend-id="${friendId}"]`) || document.getElementById('friend-' + friendId);
     

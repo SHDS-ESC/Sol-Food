@@ -42,9 +42,13 @@ function initializePage() {
         // 친구들 복원
         restoreSelectedFriends();
     } else {
-        // 선택된 친구가 없으면 섹션 숨김
+        // 선택된 친구가 없으면 현재 사용자를 기본으로 추가
+        addCurrentUserAsDefault();
+        
         const selectedFriendsSection = document.getElementById('selectedFriendsSection');
-        if (selectedFriendsSection) {
+        if (selectedFriendsSection && selectedFriends.length > 0) {
+            selectedFriendsSection.style.display = 'block';
+        } else if (selectedFriendsSection) {
             selectedFriendsSection.style.display = 'none';
         }
     }
@@ -62,6 +66,105 @@ function initializePage() {
     
     // 이벤트 리스너 설정
     setupEventListeners();
+}
+
+// 현재 사용자를 기본으로 추가
+function addCurrentUserAsDefault() {
+    console.log('현재 사용자를 기본으로 추가 시작');
+    
+    const currentUserData = document.getElementById('currentUserData');
+    if (!currentUserData) {
+        console.log('현재 사용자 정보를 찾을 수 없음');
+        return;
+    }
+    
+    const currentUserId = currentUserData.getAttribute('data-current-user-id');
+    const currentUserName = currentUserData.getAttribute('data-current-user-name');
+    const currentUserProfile = currentUserData.getAttribute('data-current-user-profile');
+    const currentUserCompanyName = currentUserData.getAttribute('data-current-user-company-name');
+    const currentUserDepartmentName = currentUserData.getAttribute('data-current-user-department-name');
+    
+    if (!currentUserId || !currentUserName) {
+        console.log('현재 사용자 정보가 불완전함');
+        return;
+    }
+    
+    console.log('현재 사용자 정보:', currentUserId, currentUserName);
+    
+    // 이미 선택되어 있는지 확인
+    if (selectedFriends.includes(currentUserId)) {
+        console.log('현재 사용자가 이미 선택됨');
+        return;
+    }
+    
+    // 현재 사용자 정보를 selectedFriendsData에 저장
+    const companyInfo = (currentUserCompanyName && currentUserDepartmentName && 
+                        currentUserCompanyName !== 'null' && currentUserDepartmentName !== 'null') 
+                       ? `${currentUserCompanyName} - ${currentUserDepartmentName}` 
+                       : '소속 정보 확인 중...';
+    
+    selectedFriendsData[currentUserId] = {
+        id: currentUserId,
+        name: currentUserName + ' (나)',
+        profileUrl: currentUserProfile || '',
+        companyInfo: companyInfo
+    };
+    
+    // 선택 목록에 추가
+    selectedFriends.push(currentUserId);
+    
+    // 화면에 표시
+    addSelectedFriendDisplayFromData(selectedFriendsData[currentUserId]);
+    
+    // 세션 스토리지에 저장
+    saveSelectedFriendsData();
+    
+    // 화면 업데이트
+    updateSelectedCount();
+    updateSelectedInput();
+    updateSelectedFriendsSection();
+    
+    console.log('현재 사용자 기본 추가 완료:', currentUserId);
+}
+
+// 현재 사용자 정보를 selectedFriendsData에 추가 (복원용)
+function addCurrentUserToSelectedData(currentUserId) {
+    const currentUserData = document.getElementById('currentUserData');
+    if (!currentUserData) {
+        console.log('현재 사용자 정보를 찾을 수 없음');
+        return;
+    }
+    
+    const currentUserName = currentUserData.getAttribute('data-current-user-name');
+    const currentUserProfile = currentUserData.getAttribute('data-current-user-profile');
+    const currentUserCompanyName = currentUserData.getAttribute('data-current-user-company-name');
+    const currentUserDepartmentName = currentUserData.getAttribute('data-current-user-department-name');
+    
+    if (!currentUserName) {
+        console.log('현재 사용자 이름 정보가 없음');
+        return;
+    }
+    
+    const companyInfo = (currentUserCompanyName && currentUserDepartmentName && 
+                        currentUserCompanyName !== 'null' && currentUserDepartmentName !== 'null') 
+                       ? `${currentUserCompanyName} - ${currentUserDepartmentName}` 
+                       : '소속 정보 확인 중...';
+    
+    // selectedFriendsData에 저장
+    selectedFriendsData[currentUserId] = {
+        id: currentUserId,
+        name: currentUserName + ' (나)',
+        profileUrl: currentUserProfile || '',
+        companyInfo: companyInfo
+    };
+    
+    // 화면에 표시
+    addSelectedFriendDisplayFromData(selectedFriendsData[currentUserId]);
+    
+    // 세션 스토리지에 저장
+    saveSelectedFriendsData();
+    
+    console.log('현재 사용자 정보 재생성 완료:', currentUserId);
 }
 
 // 현재 페이지의 친구들 정보 수집
@@ -174,6 +277,24 @@ function restoreSelectedFriends() {
     const missingFriends = [];
     
     selectedFriends.forEach(friendId => {
+        // 현재 사용자인지 먼저 확인
+        const currentUserData = document.getElementById('currentUserData');
+        const currentUserId = currentUserData ? currentUserData.getAttribute('data-current-user-id') : null;
+        
+        if (friendId === currentUserId) {
+            // 현재 사용자는 항상 저장된 정보로 복원
+            console.log('현재 사용자 복원:', friendId);
+            const friendData = selectedFriendsData[friendId];
+            if (friendData) {
+                addSelectedFriendDisplayFromData(friendData);
+            } else {
+                // 저장된 정보가 없으면 다시 생성
+                console.log('현재 사용자 정보 재생성');
+                addCurrentUserToSelectedData(friendId);
+            }
+            return;
+        }
+        
         // 현재 페이지에 있는 친구인지 확인
         const friendElement = document.querySelector(`[data-friend-id="${friendId}"]`);
         if (friendElement) {
@@ -288,6 +409,11 @@ function addSelectedFriendDisplayFromData(friendData) {
         return;
     }
     
+    // 현재 사용자인지 확인
+    const currentUserData = document.getElementById('currentUserData');
+    const currentUserId = currentUserData ? currentUserData.getAttribute('data-current-user-id') : null;
+    const isCurrentUser = friendData.id === currentUserId;
+    
     const selectedFriendItem = document.createElement('div');
     selectedFriendItem.className = 'selected-friend-item';
     selectedFriendItem.setAttribute('data-selected-friend-id', friendData.id);
@@ -306,12 +432,15 @@ function addSelectedFriendDisplayFromData(friendData) {
         avatarStyle = '';
     }
     
+    // 현재 사용자인 경우 배지, 아닌 경우 제거 버튼
+    const badgeOrButton = isCurrentUser 
+        ? `<div class="current-user-badge"><i class="bi bi-person-fill"></i></div>`
+        : `<div class="remove-friend-btn" onclick="removeFriend('${friendData.id}')"><i class="bi bi-dash"></i></div>`;
+    
     selectedFriendItem.innerHTML = `
         <div class="selected-friend-avatar" style="${avatarStyle}">
             ${avatarContent}
-            <div class="remove-friend-btn" onclick="removeFriend('${friendData.id}')">
-                <i class="bi bi-dash"></i>
-            </div>
+            ${badgeOrButton}
         </div>
         <div class="selected-friend-name">${friendData.name}</div>
     `;
@@ -399,6 +528,11 @@ function addSelectedFriendDisplay(friendElement) {
         return;
     }
     
+    // 현재 사용자인지 확인
+    const currentUserData = document.getElementById('currentUserData');
+    const currentUserId = currentUserData ? currentUserData.getAttribute('data-current-user-id') : null;
+    const isCurrentUser = friendId === currentUserId;
+    
     const selectedFriendItem = document.createElement('div');
     selectedFriendItem.className = 'selected-friend-item';
     selectedFriendItem.setAttribute('data-selected-friend-id', friendId);
@@ -417,12 +551,15 @@ function addSelectedFriendDisplay(friendElement) {
         avatarStyle = '';
     }
     
+    // 현재 사용자인 경우 배지, 아닌 경우 제거 버튼
+    const badgeOrButton = isCurrentUser 
+        ? `<div class="current-user-badge"><i class="bi bi-person-fill"></i></div>`
+        : `<div class="remove-friend-btn" onclick="removeFriend('${friendId}')"><i class="bi bi-dash"></i></div>`;
+    
     selectedFriendItem.innerHTML = `
         <div class="selected-friend-avatar" style="${avatarStyle}">
             ${avatarContent}
-            <div class="remove-friend-btn" onclick="removeFriend('${friendId}')">
-                <i class="bi bi-dash"></i>
-            </div>
+            ${badgeOrButton}
         </div>
         <div class="selected-friend-name">${friendName}</div>
     `;
@@ -443,6 +580,16 @@ function removeSelectedFriendDisplay(friendId) {
 
 // 친구 제거 (빨간 - 버튼 클릭 시)
 function removeFriend(friendId) {
+    // 현재 사용자인지 확인
+    const currentUserData = document.getElementById('currentUserData');
+    if (currentUserData) {
+        const currentUserId = currentUserData.getAttribute('data-current-user-id');
+        if (friendId === currentUserId) {
+            alert('본인은 제거할 수 없습니다.');
+            return;
+        }
+    }
+    
     // 선택 목록에서 제거
     selectedFriends = selectedFriends.filter(id => id !== friendId);
     
