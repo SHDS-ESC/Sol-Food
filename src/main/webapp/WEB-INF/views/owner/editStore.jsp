@@ -771,7 +771,20 @@
             document.getElementById("deleteImageBtn").style.display = "inline-block";
         }
     };
-
+    // ---------------------파싱----------------------------------------
+    window.addEventListener("DOMContentLoaded", function () {
+        const fullAddress = document.getElementById("storeAddress").value;
+        console.log(fullAddress)
+        if (fullAddress) {
+            const parts = fullAddress.split('|');
+            if (parts.length === 4) {
+                document.getElementById("sample3_postcode").value = parts[0];
+                document.getElementById("sample3_address").value = parts[1];
+                document.getElementById("sample3_detailAddress").value = parts[2];
+                document.getElementById("sample3_extraAddress").value = parts[3];
+            }
+        }
+    });
 
 </script>
 </body>

@@ -673,8 +673,13 @@
                 document.body.scrollTop = currentScroll;
 
                 // ----------------------추가 --------------------
-                const fullAddress = addr + document.getElementById("sample3_detailAddress").value+' ' + (extraAddr || '');
-                document.getElementById("storeAddress").value = fullAddress;
+                const fullAddressAdd =
+                    document.getElementById("sample3_postcode").value + "|" +
+                    addr + "|" +
+                    document.getElementById("sample3_detailAddress").value + "|" +
+                    (extraAddr || '');
+                const fullAddress = addr + document.getElementById("sample3_detailAddress").value + (extraAddr || '');
+                document.getElementById("storeAddress").value = fullAddressAdd;
 
                 getLatLngFromAddress(fullAddress);
             },
@@ -690,13 +695,15 @@
         element_wrap.style.display = 'block';
     }
 
-    document.getElementById("sample3_detailAddress").addEventListener("blur",function (){
+    document.getElementById("sample3_detailAddress").addEventListener("blur", function () {
+        const postcode = document.getElementById("sample3_postcode").value;
         const addr = document.getElementById("sample3_address").value;
         const detail = this.value;
         const extra = document.getElementById("sample3_extraAddress").value;
 
-        document.getElementById("storeAddress").value = addr + ' ' + detail + ' ' + extra;
-    })
+        const fullAddressAdd = postcode + "|" + addr + "|" + detail + "|" + (extra || '');
+        document.getElementById("storeAddress").value = fullAddressAdd;
+    });
 
 
     // ---------------------------- 대표이미지 미리보기 -------------------------------------

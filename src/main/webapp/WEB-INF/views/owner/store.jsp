@@ -13,6 +13,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
 <html lang="ko">
@@ -502,7 +503,7 @@
             <c:if test="${!not empty store.storeMainimage}">
               <img src="https://cdn.spectory.net/src/images/noImg.gif" style="width: 100%; max-width: 400px; border-radius: 12px; margin: 20px 0;">
             </c:if>
-            <p><strong>주소 : </strong> ${store.storeAddress}</p>
+            <p><strong>주소 : </strong> ${fn:replace(store.storeAddress, '|', ' ')}</p>
             <p><strong>연락처 : </strong> ${store.storeTel}</p>
             <p><strong>소개 : </strong> ${store.storeIntro}</p>
             <p><strong>승인상태 : </strong>
@@ -767,6 +768,9 @@
 
     geocoder.addressSearch(fullAddress, callback);
   }
+  // --------------------------------파싱--------------------------------
+
+
 </script>
 </body>
 </html>
