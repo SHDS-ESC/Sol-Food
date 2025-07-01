@@ -1,5 +1,6 @@
 package kr.co.solfood.user.like;
 
+import kr.co.solfood.common.constants.UrlConstants;
 import kr.co.solfood.user.login.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,7 +21,7 @@ public class LikeController {
     @GetMapping("/add")
     @ResponseBody
     public Map<String, Object> addLike(HttpSession session, @RequestParam int storeId) {
-        UserVO loginUser = (UserVO) session.getAttribute("userLoginSession"); // ★ 여기 key명을 반드시 일치!
+        UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
         long usersId = loginUser.getUsersId();
         boolean success = service.addLike((int) usersId, storeId);
         Map<String, Object> result = new HashMap<>();
@@ -32,7 +33,7 @@ public class LikeController {
     @GetMapping("/cancel")
     @ResponseBody
     public Map<String, Object> cancelLike(HttpSession session, @RequestParam int storeId) {
-        UserVO loginUser = (UserVO) session.getAttribute("userLoginSession"); // 세션에서 꺼냄
+        UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
         long usersId = loginUser.getUsersId();
         boolean success = service.cancelLike((int) usersId, storeId);
         Map<String, Object> result = new HashMap<>();

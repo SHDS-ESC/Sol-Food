@@ -41,10 +41,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // 장바구니 개수 업데이트
+    if (typeof updateCartBadge === 'function') {
+        fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+            .then(response => response.json())
+            .then(data => updateCartBadge(data.count || 0))
+            .catch(error => console.error('장바구니 개수 로드 실패:', error));
+    }
 });
 
+// ==================== 장바구니 관련 ====================
+// updateCartBadge 함수는 cart.js에서 제공됨
+
 function loadCategoryConfig() {
-    fetch('/solfood/user/store/api/category/config')
+    fetch(UrlConstants.Builder.fullUrl('/user/store/api/category/config'))
         .then(response => response.json())
         .then(data => {
             categoryConfig = data.data || data;
@@ -228,13 +239,22 @@ function selectMapCategory(element, category) {
 function toggleMoreCategories() {
     const extendedCategories = document.getElementById('extendedCategories');
     const moreText = document.getElementById('moreText');
+    const moreIcon = document.getElementById('moreIcon');
     
     if (extendedCategories.style.display === 'grid') {
+        // 펼쳐져 있음 → 접기 실행
         extendedCategories.style.display = 'none';
         moreText.textContent = '더보기';
+        if (moreIcon) {
+            moreIcon.className = 'bi bi-chevron-down'; // 더보기일 때 아래 화살표
+        }
     } else {
+        // 접혀져 있음 → 더보기 실행
         extendedCategories.style.display = 'grid';
         moreText.textContent = '접기';
+        if (moreIcon) {
+            moreIcon.className = 'bi bi-chevron-up'; // 접기일 때 위 화살표
+        }
     }
 }
 
@@ -267,9 +287,9 @@ function loadStoreList() {
     let apiUrl;
 
     if (isSearchActive) {
-        apiUrl = `/solfood/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}`;
+        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}`);
     } else {
-        apiUrl = `/solfood/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`;
+        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`);
     }
 
     fetch(apiUrl)
@@ -366,7 +386,7 @@ function createStoreCardElement(store, usersId) {
         // 안전한 문자열 처리
         const safeName = String(store.storeName || '이름 없음');
         const safeCategory = String(store.storeCategory || '기타');
-        const safeImage = store.storeMainimage || '/img/default-restaurant.jpg';
+        const safeImage = store.storeMainimage || 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=200&h=120&fit=crop&crop=center';
         const safeAddress = store.storeAddress || '';
         const safeTel = store.storeTel || '';
         const safeRating = Number(store.storeAvgstar || 0);
@@ -634,7 +654,7 @@ function clearSearch() {
 function toggleLike(btn) {
     const storeId = btn.dataset.storeId;
     const isLiked = btn.classList.contains('liked');
-    const url = isLiked ? '/solfood/user/like/cancel' : '/solfood/user/like/add';
+    const url = isLiked ? UrlConstants.Builder.fullUrl('/user/like/cancel') : UrlConstants.Builder.fullUrl('/user/like/add');
     const urlWithParams = `${url}?storeId=${encodeURIComponent(storeId)}`;
 
     fetch(urlWithParams)
@@ -690,11 +710,61 @@ function extractCategoryTag(categoryName) {
 }
 
 function goToStoreDetail(storeId) {
-    window.location.href = '/solfood/user/store/detail?storeId=' + storeId;
+    window.location.href = UrlConstants.Builder.storeDetail(storeId);
 }
 
 function goToStoreDetailFromMap(placeName, placeId) {
-    window.location.href = '/solfood/user/store/detail?storeId=1';
+    // 로딩 상태 표시
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'mapSearchLoading';
+    loadingOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    `;
+    loadingOverlay.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">검색 중...</span>
+            </div>
+            <div style="margin-top: 10px; color: #666;">가게 정보를 확인하는 중...</div>
+        </div>
+    `;
+    document.body.appendChild(loadingOverlay);
+
+    // 가게명으로 DB 검색
+    const searchUrl = UrlConstants.Builder.fullUrl(`/user/store/search/name?name=${encodeURIComponent(placeName)}`);
+    
+    fetch(searchUrl)
+        .then(response => response.json())
+        .then(data => {
+            // 로딩 오버레이 제거
+            document.body.removeChild(loadingOverlay);
+            
+            if (data.success && data.stores && data.stores.length > 0) {
+                // 가게가 존재하는 경우 - 첫 번째 가게의 상세페이지로 이동
+                const store = data.stores[0];
+                window.location.href = UrlConstants.Builder.storeDetail(store.storeId);
+            } else {
+                // 가게가 없는 경우 - 알람 표시 후 인포윈도우 닫기
+                alert(`'${placeName}' 가게를 찾을 수 없습니다.\n현재 Sol Food에 등록되지 않은 가게입니다.`);
+                closeCurrentInfoWindow();
+            }
+        })
+        .catch(error => {
+            // 에러 처리
+            console.error('가게 검색 중 오류 발생:', error);
+            document.body.removeChild(loadingOverlay);
+            alert('가게 정보를 확인하는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+            closeCurrentInfoWindow();
+        });
 }
 
 function callStore(phoneNumber) {

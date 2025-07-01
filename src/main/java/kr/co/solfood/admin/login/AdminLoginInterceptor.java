@@ -1,5 +1,6 @@
 package kr.co.solfood.admin.login;
 
+import kr.co.solfood.common.constants.UrlConstants;
 import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,21 +10,20 @@ import javax.servlet.http.HttpSession;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 public class AdminLoginInterceptor implements HandlerInterceptor {
+    @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // 로그인 체크
         HttpSession session = request.getSession();
-        AdminVO vo = (AdminVO) session.getAttribute("admin");
-        if (vo == null) {
-            // 미 로그인 상태
-            response.setContentType("text/html;charset=utf-8");
+        if (session.getAttribute(UrlConstants.Session.ADMIN_LOGIN_SESSION) == null) {
+            response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();
-            out.println("<script>");
-            out.println("alert('로그인 후 이용 가능합니다.');");
-            out.println("location.href = '/solfood/admin/login';");
-            out.println("</script>");
-            return false; // 가지 못함
+            out.println("alert('관리자 로그인이 필요합니다.');");
+            
+            // Context Path를 동적으로 가져오기
+            String contextPath = request.getContextPath();
+            out.println("location.href = '" + contextPath + "/admin/login';");
+            out.flush();
+            return false;
         }
-        // 로그인 된 상태
-        return true; // 이 값이 false면 못 감 (흰 화면)
+        return true;
     }
 }

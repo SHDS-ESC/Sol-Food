@@ -1,5 +1,6 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.common.constants.UrlConstants;
 import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.user.category.CategoryService;
 import kr.co.solfood.user.category.CategoryVO;
@@ -84,14 +85,14 @@ public class StoreController {
     @GetMapping("/detail")
     public String getStoreDetail(@RequestParam(required = false) Integer storeId, Model model) {
         if (storeId == null) {
-            return "redirect:/user/store/list";
+            return "redirect:" + UrlConstants.User.STORE_LIST;
         }
 
         try {
             // 가게 정보 조회
             StoreVO store = service.getStoreById(storeId);
             if (store == null) {
-                return "redirect:/user/store/list";
+                return "redirect:" + UrlConstants.User.STORE_LIST;
             }
 
             // 해당 가게의 리뷰 목록 조회
@@ -113,7 +114,7 @@ public class StoreController {
 
         } catch (Exception e) {
             log.error("가게 상세 페이지 조회 중 오류 발생. storeId: {}", storeId, e);
-            return "redirect:/user/store/list";
+            return "redirect:" + UrlConstants.User.STORE_LIST;
         }
     }
 
@@ -123,7 +124,7 @@ public class StoreController {
         if (store == null) {
             return "error/404";
         }
-        return "redirect:/user/store/detail?storeId=" + storeId;
+        return "redirect:" + UrlConstants.User.STORE_DETAIL + "?storeId=" + storeId;
     }
 
     // ========================= API 메서드들 (VO 패턴 적용) =========================
@@ -136,7 +137,8 @@ public class StoreController {
     public StoreListResponseVO getStoreListAjax(
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            HttpSession session) {
 
         try {
             PageDTO pageDTO = new PageDTO();
@@ -144,7 +146,16 @@ public class StoreController {
             pageDTO.setPageSize(pageSize);
 
             String searchCategory = (category == null) ? "전체" : category;
-            PageMaker<StoreVO> pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
+            PageMaker<StoreVO> pageMaker;
+            
+            // 로그인 여부에 따라 다른 메서드 호출
+            UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+            if (loginUser != null) {
+                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId());
+            } else {
+                pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
+            }
+            
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(
@@ -169,14 +180,24 @@ public class StoreController {
     public StoreListResponseVO searchStoresWithPaging(
             @RequestParam String keyword,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            HttpSession session) {
 
         try {
             PageDTO pageDTO = new PageDTO();
             pageDTO.setCurrentPage(offset / pageSize + 1);
             pageDTO.setPageSize(pageSize);
 
-            PageMaker<StoreVO> pageMaker = service.getPagedSearchResults(keyword, pageDTO);
+            PageMaker<StoreVO> pageMaker;
+            
+            // 로그인 여부에 따라 다른 메서드 호출
+            UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+            if (loginUser != null) {
+                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId());
+            } else {
+                pageMaker = service.getPagedSearchResults(keyword, pageDTO);
+            }
+            
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(

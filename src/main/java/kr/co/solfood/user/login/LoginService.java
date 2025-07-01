@@ -26,4 +26,10 @@ public interface LoginService {
 
     // 비밀번호 찾기 > 새로운 비밀번호 저장
     void setNewPwd(SearchPwdRequest req);
+    
+    // 같은 회사의 다른 사용자들 가져오기 (초대용)
+    List<UserVO> getUsersByCompanyIdExcludingCurrentUser(int companyId, long currentUserId);
+    
+    // 특정 부서의 사용자들 가져오기 (초대용)
+    List<UserVO> getUsersByDepartmentIdExcludingCurrentUser(int departmentId, long currentUserId);
 }

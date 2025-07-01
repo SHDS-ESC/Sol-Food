@@ -257,7 +257,7 @@
             <span>또는</span>
         </div>
 
-        <a href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/owner/kakaoLogin&response_type=code" 
+        <a href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}${pageContext.request.contextPath}/owner/kakaoLogin&response_type=code" 
            class="kakao-login">
             <span>💬</span>
             카카오로 간편 로그인

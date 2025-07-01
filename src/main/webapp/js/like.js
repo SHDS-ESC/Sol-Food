@@ -6,18 +6,18 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMoreStores();
 });
 
-let page = 1;
+let offset = 0;
 const pageSize = 10;
 let isEnd = false;
 
 function goToStoreDetail(storeId) {
-    window.location.href = '/solfood/user/store/detail/' + storeId;
+    window.location.href = UrlConstants.Builder.storeDetail(storeId);
 }
 
 function loadMoreStores() {
     if (isEnd) return;
 
-    let url = `/solfood/user/mypage/like/api?currentPage=${page}&pageSize=${pageSize}`;
+    let url = UrlConstants.Builder.fullUrl(`/user/mypage/like/api?offset=${offset}&pageSize=${pageSize}`);
 
     fetch(url)
         .then(res => res.json())
@@ -36,7 +36,7 @@ function loadMoreStores() {
                 isEnd = true;
                 document.getElementById('loadMoreBtn').style.display = 'none';
             } else {
-                page++; // 다음 페이지 요청 준비
+                offset += data.list.length; // 다음 페이지 요청 준비
                 document.getElementById('loadMoreBtn').style.display = '';
             }
 
@@ -52,7 +52,6 @@ function loadMoreStores() {
             }
         })
         .catch(err => {
-            console.error(err);
             alert("서버와 통신 중 오류가 발생했습니다.");
         });
 }
@@ -67,17 +66,17 @@ function createStoreCard(store) {
     const usersId = window.loginUserId;
 
     div.innerHTML = `
-        <img src="${store.storeMainimage ? store.storeMainimage : '/img/default-restaurant.jpg'}"
+                        <img src="${store.storeMainimage ? store.storeMainimage : 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=200&h=120&fit=crop&crop=center'}"
             alt="${store.storeName}" class="store-img"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">
             <i class="bi bi-shop" style="font-size: 40px;"></i>
         </div>
         <div class="store-body">
-            <div class="store-name">${store.storeName}</div>
-            <div class="store-category">${store.storeCategory}</div>
+            <div class="store-name">${store.storeName || '이름 없음'}</div>
+            <div class="store-category">${store.storeCategory || '기타'}</div>
             <div style="font-size:11px; color:#666; margin-bottom:3px;">
-                📍 ${store.storeAddress}
+                📍 ${store.storeAddress || '주소 정보 없음'}
             </div>
             <div style="font-size:12px;">
                 ${store.storeAvgstar > 0 ? `⭐ ${store.storeAvgstar}점` : '⭐ 신규매장'}
@@ -95,14 +94,23 @@ function createStoreCard(store) {
         </div>
     `;
 
+    // 카드 클릭 이벤트 (상세 페이지로 이동)
     div.addEventListener('click', () => goToStoreDetail(store.storeId));
+    
+    // 찜 버튼 클릭 이벤트 (버블링 방지)
+    const likeBtn = div.querySelector('.like-btn');
+    likeBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
+        toggleLike(this);
+    });
+    
     return div;
 }
 
 function toggleLike(btn) {
     const storeId = btn.dataset.storeId;
     const isLiked = btn.classList.contains('liked');
-    const url = isLiked ?'/solfood/user/like/cancel' : '/solfood/user/like/add';
+    const url = isLiked ? UrlConstants.Builder.fullUrl('/user/like/cancel') : UrlConstants.Builder.fullUrl('/user/like/add');
     const urlWithParams = `${url}?storeId=${encodeURIComponent(storeId)}`;
 
     fetch(urlWithParams)
@@ -110,8 +118,30 @@ function toggleLike(btn) {
         .then(res => {
             if (res.result === "success") {
                 if (isLiked) {
-                    btn.classList.remove('liked');
-                    btn.querySelector('i').className = 'bi bi-heart';
+                    // 찜 목록 페이지에서는 찜을 해제하면 카드를 제거
+                    const storeCard = btn.closest('.store-card');
+                    if (storeCard) {
+                        storeCard.remove();
+                        
+                        // 찜 개수 업데이트
+                        const likeCountElement = document.getElementById('likeCount');
+                        if (likeCountElement) {
+                            const currentCount = parseInt(likeCountElement.textContent);
+                            likeCountElement.textContent = (currentCount - 1) + '개';
+                        }
+                        
+                        // 목록이 비었는지 확인
+                        const grid = document.getElementById('storeGrid');
+                        if (grid.childElementCount === 0) {
+                            grid.innerHTML = `
+                                <div style="width:100%; text-align:center; color:#999; margin-top:60px;">
+                                    <i class="bi bi-emoji-frown" style="font-size:40px"></i><br>
+                                    찜한 가게가 없습니다!
+                                </div>
+                            `;
+                            document.getElementById('loadMoreBtn').style.display = 'none';
+                        }
+                    }
                 } else {
                     btn.classList.add('liked');
                     btn.querySelector('i').className = 'bi bi-heart-fill';
