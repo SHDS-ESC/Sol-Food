@@ -52,7 +52,7 @@ public class MypageController {
         model.addAttribute("companyList", companyList);
 
         // 마이페이지 진행 세션 플래그 설정 (S3 업로드 보안용)
-        sess.setAttribute("mypageInProgress", true);
+        sess.setAttribute("s3InProgress", true);
         sess.setAttribute("uploadCount", 0);
         sess.setMaxInactiveInterval(30 * 60); // 30분 후 만료
         return "user/login/info";
@@ -76,7 +76,7 @@ public class MypageController {
         mypageService.updateUserInfo(userVO);
 
         // 마이페이지 완료 후 세션 정리
-        sess.removeAttribute("mypageInProgress");
+        sess.removeAttribute("s3InProgress");
         sess.removeAttribute("uploadCount");
 
         // 기존 세션 정보를 유지하면서 수정된 정보만 업데이트
