@@ -444,7 +444,7 @@
     #preview {padding: 10px; border-radius: 6px; border:1px solid #ddd; display: none }
     #preview img{width: 100%}
 
-    #storeImagePreview{max-width: 700px}
+    #menuImagePreview{max-width: 700px}
 
   </style>
 </head>
@@ -522,40 +522,48 @@
 
 
 
-      <div class="menu-content">
-        <form id="menuForm" action="/solfood/owner/menu/add" method="post" enctype="multipart/form-data">
+      <div class="menu-content" style="position: relative">
+        <form id="menuForm" action="/solfood/owner/menu/edit" method="post" enctype="multipart/form-data">
+          <input type="hidden" name="storeId" value="${menu.storeId}">
+          <input type="hidden" name="menuId" value="${menu.menuId}">
           <div class="form-group">
             <label for="menuName">메뉴명</label>
-            <input type="text" id="menuName" name="menuName" required>
+            <input type="text" id="menuName" name="menuName" value="${menu.menuName}" required>
           </div>
           <div class="form-group">
             <label for="menuPrice">가격</label>
-            <input type="text" id="menuPrice" name="menuPrice" required>
+            <input type="text" id="menuPrice" name="menuPrice" value="${menu.menuPrice}" required>
           </div>
 
           <div class="form-group">
             <label for="menuIntro">메뉴 설명</label>
-            <input type="text" id="menuIntro" name="menuIntro" required>
+            <input type="text" id="menuIntro" name="menuIntro" value="${menu.menuIntro}" required>
           </div>
 
           <div class="form-group">
             <!-- 파일 선택 버튼 (label) -->
             <label for="menuMainimage">메뉴 이미지</label>
-            <input type="hidden" name="menuMainimage" id="menuMainimageId" >
+            <input type="hidden" name="menuMainimage" id="menuMainimageId" value="${menu.menuMainimage}">
             <label for="menuMainimage" class="btn-cancel" style="display: inline-block; color: #fff; font-weight: 400">파일 선택</label>
             <input class="btn-cancel" accept="image/*" type="file" id="menuMainimage" onchange="previewmenuMainimage(event)" style="display: none">
 
           </div>
           <div id="preview">
-            <img id="storeImagePreview" src="" alt="">
+            <img id="menuImagePreview" src="${menu.menuMainimage}" alt="">
             <button type="button" class="btn-cancel" id="deleteImageBtn" onclick="deleteImagePreview()" style="display:none; margin-top: 10px;">이미지 삭제</button>
           </div>
 
 
           <div class="modal-actions">
+
+
             <button type="button" class="btn-cancel" onclick="location.href='/solfood/owner/menu'">취소</button>
             <button type="submit" class="btn-save">저장</button>
           </div>
+        </form>
+        <form action="/solfood/owner/menu/delete" method="post" style="position: absolute; bottom: 0">
+          <input type="hidden" name="menuId" value="${menu.menuId}">
+          <button type="submit" class="btn-cancel" onclick="return confirm('정말 삭제하시겠습니까?🥹')">삭제</button>
         </form>
       </div>
     </section>
@@ -577,7 +585,7 @@
     let files = event.target.files; // 파일 선택 input 에서 선택된 파일 리스트 가져오기
     let reader = new FileReader(); // 파일을 읽기 위한 fileReader 객체 생성
     reader.onload = function (e){ // 파일 읽기가 완료 됐을 때 실행할 함수 정의
-      let img = document.getElementById("storeImagePreview"); // 미리보기 태그
+      let img = document.getElementById("menuImagePreview"); // 미리보기 태그
       img.setAttribute('src',e.target.result); // src 속성 설정
 
       document.getElementById("preview").style.display = "block";
@@ -603,11 +611,19 @@
 
   // -----------------------------대표이미지 삭제----------------------------------
   function deleteImagePreview(){
-    document.getElementById("preview").style.display = "none";
-    document.getElementById("storeImagePreview").src = ""; // 미리보기 제거
+    document.getElementById("preview").style.display = "block";
+    document.getElementById("menuImagePreview").src = ""; // 미리보기 제거
     document.getElementById("menuMainimage").value = ""; // 파일 input 초기화
     document.getElementById("deleteImageBtn").style.display = "none"; // 미리보기 태그
   }
+  // ----------------------페이지 로드시 미리보기 ----------------------------------------
+  window.onload = function () {
+    const menuMainimage = "${menu.menuMainimage}";
+    if (menuMainimage && menuMainimage.trim() !== "") {
+      document.getElementById("preview").style.display = "block";
+      document.getElementById("deleteImageBtn").style.display = "inline-block";
+    }
+  };
 
 
 </script>

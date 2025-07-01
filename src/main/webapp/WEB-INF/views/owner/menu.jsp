@@ -442,6 +442,11 @@
 
   </style>
 </head>
+<c:if test="${not empty msg}">
+  <script>
+    alert("${msg}");
+  </script>
+</c:if>
 <body>
 <div class="dashboard">
   <!-- 사이드바 -->
@@ -527,51 +532,68 @@
 
 
         <div class="menu-grid" id="menuGrid">
-          <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1590301157890-4810ed352733?w=300&amp;h=200&amp;fit=crop" alt="불고기 정식" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%B6%88%EA%B3%A0%EA%B8%B0%20%EC%A0%95%EC%8B%9D'">
-            <div class="menu-info">
-              <div class="menu-name">불고기 정식</div>
-              <div class="menu-description">부드러운 한우 불고기와 다양한 반찬</div>
-              <div class="menu-price">₩15,000</div>
-            </div>
-          </div>
+<%--          <div class="menu-card">--%>
+<%--            <img src="https://images.unsplash.com/photo-1590301157890-4810ed352733?w=300&amp;h=200&amp;fit=crop" alt="불고기 정식" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%B6%88%EA%B3%A0%EA%B8%B0%20%EC%A0%95%EC%8B%9D'">--%>
+<%--            <div class="menu-info">--%>
+<%--              <div class="menu-name">불고기 정식</div>--%>
+<%--              <div class="menu-description">부드러운 한우 불고기와 다양한 반찬</div>--%>
+<%--              <div class="menu-price">₩15,000</div>--%>
+<%--            </div>--%>
+<%--          </div>--%>
 
-          <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300&amp;h=200&amp;fit=crop" alt="된장찌개" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%90%9C%EC%9E%A5%EC%B0%8C%EA%B0%9C'">
-            <div class="menu-info">
-              <div class="menu-name">된장찌개</div>
-              <div class="menu-description">깊은 맛의 전통 된장찌개</div>
-              <div class="menu-price">₩8,000</div>
-            </div>
-          </div>
+<%--          <div class="menu-card">--%>
+<%--            <img src="https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300&amp;h=200&amp;fit=crop" alt="된장찌개" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%90%9C%EC%9E%A5%EC%B0%8C%EA%B0%9C'">--%>
+<%--            <div class="menu-info">--%>
+<%--              <div class="menu-name">된장찌개</div>--%>
+<%--              <div class="menu-description">깊은 맛의 전통 된장찌개</div>--%>
+<%--              <div class="menu-price">₩8,000</div>--%>
+<%--            </div>--%>
+<%--          </div>--%>
 
 
-          <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?w=300&amp;h=200&amp;fit=crop" alt="제육볶음" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EC%A0%9C%EC%9C%A1%EB%B3%B6%EC%9D%8C'">
-            <div class="menu-info">
-              <div class="menu-name">잡채</div>
-              <div class="menu-description">매콤하고 달콤한 잡채</div>
-              <div class="menu-price">₩12,000</div>
-            </div>
-          </div>
+<%--          <div class="menu-card">--%>
+<%--            <img src="https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?w=300&amp;h=200&amp;fit=crop" alt="제육볶음" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EC%A0%9C%EC%9C%A1%EB%B3%B6%EC%9D%8C'">--%>
+<%--            <div class="menu-info">--%>
+<%--              <div class="menu-name">잡채</div>--%>
+<%--              <div class="menu-description">매콤하고 달콤한 잡채</div>--%>
+<%--              <div class="menu-price">₩12,000</div>--%>
+<%--            </div>--%>
+<%--          </div>--%>
 
-          <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=300&amp;h=200&amp;fit=crop" alt="순두부찌개" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EC%88%9C%EB%91%90%EB%B6%80%EC%B0%8C%EA%B0%9C'">
-            <div class="menu-info">
-              <div class="menu-name">순두부찌개</div>
-              <div class="menu-description">부드러운 순두부와 해산물</div>
-              <div class="menu-price">₩8,500</div>
-            </div>
-          </div>
+<%--          <div class="menu-card">--%>
+<%--            <img src="https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=300&amp;h=200&amp;fit=crop" alt="순두부찌개" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EC%88%9C%EB%91%90%EB%B6%80%EC%B0%8C%EA%B0%9C'">--%>
+<%--            <div class="menu-info">--%>
+<%--              <div class="menu-name">순두부찌개</div>--%>
+<%--              <div class="menu-description">부드러운 순두부와 해산물</div>--%>
+<%--              <div class="menu-price">₩8,500</div>--%>
+<%--            </div>--%>
+<%--          </div>--%>
 
-          <div class="menu-card">
-            <img src="https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=300&amp;h=200&amp;fit=crop" alt="비빔밥" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%B9%84%EB%B9%94%EB%B0%A5'">
-            <div class="menu-info">
-              <div class="menu-name">비빔밥</div>
-              <div class="menu-description">신선한 나물과 고추장 양념</div>
-              <div class="menu-price">₩10,000</div>
+<%--          <div class="menu-card">--%>
+<%--            <img src="https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=300&amp;h=200&amp;fit=crop" alt="비빔밥" class="menu-image" onerror="this.src='https://via.placeholder.com/300x200/22c55e/ffffff?text=%EB%B9%84%EB%B9%94%EB%B0%A5'">--%>
+<%--            <div class="menu-info">--%>
+<%--              <div class="menu-name">비빔밥</div>--%>
+<%--              <div class="menu-description">신선한 나물과 고추장 양념</div>--%>
+<%--              <div class="menu-price">₩10,000</div>--%>
+<%--            </div>--%>
+<%--          </div>--%>
+
+          <c:forEach var="item" items="${menu}">
+            <div class="menu-card" onclick="location.href = 'menu/edit?menuId=${item.menuId}'">
+
+              <c:if test="${not empty item.menuMainimage}">
+                <img src="${item.menuMainimage}" class="menu-image" >
+              </c:if>
+              <c:if test="${!not empty item.menuMainimage}">
+                <img src="https://cdn.spectory.net/src/images/noImg.gif" class="menu-image" >
+              </c:if>
+               <div class="menu-info">
+                <div class="menu-name">${item.menuName}</div>
+                <div class="menu-description">${item.menuIntro}</div>
+                <div class="menu-price">₩${item.menuPrice}</div>
+              </div>
             </div>
-          </div>
+          </c:forEach>
 
         </div>
 
