@@ -1,4 +1,4 @@
-package kr.co.solfood.owner.login;
+package kr.co.solfood.admin.login;
 
 import properties.KakaoProperties;
 import properties.ServerProperties;
