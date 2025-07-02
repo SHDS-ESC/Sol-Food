@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AdminHomeControllerTest {
     private MockMvc adminMockMvc;
     private AdminHomeController adminHomeController;
+    private AnalyticsService analyticsService;
     private AdminHomeService adminHomeService;
     private final int START_PAGE = 1;
     private final int PAGE_GROUP_AMOUNT = 10;
@@ -27,7 +28,7 @@ class AdminHomeControllerTest {
     @BeforeEach
     void setup() {
         adminHomeService = Mockito.mock(AdminHomeService.class);
-        adminHomeController = new AdminHomeController(adminHomeService);
+        adminHomeController = new AdminHomeController(adminHomeService,analyticsService);
         adminMockMvc = MockMvcBuilders.standaloneSetup(adminHomeController).build();
     }
 
