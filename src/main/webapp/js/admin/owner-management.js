@@ -16,8 +16,8 @@ function renderOwnerRows(ownerList) {
 
     ownerList.forEach(owner => {
         console.log(owner)
-        const profileHtml = owner.storeMainImage
-            ? '<img src="' + owner.storeMainImage +
+            const profileHtml = owner.storeMainimage
+            ? '<img src="' + owner.storeMainimage +
             '" class="owner-avatar" alt="프로필">'
             : `<div class="owner-avatar" style="background:#e9ecef;display:flex;align-items:center;justify-content:center;">` +
             `<svg width="24" height="24" fill="#adb5bd" viewBox="0 0 24 24">` +
@@ -114,6 +114,7 @@ function updatePaginationUI($clicked) {
 
 $(document).ready(function () {
     const $pageSize = $('.form-select');
+    const $pagination = $('.pagination')
     // 검색 폼 제출
     $('#searchForm').on('submit', function (e) {
         e.preventDefault();
@@ -123,7 +124,7 @@ $(document).ready(function () {
     });
 
     // 페이지 번호 클릭
-    $('.pagination').on('click', '.page-item:not(.previous):not(.next) .page-link', function (e) {
+    $pagination.on('click', '.page-item:not(.previous):not(.next) .page-link', function (e) {
         e.preventDefault();
         const query = $('#searchForm').find('input[name="query"]').val();
         currentPage = parseInt($(this).text(), 10);
@@ -132,14 +133,14 @@ $(document).ready(function () {
     });
 
     // Previous 클릭
-    $('.pagination').on('click', '.previous .page-link', function (e) {
+    $pagination.on('click', '.previous .page-link', function (e) {
         e.preventDefault();
         const query = $('#searchForm').find('input[name="query"]').val();
         searchOwners(query, firstPage - $pageSize.val(), $pageSize.val());
     });
 
     // Next 클릭
-    $('.pagination').on('click', '.next .page-link', function (e) {
+    $pagination.on('click', '.next .page-link', function (e) {
         e.preventDefault();
         const query = $('#searchForm').find('input[name="query"]').val();
         searchOwners(query, lastPage + 1, $pageSize.val());

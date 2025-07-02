@@ -334,8 +334,8 @@
                 return $b.append('<tr><td colspan="11" class="text-center">검색 결과가 없습니다.</td></tr>');
             }
             resp.list.forEach(o => {
-                const pic = o.storeMainImage
-                    ? `<img src="${o.storeMainImage}" class="avatar"/>`
+                const pic = o.storeMainimage
+                    ? `<img src="${o.storeMainimage}" class="avatar"/>`
                     : `<div class="avatar"><svg width="24" height="24" fill="#adb5bd"><circle cx="12" cy="8" r="4"/><path d="M12 14c-4.418 0-8 1.79-8 4v2h16v-2c0-2.21-3.582-4-8-4z"/></svg></div>`;
                 const cls = o.ownerStatus==='활성'?'status-active':o.ownerStatus==='비활성'?'status-inactive':'status-pending';
                 $b.append(`<tr>

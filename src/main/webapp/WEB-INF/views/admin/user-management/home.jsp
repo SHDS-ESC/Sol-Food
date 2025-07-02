@@ -158,7 +158,14 @@
                             <li class="page-item"><a class="page-link">${page}</a></li>
                         </c:forEach>
                         <li class="next">
-                            <a class="page-link">Next</a>
+                            <c:choose>
+                                <c:when test="${userList.lastPage * userList.limit gt userList.count}">
+                                    <a class="page-link disabled">Next</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <a class="page-link">Next</a>
+                                </c:otherwise>
+                            </c:choose>
                         </li>
                     </ul>
                 </nav>
