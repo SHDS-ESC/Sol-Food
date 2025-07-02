@@ -1,13 +1,14 @@
 // 수락 대기 페이지 JavaScript
-let totalFriends = 0;
 let acceptedFriends = 0;
 let selectedFriendsData = [];
-let totalAmount = 0; // 총 주문 금액
-let splitAmounts = {}; // 각 사용자별 분할된 금액
+let totalAmount = 0;
+let splitAmounts = {};
 
 // 페이지 로드 시 선택된 친구들 정보 로드
 document.addEventListener('DOMContentLoaded', function() {
     console.log('💰 결제 대기 페이지 로드됨');
+    
+
     
     // 게임 결과 확인 및 처리
     const gameResult = getGameResultFromURL();
@@ -17,49 +18,22 @@ document.addEventListener('DOMContentLoaded', function() {
         removeGameResultFromURL();
     }
     
-    // 안전하게 데이터 가져오기
-    const friendCountElement = document.getElementById('friendCountData');
-    totalFriends = friendCountElement ? parseInt(friendCountElement.value) || 0 : 0;
+
     
-    // 총 주문 금액 가져오기 (세션에서)
-    fetchTotalAmount().then(() => {
-        loadSelectedFriends();
-        
-        // 게임 결과가 있다면 적용
-        if (gameResult) {
-            setTimeout(() => {
-                applyGameResult(gameResult);
-            }, 500); // 데이터 로드 후 적용
-        }
-        
-        updateProgress();
-    });
+    // 친구 데이터 로드 (JSP에서 렌더링된 데이터 사용)
+    loadSelectedFriends();
+    
+    // 게임 결과가 있다면 적용
+    if (gameResult) {
+        setTimeout(() => {
+            applyGameResult(gameResult);
+        }, 500); // 데이터 로드 후 적용
+    }
+    
+    updateProgress();
 });
 
-// 총 주문 금액 가져오기 (Promise 반환)
-function fetchTotalAmount() {
-    return fetch(UrlConstants.Builder.fullUrl('/user/cart/total'), {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        totalAmount = data.totalAmount || 0;
-        console.log('총 주문 금액:', totalAmount);
-        // 친구 데이터가 로드된 후 가격 분할 계산
-        if (selectedFriendsData.length > 0) {
-            calculateSplitAmounts();
-        }
-        return totalAmount;
-    })
-    .catch(error => {
-        console.error('총 금액 조회 오류:', error);
-        totalAmount = 0;
-        return 0;
-    });
-}
+
 
 // 가격 분할 계산
 function calculateSplitAmounts() {
@@ -108,35 +82,35 @@ function updateTotalAmountDisplay() {
 }
 
 function loadSelectedFriends() {
-    if (totalFriends > 0) {
-        fetchFriendsData();
-    } else {
-        displayNoFriends();
-    }
+    // JSP에서 렌더링된 데이터를 바로 로드
+    fetchFriendsData();
 }
 
 function fetchFriendsData() {
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/get-selected-friends'), {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.result === 'success') {
-            selectedFriendsData = data.friends;
-            console.log('친구 데이터 로드 완료 - ' + data.friends.length + '명');
-            displayFriends();
+    try {
+        const selectedFriendsScript = document.getElementById('selectedFriendsData');
+        const cartScript = document.getElementById('cartData');
+        
+        if (selectedFriendsScript && cartScript) {
+            selectedFriendsData = JSON.parse(selectedFriendsScript.textContent);
+            const cartData = JSON.parse(cartScript.textContent);
+            totalAmount = cartData.totalAmount || 0;
+            
+            console.log('친구 데이터 로드:', selectedFriendsData.length + '명, 총 금액:', totalAmount);
+            
+            if (selectedFriendsData.length > 0) {
+                displayFriends();
+            } else {
+                displayNoFriends();
+            }
         } else {
-            console.error('친구 데이터 로드 실패:', data.message);
+            console.error('서버 렌더링 데이터를 찾을 수 없습니다.');
             displayNoFriends();
         }
-    })
-    .catch(error => {
-        console.error('친구 데이터 로드 오류:', error);
+    } catch (error) {
+        console.error('데이터 파싱 오류:', error);
         displayNoFriends();
-    });
+    }
 }
 
 function displayFriends() {
@@ -156,23 +130,13 @@ function displayFriends() {
         calculateSplitAmounts();
     }
     
-    // 디버깅 로그
-    console.log('=== 친구 표시 완료 ===');
-    console.log('selectedFriendsData.length:', selectedFriendsData.length);
-    console.log('totalFriends (서버값):', totalFriends);
-    console.log('acceptedFriends (초기값):', acceptedFriends);
-    console.log('💡 모든 사용자가 0에서 시작하여 각자 결제 버튼을 눌러야 합니다.');
+    console.log('친구 표시 완료:', selectedFriendsData.length, '명');
 }
 
-// 분할된 금액으로 친구 표시 업데이트
 function updateFriendDisplayWithAmounts() {
-    console.log('🔄 UI 업데이트 시작 - 현재 분할 금액:', splitAmounts);
-    
     selectedFriendsData.forEach(friend => {
         const friendElement = document.getElementById('friend-' + friend.usersId);
         const amount = splitAmounts[friend.usersId] || 0;
-        
-        console.log(`  📋 ${friend.usersName}(ID: ${friend.usersId}) → ₩${amount.toLocaleString()}`);
         
         if (friendElement) {
             const amountElement = friendElement.querySelector('.friend-amount');
@@ -208,8 +172,6 @@ function updateFriendDisplayWithAmounts() {
                         friendElement.style.borderLeft = '4px solid #28a745';
                         
                         acceptedFriends++;
-                        console.log(`  ✅ 무료 사용자 자동 완료: ${friend.usersName} (총 완료: ${acceptedFriends}명)`);
-                        
                         updateProgress();
                         
                         if (statusBadge) {
@@ -361,16 +323,11 @@ function createFriendElement(friend, index) {
     return div;
 }
 
-// 초기 상태 설정 (모든 사용자가 0에서 시작)
 function initializeUserStatus() {
-    // 게임 결과가 적용된 경우가 아니라면 acceptedFriends 초기화
     const hasGameResult = new URLSearchParams(window.location.search).has('gameResult');
     
     if (!hasGameResult) {
         acceptedFriends = 0;
-        console.log('모든 사용자 결제 상태 초기화 - 0/? 결제 완료로 시작');
-    } else {
-        console.log('게임 결과 적용으로 인한 초기화 스킵');
     }
     
     updateProgress();
@@ -424,18 +381,12 @@ function displayNoFriends() {
     `;
     
     friendsContainer.appendChild(div);
-    // 혼자 결제하는 경우는 바로 완료 처리하지 않음
 }
 
 function updateProgress() {
     const acceptedElement = document.getElementById('acceptedCount');
     const totalElement = document.getElementById('totalCount');
-    
-    // 실제 총 인원은 selectedFriendsData.length 사용 (현재 사용자 포함)
     const actualTotalFriends = selectedFriendsData.length;
-    
-    console.log('=== 결제 현황 업데이트 ===');
-    console.log(`💳 결제 완료: ${acceptedFriends}명 / 총 인원: ${actualTotalFriends}명`);
     
     if (acceptedElement) acceptedElement.textContent = acceptedFriends;
     if (totalElement) totalElement.textContent = actualTotalFriends;
@@ -493,7 +444,7 @@ function cancelInvitation() {
     }
 }
 
-// proceedToPayment 함수는 개별 사용자별 결제 함수로 대체됨
+
 
 function goToMiniGame() {
     if (selectedFriendsData.length === 0) {
@@ -570,6 +521,8 @@ function proceedToPayment(userId) {
         }
     }
 }
+
+
 
 // ======== 게임 결과 처리 함수들 ========
 

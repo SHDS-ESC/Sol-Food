@@ -79,7 +79,6 @@
     <script src="<c:url value='/js/urlConstants.js' />"></script>
     
     <!-- 안전한 데이터 전달을 위한 hidden input -->
-    <input type="hidden" id="friendCountData" value="${friendCount != null ? friendCount : 0}">
     <input type="hidden" id="miniGameMessageData" value="<c:out value='${miniGameMessage}' escapeXml='true'/>">
     
     <!-- 현재 사용자 정보 -->
@@ -92,6 +91,30 @@
          data-current-user-company-name="${currentUser.companyName}"
          data-current-user-department-name="${currentUser.departmentName}"
          style="display: none;"></div>
+    
+    <!-- 선택된 친구들 정보 (서버에서 렌더링) -->
+    <script type="application/json" id="selectedFriendsData">
+    [
+        <c:forEach var="friend" items="${selectedFriends}" varStatus="status">
+        {
+            "usersId": ${friend.usersId},
+            "usersName": "<c:out value='${friend.usersName}' escapeXml='true'/>",
+            "usersProfile": "<c:out value='${friend.usersProfile}' escapeXml='true'/>",
+            "companyName": "<c:out value='${friend.companyName}' escapeXml='true'/>",
+            "departmentName": "<c:out value='${friend.departmentName}' escapeXml='true'/>",
+            "usersEmail": "${friend.usersId == currentUser.usersId ? 'CURRENT_USER' : friend.usersEmail}"
+        }<c:if test="${!status.last}">,</c:if>
+        </c:forEach>
+    ]
+    </script>
+    
+    <!-- 장바구니 정보 -->
+    <script type="application/json" id="cartData">
+    {
+        "totalAmount": ${cart.totalAmount},
+        "itemCount": ${cart.items.size()}
+    }
+    </script>
     
     <!-- 수락 대기 페이지 JavaScript -->
     <script src="<c:url value='/js/waiting-approval.js' />"></script>

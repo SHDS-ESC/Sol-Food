@@ -1,63 +1,55 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // 더보기 버튼 클릭 이벤트
-    document.getElementById('loadMoreBtn').addEventListener('click', loadMoreStores);
-
-    // 최초 데이터 로딩
-    loadMoreStores();
-});
+/**
+ * 찜 목록 JavaScript (경량화 버전)
+ * common-utils.js 활용
+ */
 
 let offset = 0;
 const pageSize = 10;
 let isEnd = false;
 
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('loadMoreBtn').addEventListener('click', loadMoreStores);
+    loadMoreStores();
+});
+
 function goToStoreDetail(storeId) {
     window.location.href = UrlConstants.Builder.storeDetail(storeId);
 }
 
-function loadMoreStores() {
+async function loadMoreStores() {
     if (isEnd) return;
 
-    let url = UrlConstants.Builder.fullUrl(`/user/mypage/like/api?offset=${offset}&pageSize=${pageSize}`);
-
-    fetch(url)
-        .then(res => res.json())
-        .then(data => {
-            const grid = document.getElementById('storeGrid');
-            let loaded = 0;
-
-            data.list.forEach(store => {
-                const card = createStoreCard(store);
-                grid.appendChild(card);
-                loaded++;
-            });
-
-            // 마지막 페이지 판별
-            if (data.list.length < pageSize || !data.hasNext) {
-                isEnd = true;
-                document.getElementById('loadMoreBtn').style.display = 'none';
-            } else {
-                offset += data.list.length; // 다음 페이지 요청 준비
-                document.getElementById('loadMoreBtn').style.display = '';
-            }
-
-            // 아무것도 없으면 안내
-            if (grid.childElementCount === 0) {
-                grid.innerHTML = `
-                    <div style="width:100%; text-align:center; color:#999; margin-top:60px;">
-                        <i class="bi bi-emoji-frown" style="font-size:40px"></i><br>
-                        찜한 가게가 없습니다!
-                    </div>
-                `;
-                document.getElementById('loadMoreBtn').style.display = 'none';
-            }
-        })
-        .catch(err => {
-            alert("서버와 통신 중 오류가 발생했습니다.");
+    try {
+        const url = UrlConstants.Builder.fullUrl(`/user/mypage/like/api?offset=${offset}&pageSize=${pageSize}`);
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        const grid = document.getElementById('storeGrid');
+        
+        data.list.forEach(store => {
+            const card = createStoreCard(store);
+            grid.appendChild(card);
         });
+
+        // 마지막 페이지 판별
+        if (data.list.length < pageSize || !data.hasNext) {
+            isEnd = true;
+            document.getElementById('loadMoreBtn').style.display = 'none';
+        } else {
+            offset += data.list.length;
+            document.getElementById('loadMoreBtn').style.display = '';
+        }
+
+        // 빈 목록 처리
+        if (grid.childElementCount === 0) {
+            showEmptyLikeList(grid);
+        }
+        
+    } catch (error) {
+        SolFoodUtils.showToast('서버와 통신 중 오류가 발생했습니다.', 'error');
+    }
 }
 
-
-// 카드 생성 함수
 function createStoreCard(store) {
     const div = document.createElement('div');
     div.className = 'store-card';
@@ -65,36 +57,42 @@ function createStoreCard(store) {
     const heartIcon = store.liked ? 'bi-heart-fill' : 'bi-heart';
     const usersId = window.loginUserId;
 
+    // 안전한 문자열 처리
+    const safeName = SolFoodUtils.truncateText(store.storeName || '이름 없음', 20);
+    const safeCategory = store.storeCategory || '기타';
+    const safeImage = store.storeMainimage || 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=200&h=120&fit=crop&crop=center';
+    const safeAddress = SolFoodUtils.truncateText(store.storeAddress || '주소 정보 없음', 15);
+    const safeRating = Number(store.storeAvgstar || 0);
+    const safeTel = store.storeTel;
+
     div.innerHTML = `
-                        <img src="${store.storeMainimage ? store.storeMainimage : 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=200&h=120&fit=crop&crop=center'}"
-            alt="${store.storeName}" class="store-img"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <img src="${safeImage}" alt="${safeName}" class="store-img"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div class="store-img" style="background-color: #f8f9fa; display: none; align-items: center; justify-content: center; color: #6c757d;">
             <i class="bi bi-shop" style="font-size: 40px;"></i>
         </div>
         <div class="store-body">
-            <div class="store-name">${store.storeName || '이름 없음'}</div>
-            <div class="store-category">${store.storeCategory || '기타'}</div>
+            <div class="store-name">${safeName}</div>
+            <div class="store-category">${safeCategory}</div>
             <div style="font-size:11px; color:#666; margin-bottom:3px;">
-                📍 ${store.storeAddress || '주소 정보 없음'}
+                📍 ${safeAddress}
             </div>
             <div style="font-size:12px;">
-                ${store.storeAvgstar > 0 ? `⭐ ${store.storeAvgstar}점` : '⭐ 신규매장'}
+                ${safeRating > 0 ? `⭐ ${safeRating}점` : '⭐ 신규매장'}
             </div>
-            ${store.storeTel && store.storeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">
-                📞 ${store.storeTel}
+            ${safeTel && safeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">
+                📞 ${safeTel}
             </div>` : ''}
-             <button
-                class="like-btn ${likedClass}"
-                data-store-id="${store.storeId}"
-                data-users-id="${usersId}"
-                aria-label="찜">
+            <button class="like-btn ${likedClass}"
+                    data-store-id="${store.storeId}"
+                    data-users-id="${usersId}"
+                    aria-label="찜">
                 <i class="bi ${heartIcon}"></i>
             </button>
         </div>
     `;
 
-    // 카드 클릭 이벤트 (상세 페이지로 이동)
+    // 카드 클릭 이벤트
     div.addEventListener('click', () => goToStoreDetail(store.storeId));
     
     // 찜 버튼 클릭 이벤트 (버블링 방지)
@@ -107,50 +105,76 @@ function createStoreCard(store) {
     return div;
 }
 
-function toggleLike(btn) {
+async function toggleLike(btn) {
     const storeId = btn.dataset.storeId;
     const isLiked = btn.classList.contains('liked');
-    const url = isLiked ? UrlConstants.Builder.fullUrl('/user/like/cancel') : UrlConstants.Builder.fullUrl('/user/like/add');
-    const urlWithParams = `${url}?storeId=${encodeURIComponent(storeId)}`;
+    const url = isLiked ? '/user/like/cancel' : '/user/like/add';
+    const urlWithParams = `${UrlConstants.Builder.fullUrl(url)}?storeId=${encodeURIComponent(storeId)}`;
 
-    fetch(urlWithParams)
-        .then(res => res.json())
-        .then(res => {
-            if (res.result === "success") {
-                if (isLiked) {
-                    // 찜 목록 페이지에서는 찜을 해제하면 카드를 제거
-                    const storeCard = btn.closest('.store-card');
-                    if (storeCard) {
-                        storeCard.remove();
-                        
-                        // 찜 개수 업데이트
-                        const likeCountElement = document.getElementById('likeCount');
-                        if (likeCountElement) {
-                            const currentCount = parseInt(likeCountElement.textContent);
-                            likeCountElement.textContent = (currentCount - 1) + '개';
-                        }
-                        
-                        // 목록이 비었는지 확인
-                        const grid = document.getElementById('storeGrid');
-                        if (grid.childElementCount === 0) {
-                            grid.innerHTML = `
-                                <div style="width:100%; text-align:center; color:#999; margin-top:60px;">
-                                    <i class="bi bi-emoji-frown" style="font-size:40px"></i><br>
-                                    찜한 가게가 없습니다!
-                                </div>
-                            `;
-                            document.getElementById('loadMoreBtn').style.display = 'none';
-                        }
-                    }
-                } else {
-                    btn.classList.add('liked');
-                    btn.querySelector('i').className = 'bi bi-heart-fill';
-                }
+    try {
+        const response = await fetch(urlWithParams);
+        const result = await response.json();
+        
+        if (result.result === "success") {
+            if (isLiked) {
+                // 찜 해제 시 카드 제거 (찜 목록 페이지에서)
+                removeLikedStoreCard(btn);
+                SolFoodUtils.showToast('찜이 해제되었습니다.', 'info');
             } else {
-                alert('찜 처리 중 오류가 발생했습니다.');
+                // 찜 추가
+                btn.classList.add('liked');
+                btn.querySelector('i').className = 'bi bi-heart-fill';
+                SolFoodUtils.showToast('찜 목록에 추가되었습니다.', 'success');
             }
-        })
-        .catch(() => {
-            alert('서버와 통신 중 오류가 발생했습니다.');
-        });
+        } else {
+            SolFoodUtils.showToast('찜 처리 중 오류가 발생했습니다.', 'error');
+        }
+    } catch (error) {
+        SolFoodUtils.showToast('서버와 통신 중 오류가 발생했습니다.', 'error');
+    }
+}
+
+function removeLikedStoreCard(btn) {
+    const storeCard = btn.closest('.store-card');
+    if (storeCard) {
+        // 페이드 아웃 효과
+        storeCard.style.transition = 'opacity 0.3s ease-out';
+        storeCard.style.opacity = '0';
+        
+        setTimeout(() => {
+            storeCard.remove();
+            
+            // 찜 개수 업데이트
+            updateLikeCount();
+            
+            // 빈 목록 체크
+            checkEmptyList();
+        }, 300);
+    }
+}
+
+function updateLikeCount() {
+    const likeCountElement = document.getElementById('likeCount');
+    if (likeCountElement) {
+        const currentCount = parseInt(likeCountElement.textContent) || 0;
+        const newCount = Math.max(0, currentCount - 1);
+        likeCountElement.textContent = newCount + '개';
+    }
+}
+
+function checkEmptyList() {
+    const grid = document.getElementById('storeGrid');
+    if (grid.childElementCount === 0) {
+        showEmptyLikeList(grid);
+    }
+}
+
+function showEmptyLikeList(grid) {
+    grid.innerHTML = `
+        <div style="width:100%; text-align:center; color:#999; margin-top:60px;">
+            <i class="bi bi-emoji-frown" style="font-size:40px"></i><br>
+            찜한 가게가 없습니다!
+        </div>
+    `;
+    document.getElementById('loadMoreBtn').style.display = 'none';
 }

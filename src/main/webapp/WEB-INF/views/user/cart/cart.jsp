@@ -338,6 +338,8 @@
     </script>
     <!-- URL Constants -->
     <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
+    <!-- Common Utils (SolFoodUtils) -->
+    <script src="<c:url value='/js/common-utils.js' />?v=${pageContext.session.creationTime}"></script>
     <script>
         // 결제 페이지로 이동
         function proceedToPayment() {
