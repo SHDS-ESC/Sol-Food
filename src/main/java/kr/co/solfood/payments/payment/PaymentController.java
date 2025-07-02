@@ -56,7 +56,7 @@ public class PaymentController {
         IamportResponse<Payment> paymentResponse = iamportClient.paymentByImpUid(imp_uid);
         Payment payment = paymentResponse.getResponse();
     
-        // 1. 결제 금액 검증
+        // 1. 결제 금액 검증 -> 혼자 결제하는 금액과 전체 결제 금액 검증 필요
         if (payment.getAmount().intValue() != requestedAmount) {
             throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
         }
@@ -95,13 +95,13 @@ public class PaymentController {
     // PaymentVO 생성 로직을 별도 함수로 분리
     private PaymentVO buildPaymentVO(Payment payment, UserVO user, String imp_uid, String merchantUid, CartVO cart) {
         PaymentVO paymentVO = new PaymentVO();
-        // Cart에서 값 세팅
-        paymentVO.setStoreId(cart.getStoreId());
-        paymentVO.setPaymentLeaderId((int)user.getUsersId());
-        paymentVO.setPaymentPeople(0);  // 결제 인원은 나중에 수정해야함!
-        paymentVO.setPaymentType("PURCHASE"); // 필요시 cart에서 타입 추출
-        paymentVO.setAmount(cart.getTotalAmount());
-
+        paymentVO.setUsersId((int)user.getUsersId());
+        // paymentVO.setIntergratedpaymentId(통합결제ID); // 필요시
+        // 결제 금액 계산 및 세팅
+        int usedPoint = 0;  // 포인트 사용액 넣기
+        int paidAmount = cart != null ? cart.getTotalAmount() - usedPoint : 0;
+        paymentVO.setPaymentUsedPoint(usedPoint);
+        paymentVO.setPaymentPaidAmount(paidAmount);
         // 결제 공통 필드
         paymentVO.setImpUid(imp_uid);
         paymentVO.setMerchantUid(merchantUid);
@@ -111,6 +111,7 @@ public class PaymentController {
         paymentVO.setReceiptUrl(payment.getReceiptUrl());
         paymentVO.setStatus(payment.getStatus());
         paymentVO.setStatusDetail(null);
+        paymentVO.setAmount(payment.getAmount().intValue());
         paymentVO.setCancelAmount(payment.getCancelAmount() != null ? payment.getCancelAmount().intValue() : null);
         paymentVO.setBuyerName(payment.getBuyerName());
         paymentVO.setBuyerEmail(payment.getBuyerEmail());
@@ -152,7 +153,7 @@ public class PaymentController {
                 response.put("message", "로그인이 필요합니다.");
                 return response;
             }
-            List<PaymentVO> history = paymentService.getPaymentHistory(user.getUsersId(), page, size);
+            List<PaymentVO> history = paymentService.getPaymentHistory((int)user.getUsersId(), page, size);
 
             response.put("success", true);
             response.put("data", history);

@@ -8,8 +8,12 @@ import kr.co.solfood.user.login.UserVO;
 public interface PaymentService extends CommonPaymentService {
     // 포인트 적립 (트랜잭션 처리)
     void updateUserPoint(UserVO user);
-    // Payment 내역 조회
-    List<PaymentVO> getPaymentHistory(long usersId, int page, int size);
+    // 사용자별 결제 내역 조회
+    List<PaymentVO> getPaymentHistory(int usersId, int page, int size);
+    // 통합결제ID별 결제 내역 조회
+    List<PaymentVO> getPaymentHistoryByIntergratedpaymentId(int intergratedpaymentId, int page, int size);
     // Payment 정보 삽입
     void insertPayment(PaymentVO paymentVO);
+    // Payment 정보 수정
+    void updatePayment(PaymentVO paymentVO);
 }

@@ -3,12 +3,14 @@ package kr.co.solfood.payments.payment;
 import kr.co.solfood.payments.common.CommonPaymentVO;
 import lombok.Data;
 
+/**
+ * 개인 결제 테이블 VO
+ */
 @Data
 public class PaymentVO extends CommonPaymentVO {
     private int paymentId;              // 결제 PK
-    private int storeId;                // 결제한 가게 ID
-    private int paymentLeaderId;        // 결제한 사용자 ID
-    private int paymentPeople;          // 결제 인원
-
-    private String paymentType;         // 결제 타입(충전/구매/정기결제 등)
+    private int usersId;                // 결제한 유저 ID (FK)
+    private int integratedpaymentId;    // 통합 결제 ID (FK)
+    private int paymentUsedPoint;       // 결제 시 사용한 포인트
+    private int paymentPaidAmount;      // 결제 시 실제 결제한 금액
 }

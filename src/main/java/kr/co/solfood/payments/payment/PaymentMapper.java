@@ -64,9 +64,16 @@ public interface PaymentMapper extends CommonPaymentMapper {
     /**
      * 사용자별 결제 내역 조회
      */
-    List<PaymentVO> selectPaymentsByUserId(@Param("userId") int userId, 
+    List<PaymentVO> selectPaymentsByUserId(@Param("usersId") int usersId, 
                                           @Param("limit") int limit, 
                                           @Param("offset") int offset);
+    
+    /**
+     * 통합결제ID로 결제 내역 조회
+     */
+    List<PaymentVO> selectPaymentsByIntergratedpaymentId(@Param("intergratedpaymentId") int intergratedpaymentId, 
+                                                        @Param("limit") int limit, 
+                                                        @Param("offset") int offset);
     
     /**
      * 매장별 결제 내역 조회
@@ -120,8 +127,6 @@ public interface PaymentMapper extends CommonPaymentMapper {
                                   @Param("maxAmount") Integer maxAmount,
                                   @Param("limit") int limit,
                                   @Param("offset") int offset);
-    
-    // === 기존 메서드들 ===
     
     /**
      * 포인트 적립 (트랜잭션 처리)

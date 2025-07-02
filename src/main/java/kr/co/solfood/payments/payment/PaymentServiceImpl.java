@@ -29,17 +29,30 @@ public class PaymentServiceImpl implements PaymentService {
         paymentMapper.updateUserPoint(user);
     }
 
-    // Payment 내역 조회
+    // 사용자별 결제 내역 조회
     @Override
-    public List<PaymentVO> getPaymentHistory(long usersId, int page, int size) {
+    public List<PaymentVO> getPaymentHistory(int usersId, int page, int size) {
         int offset = (page - 1) * size;
         return paymentMapper.getPaymentHistory(usersId, offset, size);
     }
-    
+
+    // 통합결제ID별 결제 내역 조회
+    @Override
+    public List<PaymentVO> getPaymentHistoryByIntergratedpaymentId(int intergratedpaymentId, int page, int size) {
+        int offset = (page - 1) * size;
+        return paymentMapper.selectPaymentsByIntergratedpaymentId(intergratedpaymentId, size, offset);
+    }
+
     // Payment 정보 삽입
     @Override
     public void insertPayment(PaymentVO paymentVO) {
         paymentMapper.insertPayment(paymentVO);
+    }
+
+    // Payment 정보 수정
+    @Override
+    public void updatePayment(PaymentVO paymentVO) {
+        paymentMapper.updatePayment(paymentVO);
     }
     
 }

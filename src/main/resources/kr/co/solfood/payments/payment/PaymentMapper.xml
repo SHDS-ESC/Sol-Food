@@ -5,14 +5,12 @@
 <mapper namespace="kr.co.solfood.payments.payment.PaymentMapper">
 
     <resultMap id="PaymentMap" type="kr.co.solfood.payments.payment.PaymentVO">
-        <!-- PaymentVO 고유 필드 -->
         <id property="paymentId" column="payment_id"/>
-        <result property="storeId" column="store_id"/>
-        <result property="paymentLeaderId" column="payment_leader_id"/>
-        <result property="paymentPeople" column="payment_people"/>
-        <result property="paymentType" column="payment_type"/>
+        <result property="usersId" column="users_id"/>
+        <result property="integratedpaymentId" column="integratedpayment_id"/>
+        <result property="paymentUsedPoint" column="payment_used_point"/>
+        <result property="paymentPaidAmount" column="payment_paid_amount"/>
         
-        <!-- CommonPaymentVO 필드 -->
         <result property="impUid" column="payment_impuid"/>
         <result property="merchantUid" column="payment_merchant_uid"/>
         <result property="payMethod" column="payment_method"/>
@@ -46,15 +44,13 @@
         WHERE users_id = #{usersId}
     </update>
 
-
-
     <!-- 결제 정보 삽입 -->
     <insert id="insertPayment" parameterType="kr.co.solfood.payments.payment.PaymentVO" useGeneratedKeys="true" keyProperty="paymentId">
         INSERT INTO payment (
-            store_id, 
-            payment_leader_id, 
-            payment_people, 
-            payment_type,
+            users_id,
+            integratedpayment_id,
+            payment_used_point,
+            payment_paid_amount,
             payment_impuid, 
             payment_merchant_uid, 
             payment_method, 
@@ -75,10 +71,10 @@
             payment_created_at,
             payment_updated_at
         ) VALUES (
-            #{storeId}, 
-            #{paymentLeaderId}, 
-            #{paymentPeople}, 
-            #{paymentType},
+            #{usersId},
+            #{integratedpaymentId},
+            #{paymentUsedPoint},
+            #{paymentPaidAmount},
             #{impUid}, 
             #{merchantUid}, 
             #{payMethod}, 
@@ -104,7 +100,7 @@
     <select id="getPaymentHistory" resultMap="PaymentMap">
         SELECT *
         FROM payment
-        WHERE payment_leader_id = #{paymentLeaderId}
+        WHERE users_id = #{usersId}
         ORDER BY payment_created_at DESC
         LIMIT #{offset}, #{size}
     </select>
@@ -116,6 +112,8 @@
             payment_cancel_reason = #{cancelReason},
             payment_cancelled_at = #{cancelledAt},
             payment_status = #{status},
+            payment_used_point = #{paymentUsedPoint},
+            payment_paid_amount = #{paymentPaidAmount},
             payment_updated_at = CURRENT_TIMESTAMP
         WHERE payment_id = #{paymentId}
     </update>
@@ -159,31 +157,16 @@
     <!-- 사용자별 결제 내역 조회 -->
     <select id="selectPaymentsByUserId" resultMap="PaymentMap">
         SELECT * FROM payment 
-        WHERE payment_leader_id = #{userId}
+        WHERE users_id = #{userId}
         ORDER BY payment_created_at DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
-    <!-- 매장별 결제 내역 조회 -->
-    <select id="selectPaymentsByStoreId" resultMap="PaymentMap">
-        SELECT * FROM payment 
-        WHERE store_id = #{storeId}
-        ORDER BY payment_created_at DESC
-        LIMIT #{limit} OFFSET #{offset}
-    </select>
 
     <!-- 결제 상태별 조회 -->
     <select id="selectPaymentsByStatus" resultMap="PaymentMap">
         SELECT * FROM payment 
         WHERE payment_status = #{status}
-        ORDER BY payment_created_at DESC
-        LIMIT #{limit} OFFSET #{offset}
-    </select>
-
-    <!-- 결제 타입별 조회 -->
-    <select id="selectPaymentsByType" resultMap="PaymentMap">
-        SELECT * FROM payment 
-        WHERE payment_type = #{paymentType}
         ORDER BY payment_created_at DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
@@ -230,14 +213,11 @@
         SELECT * FROM payment
         ]]>
         <where>
-            <if test="storeId != null">
-                AND store_id = #{storeId}
+            <if test="intergratedpaymentId != null">
+                AND intergratedpayment_id = #{intergratedpaymentId}
             </if>
-            <if test="paymentLeaderId != null">
-                AND payment_leader_id = #{paymentLeaderId}
-            </if>
-            <if test="paymentType != null and paymentType != ''">
-                AND payment_type = #{paymentType}
+            <if test="usersId != null">
+                AND users_id = #{usersId}
             </if>
             <if test="status != null and status != ''">
                 AND payment_status = #{status}
