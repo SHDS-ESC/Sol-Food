@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.co.solfood.admin.home.AdminMapper">
-    <select id="getUsers" parameterType="String" resultType="kr.co.solfood.user.login.UserVO">
-        SELECT *
+    <select id="getUsers" parameterType="String" resultType="kr.co.solfood.admin.dto.UserSearchResponseDTO">
+        SELECT
+            U.users_id,
+            users_profile,
+            users_name,
+            users_nickname,
+            users_login_type,
+            users_email,
+            department_name,
+            YEAR(CURDATE()) - YEAR(users_birth) AS usersAge,
+            users_gender,
+            users_status
         FROM users U
         JOIN department D ON U.department_id = D.department_id
         <where>

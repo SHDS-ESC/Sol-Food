@@ -20,9 +20,9 @@
     <nav class="side-menu">
         <h4>🌿 관리자 메뉴</h4>
         <a href="<c:url value="/admin/home"/>" class="nav-link">홈</a>
-        <a href="<c:url value="/admin/home/user-management"/>" class="nav-link active">사용자</a>
-        <a href="<c:url value="/admin/home/owner-management"/>" class="nav-link">점주</a>
-        <a href="<c:url value="/admin/home/payment-management"/>" class="nav-link">결제</a>
+        <a href="<c:url value="/admin/user-management"/>" class="nav-link active">사용자</a>
+        <a href="<c:url value="/admin/owner-management"/>" class="nav-link">점주</a>
+        <a href="<c:url value="/admin/payment-management"/>" class="nav-link">결제</a>
         <a href="#" class="nav-link">정책</a>
         <div class="mt-auto">
             <small class="text-muted">© 2025 YourCompany</small>
@@ -129,7 +129,7 @@
                             </td>
                             <td>${user.usersEmail}</td>
                             <td>${user.departmentName}</td>
-                            <td>${user.usersBirth}</td>
+                            <td>${user.usersAge}</td>
                             <td>${user.usersGender}</td>
                             <td>
                                 <div class="page-selector">

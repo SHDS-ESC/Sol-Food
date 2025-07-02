@@ -45,6 +45,7 @@ public class AdminHomeController {
             userSearchRequestDTO.setPageSize(PAGE_GROUP_AMOUNT);
             PageMaker<UserSearchResponseDTO> userList = adminHomeService.getUsers(userSearchRequestDTO);
             model.addAttribute("userList", userList);
+            log.info("userList={}", userList);
         } catch (CustomException e) {
             log.info("User management initialization failed: {}", e.getMessage());
             model.addAttribute("error", e.getMessage());
