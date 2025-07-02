@@ -481,33 +481,12 @@ let currentMenuData = {
     menuIntro: '',
     menuPrice: 0,
     menuImage: '',
+    menuExtra: null,
     quantity: 1,
     options: {}
 };
 
-/**
- * 메뉴명을 기반으로 표시할 옵션 결정
- * @param {string} menuName - 메뉴명
- * @returns {Array} 표시할 옵션 그룹들
- */
-function getOptionsForMenu(menuName) {
-    const options = [];
-    
-    // 메뉴명에 따라 옵션 결정 (실제로는 DB에서 가져와야 함)
-    if (menuName.includes('모찌') || menuName.includes('모짜렐라')) {
-        options.push('mocchi');
-    }
-    
-    if (menuName.includes('한우') || menuName.includes('갈비') || menuName.includes('닭') || menuName.includes('치킨')) {
-        options.push('meat');
-    }
-    
-    if (menuName.includes('매운') || menuName.includes('불닭') || menuName.includes('김치') || menuName.includes('떡볶이')) {
-        options.push('spicy');
-    }
-    
-    return options;
-}
+
 
 /**
  * 메뉴 상세 모달 열기 (data 속성 방식)
@@ -519,8 +498,9 @@ function openMenuDetailFromElement(element) {
     const menuIntro = element.dataset.menuIntro;
     const menuPrice = parseInt(element.dataset.menuPrice);
     const menuImage = element.dataset.menuImage;
+    const menuExtra = element.dataset.menuExtra;
     
-    openMenuDetail(menuId, menuName, menuIntro, menuPrice, menuImage);
+    openMenuDetail(menuId, menuName, menuIntro, menuPrice, menuImage, menuExtra);
 }
 
 /**
@@ -530,8 +510,9 @@ function openMenuDetailFromElement(element) {
  * @param {string} menuIntro - 메뉴 설명
  * @param {number} menuPrice - 메뉴 가격
  * @param {string} menuImage - 메뉴 이미지
+ * @param {string} menuExtra - 메뉴 추가 옵션 (JSON)
  */
-function openMenuDetail(menuId, menuName, menuIntro, menuPrice, menuImage) {
+function openMenuDetail(menuId, menuName, menuIntro, menuPrice, menuImage, menuExtra) {
     // 현재 메뉴 데이터 저장
     currentMenuData = {
         menuId: menuId,
@@ -539,6 +520,7 @@ function openMenuDetail(menuId, menuName, menuIntro, menuPrice, menuImage) {
         menuIntro: menuIntro,
         menuPrice: menuPrice,
         menuImage: menuImage,
+        menuExtra: menuExtra,
         quantity: 1,
         options: {}
     };
@@ -559,54 +541,20 @@ function openMenuDetail(menuId, menuName, menuIntro, menuPrice, menuImage) {
         group.style.display = 'none';
     });
     
+    // 기존 동적 옵션 제거
+    const dynamicOptions = document.querySelectorAll('.dynamic-option-group');
+    dynamicOptions.forEach(option => option.remove());
+    
     // 현재 옵션 상태 초기화
     currentMenuData.options = {};
     
-    // 메뉴에 해당하는 옵션들 표시
-    const requiredOptions = getOptionsForMenu(menuName);
-    
-    if (requiredOptions.includes('mocchi')) {
-        const moccchiGroup = document.getElementById('optionMocchi');
-        if (moccchiGroup) {
-            moccchiGroup.style.display = 'block';
-            // 기본값 설정
-            const defaultOption = moccchiGroup.querySelector('input[type="radio"]:checked');
-            if (defaultOption) {
-                currentMenuData.options.mocchi = {
-                    value: defaultOption.value,
-                    price: parseInt(defaultOption.dataset.price) || 0
-                };
-            }
-        }
-    }
-    
-    if (requiredOptions.includes('meat')) {
-        const meatGroup = document.getElementById('optionMeat');
-        if (meatGroup) {
-            meatGroup.style.display = 'block';
-            // 기본값 설정
-            const defaultOption = meatGroup.querySelector('input[type="radio"]:checked');
-            if (defaultOption) {
-                currentMenuData.options.meat = {
-                    value: defaultOption.value,
-                    price: parseInt(defaultOption.dataset.price) || 0
-                };
-            }
-        }
-    }
-    
-    if (requiredOptions.includes('spicy')) {
-        const spicyGroup = document.getElementById('optionSpicy');
-        if (spicyGroup) {
-            spicyGroup.style.display = 'block';
-            // 기본값 설정
-            const defaultOption = spicyGroup.querySelector('input[type="radio"]:checked');
-            if (defaultOption) {
-                currentMenuData.options.spicy = {
-                    value: defaultOption.value,
-                    price: parseInt(defaultOption.dataset.price) || 0
-                };
-            }
+    // menu_extra 데이터가 있으면 동적으로 옵션 생성
+    if (menuExtra && menuExtra.trim() && menuExtra !== 'null' && menuExtra !== '{}') {
+        try {
+            const extraData = JSON.parse(menuExtra);
+            createDynamicOptions(extraData);
+        } catch (e) {
+            console.warn('menu_extra JSON 파싱 실패:', e);
         }
     }
     
@@ -618,6 +566,81 @@ function openMenuDetail(menuId, menuName, menuIntro, menuPrice, menuImage) {
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden'; // 백그라운드 스크롤 방지
 }
+
+/**
+ * menu_extra 데이터를 기반으로 동적 옵션 생성
+ * @param {Object} extraData - menu_extra JSON 데이터
+ */
+function createDynamicOptions(extraData) {
+    const optionsContainer = document.querySelector('.options-section');
+    if (!optionsContainer || !extraData.options) {
+        return;
+    }
+    
+    extraData.options.forEach((option, index) => {
+        const optionGroup = document.createElement('div');
+        optionGroup.className = 'option-group dynamic-option-group';
+        optionGroup.style.display = 'block';
+        
+        const optionTitle = document.createElement('h4');
+        optionTitle.className = 'option-title';
+        optionTitle.textContent = option.name;
+        
+        const optionItems = document.createElement('div');
+        optionItems.className = 'option-items';
+        
+        if (option.choices && option.choices.length > 0) {
+            option.choices.forEach((choice, choiceIndex) => {
+                const label = document.createElement('label');
+                label.className = 'option-item';
+                
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = `dynamic_${index}`;
+                input.value = choice.value;
+                input.dataset.price = choice.price || 0;
+                input.dataset.optionName = option.name;
+                if (choiceIndex === 0) input.checked = true; // 첫 번째 옵션 기본 선택
+                
+                const optionText = document.createElement('span');
+                optionText.className = 'option-text';
+                optionText.textContent = choice.value;
+                
+                const optionPrice = document.createElement('span');
+                optionPrice.className = 'option-price';
+                optionPrice.textContent = `+${(choice.price || 0).toLocaleString()}원`;
+                
+                // 옵션 변경 이벤트 리스너
+                input.addEventListener('change', function() {
+                    currentMenuData.options[option.name] = {
+                        value: this.value,
+                        price: parseInt(this.dataset.price) || 0
+                    };
+                    calculateTotalPrice();
+                });
+                
+                label.appendChild(input);
+                label.appendChild(optionText);
+                label.appendChild(optionPrice);
+                optionItems.appendChild(label);
+                
+                // 기본값 설정
+                if (choiceIndex === 0) {
+                    currentMenuData.options[option.name] = {
+                        value: choice.value,
+                        price: parseInt(choice.price) || 0
+                    };
+                }
+            });
+        }
+        
+        optionGroup.appendChild(optionTitle);
+        optionGroup.appendChild(optionItems);
+        optionsContainer.appendChild(optionGroup);
+    });
+}
+
+
 
 /**
  * 메뉴 상세 모달 닫기
@@ -724,62 +747,76 @@ function calculateItemTotalPrice() {
  * 장바구니에 메뉴 추가
  */
 function addMenuToCart() {
-    // 선택된 옵션들 수집
+    // 선택된 옵션들을 서버 API에 맞는 형식으로 수집 (동적 옵션만)
     const selectedOptions = {};
-    document.querySelectorAll('.option-group input:checked').forEach(input => {
-        const groupName = input.name;
-        
-        if (input.type === 'radio') {
-            // 라디오 버튼: 하나만 선택
-            selectedOptions[groupName] = {
-                optionId: input.value,
-                price: parseInt(input.dataset.price) || 0,
-                text: input.parentElement.querySelector('.option-text').textContent
-            };
-        } else if (input.type === 'checkbox') {
-            // 체크박스: 여러 개 선택 가능
-            if (!selectedOptions[groupName]) {
-                selectedOptions[groupName] = [];
-            }
-            selectedOptions[groupName].push({
-                optionId: input.value,
-                price: parseInt(input.dataset.price) || 0,
-                text: input.parentElement.querySelector('.option-text').textContent
-            });
+    
+    // 동적 옵션 수집 (menu_extra 기반)
+    document.querySelectorAll('.dynamic-option-group input:checked').forEach(input => {
+        const optionName = input.dataset.optionName;
+        if (optionName) {
+            selectedOptions[optionName] = input.value;
         }
     });
     
-    // 장바구니 아이템 데이터 구성
-    const cartItem = {
-        menuId: currentMenuData.menuId,
-        menuName: currentMenuData.menuName,
-        menuPrice: currentMenuData.menuPrice,
-        quantity: currentMenuData.quantity,
-        options: selectedOptions,
-        totalPrice: calculateItemTotalPrice()
-    };
+    console.log('🍽️ 장바구니에 추가할 옵션:', selectedOptions);
     
-    console.log('🍽️ 모달에서 장바구니 추가:', cartItem);
+    // 새로운 자동 옵션 계산 API 사용 (fetch API)
+    const formData = new FormData();
+    formData.append('menuId', currentMenuData.menuId);
+    formData.append('quantity', currentMenuData.quantity);
+    formData.append('selectedOptions', JSON.stringify(selectedOptions));
     
-    // 장바구니에 추가 (cart.js의 함수 사용)
-    if (typeof addToCartWithOptions === 'function') {
-        addToCartWithOptions(cartItem);
-    } else {
-        // fallback: 기본 장바구니 추가 함수 사용
-        console.log('⚠️ addToCartWithOptions 함수 없음, 기본 함수 사용');
-        addToCart(currentMenuData.menuId, currentMenuData.quantity);
-    }
-    
-    // 성공 피드백
-    showCartAddedFeedback();
-    
+    fetch(contextPath + '/user/cart/add-with-options', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(response => {
+        console.log('✅ 장바구니 추가 성공:', response);
+        
+        if (response.result === 'success') {
+            // 성공 피드백
+            showCartAddedFeedback();
+            
+            // 하단 카트 바 업데이트
+            if (document.getElementById('bottomCartBar')) {
+                updateCartInfo(response.cartCount, response.totalAmount);
+            }
+            
+            // 모달 닫기
+            closeMenuDetail();
+        } else {
+            alert(response.message || '장바구니 추가에 실패했습니다.');
+        }
+    })
+    .catch(error => {
+        console.error('❌ 장바구니 추가 실패:', error);
+        alert('장바구니 추가 중 오류가 발생했습니다.');
+    });
+}
+
+/**
+ * 장바구니 정보 업데이트
+ * @param {number} cartCount - 장바구니 아이템 개수
+ * @param {number} totalAmount - 총 금액
+ */
+function updateCartInfo(cartCount, totalAmount) {
     // 하단 카트 바 업데이트
-    if (document.getElementById('bottomCartBar')) {
-        setTimeout(() => fetchCartInfo(), 200); // 약간의 지연을 두어 서버 응답 시간 고려
+    const cartCountElement = document.querySelector('.cart-count');
+    const cartTotalElement = document.querySelector('.cart-total');
+    
+    if (cartCountElement) {
+        cartCountElement.textContent = cartCount || 0;
     }
     
-    // 모달 닫기
-    closeMenuDetail();
+    if (cartTotalElement && totalAmount !== undefined) {
+        cartTotalElement.textContent = formatPrice(totalAmount);
+    }
+    
+    // 기존 fetchCartInfo 함수가 있다면 호출
+    if (typeof fetchCartInfo === 'function') {
+        setTimeout(() => fetchCartInfo(), 100);
+    }
 }
 
 /**

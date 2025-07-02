@@ -170,6 +170,7 @@
                                      data-menu-intro="<c:out value='${menu.menuIntro}'/>"
                                      data-menu-price="${menu.menuPrice}"
                                      data-menu-image="<c:out value='${menu.menuMainimage}'/>"
+                                     data-menu-extra="<c:out value='${menu.menuExtra}'/>"
                                      onclick="openMenuDetailFromElement(this)" 
                                      style="cursor: pointer;">
                                     <img src="<c:out value='${menu.menuMainimage}'/>" alt="<c:out value='${menu.menuName}'/>" class="menu-image" onerror="this.src='https://images.unsplash.com/photo-1590301157890-4810ed352733?w=80&h=80&fit=crop'">
@@ -293,63 +294,9 @@
                     </div>
                 </div>
                 
-                <!-- 옵션 선택 섹션들 -->
+                <!-- 옵션 선택 섹션 (동적 옵션만) -->
                 <div class="options-section">
-                    <!-- 모찌치 추가 옵션 -->
-                    <div class="option-group" id="optionMocchi" style="display: none;">
-                        <h4 class="option-title">모찌치 추가 <span class="option-required">필수 선택</span></h4>
-                        <div class="option-items">
-                            <label class="option-item">
-                                <input type="radio" name="mocchi" value="1" data-price="0" checked>
-                                <span class="option-text">모찌치(모짜렐라치즈치킨) 1개</span>
-                                <span class="option-price">+0원</span>
-                            </label>
-                            <label class="option-item">
-                                <input type="radio" name="mocchi" value="2" data-price="2000">
-                                <span class="option-text">모찌치(모짜렐라치즈치킨) 2개</span>
-                                <span class="option-price">+2,000원</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- 뼈/순살 선택 옵션 -->
-                    <div class="option-group" id="optionMeat" style="display: none;">
-                        <h4 class="option-title">뼈/순살 선택 <span class="option-required">필수 선택</span></h4>
-                        <div class="option-items">
-                            <label class="option-item">
-                                <input type="radio" name="meat" value="bone" data-price="0" checked>
-                                <span class="option-text">뼈(국내산 신선육)</span>
-                                <span class="option-price">+0원</span>
-                            </label>
-                            <label class="option-item">
-                                <input type="radio" name="meat" value="boneless" data-price="2000">
-                                <span class="option-text">순살(닭다리살 100%)</span>
-                                <span class="option-price">+2,000원</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- 매운맛 단계 선택 -->
-                    <div class="option-group" id="optionSpicy" style="display: none;">
-                        <h4 class="option-title">매운맛 3단계 <span class="option-required">필수 선택</span></h4>
-                        <div class="option-items">
-                            <label class="option-item">
-                                <input type="radio" name="spicy" value="mild" data-price="0" checked>
-                                <span class="option-text">순한맛</span>
-                                <span class="option-price">+0원</span>
-                            </label>
-                            <label class="option-item">
-                                <input type="radio" name="spicy" value="medium" data-price="0">
-                                <span class="option-text">보통맛</span>
-                                <span class="option-price">+0원</span>
-                            </label>
-                            <label class="option-item">
-                                <input type="radio" name="spicy" value="hot" data-price="0">
-                                <span class="option-text">매운맛</span>
-                                <span class="option-price">+0원</span>
-                            </label>
-                        </div>
-                    </div>
+                    <!-- 동적 옵션들이 여기에 추가됩니다 -->
                 </div>
             </div>
             

@@ -515,6 +515,49 @@ public class CartController {
     }
     
     /**
+     * 장바구니에 메뉴 추가 API (옵션 자동 계산)
+     */
+    @PostMapping("/add-with-options")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> addToCartWithOptions(
+            @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
+            @RequestParam(UrlConstants.Param.QUANTITY) int quantity,
+            @RequestParam(value = "selectedOptions", required = false) String selectedOptions,
+            HttpSession session) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            UserVO user = validateUserLogin(session);
+            if (user == null) {
+                return ResponseEntity.ok(createLoginRequiredResponse());
+            }
+            
+            boolean success = cartService.addToCartWithOptions(session, menuId, quantity, selectedOptions);
+            
+            if (success) {
+                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_SUCCESS);
+                response.put(CartConstants.JSON_CART_COUNT, cartService.getCartItemCount(session));
+                
+                // 추가된 아이템의 실제 계산된 가격 정보도 포함
+                CartVO cart = cartService.getCart(session);
+                response.put(CartConstants.JSON_TOTAL_AMOUNT, cart.getTotalAmount());
+            } else {
+                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_FAILED);
+            }
+            
+        } catch (Exception e) {
+            log.error("장바구니 추가 오류 (옵션 자동 계산)", e);
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_ERROR);
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
      * 장바구니 수량 변경 API
      */
     @PostMapping("/update")

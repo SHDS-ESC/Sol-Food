@@ -385,6 +385,36 @@ function clearSearch() {
 }
 
 /**
+ * 선택된 친구 제거
+ */
+function removeFriend(friendId, friendName) {
+    // 현재 사용자는 제거할 수 없음
+    if (friendId === InviteFriendsState.currentUser?.usersId) {
+        SolFoodUtils.showToast('본인은 제거할 수 없습니다.', 'warning');
+        return;
+    }
+    
+    // 선택에서 제거
+    InviteFriendsState.selectedFriends.delete(friendId);
+    console.log(`➖ 친구 제거: ${friendName} (ID: ${friendId})`);
+    
+    // 친구 목록에서도 선택 상태 해제 (현재 페이지에 표시된 경우)
+    const friendElement = document.querySelector(`[data-friend-id="${friendId}"]`);
+    if (friendElement) {
+        friendElement.classList.remove('selected');
+    }
+    
+    // 서버 동기화 (디바운스)
+    syncToServerDebounced();
+    
+    // UI 업데이트
+    updateSelectedFriendsDisplay();
+    
+    // 제거 알림
+    SolFoodUtils.showToast(`${friendName}님을 제거했습니다.`, 'info');
+}
+
+/**
  * 친구 선택 토글
  */
 function toggleFriend(element) {
@@ -464,6 +494,9 @@ function updateSelectedFriendsDisplay() {
                     <div class="selected-friend-avatar" 
                          ${user.usersProfile ? `style="background-image: url('${user.usersProfile}');"` : ''}>
                         ${!user.usersProfile ? user.usersName.substring(0, 1) : ''}
+                        <div class="current-user-badge">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
                     </div>
                     <div class="selected-friend-name">${user.usersName} (나)</div>
                 </div>
@@ -486,6 +519,9 @@ function updateSelectedFriendsDisplay() {
                               friendName.substring(0, 1) : ''}
                         </div>
                         <div class="selected-friend-name">${friendName}</div>
+                        <div class="remove-friend-btn" onclick="removeFriend(${friendId}, '${friendName}')">
+                            <i class="bi bi-x"></i>
+                        </div>
                     </div>
                 `;
             }
@@ -579,6 +615,7 @@ function goBack() {
 }
 
 // 전역 함수들 export
+window.removeFriend = removeFriend;
 window.toggleFriend = toggleFriend;
 window.goToPage = goToPage;
 window.changeFilter = changeFilter;

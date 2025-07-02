@@ -245,6 +245,100 @@ function goToCart() {
     window.location.href = UrlConstants.Builder.fullUrl('/user/cart');
 }
 
+// 결제 페이지로 이동
+function proceedToPayment() {
+    window.location.href = UrlConstants.Builder.fullUrl('/user/cart/payment-method');
+}
+
+// 옵션 한글 매핑 상수
+const OPTION_MAPPING = {
+    // 옵션 이름 매핑
+    key: {
+        'mocchi': '모찌치',
+        'meat': '뼈/순살',
+        'spicy': '맵기조절'
+    },
+    // 옵션 값 매핑
+    value: {
+        'bone': '뼈',
+        'boneless': '순살',
+        'mild': '순한맛',
+        'medium': '보통맛',
+        'hot': '매운맛',
+        '1': '1개',
+        '2': '2개'
+    }
+};
+
+// 장바구니 아이템의 옵션 정보 표시
+function displayOptions() {
+    const allOptionElements = document.querySelectorAll('.item-options');
+    
+    allOptionElements.forEach((element, index) => {
+        const menuId = element.getAttribute('data-menu-id');
+        const optionsScript = element.querySelector('script.options-data');
+        
+        let rawOptions = null;
+        if (optionsScript) {
+            rawOptions = optionsScript.textContent || optionsScript.innerText;
+        }
+        
+        // 안전한 옵션 표시
+        let optionHtml = '';
+        
+        if (rawOptions && rawOptions.trim() && 
+            rawOptions !== 'null' && rawOptions !== 'undefined' && rawOptions !== '{}') {
+            
+            // JSON 유효성 검증 및 옵션 표시 생성
+            try {
+                const parsedOptions = JSON.parse(rawOptions);
+                
+                // 유효한 옵션 객체인지 확인
+                if (parsedOptions && typeof parsedOptions === 'object' && Object.keys(parsedOptions).length > 0) {
+                    let detailHtml = '';
+                    
+                    for (const [key, value] of Object.entries(parsedOptions)) {
+                        if (key && key !== 'menuId' && value && String(value).trim()) {
+                            const cleanKey = String(key).trim();
+                            const cleanValue = String(value).trim();
+                            
+                            // 한글 매핑 적용
+                            const displayKey = OPTION_MAPPING.key[cleanKey] || cleanKey || '옵션';
+                            const displayValue = OPTION_MAPPING.value[cleanValue] || cleanValue || '선택됨';
+                            
+                            // HTML 생성
+                            detailHtml += `<span class="option-item">${displayKey}: ${displayValue}</span> `;
+                        }
+                    }
+                    
+                    optionHtml = detailHtml || '<span class="option-item">⚙️ 옵션 적용</span>';
+                } else {
+                    optionHtml = '<span class="option-item">⚙️ 기본 옵션</span>';
+                }
+            } catch (e) {
+                console.warn('옵션 파싱 실패:', e.message);
+                optionHtml = '<span class="option-item">⚙️ 옵션 오류</span>';
+            }
+        } else {
+            // 옵션이 없는 경우 숨김
+            element.style.display = 'none';
+            return;
+        }
+        
+        // 옵션 표시 적용
+        const small = element.querySelector('small');
+        
+        if (small && optionHtml) {
+            // DOM에 옵션 HTML 적용
+            const parentElement = small.parentElement;
+            small.remove(); // 기존 small 요소 제거
+            parentElement.innerHTML += optionHtml; // 옵션 HTML 추가
+        } else {
+            element.style.display = 'none';
+        }
+    });
+}
+
 // 카트 정보 가져오기
 function fetchCartInfo() {
     fetch(UrlConstants.Builder.fullUrl('/user/cart/total'))
@@ -276,6 +370,8 @@ function updateCartItemDisplay(menuId, quantity, totalAmount, cartCount) {
     const cartItem = document.querySelector(`[data-menu-id="${menuId}"]`);
     if (!cartItem) return;
     
+    console.log('🔄 가격 업데이트:', {menuId, quantity, totalAmount, cartCount});
+    
     const quantityInput = cartItem.querySelector('.quantity-input');
     if (quantityInput) {
         quantityInput.value = quantity;
@@ -284,14 +380,30 @@ function updateCartItemDisplay(menuId, quantity, totalAmount, cartCount) {
     
     const totalPriceElement = cartItem.querySelector('.fw-bold');
     if (totalPriceElement) {
+        // 개별 아이템 가격 계산을 위해 unitPrice 추출 개선
         const itemPriceElement = cartItem.querySelector('.item-price');
         if (itemPriceElement) {
-            const priceText = itemPriceElement.textContent || itemPriceElement.innerText;
-            const unitPrice = parseInt(priceText.replace(/[^0-9]/g, ''));
+            let unitPrice = 0;
             
-            if (!isNaN(unitPrice)) {
+            // final-price가 있으면 (옵션 포함 가격) 그것을 사용
+            const finalPriceElement = itemPriceElement.querySelector('.final-price');
+            if (finalPriceElement) {
+                const finalPriceText = finalPriceElement.textContent || finalPriceElement.innerText;
+                unitPrice = parseInt(finalPriceText.replace(/[^0-9]/g, ''));
+                console.log('📊 옵션 포함 단가 사용:', unitPrice);
+            } else {
+                // 일반 가격 사용
+                const priceText = itemPriceElement.textContent || itemPriceElement.innerText;
+                unitPrice = parseInt(priceText.replace(/[^0-9]/g, ''));
+                console.log('📊 기본 단가 사용:', unitPrice);
+            }
+            
+            if (!isNaN(unitPrice) && unitPrice > 0) {
                 const itemTotal = unitPrice * quantity;
+                console.log('💰 계산된 아이템 총액:', itemTotal, '(단가:', unitPrice, 'x 수량:', quantity, ')');
                 totalPriceElement.textContent = SolFoodUtils.formatNumber(itemTotal) + '원';
+            } else {
+                console.warn('⚠️ 단가 추출 실패:', unitPrice);
             }
         }
     }
@@ -349,6 +461,11 @@ function showEmptyCart() {
 
 // 페이지 로드 시 장바구니 정보 조회
 document.addEventListener('DOMContentLoaded', function() {
+    // 장바구니 페이지인 경우 옵션 표시
+    if (document.querySelector('.item-options')) {
+        displayOptions();
+    }
+    
     if (document.getElementById('bottomCartBar')) {
         fetchCartInfo();
     } else {
