@@ -76,7 +76,7 @@
                     </thead>
                     <tbody id="ownerListBody">
                     <c:forEach var="owner" items="${ownerList.list}">
-                        <tr onclick="location.href='${pageContext.request.contextPath}/admin/home/owner-detail?ownerId=' + $(this).children('.owner-id').text()">
+                        <tr onclick="location.href='${pageContext.request.contextPath}/admin/owner-detail?ownerId=' + $(this).children('.owner-id').text()">
                             <td class="owner-id">${owner.ownerId}</td>
                             <td>
                                 <c:choose>
