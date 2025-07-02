@@ -130,6 +130,24 @@ public class StoreController {
     // ========================= API 메서드들 (VO 패턴 적용) =========================
 
     /**
+     * 메뉴 상세 조회 API (장바구니에서 옵션 정보 표시용)
+     */
+    @GetMapping("/menu/detail")
+    @ResponseBody
+    public ResponseEntity<MenuVO> getMenuDetail(@RequestParam int menuId) {
+        try {
+            MenuVO menu = menuService.getMenuById(menuId);
+            if (menu == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(menu);
+        } catch (Exception e) {
+            log.error("메뉴 상세 조회 오류: menuId={}", menuId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
      * 페이징된 가게 목록 조회 API
      */
     @GetMapping("/api/list")

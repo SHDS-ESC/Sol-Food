@@ -12,195 +12,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        
-        .cart-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .cart-header {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .cart-item {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 4px solid #007bff;
-        }
-        
-        .item-image {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        
-        .item-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 3px;
-            line-height: 1.3;
-        }
-        
-        .item-price {
-            font-size: 16px;
-            color: #007bff;
-            font-weight: 600;
-        }
-        
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .quantity-btn {
-            width: 35px;
-            height: 35px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .quantity-btn:hover {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        
-        .quantity-input {
-            width: 60px;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 8px;
-        }
-        
-        .remove-btn {
-            color: #dc3545;
-            cursor: pointer;
-            font-size: 20px;
-            transition: color 0.2s;
-        }
-        
-        .remove-btn:hover {
-            color: #b02a37;
-        }
-        
-        .cart-summary {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-left: 4px solid #28a745;
-        }
-        
-        .total-amount {
-            font-size: 24px;
-            font-weight: 700;
-            color: #28a745;
-        }
-        
-        .btn-order {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            border: none;
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-order:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
-        }
-        
-        .btn-clear {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            border: none;
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-clear:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(220,53,69,0.3);
-        }
-        
-        .empty-cart {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .empty-cart i {
-            font-size: 64px;
-            color: #dee2e6;
-            margin-bottom: 20px;
-        }
-        
-        .store-name {
-            color: #6c757d;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-        
-        .item-options {
-            margin: 8px 0 5px 0;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-        
-        .option-item {
-            display: inline-block;
-            background: #e7f3ff;
-            padding: 3px 10px;
-            margin: 2px 3px 2px 0;
-            border-radius: 15px;
-            color: #0056b3;
-            border: 1px solid #b3d9ff;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .option-price {
-            color: #007bff;
-            font-weight: 600;
-        }
-        
-        .original-price {
-            font-size: 14px;
-        }
-        
-        .final-price {
-            color: #007bff;
-            font-weight: 600;
-        }
-    </style>
+    <!-- Cart CSS -->
+    <link rel="stylesheet" href="<c:url value='/css/cart.css' />?v=${pageContext.session.creationTime}">
 </head>
 <body>
     <div class="cart-container">
@@ -250,9 +63,10 @@
                                 <div class="item-name">${item.menuName}</div>
 
                                 
-                                <!-- 옵션 정보 표시 -->
-                                <c:if test="${not empty item.options}">
-                                    <div class="item-options" data-menu-id="${item.menuId}" data-options-raw="${item.options}">
+                                <!-- 옵션 정보 표시 (안전한 JSON 출력) -->
+                                <c:if test="${not empty item.options and item.options != '{}' and item.options != 'null'}">
+                                    <div class="item-options" data-menu-id="${item.menuId}">
+                                        <script type="application/json" class="options-data">${item.options}</script>
                                         <small class="text-muted">옵션 로딩 중...</small>
                                     </div>
                                 </c:if>
@@ -340,38 +154,6 @@
     <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
     <!-- Common Utils (SolFoodUtils) -->
     <script src="<c:url value='/js/common-utils.js' />?v=${pageContext.session.creationTime}"></script>
-    <script>
-        // 결제 페이지로 이동
-        function proceedToPayment() {
-            window.location.href = UrlConstants.Builder.fullUrl('/user/cart/payment-method');
-        }
-        
-                // 옵션 정보 표시 (간단 버전)
-        function displayOptions() {
-            const allOptionElements = document.querySelectorAll('.item-options');
-            
-            allOptionElements.forEach((element, index) => {
-                const rawOptions = element.getAttribute('data-options-raw');
-                
-                if (rawOptions) {
-                    // 옵션이 있으면 간단히 "선택 옵션 적용" 표시
-                    const optionHtml = '<span class="option-item">선택 옵션 적용</span>';
-                    const small = element.querySelector('small');
-                    if (small) {
-                        small.outerHTML = optionHtml;
-                    }
-                } else {
-                    // 옵션이 없는 경우 숨김
-                    element.style.display = 'none';
-                }
-            });
-        }
-        
-        // 페이지 로드 완료 후 옵션 정보 표시
-        document.addEventListener('DOMContentLoaded', function() {
-            displayOptions();
-        });
-    </script>
     <!-- Cart JavaScript -->
     <script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
 </body>
