@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Controller
@@ -31,6 +32,18 @@ public class CartController {
     
     @Autowired
     private LoginService loginService;
+
+    // 사용자별 초대 친구 목록을 저장하는 Map
+    // 엔티티 삭제 필요. 만약 Key가 겹치는 경우엔 초기화 할 것인지 불러올 것인지 선택
+    // Key : 발의자 ID
+    // Value : 초대 친구 ID Set
+    private final Map<Long, Set<Long>> inviteMap = new ConcurrentHashMap<>();
+
+    // 최종 영수증 정보를 저장하는 Map
+    // 엔티티 삭제 필요. 만약 Key가 겹치는 경우엔 초기화 할 것인지 불러올 것인지 선택
+    // Key : 발의자 ID
+    // Value : 최종 영수증 VO
+    private final Map<Long, BillDTO> billMap = new ConcurrentHashMap<>();
 
     /**
      * 사용자 로그인 체크 공통 메서드
@@ -48,6 +61,10 @@ public class CartController {
         response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_LOGIN_REQUIRED);
         return response;
     }
+
+
+    // =============================== 페이지 이동 API ===============================
+    // =============================== 친구 초대 관련 API ===============================
 
     /**
      * 장바구니 페이지
@@ -177,38 +194,26 @@ public class CartController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getSelectedFriends(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
-        
         try {
             UserVO user = validateUserLogin(session);
             if (user == null) {
                 return ResponseEntity.ok(createLoginRequiredResponse());
             }
-            
-            // 세션에서 선택된 친구 ID 목록 가져오기
-            @SuppressWarnings("unchecked")
-            Set<Long> selectedFriendIds = (Set<Long>) session.getAttribute("selectedFriends");
-            
-            if (selectedFriendIds == null) {
-                selectedFriendIds = new HashSet<>();
-                // 현재 사용자 기본 선택
+            Set<Long> selectedFriendIds = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
+            if (selectedFriendIds.isEmpty()) {
                 selectedFriendIds.add((long) user.getUsersId());
-                session.setAttribute("selectedFriends", selectedFriendIds);
+                inviteMap.put(user.getUsersId(), selectedFriendIds);
             }
-            
-            // Long을 String으로 변환 (JavaScript 호환성)
             List<String> selectedFriendIdStrings = selectedFriendIds.stream()
                     .map(String::valueOf)
                     .collect(java.util.stream.Collectors.toList());
-            
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
             response.put("selectedFriendIds", selectedFriendIdStrings);
-            
         } catch (Exception e) {
             log.error("선택된 친구 목록 조회 오류", e);
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
             response.put(CartConstants.JSON_MESSAGE, "선택된 친구 목록 조회에 실패했습니다.");
         }
-        
         return ResponseEntity.ok(response);
     }
 
@@ -220,44 +225,29 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> toggleFriend(
             @RequestParam long friendId, 
             HttpSession session) {
-        
         Map<String, Object> response = new HashMap<>();
-        
         try {
             UserVO user = validateUserLogin(session);
             if (user == null) {
                 return ResponseEntity.ok(createLoginRequiredResponse());
             }
-            
-            // 세션에서 선택된 친구 목록 가져오기
-            @SuppressWarnings("unchecked")
-            Set<Long> selectedFriends = (Set<Long>) session.getAttribute("selectedFriends");
-            if (selectedFriends == null) {
-                selectedFriends = new HashSet<>();
-            }
-            
-            // 토글 처리
+            Set<Long> selectedFriends = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
             boolean wasSelected = selectedFriends.contains(friendId);
             if (wasSelected) {
                 selectedFriends.remove(friendId);
             } else {
                 selectedFriends.add(friendId);
             }
-            
-            // 세션에 다시 저장
-            session.setAttribute("selectedFriends", selectedFriends);
-            
+            inviteMap.put(user.getUsersId(), selectedFriends);
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
             response.put("friendId", friendId);
             response.put("selected", !wasSelected);
             response.put("totalSelected", selectedFriends.size());
-            
         } catch (Exception e) {
             log.error("친구 토글 오류", e);
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
             response.put(CartConstants.JSON_MESSAGE, "친구 선택 처리에 실패했습니다.");
         }
-        
         return ResponseEntity.ok(response);
     }
     
@@ -269,26 +259,18 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> syncSelectedFriends(
             @RequestBody Map<String, Object> request,
             HttpSession session) {
-        
         Map<String, Object> response = new HashMap<>();
-        
         try {
             UserVO user = validateUserLogin(session);
             if (user == null) {
                 return ResponseEntity.ok(createLoginRequiredResponse());
             }
-            
-            // 새로운 형식 (selectedFriendIds) 또는 기존 형식 처리
             @SuppressWarnings("unchecked")
             List<Object> friendIdObjects = (List<Object>) request.get("selectedFriendIds");
-            
             if (friendIdObjects == null) {
-                // 기존 형식 시도
                 friendIdObjects = (List<Object>) request;
             }
-            
             Set<Long> selectedFriends = new HashSet<>();
-            
             if (friendIdObjects != null) {
                 for (Object friendIdObj : friendIdObjects) {
                     try {
@@ -302,52 +284,39 @@ public class CartController {
                     }
                 }
             }
-            
-            // 세션에 저장
-            session.setAttribute("selectedFriends", selectedFriends);
-            
+            inviteMap.put(user.getUsersId(), selectedFriends);
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
             response.put("syncedCount", selectedFriends.size());
-            
         } catch (Exception e) {
             log.error("친구 동기화 오류", e);
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
             response.put(CartConstants.JSON_MESSAGE, "친구 동기화에 실패했습니다.");
         }
-        
         return ResponseEntity.ok(response);
     }
     
     /**
-     * 초대 확정 API
+     * 초대 확정 API -> Controller의 Map에 저장
      */
     @PostMapping("/invite-confirm")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> confirmInvite(
             @RequestBody Map<String, Object> request,
             HttpSession session) {
-        
         Map<String, Object> response = new HashMap<>();
-        
         try {
             UserVO user = validateUserLogin(session);
             if (user == null) {
                 return ResponseEntity.ok(createLoginRequiredResponse());
             }
-            
             @SuppressWarnings("unchecked")
             List<Object> selectedFriendIdObjects = (List<Object>) request.get("selectedFriendIds");
-            
             if (selectedFriendIdObjects == null || selectedFriendIdObjects.isEmpty()) {
                 response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
                 response.put(CartConstants.JSON_MESSAGE, "선택된 친구가 없습니다.");
                 return ResponseEntity.ok(response);
             }
-            
-            // Long으로 변환하여 세션에 저장
             Set<Long> friendIdSet = new HashSet<>();
-            List<String> friendIdStringList = new ArrayList<>();
-            
             for (Object friendIdObj : selectedFriendIdObjects) {
                 try {
                     long friendId;
@@ -358,30 +327,22 @@ public class CartController {
                     } else {
                         continue;
                     }
-                    
                     friendIdSet.add(friendId);
-                    friendIdStringList.add(String.valueOf(friendId));
                 } catch (NumberFormatException e) {
                     log.warn("잘못된 친구 ID 형식: {}", friendIdObj);
                 }
             }
-            
-            // 세션에 두 가지 형식으로 저장 (기존 호환성)
-            session.setAttribute("selectedFriends", friendIdSet);
-            session.setAttribute("selectedFriendIds", friendIdStringList);
-            
-            log.info("초대 확정 완료: 사용자 {} - 선택된 친구들 {}", user.getUsersId(), friendIdSet);
-            
+            // Controller의 Map에 저장
+            inviteMap.put(user.getUsersId(), friendIdSet);
+            log.info("초대 확정 완료: 사용자 {} - 선택된 친구들 {} (Map에 저장)", user.getUsersId(), friendIdSet);
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
             response.put(CartConstants.JSON_MESSAGE, "친구 초대가 완료되었습니다.");
             response.put("selectedFriendCount", friendIdSet.size());
-            
         } catch (Exception e) {
             log.error("초대 확정 오류", e);
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
             response.put(CartConstants.JSON_MESSAGE, "초대 확정에 실패했습니다.");
         }
-        
         return ResponseEntity.ok(response);
     }
 
@@ -464,8 +425,6 @@ public class CartController {
         return UrlConstants.View.USER_CART_INVITE_FRIENDS;
     }
     
-
-
     /**
      * 수락 대기 페이지
      */
@@ -475,28 +434,18 @@ public class CartController {
         if (user == null) {
             return UrlConstants.Redirect.TO_USER_LOGIN;
         }
-        
         CartVO cart = cartService.getCart(session);
         if (cart == null || cart.isEmpty()) {
             return UrlConstants.Redirect.TO_USER_CART;
         }
-        
-        // 세션에서 선택된 친구 ID들 가져오기
-        @SuppressWarnings("unchecked")
-        Set<Long> selectedFriendIds = (Set<Long>) session.getAttribute("selectedFriends");
-        
+        Set<Long> selectedFriendIds = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
         List<UserVO> selectedFriends = new ArrayList<>();
-        
-        // 현재 사용자는 항상 포함
         selectedFriends.add(user);
-        
-        // 선택된 친구들 정보 조회
-        if (selectedFriendIds != null && selectedFriendIds.size() > 1) { // 현재 사용자 외에 다른 사람이 있는 경우
+        if (selectedFriendIds != null && selectedFriendIds.size() > 1) {
             List<UserVO> companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
                     user.getCompanyId(), user.getUsersId());
-            
             for (Long friendId : selectedFriendIds) {
-                if (friendId != user.getUsersId()) { // 현재 사용자는 이미 추가됨
+                if (friendId != user.getUsersId()) {
                     for (UserVO companyUser : companyUsers) {
                         if (companyUser.getUsersId() == friendId.intValue()) {
                             selectedFriends.add(companyUser);
@@ -506,18 +455,16 @@ public class CartController {
                 }
             }
         }
-        
-        log.info("수락 대기 페이지: 사용자 {} - 선택된 친구들 {}명", 
-                 user.getUsersId(), selectedFriends.size());
-        
+        log.info("수락 대기 페이지: 사용자 {} - 선택된 친구들 {}명", user.getUsersId(), selectedFriends.size());
         model.addAttribute(UrlConstants.Model.CART, cart);
         model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
         model.addAttribute("selectedFriends", selectedFriends);
         model.addAttribute("friendCount", selectedFriends.size());
         model.addAttribute("miniGameMessage", CartConstants.MSG_MINI_GAME_PREPARING);
-        
         return UrlConstants.View.USER_CART_WAITING_APPROVAL;
     }
+
+    // =============================== 장바구니 관련 API ===============================
     
     /**
      * 장바구니에 메뉴 추가 API
