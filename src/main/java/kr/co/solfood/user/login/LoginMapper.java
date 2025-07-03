@@ -1,6 +1,7 @@
 package kr.co.solfood.user.login;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -26,4 +27,10 @@ public interface LoginMapper {
 
     // 새로운 비밀번호 저장
     void setNewPwd(SearchPwdRequest req);
+    
+    // 같은 회사의 다른 사용자들 가져오기 (초대용)
+    List<UserVO> getUsersByCompanyIdExcludingCurrentUser(@Param("companyId") int companyId, @Param("currentUserId") long currentUserId);
+    
+    // 특정 부서의 사용자들 가져오기 (초대용)
+    List<UserVO> getUsersByDepartmentIdExcludingCurrentUser(@Param("departmentId") int departmentId, @Param("currentUserId") long currentUserId);
 }

@@ -17,13 +17,13 @@ public interface StoreService {
     
     // 검색어로 가게 검색 (통합 검색)
     List<StoreVO> searchStores(String keyword);
-    
+
     // 가게명으로 검색
     List<StoreVO> searchStoresByName(String storeName);
-    
+
     // 주소로 검색
     List<StoreVO> searchStoresByAddress(String address);
-    
+
     // 가게 등록 (관리자/크롤링용)
     boolean insertStore(StoreVO store);
     
@@ -35,4 +35,17 @@ public interface StoreService {
 
     //검색 결과 페이징 처리
     PageMaker<StoreVO> getPagedSearchResults(String keyword, PageDTO pageDTO);
+    
+    // ========================= 찜 상태 포함 메서드들 =========================
+    
+    // 가게 상세 조회 (찜 상태 포함)
+    StoreVO getStoreByIdWithLike(int storeId, long usersId);
+    
+    // 페이징 처리 - 카테고리별 (찜 상태 포함)
+    PageMaker<StoreVO> getPagedCategoryStoreListWithLike(String category, PageDTO pageDTO, long usersId, String sort);
+    
+    // 검색 결과 페이징 처리 (찜 상태 포함)
+    PageMaker<StoreVO> getPagedSearchResultsWithLike(String keyword, PageDTO pageDTO, long usersId, String sort);
+
+
 }

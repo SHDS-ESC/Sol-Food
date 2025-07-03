@@ -15,7 +15,13 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "로그인이 필요합니다."),
     UNDEFINED_SEARCH(HttpStatus.BAD_REQUEST, "UNDEFINED_SEARCH", "검색어가 정의되지 않았습니다."),
     INCORRECT_DATE_FORMAT(HttpStatus.BAD_REQUEST, "INCORRECT_DATE_FORMAT", "날짜 형식이 잘못되었습니다."),
-    INCORRECT_DATA(HttpStatus.BAD_REQUEST, "INCORRECT_DATE_FORMAT", "잘못된 데이터 입니다.");
+    INCORRECT_DATA(HttpStatus.BAD_REQUEST, "INCORRECT_DATE_FORMAT", "잘못된 데이터 입니다."),
+
+    // Store 관련 에러코드
+    STORE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "STORE_SAVE_FAILED", "가게 정보 저장에 실패했습니다."),
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "STORE_NOT_FOUND", "가게를 찾을 수 없습니다."),
+    STORE_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "STORE_UPDATE_FAILED", "가게 정보 수정에 실패했습니다."),
+    STORE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "STORE_DELETE_FAILED", "가게 삭제에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
