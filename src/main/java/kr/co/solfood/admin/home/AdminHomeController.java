@@ -160,6 +160,23 @@ public class AdminHomeController {
     }
 
     /**
+     * 유저 페이지 < 유저 상태 업데이트
+     *
+     * @param usersId 유저 ID
+     * @param status  유저 상태 (active, inactive)
+     */
+    @ResponseBody
+    @GetMapping("/user-management/status-update")
+    public String userStatusUpdate(@RequestParam("usersId") long usersId, @RequestParam("status") String status, @RequestParam("usersRejectedReason") String usersRejectReason) {
+        try {
+            adminHomeService.updateUserStatus(new UserStatusUpdateDTO(usersId, status, usersRejectReason));
+        } catch (IllegalArgumentException e) {
+            log.info("Users status update failed: {}", e.getMessage());
+        }
+        return "admin/user-management/home";
+    }
+
+    /**
      * 어드민 페이지 > 지점 상세 페이지 이동
      *
      * @param ownerId

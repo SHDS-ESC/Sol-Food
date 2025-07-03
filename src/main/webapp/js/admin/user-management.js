@@ -3,6 +3,21 @@ let currentPage = 1;
 let firstPage = 1;
 let lastPage = 10;
 let signupChart = null;  // 전역 변수로 선언
+let userId = null;
+
+
+const textarea = document.getElementById('detailedReason');
+const charCount = document.getElementById('charCount');
+const submitBtn = document.getElementById('submitBtn');
+
+textarea.addEventListener('input', () => {
+    const length = textarea.value.length;
+    charCount.textContent = length;
+
+    // 예: 최소 1자 이상 입력해야 제출 가능하도록 설정
+    submitBtn.disabled = length === 0;
+});
+
 
 function renderUserRows(userList) {
     const userListBody = $('#userListBody');
@@ -43,7 +58,27 @@ function renderUserRows(userList) {
         $row.append($('<td>').text(user.departmentName || ''));
         $row.append($('<td>').text(user.usersAge || ''));
         $row.append($('<td>').text(user.usersGender || ''));
-        $row.append($('<td>').text(user.usersStatus || ''));
+
+
+        const $tdStatus = $('<td>');
+        const $select = $('<select>').addClass('status-select');
+
+        ['active', 'inactive'].forEach(status => {
+            const $opt = $('<option>')
+                .val(status)
+                .text(status);
+
+            if (user.usersStatus === status) {
+                $opt.prop('selected', true);
+            }
+
+            $select.append($opt);
+        });
+
+        $tdStatus.append($select);
+        $row.append($tdStatus);
+        $row.append($('<td>').text(user.usersRejectedReason || ''));
+
         userListBody.append($row);
     });
 }
@@ -100,7 +135,76 @@ function updatePaginationUI($clicked) {
         .attr('aria-current', 'page');
 }
 
+// Close modal when clicking outside
+document.getElementById('rejectionModal').addEventListener('click', function (e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
+// ESC key to close modal
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+
+function openRejectionModal(usersId, userProfile, userName, userNickName, userEmail) {
+    $('#moal_image').attr('src', userProfile)
+    $('#modal_user_name').text(userName)
+    $('#modal_user_nickname').text(userNickName)
+    $('#modal_user_info').text(userEmail)
+    userId = usersId
+    const modal = document.getElementById('rejectionModal');
+    modal.style.display = 'flex';
+    modal.style.animation = 'fadeIn 0.3s ease-out';
+}
+
+// Modal control functions
+function closeModal() {
+    const modal = document.getElementById('rejectionModal');
+    modal.style.animation = 'fadeOut 0.3s ease-out';
+
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // 스크롤 복구
+
+        // ✅ [1] 버튼 초기화
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = '<i class="fas fa-ban"></i> 승인 거절';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.6';
+
+        // ✅ [2] 선택된 라디오 해제
+        document.querySelectorAll('input[name="rejectionReason"]').forEach(r => r.checked = false);
+        document.querySelectorAll('.reason-option').forEach(opt => opt.classList.remove('selected'));
+
+        // ✅ [3] 상세 사유 초기화
+        const textarea = document.querySelector('textarea[name="detailedReason"]');
+        textarea.value = '';
+        document.getElementById('charCount').textContent = '0';
+
+    }, 300);
+}
+
 $(document).ready(function () {
+
+    $('.status_selector').on('change', function () {
+        const newStatus = $(this).val(); // 선택된 값
+        const userId = $(this).closest('tr').find('td:first').text(); // 첫 번째 <td>가 id라고 가정
+
+        const userProfile = $(this).closest('tr').find('td').eq(1).find('img').attr('src'); // 두 번째 td
+        const userName = $(this).closest('tr').find('td').eq(2).text()
+        const userNickName = $(this).closest('tr').find('td').eq(3).text()
+        const userEmail = $(this).closest('tr').find('td').eq(5).text()
+
+        console.log(`사용자 ID: ${userId}, 변경된 상태: ${newStatus}`);
+
+        if (newStatus === 'inactive') {
+            openRejectionModal(userId, userProfile, userName, userNickName, userEmail)
+        }
+    });
+
     $('.filter-btns button').on('click', function () {
         // 모든 버튼에서 active 클래스 제거
         $('.filter-btns button').removeClass('active');
@@ -211,6 +315,30 @@ $(document).ready(function () {
     $pageSize.on('change', function () {
         currentPage = 1;
         $('#searchForm').submit();
+    });
+
+    $('#submitBtn').on('click', function (e) {
+        e.preventDefault();
+
+        const reason = $('#detailedReason').val().trim();
+
+        console.log(reason)
+
+        // 예시: 서버에 거절 사유 전송
+        $.ajax({
+            type: 'GET',
+            url: ctx + '/admin/user-management/status-update',
+            contentType: 'application/json',
+            data: {usersId: userId, status: 'inactive', usersRejectedReason: reason},
+            success: function () {
+                alert('승인 거절이 처리되었습니다.');
+                closeModal();
+                // 페이지 새로고침 또는 리스트 재요청 등
+            },
+            error: function () {
+                alert('처리 중 오류가 발생했습니다.');
+            }
+        });
     });
 
 });
