@@ -1,6 +1,8 @@
 package kr.co.solfood.user.cart;
 
 import kr.co.solfood.common.constants.UrlConstants;
+import kr.co.solfood.payments.integrated.IntegratedPaymentService;
+import kr.co.solfood.payments.payment.PaymentService;
 import kr.co.solfood.user.login.LoginService;
 import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.util.PageDTO;
@@ -8,6 +10,7 @@ import kr.co.solfood.util.PageMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +32,12 @@ public class CartController {
     
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private IntegratedPaymentService integratedPaymentService;
+
+    @Autowired
+    private PaymentService paymentService;
     
     @Autowired
     private LoginService loginService;
@@ -429,7 +438,7 @@ public class CartController {
      * 수락 대기 페이지
      */
     @GetMapping("/waiting-approval")
-    public String waitingApprovalPage(HttpSession session, Model model) {
+    public String waitingApprovalPage(HttpSession session, Model model, @Value("${imp.code}") String impCode) {
         UserVO user = validateUserLogin(session);
         if (user == null) {
             return UrlConstants.Redirect.TO_USER_LOGIN;
@@ -438,7 +447,15 @@ public class CartController {
         if (cart == null || cart.isEmpty()) {
             return UrlConstants.Redirect.TO_USER_CART;
         }
+        
+        // inviteMap이 비어있으면 현재 사용자만 추가 (혼자 결제하는 경우)
         Set<Long> selectedFriendIds = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
+        if (selectedFriendIds.isEmpty()) {
+            selectedFriendIds.add((long) user.getUsersId());
+            inviteMap.put(user.getUsersId(), selectedFriendIds);
+            log.info("혼자 결제하는 경우: 사용자 {}를 inviteMap에 추가", user.getUsersId());
+        }
+        
         List<UserVO> selectedFriends = new ArrayList<>();
         selectedFriends.add(user);
         if (selectedFriendIds != null && selectedFriendIds.size() > 1) {
@@ -461,6 +478,7 @@ public class CartController {
         model.addAttribute("selectedFriends", selectedFriends);
         model.addAttribute("friendCount", selectedFriends.size());
         model.addAttribute("miniGameMessage", CartConstants.MSG_MINI_GAME_PREPARING);
+        model.addAttribute("impCode", impCode);
         return UrlConstants.View.USER_CART_WAITING_APPROVAL;
     }
 
@@ -890,6 +908,188 @@ public class CartController {
         
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * 더치페이 계산 API (GET, make-bill.jsp용)
+     */
+    @GetMapping("/calculate-dutch-pay")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDutchPay(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            UserVO user = validateUserLogin(session);
+            if (user == null) {
+                return ResponseEntity.ok(createLoginRequiredResponse());
+            }
+            CartVO cart = cartService.getCart(session);
+            if (cart == null || cart.isEmpty()) {
+                response.put("result", "error");
+                response.put("message", "장바구니가 비어있습니다.");
+                return ResponseEntity.ok(response);
+            }
+            
+            List<UserVO> participantList = getParticipants(user);
+            List<Map<String, Object>> participants = new ArrayList<>();
+            int totalAmount = cart.getTotalAmount();
+            int participantCount = participantList.size();
+            int amountPerPerson = participantCount > 0 ? totalAmount / participantCount : 0;
+
+            for (UserVO participant : participantList) {
+                Map<String, Object> participantInfo = new HashMap<>();
+                participantInfo.put("userId", participant.getUsersId());
+                participantInfo.put("userName", participant.getUsersName());
+                participantInfo.put("userProfile", participant.getUsersProfile());
+                participantInfo.put("amount", amountPerPerson);
+                participantInfo.put("isCurrentUser", participant.getUsersId() == user.getUsersId());
+                participants.add(participantInfo);
+            }
+
+            response.put("result", "success");
+            response.put("participantList", participants);
+            response.put("totalAmount", totalAmount);
+        } catch (Exception e) {
+            response.put("result", "error");
+            response.put("message", "더치페이 계산 실패");
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    public List<UserVO> getParticipants(UserVO user) {
+        List<UserVO> participants = new ArrayList<>();
+        Set<Long> participantIds = inviteMap.get(user.getUsersId());
+        
+        // inviteMap이 null이거나 비어있으면 현재 사용자만 반환
+        if (participantIds == null || participantIds.isEmpty()) {
+            participants.add(user);
+            log.info("getParticipants: inviteMap이 비어있어서 현재 사용자 {}만 반환", user.getUsersId());
+        } else {
+            for (Long id : participantIds) {
+                participants.add(loginService.getUserById(id));
+            }
+        }
+
+        return participants;
+    }
+
+    /**
+     * BillDTO 생성/저장 API (POST, make-bill.jsp용)
+     */
+    @PostMapping("/submit-bill")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> submitBill(@RequestBody Map<String, Object> request, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            UserVO user = validateUserLogin(session);
+            if (user == null) {
+                response.put("result", "error");
+                response.put("message", "로그인이 필요합니다.");
+                return ResponseEntity.ok(response);
+            }
+            
+            // 1. session에서 cart 가져오기
+            CartVO cart = cartService.getCart(session);
+            if (cart == null || cart.isEmpty()) {
+                response.put("result", "error");
+                response.put("message", "장바구니가 비어있습니다.");
+                return ResponseEntity.ok(response);
+            }
+            
+            // 2. controller의 inviteMap에서 참여자 목록 가져오기
+            List<UserVO> participants = getParticipants(user);
+            int totalAmount = cart.getTotalAmount();
+            int participantCount = participants.size();
+            int amountPerPerson = participantCount > 0 ? totalAmount / participantCount : 0;
+
+            // 3. BillDTO 생성
+            BillDTO billDTO = new BillDTO();
+            billDTO.setLeaderId(user.getUsersId());
+            billDTO.setTotalAmount(totalAmount);
+            billDTO.setStoreId(cart.getStoreId());
+            billDTO.setStoreName(cart.getStoreName());
+            billDTO.setCartItems(cart.getItems());
+            Map<Long, Integer> userBill = new HashMap<>();
+            for (UserVO participant : participants) {
+                userBill.put(participant.getUsersId(), amountPerPerson);
+            }
+            billDTO.setUserBill(userBill);
+            
+            // 4. billMap에 저장, inviteMap에서 참여자 목록 제거
+            billMap.put(user.getUsersId(), billDTO);
+//            inviteMap.remove(user.getUsersId());
+            
+            // log.info("BillDTO 생성 완료: 사용자 {} - 총 금액 {}원, 참여자 {}명", 
+            //         user.getUsersId(), billDTO.getTotalAmount(), billDTO.getCartItems().size());
+
+            // 5. DB 저장
+            int integratedPaymentId = integratedPaymentService.createIntegratedPayment(billDTO);
+            paymentService.createPayment(billDTO, integratedPaymentId);
+            
+            response.put("result", "success");
+            response.put("message", "영수증이 생성되었습니다.");
+            
+        } catch (Exception e) {
+            log.error("영수증 생성 오류", e);
+            response.put("result", "error");
+            response.put("message", "영수증 생성 실패");
+        }
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/make-bill")
+    public String makeBillPage(HttpSession session, Model model) {
+        UserVO user = validateUserLogin(session);
+        if (user == null) {
+            return UrlConstants.Redirect.TO_USER_LOGIN;
+        }
+        CartVO cart = cartService.getCart(session);
+        if (cart == null || cart.isEmpty()) {
+            return UrlConstants.Redirect.TO_USER_CART;
+        }
+        // model.addAttribute("cart", cart);
+        return UrlConstants.View.USER_CART_MAKE_BILL;
+    }
+
+    /**
+     * 결제 완료 페이지
+     */
+    @GetMapping("/payment-complete")
+    public String paymentCompletePage(HttpSession session, Model model) {
+        UserVO user = validateUserLogin(session);
+        if (user == null) {
+            return UrlConstants.Redirect.TO_USER_LOGIN;
+        }
+        
+        CartVO cart = cartService.getCart(session);
+        if (cart == null || cart.isEmpty()) {
+            return UrlConstants.Redirect.TO_USER_CART;
+        }
+        
+        model.addAttribute(UrlConstants.Model.CART, cart);
+        model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
+        return UrlConstants.View.USER_CART_PAYMENT_COMPLETE;
+    }
+
+    /**
+     * SSE를 통한 결제 상태 모니터링
+     */
+    @GetMapping(value = "/payment-status-stream")
+    public ResponseEntity<String> paymentStatusStream(HttpSession session) {
+        UserVO user = validateUserLogin(session);
+        if (user == null) {
+            return ResponseEntity.ok("data: {\"error\": \"로그인이 필요합니다\"}\n\n");
+        }
+        
+        // SSE 응답 생성
+        String sseData = "data: {\"type\": \"connected\", \"userId\": " + user.getUsersId() + "}\n\n";
+        
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf("text/event-stream;charset=UTF-8"))
+                .header("Cache-Control", "no-cache")
+                .header("Connection", "keep-alive")
+                .header("Access-Control-Allow-Origin", "*")
+                .body(sseData);
+    }
+
 
 
 } 
