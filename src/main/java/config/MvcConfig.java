@@ -4,6 +4,7 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
+import kr.co.solfood.admin.login.OwnerLoginInterceptor;
 import org.apache.ibatis.annotations.Mapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.InitializingBean;
@@ -24,7 +25,6 @@ import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import kr.co.solfood.admin.login.AdminLoginInterceptor;
-import kr.co.solfood.owner.login.OwnerLoginInterceptor;
 import kr.co.solfood.user.login.UserLoginInterceptor;
 import kr.co.solfood.common.s3.FileUploadSessionInterceptor;
 

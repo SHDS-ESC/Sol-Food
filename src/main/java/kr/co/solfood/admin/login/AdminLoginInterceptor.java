@@ -12,7 +12,7 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 로그인 체크
         HttpSession session = request.getSession();
-        AdminVO vo = (AdminVO) session.getAttribute("admin");
+        AdminVO vo = (AdminVO) session.getAttribute("adminLoginSession");
         if (vo == null) {
             // 미 로그인 상태
             response.setContentType("text/html;charset=utf-8");

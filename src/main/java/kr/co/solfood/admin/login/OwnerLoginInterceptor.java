@@ -1,4 +1,4 @@
-package kr.co.solfood.owner.login;
+package kr.co.solfood.admin.login;
 
 import org.springframework.web.servlet.HandlerInterceptor;
 
