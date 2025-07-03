@@ -71,6 +71,7 @@
         <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;">더보기</button>
     </div>
         <script src="<c:url value='/js/urlConstants.js' />"></script>
+        <script src="<c:url value='/js/common-utils.js' />"></script>
 <script src="<c:url value='/js/like.js' />"></script>
         <script src="<c:url value='/js/store.js' />"></script>
 </body>

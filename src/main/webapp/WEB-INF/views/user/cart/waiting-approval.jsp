@@ -25,20 +25,29 @@
         
         <!-- 대기 상태 -->
         <div class="status-section">
-            <i class="bi bi-hourglass-split status-icon" id="statusIcon"></i>
-            <div class="status-title" id="statusTitle">친구들의 수락을 기다리고 있어요<span class="loading-dots"></span></div>
+            <i class="bi bi-credit-card status-icon" id="statusIcon"></i>
+            <div class="status-title" id="statusTitle">함께 결제하기</div>
             <div class="status-desc" id="statusDesc">
-                초대받은 친구들이 수락하면<br>
-                함께 결제를 진행할 수 있습니다
+                총 주문 금액을 인원수로 나누어<br>
+                각자 결제를 진행해주세요
             </div>
         </div>
         
         <!-- 진행 상황 -->
         <div class="progress-section">
             <div class="progress-header">
-                <h5><i class="bi bi-people"></i> 참여 현황</h5>
+                <h5><i class="bi bi-people"></i> 결제 현황</h5>
                 <div class="progress-count">
-                    <span id="acceptedCount">0</span>/<span id="totalCount">4</span> 수락
+                    <span id="acceptedCount">0</span>/<span id="totalCount">4</span> 결제 완료
+                </div>
+            </div>
+            
+            <!-- 총 주문 금액 표시 -->
+            <div class="total-amount-section" style="background: #f8f9fa; border-radius: 8px; padding: 16px; margin-bottom: 20px; text-align: center;">
+                <div style="font-size: 14px; color: #6c757d; margin-bottom: 8px;">총 주문 금액</div>
+                <div style="font-size: 24px; font-weight: bold; color: #ff6b35;" id="totalAmountDisplay">₩0</div>
+                <div style="font-size: 12px; color: #6c757d; margin-top: 4px;">
+                    <span id="totalPeopleDisplay">0</span>명이 나누어 결제
                 </div>
             </div>
             
@@ -52,17 +61,14 @@
                     <i class="bi bi-controller"></i> 친구들과 미니게임 하기
                 </button>
                 <small class="text-muted mt-2 d-block text-center">
-                    기다리는 동안 미니게임을 즐겨보세요!
+                    결제 대기 중 미니게임을 즐겨보세요!
                 </small>
             </div>
             
             <!-- 액션 버튼들 -->
             <div class="action-buttons">
                 <button class="btn-cancel" onclick="cancelInvitation()">
-                    <i class="bi bi-x-circle"></i> 초대 취소
-                </button>
-                <button class="btn-continue active" id="continueBtn" onclick="proceedToPayment()">
-                    <i class="bi bi-credit-card"></i> 결제하기
+                    <i class="bi bi-arrow-left"></i> 뒤로가기
                 </button>
             </div>
         </div>
@@ -73,8 +79,42 @@
     <script src="<c:url value='/js/urlConstants.js' />"></script>
     
     <!-- 안전한 데이터 전달을 위한 hidden input -->
-    <input type="hidden" id="friendCountData" value="${friendCount != null ? friendCount : 0}">
     <input type="hidden" id="miniGameMessageData" value="<c:out value='${miniGameMessage}' escapeXml='true'/>">
+    
+    <!-- 현재 사용자 정보 -->
+    <div id="currentUserData" 
+         data-current-user-id="${currentUser.usersId}"
+         data-current-user-name="${currentUser.usersName}"
+         data-current-user-profile="${currentUser.usersProfile}"
+         data-current-user-department="${currentUser.departmentId}" 
+         data-current-user-company="${currentUser.companyId}"
+         data-current-user-company-name="${currentUser.companyName}"
+         data-current-user-department-name="${currentUser.departmentName}"
+         style="display: none;"></div>
+    
+    <!-- 선택된 친구들 정보 (서버에서 렌더링) -->
+    <script type="application/json" id="selectedFriendsData">
+    [
+        <c:forEach var="friend" items="${selectedFriends}" varStatus="status">
+        {
+            "usersId": ${friend.usersId},
+            "usersName": "<c:out value='${friend.usersName}' escapeXml='true'/>",
+            "usersProfile": "<c:out value='${friend.usersProfile}' escapeXml='true'/>",
+            "companyName": "<c:out value='${friend.companyName}' escapeXml='true'/>",
+            "departmentName": "<c:out value='${friend.departmentName}' escapeXml='true'/>",
+            "usersEmail": "${friend.usersId == currentUser.usersId ? 'CURRENT_USER' : friend.usersEmail}"
+        }<c:if test="${!status.last}">,</c:if>
+        </c:forEach>
+    ]
+    </script>
+    
+    <!-- 장바구니 정보 -->
+    <script type="application/json" id="cartData">
+    {
+        "totalAmount": ${cart.totalAmount},
+        "itemCount": ${cart.items.size()}
+    }
+    </script>
     
     <!-- 수락 대기 페이지 JavaScript -->
     <script src="<c:url value='/js/waiting-approval.js' />"></script>

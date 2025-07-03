@@ -404,6 +404,34 @@ body {
     font-size: 10px;
 }
 
+/* 현재 사용자 배지 */
+.current-user-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #28a745;
+    color: white;
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    cursor: default;
+}
+
+.current-user-badge:hover {
+    background: #218838;
+}
+
+.current-user-badge i {
+    font-size: 8px;
+}
+
 /* 로딩 애니메이션 */
 @keyframes spin {
     0% { transform: rotate(0deg); }
