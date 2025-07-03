@@ -1,5 +1,7 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.util.CustomException;
+import kr.co.solfood.util.ErrorCode;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +43,7 @@ public class StoreServiceImpl implements StoreService {
         }
         return mapper.searchStores(keyword.trim());
     }
-    
+
     @Override
     public List<StoreVO> searchStoresByName(String storeName) {
         if (storeName == null || storeName.trim().isEmpty()) {
@@ -49,7 +51,7 @@ public class StoreServiceImpl implements StoreService {
         }
         return mapper.searchStoresByName(storeName.trim());
     }
-    
+
     @Override
     public List<StoreVO> searchStoresByAddress(String address) {
         if (address == null || address.trim().isEmpty()) {
@@ -57,10 +59,11 @@ public class StoreServiceImpl implements StoreService {
         }
         return mapper.searchStoresByAddress(address.trim());
     }
-    
+
     @Override
     @Transactional
     public boolean insertStore(StoreVO store) {
+        // 중복 체크
         if (isDuplicateStore(store)) {
             return false;
         }
@@ -70,7 +73,7 @@ public class StoreServiceImpl implements StoreService {
             return result > 0;
         } catch (DataAccessException e) {
             log.error("가게 정보 저장 실패: {}", store.getStoreName(), e);
-            throw new StoreException(StoreConstants.ERROR_STORE_SAVE_FAILED, e);
+            throw new CustomException(ErrorCode.STORE_SAVE_FAILED);
         }
     }
     
@@ -80,6 +83,7 @@ public class StoreServiceImpl implements StoreService {
         return count > 0;
     }
 
+    //전체목록
     @Override
     public PageMaker<StoreVO> getPagedCategoryStoreList(String category, PageDTO pageDTO) {
         List<StoreVO> list = mapper.selectPagedCategoryStores(
@@ -87,13 +91,14 @@ public class StoreServiceImpl implements StoreService {
                 pageDTO.getOffset(),
                 pageDTO.getPageSize()
         );
-        
+
         long total = mapper.countStoresByCategory(category);
-        
+
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
     }
 
+    //카테고리별
     @Override
     public PageMaker<StoreVO> getPagedSearchResults(String keyword, PageDTO pageDTO) {
         List<StoreVO> list = mapper.selectPagedSearchResults(
@@ -106,4 +111,43 @@ public class StoreServiceImpl implements StoreService {
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
     }
+    
+    // ========================= 찜 상태 포함 메서드들 =========================
+    
+    @Override
+    public StoreVO getStoreByIdWithLike(int storeId, long usersId) {
+        return mapper.getStoreByIdWithLike(storeId, usersId);
+    }
+    
+    @Override
+    public PageMaker<StoreVO> getPagedCategoryStoreListWithLike(String category, PageDTO pageDTO, long usersId, String sort) {
+        List<StoreVO> list = mapper.selectPagedCategoryStoresWithLike(
+                category,
+                pageDTO.getOffset(),
+                pageDTO.getPageSize(),
+                usersId,
+                sort
+        );
+
+        long total = mapper.countStoresByCategory(category);
+
+        return new PageMaker<>(list, total, pageDTO.getPageSize(),
+                pageDTO.getCurrentPage());
+    }
+    
+    @Override
+    public PageMaker<StoreVO> getPagedSearchResultsWithLike(String keyword, PageDTO pageDTO, long usersId, String sort) {
+        List<StoreVO> list = mapper.selectPagedSearchResultsWithLike(
+                keyword,
+                pageDTO.getOffset(),
+                pageDTO.getPageSize(),
+                usersId,
+                sort
+        );
+        long total = mapper.countSearchResults(keyword);
+
+        return new PageMaker<>(list, total, pageDTO.getPageSize(),
+                pageDTO.getCurrentPage());
+    }
+
 }

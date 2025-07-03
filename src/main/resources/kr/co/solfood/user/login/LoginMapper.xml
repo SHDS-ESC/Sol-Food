@@ -29,10 +29,11 @@
                            users_created_at,
                            users_updated_at,
                            users_status,
+                           users_rejected_reason,
                            users_pwd)
         VALUES (#{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName},
                 #{usersPoint}, #{usersGender}, #{usersKakaoId}, #{usersLoginType}, #{usersTel},
-                #{usersCreatedAt}, #{usersUpdatedAt}, #{usersStatus}, md5(#{usersPwd}))
+                #{usersCreatedAt}, #{usersUpdatedAt}, #{usersStatus}, #{usersRejectedReason}, md5(#{usersPwd}))
     </insert>
 
     <!--회사리스트-->
@@ -50,22 +51,57 @@
 
     <!--로그인-->
     <select id="selectUser" parameterType="kr.co.solfood.user.login.LoginRequest" resultType="kr.co.solfood.user.login.UserVO">
-        SELECT *
-        FROM users
-        WHERE users_email = #{usersEmail} AND users_pwd = md5(#{usersPwd})
+        SELECT u.*, c.company_name, d.department_name
+        FROM users u
+        LEFT JOIN company c ON u.company_id = c.company_id
+        LEFT JOIN department d ON u.department_id = d.department_id
+        WHERE u.users_email = #{usersEmail}
+          AND u.users_pwd = md5(#{usersPwd})
     </select>
 
     <!--비밀번호 찾기-->
     <select id="searchPwd" resultType="kr.co.solfood.user.login.UserVO" parameterType="kr.co.solfood.user.login.SearchPwdRequest">
         SELECT *
         FROM users
-        WHERE users_email = #{usersEmail} AND users_name =#{usersName}
+        WHERE users_email = #{usersEmail}
+          AND users_name = #{usersName}
     </select>
 
     <!--새로운 비밀번호 저장-->
-    <update id="setNewPwd" parameterType="kr.co.solfood.user.login.SearchPwdRequest" >
+    <update id="setNewPwd" parameterType="kr.co.solfood.user.login.SearchPwdRequest">
         UPDATE users
-        SET users_pwd = #{usersPwd}
-        WHERE users_email = #{usersEmail} AND users_name =#{usersName};
+        SET users_pwd = md5(#{usersPwd})
+        WHERE users_email = #{usersEmail}
+          AND users_name = #{usersName}
     </update>
+
+    <!-- 같은 회사의 다른 사용자들 가져오기 (초대용) -->
+    <select id="getUsersByCompanyIdExcludingCurrentUser" resultType="kr.co.solfood.user.login.UserVO">
+        SELECT u.*, c.company_name, d.department_name
+        FROM users u
+        INNER JOIN company c ON u.company_id = c.company_id
+        INNER JOIN department d ON u.department_id = d.department_id
+        WHERE u.company_id = #{companyId}
+          AND u.users_id != #{currentUserId}
+        ORDER BY
+          CASE WHEN u.users_profile IS NOT NULL AND u.users_profile != '' THEN 0 ELSE 1 END,
+          d.department_name,
+          u.users_name
+        LIMIT 50
+    </select>
+
+    <!-- 특정 부서의 사용자들 가져오기 (초대용) -->
+    <select id="getUsersByDepartmentIdExcludingCurrentUser" resultType="kr.co.solfood.user.login.UserVO">
+        SELECT u.*, c.company_name, d.department_name
+        FROM users u
+        INNER JOIN company c ON u.company_id = c.company_id
+        INNER JOIN department d ON u.department_id = d.department_id
+        WHERE u.department_id = #{departmentId}
+          AND u.users_id != #{currentUserId}
+        ORDER BY
+          CASE WHEN u.users_profile IS NOT NULL AND u.users_profile != '' THEN 0 ELSE 1 END,
+          u.users_name
+        LIMIT 20
+    </select>
+
 </mapper>

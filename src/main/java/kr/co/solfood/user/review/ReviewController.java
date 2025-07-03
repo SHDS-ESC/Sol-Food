@@ -1,5 +1,6 @@
 package kr.co.solfood.user.review;
 
+import kr.co.solfood.common.constants.UrlConstants;
 import kr.co.solfood.user.store.StoreVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import properties.KakaoProperties;
 import static kr.co.solfood.user.review.ReviewConstants.*;
 
 @Controller
-@RequestMapping("/user/review")
+@RequestMapping(UrlConstants.User.REVIEW_BASE)
 public class ReviewController {
     
     private static final Logger logger = LoggerFactory.getLogger(ReviewController.class);
@@ -33,10 +34,10 @@ public class ReviewController {
     @GetMapping("/write")
     public String reviewWriteForm(@RequestParam(required = false) Integer storeId, Model model) {
         if (storeId != null) {
-            model.addAttribute("storeId", storeId);
+            model.addAttribute(UrlConstants.Param.STORE_ID, storeId);
         }
-        model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
-        return "user/review/write";
+        model.addAttribute(UrlConstants.Model.KAKAO_JS_KEY, kakaoProperties.getJsApiKey());
+        return UrlConstants.View.USER_REVIEW_WRITE;
     }
     
     // 리뷰 작성 처리
@@ -44,25 +45,25 @@ public class ReviewController {
     public String reviewWrite(@ModelAttribute ReviewVO review, RedirectAttributes redirectAttributes) {
         try {
             if (!reviewService.isValidStarRating(review.getReviewStar())) {
-                redirectAttributes.addFlashAttribute("error", MSG_INVALID_STAR_RATING);
-                return "redirect:/user/review/write?storeId=" + review.getStoreId();
+                redirectAttributes.addFlashAttribute(UrlConstants.Model.ERROR, MSG_INVALID_STAR_RATING);
+                return "redirect:" + UrlConstants.User.REVIEW_WRITE + "?" + UrlConstants.Param.STORE_ID + "=" + review.getStoreId();
             }
             
             reviewService.registerReview(review);
             logger.info("리뷰 등록 성공. 제목: {}, 가게ID: {}", review.getReviewTitle(), review.getStoreId());
-            redirectAttributes.addFlashAttribute("success", MSG_REVIEW_REGISTER_SUCCESS);
+            redirectAttributes.addFlashAttribute(UrlConstants.Model.SUCCESS, MSG_REVIEW_REGISTER_SUCCESS);
             
-            return "redirect:/user/store/detail?storeId=" + review.getStoreId();
+            return "redirect:" + UrlConstants.User.STORE_DETAIL + "?" + UrlConstants.Param.STORE_ID + "=" + review.getStoreId();
             
         } catch (IllegalArgumentException e) {
             logger.warn("리뷰 등록 유효성 검사 실패: {}", e.getMessage());
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/user/review/write?storeId=" + review.getStoreId();
+            redirectAttributes.addFlashAttribute(UrlConstants.Model.ERROR, e.getMessage());
+            return "redirect:" + UrlConstants.User.REVIEW_WRITE + "?" + UrlConstants.Param.STORE_ID + "=" + review.getStoreId();
             
         } catch (Exception e) {
             logger.error("리뷰 등록 중 오류 발생", e);
-            redirectAttributes.addFlashAttribute("error", MSG_REVIEW_REGISTER_ERROR);
-            return "redirect:/user/review/write?storeId=" + review.getStoreId();
+            redirectAttributes.addFlashAttribute(UrlConstants.Model.ERROR, MSG_REVIEW_REGISTER_ERROR);
+            return "redirect:" + UrlConstants.User.REVIEW_WRITE + "?" + UrlConstants.Param.STORE_ID + "=" + review.getStoreId();
         }
     }
     
@@ -73,7 +74,7 @@ public class ReviewController {
             ReviewVO review = reviewService.getReviewById(reviewId);
             if (review == null) {
                 redirectAttributes.addFlashAttribute("error", MSG_REVIEW_NOT_FOUND);
-                return "redirect:/user/store/list";
+                return "redirect:" + UrlConstants.User.STORE_LIST;
             }
             
             model.addAttribute("review", review);
@@ -85,7 +86,7 @@ public class ReviewController {
         } catch (Exception e) {
             logger.error("리뷰 수정 페이지 조회 중 오류 발생. reviewId: {}", reviewId, e);
             redirectAttributes.addFlashAttribute("error", MSG_REVIEW_LOAD_ERROR);
-            return "redirect:/user/store/list";
+            return "redirect:" + UrlConstants.User.STORE_LIST;
         }
     }
     
@@ -97,17 +98,17 @@ public class ReviewController {
             logger.info("리뷰 수정 성공. reviewId: {}", review.getReviewId());
             redirectAttributes.addFlashAttribute("success", MSG_REVIEW_UPDATE_SUCCESS);
             
-            return "redirect:/user/store/detail?storeId=" + review.getStoreId();
+            return "redirect:" + UrlConstants.User.STORE_DETAIL + "?storeId=" + review.getStoreId();
             
         } catch (IllegalArgumentException e) {
             logger.warn("리뷰 수정 유효성 검사 실패: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/user/review/edit/" + review.getReviewId();
+            return "redirect:" + UrlConstants.User.REVIEW_EDIT + "/" + review.getReviewId();
             
         } catch (Exception e) {
             logger.error("리뷰 수정 중 오류 발생. reviewId: {}", review.getReviewId(), e);
             redirectAttributes.addFlashAttribute("error", MSG_REVIEW_UPDATE_ERROR);
-            return "redirect:/user/review/edit/" + review.getReviewId();
+            return "redirect:" + UrlConstants.User.REVIEW_EDIT + "/" + review.getReviewId();
         }
     }
     
@@ -120,7 +121,7 @@ public class ReviewController {
             
             if (review == null) {
                 redirectAttributes.addFlashAttribute("error", MSG_REVIEW_NOT_FOUND);
-                return "redirect:/user/store/list";
+                return "redirect:" + UrlConstants.User.STORE_LIST;
             }
             
             Integer storeId = review.getStoreId();
@@ -129,12 +130,12 @@ public class ReviewController {
             logger.info("리뷰 삭제 성공. reviewId: {}", reviewId);
             redirectAttributes.addFlashAttribute("success", MSG_REVIEW_DELETE_SUCCESS);
             
-            return "redirect:/user/store/detail?storeId=" + storeId;
+            return "redirect:" + UrlConstants.User.STORE_DETAIL + "?storeId=" + storeId;
             
         } catch (Exception e) {
             logger.error("리뷰 삭제 중 오류 발생. reviewId: {}", reviewId, e);
             redirectAttributes.addFlashAttribute("error", MSG_REVIEW_DELETE_ERROR);
-            return "redirect:/user/store/list";
+            return "redirect:" + UrlConstants.User.STORE_LIST;
         }
     }
 }

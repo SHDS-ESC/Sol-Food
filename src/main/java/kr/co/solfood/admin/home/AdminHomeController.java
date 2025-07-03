@@ -4,6 +4,8 @@ import kr.co.solfood.admin.dto.*;
 import kr.co.solfood.util.CustomException;
 import kr.co.solfood.util.PageMaker;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,26 +13,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
 
 @Controller
-@RequestMapping("/admin/home")
+@RequestMapping("/admin")
 @Slf4j
 public class AdminHomeController {
     private final AdminHomeService adminHomeService;
+    private final AnalyticsService analyticsService;
     private final int START_PAGE = 1;
     private final int PAGE_GROUP_AMOUNT = 10;
 
-    AdminHomeController(AdminHomeService adminHomeService) {
+    @Autowired
+    AdminHomeController(AdminHomeService adminHomeService, AnalyticsService analyticsService) {
         this.adminHomeService = adminHomeService;
+        this.analyticsService = analyticsService;
     }
 
     /**
      * 어드민 페이지 메인
      */
-    @GetMapping("")
+    @GetMapping("/home")
     public void home() {
     }
 
@@ -45,6 +51,7 @@ public class AdminHomeController {
             userSearchRequestDTO.setPageSize(PAGE_GROUP_AMOUNT);
             PageMaker<UserSearchResponseDTO> userList = adminHomeService.getUsers(userSearchRequestDTO);
             model.addAttribute("userList", userList);
+            log.info("userList={}", userList);
         } catch (CustomException e) {
             log.info("User management initialization failed: {}", e.getMessage());
             model.addAttribute("error", e.getMessage());
@@ -96,10 +103,10 @@ public class AdminHomeController {
     @GetMapping("/owner-management")
     public String ownerManagement(Model model) {
         try {
-            OwnerSearchDTO ownerSearchDTO = new OwnerSearchDTO();
-            ownerSearchDTO.setCurrentPage(START_PAGE);
-            ownerSearchDTO.setPageSize(PAGE_GROUP_AMOUNT);
-            PageMaker<OwnerSearchResponseDTO> ownerList = adminHomeService.getOwners(ownerSearchDTO);
+            OwnerSearchRequestDTO ownerSearchRequestDTO = new OwnerSearchRequestDTO();
+            ownerSearchRequestDTO.setCurrentPage(START_PAGE);
+            ownerSearchRequestDTO.setPageSize(PAGE_GROUP_AMOUNT);
+            PageMaker<OwnerSearchResponseDTO> ownerList = adminHomeService.getOwners(ownerSearchRequestDTO);
             model.addAttribute("ownerList", ownerList);
         } catch (CustomException e) {
             log.info("Owner management initialization failed: {}", e.getMessage());
@@ -117,7 +124,7 @@ public class AdminHomeController {
      */
     @ResponseBody
     @GetMapping("/owner-management/search")
-    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchDTO ownerSearchRequestDTO, Model model) {
+    public PageMaker<OwnerSearchResponseDTO> getOwners(OwnerSearchRequestDTO ownerSearchRequestDTO, Model model) {
         try {
             return adminHomeService.getOwners(ownerSearchRequestDTO);
         } catch (CustomException e) {
@@ -167,5 +174,43 @@ public class AdminHomeController {
             return "admin/owner-management/home";
         }
         return "admin/owner-management/detail";
+    }
+
+    @GetMapping("/active-users")
+    @ResponseBody   // JSON 반환
+    public List<ReportRowDto> activeUsers(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate from,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate to) {
+
+        if (to == null) to = LocalDate.now();             // 오늘
+        if (from == null) from = LocalDate.of(2025, 1, 1);    // 임의 시작일
+
+        return analyticsService.getActiveUsersByCity(from, to);
+    }
+
+    @GetMapping("/daily-users")
+    @ResponseBody
+    public List<DailyUsersDto> dailyUsers(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+            /*
+            * fetch('/admin/daily-users?from=2025-06-01&to=2025-07-01')
+                .then(r => r.json())
+                .then(data => {
+                    const labels = data.map(d => d.date);         // x축
+                    const daily   = data.map(d => d.daily);
+                    const cumu    = data.map(d => d.cumulative);
+
+     // Chart.js 2개의 라인: daily·cumulative
+  });
+            * */
+        if (to == null) to = LocalDate.now();             // 오늘
+        if (from == null) from = LocalDate.of(2025, 1, 1);    // 임의 시작일
+
+        return analyticsService.getDailyTotalUsers(from, to);
     }
 }

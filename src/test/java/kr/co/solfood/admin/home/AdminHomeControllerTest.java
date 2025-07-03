@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AdminHomeControllerTest {
     private MockMvc adminMockMvc;
     private AdminHomeController adminHomeController;
+    private AnalyticsService analyticsService;
     private AdminHomeService adminHomeService;
     private final int START_PAGE = 1;
     private final int PAGE_GROUP_AMOUNT = 10;
@@ -27,7 +28,7 @@ class AdminHomeControllerTest {
     @BeforeEach
     void setup() {
         adminHomeService = Mockito.mock(AdminHomeService.class);
-        adminHomeController = new AdminHomeController(adminHomeService);
+        adminHomeController = new AdminHomeController(adminHomeService,analyticsService);
         adminMockMvc = MockMvcBuilders.standaloneSetup(adminHomeController).build();
     }
 
@@ -137,14 +138,14 @@ class AdminHomeControllerTest {
     @DisplayName("GET 요청시 점주 관리 페이지 확인")
     void ownerManagement() {
         // 요청 데이터 세팅
-        OwnerSearchDTO ownerSearchDTO = new OwnerSearchDTO();
-        ownerSearchDTO.setCurrentPage(START_PAGE);
-        ownerSearchDTO.setPageSize(PAGE_GROUP_AMOUNT);
+        OwnerSearchRequestDTO ownerSearchRequestDTO = new OwnerSearchRequestDTO();
+        ownerSearchRequestDTO.setCurrentPage(START_PAGE);
+        ownerSearchRequestDTO.setPageSize(PAGE_GROUP_AMOUNT);
 
         PageMaker<OwnerSearchResponseDTO> fakeResponse = new PageMaker<>(new ArrayList<>(), 1, 10, 1);
 
         // 서비스 리턴 값 지정
-        when(adminHomeService.getOwners(Mockito.any(OwnerSearchDTO.class)))
+        when(adminHomeService.getOwners(Mockito.any(OwnerSearchRequestDTO.class)))
                 .thenReturn(fakeResponse);
 
         try {

@@ -1,5 +1,7 @@
 package kr.co.solfood.user.login;
 
+import kr.co.solfood.owner.store.OwnerStoreVO;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class LoginServiceImplTest {
 
@@ -200,5 +203,12 @@ class LoginServiceImplTest {
 
         // when & then
         assertDoesNotThrow(() -> loginService.setNewPwd(testSearchPwdRequest));
+    }
+
+    @Test
+    @DisplayName("기본값 세팅 테스트")
+    void setNewPwd_Failure() {
+        OwnerStoreVO ownerStoreVO = new OwnerStoreVO();
+        log.info("{}" , ownerStoreVO);
     }
 } 

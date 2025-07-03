@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function sendUpdateState(status, storeRejectReason = '') {
     $.ajax({
-        url: ctx + '/admin/home/owner-management/status-update',
+        url: ctx + '/admin/owner-management/status-update',
         type: 'GET',
         data: {
             ownerId: ownerId,

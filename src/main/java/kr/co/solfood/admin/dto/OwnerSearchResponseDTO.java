@@ -7,11 +7,11 @@ import lombok.Data;
 @Data
 public class OwnerSearchResponseDTO extends PageDTO {
     String ownerId;
-    String storeMainImage;
+    String storeMainimage;
     String storeName;
     String ownerEmail;
     String categoryName;
-    Integer storeAvgStar;
+    Integer storeAvgstar;
     String ownerTel;
     String storeTel;
     String storeAddress;
