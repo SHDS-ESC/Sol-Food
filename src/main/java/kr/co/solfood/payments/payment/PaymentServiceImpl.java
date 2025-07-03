@@ -1,11 +1,13 @@
 package kr.co.solfood.payments.payment;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.solfood.payments.common.CommonPaymentMapper;
+import kr.co.solfood.user.cart.BillDTO;
 import kr.co.solfood.user.login.UserVO;
 
 @Service
@@ -53,6 +55,25 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void updatePayment(PaymentVO paymentVO) {
         paymentMapper.updatePayment(paymentVO);
+    }
+    
+    // BillDTO를 기반으로 각 사용자별 결제 데이터 생성
+    @Override
+    public void createPayment(BillDTO billDTO, int integratedPaymentId) {
+        Map<Long, Integer> userBill = billDTO.getUserBill();
+        
+        for (Map.Entry<Long, Integer> entry : userBill.entrySet()) {
+            Long userId = entry.getKey();
+            Integer paymentAmount = entry.getValue();
+            
+            PaymentVO payment = new PaymentVO();
+            payment.setUsersId(userId.intValue());
+            payment.setIntegratedpaymentId(integratedPaymentId);
+            payment.setAmount(paymentAmount);
+            payment.setStatus("pending");
+            
+            paymentMapper.insertPayment(payment);
+        }
     }
     
 }

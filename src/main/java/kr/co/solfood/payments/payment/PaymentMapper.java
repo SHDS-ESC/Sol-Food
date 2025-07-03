@@ -118,7 +118,7 @@ public interface PaymentMapper extends CommonPaymentMapper {
      * 조건부 검색
      */
     List<PaymentVO> searchPayments(@Param("storeId") Integer storeId,
-                                  @Param("paymentLeaderId") Integer paymentLeaderId,
+                                  @Param("usersId") Integer usersId,
                                   @Param("paymentType") String paymentType,
                                   @Param("status") String status,
                                   @Param("startDate") String startDate,
@@ -136,7 +136,7 @@ public interface PaymentMapper extends CommonPaymentMapper {
     /**
      * Payment 내역 조회 (기존 메서드)
      */
-    List<PaymentVO> getPaymentHistory(@Param("paymentLeaderId") long paymentLeaderId,
+    List<PaymentVO> getPaymentHistory(@Param("usersId") long usersId,
                                      @Param("offset") int offset,
                                      @Param("size") int size);
 }

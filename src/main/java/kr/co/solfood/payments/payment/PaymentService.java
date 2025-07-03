@@ -3,6 +3,7 @@ package kr.co.solfood.payments.payment;
 import java.util.List;
 
 import kr.co.solfood.payments.common.CommonPaymentService;
+import kr.co.solfood.user.cart.BillDTO;
 import kr.co.solfood.user.login.UserVO;
 
 public interface PaymentService extends CommonPaymentService {
@@ -16,4 +17,6 @@ public interface PaymentService extends CommonPaymentService {
     void insertPayment(PaymentVO paymentVO);
     // Payment 정보 수정
     void updatePayment(PaymentVO paymentVO);
+    // BillDTO를 기반으로 각 사용자별 결제 데이터 생성
+    void createPayment(BillDTO billDTO, int integratedPaymentId);
 }
