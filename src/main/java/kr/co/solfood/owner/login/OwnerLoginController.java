@@ -6,47 +6,59 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/owner")
 public class OwnerLoginController {
 
     @Autowired
-    private KakaoProperties kakaoProperties;
+    private OwnerLoginService service;
 
-    @Autowired
-    private ServerProperties serverProperties;
-
-    // 오너 루트 경로 - index 페이지로 리다이렉트
+    // 점주 루트 경로 - index 페이지로 리다이렉트
     @GetMapping("/")
     public String root() {
         return "redirect:/owner/index";
     }
 
-    // 유저 로그인 페이지
+
+    // 점주 회원가입 get
+    @GetMapping("/register")
+    public void register(){}
+
+    // 점주 회원가입 post
+    @PostMapping("/register")
+    public String register(OwnerVO vo){
+        service.register(vo);
+        return "redirect:login";
+    }
+
+    // 점주 로그인 get
     @GetMapping("/login")
-    public void login(Model model) {
-        model.addAttribute("apiKey", kakaoProperties.getRestApiKey());
-        Map<String, String> serverMap = new HashMap<>();
-        serverMap.put("ip", serverProperties.getIp());
-        serverMap.put("port", serverProperties.getPort());
-        model.addAttribute("serverMap", serverMap);
+    public void login(){}
+
+    // 점주 로그인 post
+    @PostMapping("/login")
+    public String login(OwnerVO vo, Model model, HttpSession sess){
+        OwnerVO ownerVO = service.login(vo);
+        if(ownerVO != null){
+            sess.setAttribute("ownerLoginSession", ownerVO);
+            return "redirect:store";
+        }
+        else {
+            return "redirect:login";
+        }
     }
 
-    @GetMapping("/home")
-    public void home(Model model) {}
-
-
-    // 오너 대시보드 메인 페이지
-    @GetMapping("/index")
-    public String index(Model model) {
-        // 여기에 필요한 데이터를 모델에 추가할 수 있습니다
-        model.addAttribute("ownerName", "관리자님");
-        model.addAttribute("restaurantName", "Sol Food");
-        return "owner/index";
+    // 점주 로그아웃 get
+    @GetMapping("/logout")
+    public String logout(HttpSession sess){
+        sess.invalidate(); // 세션 종료
+        return "redirect:login";
     }
+
+
 }

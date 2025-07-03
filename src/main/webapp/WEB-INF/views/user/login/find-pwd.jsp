@@ -121,8 +121,6 @@
 <body>
 <div class="login-container">
   <div class="login-title">회원님의 임시 비밀번호 입니다</div>
-  <p>${newPwd}</p> <!-- 이건 기본 EL 방식 -->
-  <!-- 또는 안전하게 -->
   <c:if test="${not empty newPwd}">
     <p><strong>임시 비밀번호:</strong> <c:out value="${newPwd}" /></p>
   </c:if>
