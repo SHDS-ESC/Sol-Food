@@ -4,7 +4,8 @@ import lombok.Data;
 
 @Data
 public class OwnerVO {
-    private int ownerId; // 점주 아이디
+    private long ownerId; // 점주 아이디
+    private long storeId; // 가게 아이디
     private String ownerEmail; // 이메일
     private String ownerPwd; // 비밀번호
     private String ownerTel; // 전화번호
