@@ -157,6 +157,7 @@ public class StoreController {
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "name") String sort,
             HttpSession session) {
 
         try {
@@ -170,7 +171,7 @@ public class StoreController {
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
-                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId());
+                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId(),sort);
             } else {
                 pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
             }
@@ -200,6 +201,7 @@ public class StoreController {
             @RequestParam String keyword,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "name") String sort,
             HttpSession session) {
 
         try {
@@ -212,7 +214,7 @@ public class StoreController {
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
-                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId());
+                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId(),sort);
             } else {
                 pageMaker = service.getPagedSearchResults(keyword, pageDTO);
             }
