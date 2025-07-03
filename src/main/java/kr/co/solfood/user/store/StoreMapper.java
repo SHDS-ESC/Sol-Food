@@ -1,5 +1,6 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.util.PageDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -56,12 +57,15 @@ public interface StoreMapper {
     List<StoreVO> selectPagedCategoryStoresWithLike(@Param("category") String category,
                                                     @Param("offset") int offset,
                                                     @Param("pageSize") int pageSize,
-                                                    @Param("usersId") long usersId);
+                                                    @Param("usersId") long usersId,
+                                                    @Param("sort") String sort);
     
     // 검색 결과 페이징 처리 (찜 상태 포함)
     List<StoreVO> selectPagedSearchResultsWithLike(@Param("keyword") String keyword,
                                                    @Param("offset") int offset,
                                                    @Param("pageSize") int pageSize,
-                                                   @Param("usersId") long usersId);
+                                                   @Param("usersId") long usersId,
+                                                   @Param("sort") String sort);
+
 
 }

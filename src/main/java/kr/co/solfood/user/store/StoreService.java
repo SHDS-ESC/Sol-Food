@@ -42,8 +42,10 @@ public interface StoreService {
     StoreVO getStoreByIdWithLike(int storeId, long usersId);
     
     // 페이징 처리 - 카테고리별 (찜 상태 포함)
-    PageMaker<StoreVO> getPagedCategoryStoreListWithLike(String category, PageDTO pageDTO, long usersId);
+    PageMaker<StoreVO> getPagedCategoryStoreListWithLike(String category, PageDTO pageDTO, long usersId, String sort);
     
     // 검색 결과 페이징 처리 (찜 상태 포함)
-    PageMaker<StoreVO> getPagedSearchResultsWithLike(String keyword, PageDTO pageDTO, long usersId);
+    PageMaker<StoreVO> getPagedSearchResultsWithLike(String keyword, PageDTO pageDTO, long usersId, String sort);
+
+
 }
