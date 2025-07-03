@@ -72,7 +72,6 @@
     </div>
         <script src="<c:url value='/js/urlConstants.js' />"></script>
         <script src="<c:url value='/js/common-utils.js' />"></script>
-<script src="<c:url value='/js/like.js' />"></script>
-        <script src="<c:url value='/js/store.js' />"></script>
+        <script src="<c:url value='/js/like.js' />"></script>
 </body>
 </html>
