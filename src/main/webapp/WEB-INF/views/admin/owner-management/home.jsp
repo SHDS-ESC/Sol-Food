@@ -21,9 +21,9 @@
     <nav class="side-menu">
         <h4>🌿 관리자 메뉴</h4>
         <a href="<c:url value="/admin/home"/>" class="nav-link">홈</a>
-        <a href="<c:url value="/admin/home/user-management"/>" class="nav-link ">사용자</a>
-        <a href="<c:url value="/admin/home/owner-management"/>" class="nav-link active">점주</a>
-        <a href="<c:url value="/admin/home/payment-management"/>" class="nav-link">결제</a>
+        <a href="<c:url value="/admin/user-management"/>" class="nav-link ">사용자</a>
+        <a href="<c:url value="/admin/owner-management"/>" class="nav-link active">점주</a>
+        <a href="<c:url value="/admin/payment-management"/>" class="nav-link">결제</a>
         <a href="#" class="nav-link">정책</a>
         <div class="mt-auto">
             <small class="text-muted">© 2025 YourCompany</small>
@@ -76,12 +76,12 @@
                     </thead>
                     <tbody id="ownerListBody">
                     <c:forEach var="owner" items="${ownerList.list}">
-                        <tr onclick="location.href='${pageContext.request.contextPath}/admin/home/owner-detail?ownerId=' + $(this).children('.owner-id').text()">
+                        <tr onclick="location.href='${pageContext.request.contextPath}/admin/owner-detail?ownerId=' + $(this).children('.owner-id').text()">
                             <td class="owner-id">${owner.ownerId}</td>
                             <td>
                                 <c:choose>
-                                    <c:when test="${not empty owner.storeMainImage}">
-                                        <img src="${owner.storeMainImage}" class="owner-avatar"
+                                    <c:when test="${not empty owner.storeMainimage}">
+                                        <img src="${owner.storeMainimage}" class="owner-avatar"
                                              alt="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800">
                                     </c:when>
                                     <c:otherwise>
@@ -98,7 +98,7 @@
                             <td>${owner.storeName}</td>
                             <td>${owner.ownerEmail}</td>
                             <td>${owner.categoryName}</td>
-                            <td>${owner.storeAvgStar}</td>
+                            <td>${owner.storeAvgstar}</td>
                             <td>${owner.ownerTel}</td>
                             <td>${owner.storeTel}</td>
                             <td>${owner.storeAddress}</td>
@@ -128,7 +128,14 @@
                                 <li class="page-item"><a class="page-link">${page}</a></li>
                             </c:forEach>
                             <li class="next">
-                                <a class="page-link">Next</a>
+                                <c:choose>
+                                    <c:when test="${ownerList.lastPage * ownerList.limit gt ownerList.count}">
+                                        <a class="page-link disabled">Next</a>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <a class="page-link">Next</a>
+                                    </c:otherwise>
+                                </c:choose>
                             </li>
                         </ul>
                     </nav>

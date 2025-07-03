@@ -17,6 +17,7 @@ public class UserSearchResponseDTO extends PageDTO {
     private String usersName; // 이름
     private String usersGender;
     private String usersTel;
+    private String usersAge;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private Date usersCreatedAt;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

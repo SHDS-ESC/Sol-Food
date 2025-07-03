@@ -29,10 +29,11 @@
                            users_created_at,
                            users_updated_at,
                            users_status,
+                           users_rejected_reason,
                            users_pwd)
         VALUES (#{companyId}, #{departmentId}, #{usersEmail}, #{usersNickname}, #{usersProfile}, #{usersName},
                 #{usersPoint}, #{usersGender}, #{usersKakaoId}, #{usersLoginType}, #{usersTel},
-                #{usersCreatedAt}, #{usersUpdatedAt}, #{usersStatus}, md5(#{usersPwd}))
+                #{usersCreatedAt}, #{usersUpdatedAt}, #{usersStatus}, #{usersRejectedReason}, md5(#{usersPwd}))
     </insert>
 
     <!--회사리스트-->

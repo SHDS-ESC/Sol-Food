@@ -1,6 +1,7 @@
 package kr.co.solfood.user.login;
 
 import org.springframework.web.servlet.HandlerInterceptor;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -17,6 +18,17 @@ public class UserLoginInterceptor implements HandlerInterceptor {
             PrintWriter out = response.getWriter();
             out.println("<script>");
             out.println("alert('로그인 후 접근 가능합니다.');");
+            out.println("location.href = '/solfood/user/login';");
+            out.println("</script>");
+            return false; // 가지 못함
+        } else if (loginType.getUsersStatus().equals("inactive")) {
+            // 미 로그인 상태
+            response.setContentType("text/html;charset=utf-8");
+            PrintWriter out = response.getWriter();
+            out.println("<script>");
+            out.print("alert('");
+            out.print(loginType.getUsersRejectedReason());
+            out.println("');");
             out.println("location.href = '/solfood/user/login';");
             out.println("</script>");
             return false; // 가지 못함
