@@ -177,6 +177,7 @@
             alert('스크립트 로딩 오류가 발생했습니다. 페이지를 새로고침해주세요.');
         }
     </script>
+<script src="<c:url value='/js/common-utils.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
 

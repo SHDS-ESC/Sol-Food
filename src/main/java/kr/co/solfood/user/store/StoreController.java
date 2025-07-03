@@ -12,6 +12,7 @@ import static kr.co.solfood.user.review.ReviewConstants.STAR_COUNT;
 import kr.co.solfood.user.store.response.CategoryResponseVO;
 import kr.co.solfood.user.store.response.StoreListResponseVO;
 import kr.co.solfood.user.store.response.StoreSearchResponseVO;
+import kr.co.solfood.util.CustomException;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import properties.KakaoProperties;
@@ -130,6 +131,24 @@ public class StoreController {
     // ========================= API 메서드들 (VO 패턴 적용) =========================
 
     /**
+     * 메뉴 상세 조회 API (장바구니에서 옵션 정보 표시용)
+     */
+    @GetMapping("/menu/detail")
+    @ResponseBody
+    public ResponseEntity<MenuVO> getMenuDetail(@RequestParam int menuId) {
+        try {
+            MenuVO menu = menuService.getMenuById(menuId);
+            if (menu == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(menu);
+        } catch (Exception e) {
+            log.error("메뉴 상세 조회 오류: menuId={}", menuId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
      * 페이징된 가게 목록 조회 API
      */
     @GetMapping("/api/list")
@@ -138,7 +157,6 @@ public class StoreController {
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-            @RequestParam(value = "sort", defaultValue = "star") String sort,
             HttpSession session) {
 
         try {
@@ -152,7 +170,7 @@ public class StoreController {
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
-                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId(),sort);
+                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId());
             } else {
                 pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
             }
@@ -182,7 +200,6 @@ public class StoreController {
             @RequestParam String keyword,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
-            @RequestParam(value = "sort", required = false, defaultValue = "star") String sort,
             HttpSession session) {
 
         try {
@@ -195,7 +212,7 @@ public class StoreController {
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
-                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId(),sort);
+                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId());
             } else {
                 pageMaker = service.getPagedSearchResults(keyword, pageDTO);
             }
@@ -365,5 +382,27 @@ public class StoreController {
         model.addAttribute("starCounts", starCounts);
     }
 
+    // ========================= 예외 처리 =========================
 
+    /**
+     * Store 관련 예외 전역 처리
+     */
+    @ExceptionHandler(CustomException.class)
+    @ResponseBody
+    public ResponseEntity<StoreSearchResponseVO> handleCustomException(CustomException e) {
+        log.error("Store 비즈니스 예외 발생", e);
+        StoreSearchResponseVO response = StoreSearchResponseVO.error("", e.getErrorCode().getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+    }
+
+    /**
+     * 데이터베이스 예외 전역 처리
+     */
+    @ExceptionHandler(org.springframework.dao.DataAccessException.class)
+    @ResponseBody
+    public ResponseEntity<StoreSearchResponseVO> handleDataAccessException(org.springframework.dao.DataAccessException e) {
+        log.error("데이터베이스 접근 예외 발생", e);
+        StoreSearchResponseVO response = StoreSearchResponseVO.error("", "데이터 처리 중 오류가 발생했습니다.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
 }

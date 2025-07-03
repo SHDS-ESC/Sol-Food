@@ -1,5 +1,7 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.util.CustomException;
+import kr.co.solfood.util.ErrorCode;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +73,7 @@ public class StoreServiceImpl implements StoreService {
             return result > 0;
         } catch (DataAccessException e) {
             log.error("가게 정보 저장 실패: {}", store.getStoreName(), e);
-            throw new StoreException(StoreConstants.ERROR_STORE_SAVE_FAILED, e);
+            throw new CustomException(ErrorCode.STORE_SAVE_FAILED);
         }
     }
     

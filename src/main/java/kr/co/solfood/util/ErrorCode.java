@@ -12,7 +12,13 @@ public enum ErrorCode {
     TEST_ERROR(HttpStatus.NOT_FOUND, "TEST_ERROR", "테스트 에러입니다."),
     PASSWORD_NOT_FOUND(HttpStatus.BAD_REQUEST, "PASSWORD_NOT_FOUND", "비밀번호가 없습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."),
-    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "로그인이 필요합니다.");
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "로그인이 필요합니다."),
+    
+    // Store 관련 에러코드
+    STORE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "STORE_SAVE_FAILED", "가게 정보 저장에 실패했습니다."),
+    STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "STORE_NOT_FOUND", "가게를 찾을 수 없습니다."),
+    STORE_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "STORE_UPDATE_FAILED", "가게 정보 수정에 실패했습니다."),
+    STORE_DELETE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "STORE_DELETE_FAILED", "가게 삭제에 실패했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

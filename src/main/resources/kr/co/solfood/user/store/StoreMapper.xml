@@ -25,7 +25,7 @@
             FROM user_likes
             GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
-        WHERE s.store_status = 'approved' OR s.store_status IS NULL
+        WHERE s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL
         ORDER BY COALESCE(like_counts.like_count, 0) DESC, s.store_id DESC
     </select>
 
@@ -48,7 +48,7 @@
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
         WHERE s.store_id = #{storeId}
-        AND (s.store_status = 'approved' OR s.store_status IS NULL)
+        AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
     </select>
 
     <!-- 카테고리별 조회 (성능 개선: 인덱스 활용하도록 수정) -->
@@ -71,7 +71,7 @@
             GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
@@ -100,7 +100,7 @@
             GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="keyword != null and keyword != ''">
                 AND (
                     s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -143,7 +143,7 @@
             GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="storeName != null and storeName != ''">
                 AND s.store_name LIKE CONCAT('%', #{storeName}, '%')
             </if>
@@ -179,7 +179,7 @@
             GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="address != null and address != ''">
                 AND s.store_address LIKE CONCAT('%', #{address}, '%')
             </if>
@@ -253,7 +253,7 @@
             GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
@@ -264,14 +264,14 @@
 
     <select id="countAllStores" resultType="long">
         SELECT COUNT(*) FROM store
-        WHERE store_status = 'approved' OR store_status IS NULL
+        WHERE store_status = <![CDATA['승인완료']]> OR store_status IS NULL
     </select>
 
     <select id="countStoresByCategory" resultType="long">
         SELECT COUNT(*) FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
@@ -303,7 +303,7 @@
             GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="keyword != null and keyword != ''">
                 AND (
                     s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -330,7 +330,7 @@
         SELECT COUNT(*) FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="keyword != null and keyword != ''">
                 AND (
                     s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -343,6 +343,7 @@
     </select>
 
     <!-- ========================= 찜 상태 포함 쿼리들 ========================= -->
+    
     <!-- 가게 상세 조회 (찜 상태 포함) -->
     <select id="getStoreByIdWithLike" resultType="kr.co.solfood.user.store.StoreVO">
         SELECT
@@ -364,7 +365,7 @@
         LEFT JOIN category c ON s.category_id = c.category_id
         LEFT JOIN user_likes ul ON s.store_id = ul.store_id AND ul.users_id = #{usersId}
         WHERE s.store_id = #{storeId}
-        AND (s.store_status = 'approved' OR s.store_status IS NULL)
+        AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
         <where>
             AND (s.store_status = 'approved' OR s.store_status IS NULL)
             <if test="category != null and category != '' and category != '전체'">
@@ -407,12 +408,12 @@
         LEFT JOIN category c ON s.category_id = c.category_id
         LEFT JOIN user_likes ul ON s.store_id = ul.store_id AND ul.users_id = #{usersId}
         LEFT JOIN (
-        SELECT store_id, COUNT(*) as like_count
-        FROM user_likes
-        GROUP BY store_id
+            SELECT store_id, COUNT(*) as like_count
+            FROM user_likes
+            GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
@@ -458,29 +459,27 @@
             GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
+            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
             <if test="keyword != null and keyword != ''">
                 AND (
-                s.store_name LIKE CONCAT('%', #{keyword}, '%')
-                OR s.store_address LIKE CONCAT('%', #{keyword}, '%')
-                OR COALESCE(c.category_name, '전체') LIKE CONCAT('%', #{keyword}, '%')
-                OR s.store_intro LIKE CONCAT('%', #{keyword}, '%')
+                    s.store_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_address LIKE CONCAT('%', #{keyword}, '%')
+                    OR COALESCE(c.category_name, '전체') LIKE CONCAT('%', #{keyword}, '%')
+                    OR s.store_intro LIKE CONCAT('%', #{keyword}, '%')
                 )
             </if>
         </where>
         ORDER BY
-        CASE
-        WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
-        WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
-        WHEN COALESCE(c.category_name, '전체') LIKE CONCAT(#{keyword}, '%') THEN 3
-        WHEN s.store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
-        ELSE 5
-        END,
-        COALESCE(like_counts.like_count, 0) DESC,
-        s.store_id DESC
+            CASE
+                WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
+                WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
+                WHEN COALESCE(c.category_name, '전체') LIKE CONCAT(#{keyword}, '%') THEN 3
+                WHEN s.store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
+                ELSE 5
+            END,
+            COALESCE(like_counts.like_count, 0) DESC,
+            s.store_id DESC
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
-
-
 
 </mapper>

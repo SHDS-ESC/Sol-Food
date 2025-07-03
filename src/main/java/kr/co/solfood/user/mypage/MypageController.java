@@ -42,13 +42,7 @@ public class MypageController {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
-//
-// CustomException 사용 예시 -> 비밀번호가 null 이거나 비어 있으면 ERROR ! -> kakao-login 시 에러 발생하므로 주석 처리
-// 테스트 용으로 주석 남겨두고 추후 삭제할 것.
-//
-//        if(userVO.getUsersPwd() == null || userVO.getUsersPwd().trim().isEmpty()) {
-//            throw new CustomException(ErrorCode.PASSWORD_NOT_FOUND);
-//        }
+
 
         model.addAttribute("currentUser", userVO);
         return UrlConstants.View.USER_MYPAGE;
