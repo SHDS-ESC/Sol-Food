@@ -63,7 +63,7 @@
                                 <div class="item-name">${item.menuName}</div>
 
                                 
-                                <!-- 옵션 정보 표시 (안전한 JSON 출력) -->
+                                <!-- 옵션 정보 표시 -->
                                 <c:if test="${not empty item.options and item.options != '{}' and item.options != 'null'}">
                                     <div class="item-options" data-menu-id="${item.menuId}">
                                         <script type="application/json" class="options-data">${item.options}</script>

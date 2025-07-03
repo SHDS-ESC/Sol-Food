@@ -1,5 +1,7 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.util.CustomException;
+import kr.co.solfood.util.ErrorCode;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +73,7 @@ public class StoreServiceImpl implements StoreService {
             return result > 0;
         } catch (DataAccessException e) {
             log.error("가게 정보 저장 실패: {}", store.getStoreName(), e);
-            throw new StoreException(StoreConstants.ERROR_STORE_SAVE_FAILED, e);
+            throw new CustomException(ErrorCode.STORE_SAVE_FAILED);
         }
     }
     
@@ -118,12 +120,13 @@ public class StoreServiceImpl implements StoreService {
     }
     
     @Override
-    public PageMaker<StoreVO> getPagedCategoryStoreListWithLike(String category, PageDTO pageDTO, long usersId) {
+    public PageMaker<StoreVO> getPagedCategoryStoreListWithLike(String category, PageDTO pageDTO, long usersId, String sort) {
         List<StoreVO> list = mapper.selectPagedCategoryStoresWithLike(
                 category,
                 pageDTO.getOffset(),
                 pageDTO.getPageSize(),
-                usersId
+                usersId,
+                sort
         );
 
         long total = mapper.countStoresByCategory(category);
@@ -133,16 +136,18 @@ public class StoreServiceImpl implements StoreService {
     }
     
     @Override
-    public PageMaker<StoreVO> getPagedSearchResultsWithLike(String keyword, PageDTO pageDTO, long usersId) {
+    public PageMaker<StoreVO> getPagedSearchResultsWithLike(String keyword, PageDTO pageDTO, long usersId, String sort) {
         List<StoreVO> list = mapper.selectPagedSearchResultsWithLike(
                 keyword,
                 pageDTO.getOffset(),
                 pageDTO.getPageSize(),
-                usersId
+                usersId,
+                sort
         );
         long total = mapper.countSearchResults(keyword);
 
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
     }
+
 }

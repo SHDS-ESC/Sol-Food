@@ -234,15 +234,16 @@
             </div>
         </c:if>
 
-        <form action="${pageContext.request.contextPath}/owner/login" method="post">
+        <form action="<c:url value="/owner/login"/>" method="post">
             <div class="form-group">
-                <label for="ownerId">아이디</label>
-                <input type="text" id="ownerId" name="ownerId" placeholder="아이디를 입력하세요" required>
+                <label for="ownerEmail">이메일 *</label>
+                <input type="email" id="ownerEmail" name="ownerEmail" placeholder="example@email.com" required>
+                <div class="validation-message" id="emailValidation"></div>
             </div>
 
             <div class="form-group">
                 <label for="ownerPassword">비밀번호</label>
-                <input type="password" id="ownerPassword" name="ownerPassword" placeholder="비밀번호를 입력하세요" required>
+                <input type="password" id="ownerPassword" name="ownerPwd" placeholder="비밀번호를 입력하세요" required>
             </div>
 
             <div class="checkbox-group">
@@ -253,15 +254,15 @@
             <button type="submit" class="login-btn">로그인</button>
         </form>
 
-        <div class="divider">
-            <span>또는</span>
-        </div>
+<%--        <div class="divider">--%>
+<%--            <span>또는</span>--%>
+<%--        </div>--%>
 
-        <a href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}${pageContext.request.contextPath}/owner/kakaoLogin&response_type=code" 
-           class="kakao-login">
-            <span>💬</span>
-            카카오로 간편 로그인
-        </a>
+<%--        <a href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}/solfood/owner/kakaoLogin&response_type=code" --%>
+<%--           class="kakao-login">--%>
+<%--            <span>💬</span>--%>
+<%--            카카오로 간편 로그인--%>
+<%--        </a>--%>
 
         <div class="form-links">
             <a href="${pageContext.request.contextPath}/owner/register">회원가입</a>

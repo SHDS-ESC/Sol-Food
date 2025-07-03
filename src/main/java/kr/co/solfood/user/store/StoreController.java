@@ -13,6 +13,7 @@ import static kr.co.solfood.user.review.ReviewConstants.STAR_COUNT;
 import kr.co.solfood.user.store.response.CategoryResponseVO;
 import kr.co.solfood.user.store.response.StoreListResponseVO;
 import kr.co.solfood.user.store.response.StoreSearchResponseVO;
+import kr.co.solfood.util.CustomException;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import properties.KakaoProperties;
@@ -157,6 +158,7 @@ public class StoreController {
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "name") String sort,
             HttpSession session) {
 
         try {
@@ -170,7 +172,7 @@ public class StoreController {
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
-                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId());
+                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId(),sort);
             } else {
                 pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
             }
@@ -200,6 +202,7 @@ public class StoreController {
             @RequestParam String keyword,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "name") String sort,
             HttpSession session) {
 
         try {
@@ -212,7 +215,7 @@ public class StoreController {
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
-                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId());
+                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId(),sort);
             } else {
                 pageMaker = service.getPagedSearchResults(keyword, pageDTO);
             }
@@ -387,12 +390,12 @@ public class StoreController {
     /**
      * Store 관련 예외 전역 처리
      */
-    @ExceptionHandler(StoreException.class)
+    @ExceptionHandler(CustomException.class)
     @ResponseBody
-    public ResponseEntity<StoreSearchResponseVO> handleStoreException(StoreException e) {
+    public ResponseEntity<StoreSearchResponseVO> handleCustomException(CustomException e) {
         log.error("Store 비즈니스 예외 발생", e);
-        StoreSearchResponseVO response = StoreSearchResponseVO.error("", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        StoreSearchResponseVO response = StoreSearchResponseVO.error("", e.getErrorCode().getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
     }
 
     /**

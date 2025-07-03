@@ -175,9 +175,20 @@ body {
 }
 
 .option-price {
-    color: #007bff;
-    font-weight: 600;
+    display: inline-block !important;
+    background: #e8f5e8 !important;
+    color: #28a745 !important;
+    font-weight: 600 !important;
+    padding: 3px 8px !important;
+    margin: 2px 0 2px 5px !important;
+    border-radius: 12px !important;
+    border: 1px solid #c3e6cb !important;
+    font-size: 12px !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
+
+ 
 
 .original-price {
     font-size: 14px;

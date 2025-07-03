@@ -4,6 +4,7 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
+import kr.co.solfood.owner.login.OwnerLoginInterceptor;
 import org.apache.ibatis.annotations.Mapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.InitializingBean;
@@ -110,7 +111,8 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
         registry.addInterceptor(ownerLoginInterceptor())
                 .addPathPatterns(UrlConstants.Owner.BASE + "/**")
                 .excludePathPatterns(UrlConstants.Owner.LOGIN)
-                .excludePathPatterns(UrlConstants.Owner.KAKAO_LOGIN);
+                .excludePathPatterns(UrlConstants.Owner.KAKAO_LOGIN)
+                .excludePathPatterns("/owner/register");
 
         // 파일 업로드 API 전용 세션 검증 인터셉터
         registry.addInterceptor(fileUploadSessionInterceptor())

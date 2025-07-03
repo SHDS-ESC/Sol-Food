@@ -187,7 +187,14 @@ class SolFoodUtils {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
     
-
+    /**
+     * 텍스트 길이 제한 (truncate)
+     */
+    static truncateText(text, maxLength) {
+        if (!text) return '';
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    }
     
     /**
      * 로컬 스토리지 안전 사용
