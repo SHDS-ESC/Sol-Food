@@ -1,0 +1,241 @@
+body {
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+}
+
+.restaurant-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    border: 3px solid #ff6b6b;
+}
+
+.restaurant-header {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: white;
+    padding: 20px;
+    border-radius: 20px;
+    margin: -30px -30px 30px -30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.restaurant-name {
+    font-size: 2.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.restaurant-subtitle {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.bill-section {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    border: 2px dashed #dee2e6;
+}
+
+.bill-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    font-size: 1.1em;
+}
+
+.bill-total {
+    border-top: 2px solid #333;
+    padding-top: 15px;
+    margin-top: 15px;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.payment-info {
+    background: #e3f2fd;
+    border: 2px solid #2196f3;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #1565c0;
+}
+
+.lottery-machine {
+    background: linear-gradient(145deg, #667eea, #764ba2);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 30px 0;
+    box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 4px solid #fff;
+}
+
+.lottery-screen {
+    background: #000;
+    color: #00ff00;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1em;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 3px solid #333;
+    box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.2);
+}
+
+.lottery-button {
+    background: linear-gradient(45deg, #ff4757, #c44569);
+    border: none;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.3em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border: 6px solid #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.lottery-button:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.lottery-button:active {
+    transform: translateY(-2px) scale(0.98);
+}
+
+.lottery-button:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.prizes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.prize-card {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.prize-card.won {
+    border-color: #28a745;
+    background: #d4edda;
+    transform: scale(1.05);
+}
+
+.prize-emoji {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.prize-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.prize-description {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.spinning {
+    animation: spin 0.1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.celebration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ff6b6b;
+    animation: confetti-fall 3s linear infinite;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+.reset-button {
+    background: linear-gradient(45deg, #3742fa, #2f3542);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+.reset-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.github-profile {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    border: 3px solid #ddd;
+}

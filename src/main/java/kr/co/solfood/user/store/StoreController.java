@@ -1,5 +1,7 @@
 package kr.co.solfood.user.store;
 
+import kr.co.solfood.common.constants.UrlConstants;
+import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.user.category.CategoryService;
 import kr.co.solfood.user.category.CategoryVO;
 import kr.co.solfood.user.menu.MenuService;
@@ -10,6 +12,7 @@ import static kr.co.solfood.user.review.ReviewConstants.STAR_COUNT;
 import kr.co.solfood.user.store.response.CategoryResponseVO;
 import kr.co.solfood.user.store.response.StoreListResponseVO;
 import kr.co.solfood.user.store.response.StoreSearchResponseVO;
+import kr.co.solfood.util.CustomException;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import properties.KakaoProperties;
@@ -21,6 +24,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +34,13 @@ import java.util.Map;
 @Controller
 @RequestMapping("/user/store")
 public class StoreController {
-    
+
     @Autowired
     private StoreService service;
 
     @Autowired
     private CategoryService categoryService;
-    
+
     @Autowired
     private KakaoProperties kakaoProperties;
 
@@ -50,6 +55,8 @@ public class StoreController {
     @GetMapping({"", "/list"})
     public String getStoreList(
             @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
             Model model
     ) {
         try {
@@ -60,69 +67,87 @@ public class StoreController {
             } else {
                 model.addAttribute("categories", new ArrayList<CategoryVO>());
             }
-            
+
             if (category != null) {
                 model.addAttribute("currentCategory", category);
             }
-            
+
             model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
-            
+
         } catch (Exception e) {
             log.error("카테고리 목록 조회 실패", e);
             model.addAttribute("categories", new ArrayList<CategoryVO>());
             model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
         }
-        
+
         return "user/store/list";
     }
 
     @GetMapping("/detail")
     public String getStoreDetail(@RequestParam(required = false) Integer storeId, Model model) {
         if (storeId == null) {
-            return "redirect:/user/store/list";
+            return "redirect:" + UrlConstants.User.STORE_LIST;
         }
-        
+
         try {
             // 가게 정보 조회
             StoreVO store = service.getStoreById(storeId);
             if (store == null) {
-                return "redirect:/user/store/list";
+                return "redirect:" + UrlConstants.User.STORE_LIST;
             }
-            
+
             // 해당 가게의 리뷰 목록 조회
             List<ReviewVO> reviewList = reviewService.getReviewsByStoreId(storeId);
-            
+
             // 해당 가게의 메뉴 목록 조회
             List<MenuVO> menuList = menuService.getMenusByStoreId(storeId);
-            
+
             model.addAttribute("reviewList", reviewList);
             model.addAttribute("storeId", storeId);
             model.addAttribute("store", store);
             model.addAttribute("kakaoJsKey", kakaoProperties.getJsApiKey());
             model.addAttribute("menuList", menuList);
-            
+
             // 해당 가게의 평균 별점 및 통계 조회
             addStoreStatistics(model, storeId);
-            
+
             return "user/store/detail";
-            
+
         } catch (Exception e) {
             log.error("가게 상세 페이지 조회 중 오류 발생. storeId: {}", storeId, e);
-            return "redirect:/user/store/list";
+            return "redirect:" + UrlConstants.User.STORE_LIST;
         }
     }
-    
+
     @GetMapping("/detail/{storeId}")
     public String getStoreDetailById(@PathVariable int storeId) {
         StoreVO store = service.getStoreById(storeId);
         if (store == null) {
             return "error/404";
         }
-        return "redirect:/user/store/detail?storeId=" + storeId;
+        return "redirect:" + UrlConstants.User.STORE_DETAIL + "?storeId=" + storeId;
     }
 
     // ========================= API 메서드들 (VO 패턴 적용) =========================
-    
+
+    /**
+     * 메뉴 상세 조회 API (장바구니에서 옵션 정보 표시용)
+     */
+    @GetMapping("/menu/detail")
+    @ResponseBody
+    public ResponseEntity<MenuVO> getMenuDetail(@RequestParam int menuId) {
+        try {
+            MenuVO menu = menuService.getMenuById(menuId);
+            if (menu == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(menu);
+        } catch (Exception e) {
+            log.error("메뉴 상세 조회 오류: menuId={}", menuId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     /**
      * 페이징된 가게 목록 조회 API
      */
@@ -131,25 +156,36 @@ public class StoreController {
     public StoreListResponseVO getStoreListAjax(
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
-        
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "name") String sort,
+            HttpSession session) {
+
         try {
             PageDTO pageDTO = new PageDTO();
             pageDTO.setCurrentPage(offset / pageSize + 1);
             pageDTO.setPageSize(pageSize);
 
             String searchCategory = (category == null) ? "전체" : category;
-            PageMaker<StoreVO> pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
+            PageMaker<StoreVO> pageMaker;
+            
+            // 로그인 여부에 따라 다른 메서드 호출
+            UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+            if (loginUser != null) {
+                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId(),sort);
+            } else {
+                pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
+            }
+            
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(
-                pageMaker.getList(), 
-                hasNext, 
-                offset, 
-                pageSize, 
-                pageMaker.getCount()
+                    pageMaker.getList(),
+                    hasNext,
+                    offset,
+                    pageSize,
+                    pageMaker.getCount()
             );
-            
+
         } catch (Exception e) {
             log.error("API 호출 중 에러 발생", e);
             return StoreListResponseVO.error(e.getMessage());
@@ -164,22 +200,33 @@ public class StoreController {
     public StoreListResponseVO searchStoresWithPaging(
             @RequestParam String keyword,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "name") String sort,
+            HttpSession session) {
 
         try {
             PageDTO pageDTO = new PageDTO();
             pageDTO.setCurrentPage(offset / pageSize + 1);
             pageDTO.setPageSize(pageSize);
 
-            PageMaker<StoreVO> pageMaker = service.getPagedSearchResults(keyword, pageDTO);
+            PageMaker<StoreVO> pageMaker;
+            
+            // 로그인 여부에 따라 다른 메서드 호출
+            UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+            if (loginUser != null) {
+                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId(),sort);
+            } else {
+                pageMaker = service.getPagedSearchResults(keyword, pageDTO);
+            }
+            
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(
-                pageMaker.getList(),
-                hasNext,
-                offset,
-                pageSize,
-                pageMaker.getCount()
+                    pageMaker.getList(),
+                    hasNext,
+                    offset,
+                    pageSize,
+                    pageMaker.getCount()
             );
 
         } catch (Exception e) {
@@ -294,14 +341,14 @@ public class StoreController {
             List<CategoryVO> categories = categoryService.getAllCategories();
             CategoryResponseVO response = CategoryResponseVO.categoryList(categories);
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             log.error("카테고리 목록 조회 실패", e);
             CategoryResponseVO response = CategoryResponseVO.error("카테고리 목록을 불러오는데 실패했습니다.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    
+
     /**
      * 카테고리 설정 정보 API
      */
@@ -313,7 +360,7 @@ public class StoreController {
     }
 
     // ========================= 헬퍼 메서드들 =========================
-    
+
     /**
      * 가게의 통계 정보를 모델에 추가하는 private 메서드
      */
@@ -331,25 +378,25 @@ public class StoreController {
                 starCounts[arrayIndex] = value != null ? ((Number) value).longValue() : 0;
             }
         }
-        
+
         model.addAttribute("avgStar", avgStar != null ? avgStar : 0.0);
         model.addAttribute("totalCount", totalCount != null ? totalCount : 0);
         model.addAttribute("starCounts", starCounts);
     }
 
     // ========================= 예외 처리 =========================
-    
+
     /**
      * Store 관련 예외 전역 처리
      */
-    @ExceptionHandler(StoreException.class)
+    @ExceptionHandler(CustomException.class)
     @ResponseBody
-    public ResponseEntity<StoreSearchResponseVO> handleStoreException(StoreException e) {
+    public ResponseEntity<StoreSearchResponseVO> handleCustomException(CustomException e) {
         log.error("Store 비즈니스 예외 발생", e);
-        StoreSearchResponseVO response = StoreSearchResponseVO.error("", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        StoreSearchResponseVO response = StoreSearchResponseVO.error("", e.getErrorCode().getMessage());
+        return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
     }
-    
+
     /**
      * 데이터베이스 예외 전역 처리
      */

@@ -120,7 +120,7 @@
 <body>
 <div class="login-container">
     <div class="login-title">비밀번호 찾기</div>
-    <form action="/solfood/user/login/search-pwd" method="post">
+            <form action="${pageContext.request.contextPath}/user/login/search-pwd" method="post">
 
         <label>이메일 *</label>
         <input type="email" name="usersEmail" required placeholder="example@domain.com">

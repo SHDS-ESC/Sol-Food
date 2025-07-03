@@ -48,11 +48,10 @@ public class FileUploadSessionInterceptor implements HandlerInterceptor {
      */
     private String validateSession(HttpSession session) {
         // 1. 회원가입 or 마이페이지 수정
-        Boolean joinInProgress = (Boolean) session.getAttribute("joinInProgress");
-        Boolean mypageInProgress = (Boolean) session.getAttribute("mypageInProgress");
+        Boolean s3InProgress = (Boolean) session.getAttribute("s3InProgress");
         
         // 둘 중 하나라도 true면 통과
-        if ((joinInProgress != null && joinInProgress) || (mypageInProgress != null && mypageInProgress)) {
+        if ((s3InProgress != null && s3InProgress) ) {
             // 2. 세션당 업로드 횟수 제한 확인
             Integer uploadCount = (Integer) session.getAttribute("uploadCount");
             if (uploadCount == null) {
