@@ -238,12 +238,12 @@
                 let amount = parseInt($('#chargeAmount').val()) || 0;
                 
                 if (amount < 100) {
-                    alert('최소 충전 금액은 100원입니다.');
+                    showPaymentErrorAlert('충전 금액 오류', '최소 충전 금액은 100원입니다.');
                     return;
                 }
                 
                 if (amount > 1000000) {
-                    alert('최대 충전 금액은 1,000,000원입니다.');
+                    showPaymentErrorAlert('충전 금액 오류', '최대 충전 금액은 1,000,000원입니다.');
                     return;
                 }
                 
@@ -278,24 +278,17 @@
                             success: function(data) {
                                 console.log("Ajax 성공:", data);
 
-                                Swal.fire({
-                                    title: "충전이 완료되었습니다!",
-                                    text: "마이페이지로 이동합니다.",
-                                    icon: "success",
-                                    confirmButtonText: "확인",
-                                    timer: 1500
-                                }).then(function() {
-                                    window.location.replace(nextPath);
-                                });
+                                // 공통 결제 완료 알림 함수 사용
+                                showPaymentSuccessAlert("충전이 완료되었습니다!", "마이페이지로 이동합니다.", nextPath);
                             },
                             error: function(xhr, status, error) {
                                 console.log("Ajax 실패 - Status:", status, "Error:", error); // 디버깅 로그 추가
                                 console.log("Response:", xhr.responseText); // 응답 내용 확인
-                                alert("충전 검증에 실패했습니다.");
+                                showPaymentErrorAlert("충전 검증 실패", "충전 검증에 실패했습니다.");
                             }
                         });
                     } else {
-                        alert("충전 실패: " + rsp.error_msg);
+                        showPaymentErrorAlert("충전 실패", rsp.error_msg);
                     }
                 });
             });

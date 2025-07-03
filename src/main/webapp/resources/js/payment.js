@@ -155,4 +155,49 @@ function fullRefund(impUid) {
     }
     
     cancelPayment(impUid, null, reason); // null은 전액 취소를 의미
+}
+
+/**
+ * SweetAlert2를 사용한 결제 완료 알림
+ * @param {string} title - 알림 제목
+ * @param {string} text - 알림 내용
+ * @param {string} nextPath - 이동할 경로
+ */
+function showPaymentSuccessAlert(title, text, nextPath) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: title || "결제가 완료되었습니다!",
+            text: text || "결제 완료 페이지로 이동합니다.",
+            icon: "success",
+            confirmButtonText: "확인",
+            timer: 1500
+        }).then(function() {
+            if (nextPath) {
+                window.location.replace(nextPath);
+            }
+        });
+    } else {
+        alert(title || "결제가 완료되었습니다!");
+        if (nextPath) {
+            window.location.replace(nextPath);
+        }
+    }
+}
+
+/**
+ * SweetAlert2를 사용한 결제 실패 알림
+ * @param {string} title - 알림 제목
+ * @param {string} text - 알림 내용
+ */
+function showPaymentErrorAlert(title, text) {
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: title || "결제 실패",
+            text: text || "결제 처리 중 오류가 발생했습니다.",
+            icon: "error",
+            confirmButtonText: "확인"
+        });
+    } else {
+        alert(title || "결제 실패: " + (text || "결제 처리 중 오류가 발생했습니다."));
+    }
 } 

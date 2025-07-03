@@ -4,6 +4,7 @@ let selectedFriendsData = [];
 let totalAmount = 0;
 let splitAmounts = {};
 let eventSource = null; // SSE 연결 객체
+let sseStarted = false; // SSE 연결 시작 플래그
 
 // 페이지 로드 시 선택된 친구들 정보 로드
 function initializePage() {
@@ -635,20 +636,13 @@ function proceedToPayment(userId) {
                             paymentMethod: '카드'
                         });
                         
-                        Swal.fire({
-                            title: "결제가 완료되었습니다!",
-                            text: "결제 완료 페이지로 이동합니다.",
-                            icon: "success",
-                            confirmButtonText: "확인",
-                            timer: 1500
-                        }).then(function() {
-                            window.location.replace(nextPath);
-                        });
+                        // 공통 결제 완료 알림 함수 사용
+                        showPaymentSuccessAlert("결제가 완료되었습니다!", "결제 완료 페이지로 이동합니다.", nextPath);
                     },
                     error: function(xhr, status, error) {
                         console.log("Ajax 실패 - Status:", status, "Error:", error);
                         console.log("Response:", xhr.responseText);
-                        alert("결제 검증에 실패했습니다.");
+                        showPaymentErrorAlert("결제 검증 실패", "결제 검증에 실패했습니다.");
                         
                         // 결제 실패시 버튼 복원
                         if (payBtn) {
@@ -659,7 +653,7 @@ function proceedToPayment(userId) {
                     }
                 });
             } else {
-                alert("결제 실패: " + rsp.error_msg);
+                showPaymentErrorAlert("결제 실패", rsp.error_msg);
                 
                 // 결제 실패시 버튼 복원
                 if (payBtn) {
@@ -882,7 +876,14 @@ function showGameResultNotification(gameResult) {
 
 // SSE 연결 시작
 function startPaymentStatusMonitoring() {
+    // 이미 SSE가 시작되었으면 중복 실행 방지
+    if (sseStarted) {
+        console.log('🔗 SSE 이미 시작됨, 중복 실행 방지');
+        return;
+    }
+    
     console.log('🔗 SSE 결제 상태 모니터링 시작');
+    sseStarted = true;
     
     // 기존 연결이 있으면 닫기
     if (eventSource) {
@@ -906,6 +907,14 @@ function startPaymentStatusMonitoring() {
                 const data = JSON.parse(event.data);
                 console.log('📡 SSE 메시지 수신:', data);
                 handlePaymentStatusUpdate(data);
+                
+                // 메시지를 받은 후 연결 종료 (일회성 응답이므로)
+                if (eventSource) {
+                    console.log('🔌 메시지 수신 완료, SSE 연결 종료');
+                    eventSource.close();
+                    eventSource = null;
+                    sseStarted = false; // 플래그 리셋
+                }
             } catch (error) {
                 console.error('SSE 메시지 파싱 오류:', error);
                 console.error('파싱 실패한 데이터:', event.data);
@@ -914,18 +923,27 @@ function startPaymentStatusMonitoring() {
         
         eventSource.onerror = function(event) {
             // 연결이 정상적으로 닫힌 경우는 오류로 처리하지 않음
-            if (eventSource.readyState === EventSource.CLOSED) {
+            if (eventSource && eventSource.readyState === EventSource.CLOSED) {
                 console.log('🔌 SSE 연결이 정상적으로 닫힘 (일회성 응답 완료)');
                 eventSource = null;
+                sseStarted = false; // 플래그 리셋
                 return;
             }
             
-            console.error('❌ SSE 연결 오류:', event);
-            console.error('❌ SSE 오류 상세:', {
-                readyState: eventSource.readyState,
-                url: eventSource.url,
-                withCredentials: eventSource.withCredentials
-            });
+            // 연결이 닫혀있지 않은 경우에만 오류 로그 출력
+            if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
+                console.error('❌ SSE 연결 오류:', event);
+                console.error('❌ SSE 오류 상세:', {
+                    readyState: eventSource.readyState,
+                    url: eventSource.url,
+                    withCredentials: eventSource.withCredentials
+                });
+                
+                // 오류 발생 시 연결 종료
+                eventSource.close();
+                eventSource = null;
+                sseStarted = false; // 플래그 리셋
+            }
         };
         
     } catch (error) {
@@ -987,5 +1005,7 @@ window.addEventListener('beforeunload', function() {
     if (eventSource) {
         console.log('🔌 SSE 연결 종료');
         eventSource.close();
+        eventSource = null;
+        sseStarted = false; // 플래그 리셋
     }
 }); 

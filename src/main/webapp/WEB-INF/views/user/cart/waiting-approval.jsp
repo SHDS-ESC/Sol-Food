@@ -136,6 +136,9 @@
         console.log('jQuery 로드됨:', typeof $);
         console.log('IMP 로드됨:', typeof window.IMP);
         console.log('requestPayment 로드됨:', typeof window.requestPayment);
+        console.log('SweetAlert2 로드됨:', typeof Swal);
+        console.log('showPaymentSuccessAlert 로드됨:', typeof showPaymentSuccessAlert);
+        console.log('showPaymentErrorAlert 로드됨:', typeof showPaymentErrorAlert);
     </script>
 </body>
 </html> 
