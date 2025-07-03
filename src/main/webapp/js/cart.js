@@ -278,10 +278,15 @@ function displayOptions() {
         const menuId = element.getAttribute('data-menu-id');
         const optionsScript = element.querySelector('script.options-data');
         
+
+        
         let rawOptions = null;
         if (optionsScript) {
             rawOptions = optionsScript.textContent || optionsScript.innerText;
         }
+        
+
+
         
         // 안전한 옵션 표시
         let optionHtml = '';
@@ -298,22 +303,53 @@ function displayOptions() {
                     let detailHtml = '';
                     
                     for (const [key, value] of Object.entries(parsedOptions)) {
-                        if (key && key !== 'menuId' && value && String(value).trim()) {
+                        if (key && key !== 'menuId' && value) {
                             const cleanKey = String(key).trim();
-                            const cleanValue = String(value).trim();
                             
-                            // 한글 매핑 적용
-                            const displayKey = OPTION_MAPPING.key[cleanKey] || cleanKey || '옵션';
-                            const displayValue = OPTION_MAPPING.value[cleanValue] || cleanValue || '선택됨';
-                            
-                            // HTML 생성
-                            detailHtml += `<span class="option-item">${displayKey}: ${displayValue}</span> `;
+                            // 새로운 형태의 옵션 데이터 처리 {value: "매운맛", price: 1000}
+                            if (typeof value === 'object' && value.value) {
+                                const optionValue = String(value.value).trim();
+                                const optionPrice = parseInt(value.price) || 0;
+                                
+                                // 매핑 없이 원본 데이터 사용 (디버깅용)
+                                const displayKey = cleanKey;
+                                const displayValue = optionValue;
+                                
+                                // 개별 옵션 가격 표시
+                                let optionText = `${displayKey}: ${displayValue}`;
+                                if (optionPrice > 0) {
+                                    optionText += ` (+${SolFoodUtils.formatNumber(optionPrice)}원)`;
+                                }
+                                
+                                // 파란색 블럭으로 표시
+                                detailHtml += `<span class="option-item">${optionText}</span> `;
+                            }
+                            // 기존 형태의 옵션 데이터 처리 (호환성)
+                            else if (String(value).trim()) {
+                                const cleanValue = String(value).trim();
+                                
+                                // 원본 데이터 사용
+                                const displayKey = cleanKey;
+                                const displayValue = cleanValue;
+                                
+                                // 파란색 블럭으로 표시
+                                detailHtml += `<span class="option-item">${displayKey}: ${displayValue}</span> `;
+                            }
                         }
                     }
                     
-                    optionHtml = detailHtml || '<span class="option-item">⚙️ 옵션 적용</span>';
+                    // 파란색 블럭들로 표시
+                    if (detailHtml) {
+                        optionHtml = detailHtml;
+                    } else {
+                        // 옵션이 없는 경우 숨김
+                        element.style.display = 'none';
+                        return;
+                    }
                 } else {
-                    optionHtml = '<span class="option-item">⚙️ 기본 옵션</span>';
+                    // 옵션이 없는 경우 숨김
+                    element.style.display = 'none';
+                    return;
                 }
             } catch (e) {
                 console.warn('옵션 파싱 실패:', e.message);
