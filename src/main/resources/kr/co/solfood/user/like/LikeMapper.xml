@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.user.like.LikeMapper">
+    
+    <!-- 찜 추가 -->
+    <insert id="addLike">
+        INSERT INTO user_likes(users_id, store_id)
+        VALUES ( #{usersId},#{storeId})
+    </insert>
+
+    <!-- 찜 삭제 -->
+    <delete id="cancelLike">
+        DELETE FROM user_likes
+        WHERE users_id = #{usersId}
+        AND store_id = #{storeId}
+    </delete>
+
+    <!-- 찜 존재 확인 -->
+    <select id="existLike" resultType="int">
+        SELECT COUNT(*)
+        FROM user_likes
+        WHERE users_id = #{usersId}
+        AND store_id = #{storeId}
+    </select>
+
+</mapper>

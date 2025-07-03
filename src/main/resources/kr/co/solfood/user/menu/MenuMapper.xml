@@ -12,7 +12,8 @@
             menu_name menuName,
             menu_price menuPrice,
             menu_mainimage menuMainimage,
-            menu_intro menuIntro
+            menu_intro menuIntro,
+            menu_extra menuExtra
         FROM menu 
         WHERE store_id = #{storeId}
         ORDER BY store_id ASC
@@ -26,7 +27,8 @@
             menu_name menuName,
             menu_price menuPrice,
             menu_mainimage menuMainimage,
-            menu_intro menuIntro
+            menu_intro menuIntro,
+            menu_extra menuExtra
         FROM menu 
         WHERE menu_id = #{menuId}
     </select>

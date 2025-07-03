@@ -64,7 +64,7 @@ public class StoreWebCrawler {
             log.info("총 {}개 음식점 정보 수집 완료!", restaurantList.size());
             
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("크롤링 중 오류 발생: {}", e.getMessage());
         }
         
         return restaurantList;
@@ -115,7 +115,7 @@ public class StoreWebCrawler {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("API 호출 중 오류 발생: {}", e.getMessage());
         }
         
         return stores;
@@ -168,7 +168,7 @@ public class StoreWebCrawler {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("JSON 파싱 중 오류 발생: {}", e.getMessage());
         }
         
         return stores;
@@ -261,7 +261,7 @@ public class StoreWebCrawler {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("키워드 검색 중 오류 발생: {}", e.getMessage());
         }
         
         return stores;

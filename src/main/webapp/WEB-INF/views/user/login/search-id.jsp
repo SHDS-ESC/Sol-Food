@@ -95,7 +95,7 @@
 <body>
 <div class="login-container">
     <div class="login-title">아이디 찾기</div>
-    <form action="/solfood/user/login/search-id" method="post">
+            <form action="${pageContext.request.contextPath}/user/login/search-id" method="post">
 
         <label>이름 *</label>
         <input type="text" name="usersName" required placeholder="이름을 입력하세요">

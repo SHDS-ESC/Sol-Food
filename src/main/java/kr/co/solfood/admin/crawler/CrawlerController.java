@@ -1,6 +1,7 @@
 package kr.co.solfood.admin.crawler;
 
 import kr.co.solfood.user.store.StoreVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Controller
 @RequestMapping("/admin/crawler")
 public class CrawlerController {
@@ -32,7 +34,7 @@ public class CrawlerController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            System.out.println("=== 홍대입구역 음식점 크롤링 시작 ===");
+            log.info("=== 홍대입구역 음식점 크롤링 시작 ===");
             
             // 비동기로 크롤링 실행
             new Thread(() -> {
