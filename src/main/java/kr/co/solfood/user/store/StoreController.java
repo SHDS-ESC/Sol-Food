@@ -138,6 +138,7 @@ public class StoreController {
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", defaultValue = "star") String sort,
             HttpSession session) {
 
         try {
@@ -151,7 +152,7 @@ public class StoreController {
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
-                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId());
+                pageMaker = service.getPagedCategoryStoreListWithLike(searchCategory, pageDTO, loginUser.getUsersId(),sort);
             } else {
                 pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
             }
@@ -181,6 +182,7 @@ public class StoreController {
             @RequestParam String keyword,
             @RequestParam(value = "offset", defaultValue = "0") int offset,
             @RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+            @RequestParam(value = "sort", required = false, defaultValue = "star") String sort,
             HttpSession session) {
 
         try {
@@ -193,7 +195,7 @@ public class StoreController {
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
-                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId());
+                pageMaker = service.getPagedSearchResultsWithLike(keyword, pageDTO, loginUser.getUsersId(),sort);
             } else {
                 pageMaker = service.getPagedSearchResults(keyword, pageDTO);
             }
@@ -363,27 +365,5 @@ public class StoreController {
         model.addAttribute("starCounts", starCounts);
     }
 
-    // ========================= 예외 처리 =========================
 
-    /**
-     * Store 관련 예외 전역 처리
-     */
-    @ExceptionHandler(StoreException.class)
-    @ResponseBody
-    public ResponseEntity<StoreSearchResponseVO> handleStoreException(StoreException e) {
-        log.error("Store 비즈니스 예외 발생", e);
-        StoreSearchResponseVO response = StoreSearchResponseVO.error("", e.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-    }
-
-    /**
-     * 데이터베이스 예외 전역 처리
-     */
-    @ExceptionHandler(org.springframework.dao.DataAccessException.class)
-    @ResponseBody
-    public ResponseEntity<StoreSearchResponseVO> handleDataAccessException(org.springframework.dao.DataAccessException e) {
-        log.error("데이터베이스 접근 예외 발생", e);
-        StoreSearchResponseVO response = StoreSearchResponseVO.error("", "데이터 처리 중 오류가 발생했습니다.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    }
 }

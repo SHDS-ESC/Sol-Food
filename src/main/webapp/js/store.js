@@ -12,6 +12,7 @@ let hasNext = true;
 let loading = false;
 let isSearchMode = false;
 let currentSearchKeyword = '';
+let currentSort = 'star';
 
 // ==================== 초기화 ====================
 document.addEventListener('DOMContentLoaded', function() {
@@ -49,6 +50,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => updateCartBadge(data.count || 0))
             .catch(error => console.error('장바구니 개수 로드 실패:', error));
     }
+
+    //정렬 셀렉트 박스 활성화
+      const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.value = currentSort; // 초기값 셋팅
+        }
 });
 
 // ==================== 장바구니 관련 ====================
@@ -287,9 +294,9 @@ function loadStoreList() {
     let apiUrl;
 
     if (isSearchActive) {
-        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}`);
+        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
     } else {
-        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}`);
+        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
     }
 
     fetch(apiUrl)
@@ -815,3 +822,14 @@ function loadMoreStores() {
     if (loading || !hasNext) return;
     loadStoreList();
 }
+
+// ==================== 가게 정렬 관련 ====================
+function changeSort(sortType) {
+    // 현재 정렬값 갱신
+    currentSort = sortType;
+
+    // 페이징 및 목록 초기화
+    resetPagination();
+    loadStoreList();
+}
+

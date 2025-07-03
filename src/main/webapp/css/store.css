@@ -677,3 +677,28 @@ body {
 .like-btn.liked .bi-heart-fill {
     color: #ff4d6d;
 }
+
+
+.sort-select-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 15px 0 14px 0;
+    max-width: 170px;
+}
+
+.sort-select {
+    border-radius: 20px;
+    border: 1.3px solid #bcd0ea;
+    font-size: 1.08rem;
+    padding: 7px 14px;
+    color: #3a4d62;
+    background: #fafdff;
+    box-shadow: 0 1px 6px rgba(50,120,230,0.06);
+    transition: border 0.15s;
+}
+
+.sort-select:focus {
+    border-color: #7abaff;
+    outline: none;
+}

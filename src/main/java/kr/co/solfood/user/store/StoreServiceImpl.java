@@ -118,12 +118,13 @@ public class StoreServiceImpl implements StoreService {
     }
     
     @Override
-    public PageMaker<StoreVO> getPagedCategoryStoreListWithLike(String category, PageDTO pageDTO, long usersId) {
+    public PageMaker<StoreVO> getPagedCategoryStoreListWithLike(String category, PageDTO pageDTO, long usersId, String sort) {
         List<StoreVO> list = mapper.selectPagedCategoryStoresWithLike(
                 category,
                 pageDTO.getOffset(),
                 pageDTO.getPageSize(),
-                usersId
+                usersId,
+                sort
         );
 
         long total = mapper.countStoresByCategory(category);
@@ -133,16 +134,18 @@ public class StoreServiceImpl implements StoreService {
     }
     
     @Override
-    public PageMaker<StoreVO> getPagedSearchResultsWithLike(String keyword, PageDTO pageDTO, long usersId) {
+    public PageMaker<StoreVO> getPagedSearchResultsWithLike(String keyword, PageDTO pageDTO, long usersId, String sort) {
         List<StoreVO> list = mapper.selectPagedSearchResultsWithLike(
                 keyword,
                 pageDTO.getOffset(),
                 pageDTO.getPageSize(),
-                usersId
+                usersId,
+                sort
         );
         long total = mapper.countSearchResults(keyword);
 
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
     }
+
 }

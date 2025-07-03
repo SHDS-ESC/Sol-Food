@@ -135,6 +135,17 @@
         </c:if>
     </div>
 
+     <div class="sort-select-group">
+          <label for="sortSelect" class="form-label" style="margin-bottom:4px; font-weight:500;">
+            정렬 기준
+          </label>
+          <select id="sortSelect" class="form-select sort-select" onchange="changeSort(this.value)">
+            <option value="star">별점순</option>
+            <option value="like">찜 많은순</option>
+            <option value="id">최신순</option>
+          </select>
+    </div>
+
     <div id="mapContainer" class="map-container">
         <div id="map" class="map-view" style="width:100%;height:100%;"></div>
     </div>
