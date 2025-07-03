@@ -129,7 +129,7 @@ public class LoginController {
         model.addAttribute("companyList", companyList);
 
         // 회원가입 진행 세션 플래그 설정 (S3 업로드 보안용)
-        session.setAttribute("joinInProgress", true);
+        session.setAttribute("s3InProgress", true);
         session.setAttribute("uploadCount", 0);
         session.setMaxInactiveInterval(30 * 60); // 30분 후 만료
 
@@ -143,7 +143,7 @@ public class LoginController {
         service.register(kakaoAddVO);
 
         // 회원가입 완료 후 세션 정리
-        sess.removeAttribute("joinInProgress");
+        sess.removeAttribute("s3InProgress");
         sess.removeAttribute("uploadCount");
 
         return "redirect:" + UrlConstants.User.LOGIN_PAGE;
