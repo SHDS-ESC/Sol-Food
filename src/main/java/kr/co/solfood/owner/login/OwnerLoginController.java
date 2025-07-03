@@ -1,7 +1,5 @@
-package kr.co.solfood.admin.login;
+package kr.co.solfood.owner.login;
 
-import properties.KakaoProperties;
-import properties.ServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
