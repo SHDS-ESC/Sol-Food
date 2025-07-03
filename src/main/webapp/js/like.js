@@ -3,8 +3,8 @@
  * common-utils.js 활용
  */
 
-let offset = 0;
-const pageSize = 10;
+let likeCurrentPage = 1;
+const likePageSize = 10;
 let isEnd = false;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -20,28 +20,38 @@ async function loadMoreStores() {
     if (isEnd) return;
 
     try {
-        const url = UrlConstants.Builder.fullUrl(`/user/mypage/like/api?offset=${offset}&pageSize=${pageSize}`);
+        const url = UrlConstants.Builder.fullUrl(`/user/mypage/like/api?currentPage=${likeCurrentPage}&pageSize=${likePageSize}`);
+        
         const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         
         const grid = document.getElementById('storeGrid');
         
-        data.list.forEach(store => {
-            const card = createStoreCard(store);
-            grid.appendChild(card);
-        });
+        if (data.list && Array.isArray(data.list)) {
+            data.list.forEach(store => {
+                const card = createStoreCard(store);
+                grid.appendChild(card);
+            });
 
-        // 마지막 페이지 판별
-        if (data.list.length < pageSize || !data.hasNext) {
-            isEnd = true;
-            document.getElementById('loadMoreBtn').style.display = 'none';
+            // 마지막 페이지 판별
+            if (data.list.length < likePageSize || !data.hasNext) {
+                isEnd = true;
+                document.getElementById('loadMoreBtn').style.display = 'none';
+            } else {
+                likeCurrentPage++;
+                document.getElementById('loadMoreBtn').style.display = '';
+            }
+
+            // 빈 목록 처리
+            if (grid.childElementCount === 0) {
+                showEmptyLikeList(grid);
+            }
         } else {
-            offset += data.list.length;
-            document.getElementById('loadMoreBtn').style.display = '';
-        }
-
-        // 빈 목록 처리
-        if (grid.childElementCount === 0) {
             showEmptyLikeList(grid);
         }
         
