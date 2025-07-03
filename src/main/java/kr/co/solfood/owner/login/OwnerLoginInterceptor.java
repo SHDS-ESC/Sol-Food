@@ -1,4 +1,4 @@
-package kr.co.solfood.admin.login;
+package kr.co.solfood.owner.login;
 
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -11,7 +11,7 @@ public class OwnerLoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 로그인 체크
         HttpSession session = request.getSession();
-        OwnerVO vo = (OwnerVO) session.getAttribute("owner");
+        OwnerVO vo = (OwnerVO) session.getAttribute("ownerLoginSession");
         if (vo == null) {
             // 미 로그인 상태
             response.setContentType("text/html;charset=utf-8");

@@ -6,6 +6,6 @@ import lombok.Data;
 public class DepartmentVO {
     private int departmentId; // 부서아이디
     private int companyId; // 회사아이디
-    private int departmentCost; // 부서급여
+    private int departmentCost; // 부서식대
     private String departmentName; // 부서이름
 }
