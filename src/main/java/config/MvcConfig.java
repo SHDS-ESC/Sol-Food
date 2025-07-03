@@ -4,6 +4,7 @@ import java.sql.Connection;
 
 import javax.sql.DataSource;
 
+import kr.co.solfood.admin.login.OwnerLoginInterceptor;
 import org.apache.ibatis.annotations.Mapper;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.InitializingBean;
@@ -34,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"kr.co.solfood", "config", "properties"}) // 컴포넌트 스캔
+@ComponentScan(basePackages = {"kr.co.solfood", "util", "config", "properties"}) // 컴포넌트 스캔
 @MapperScan(basePackages = "kr.co.solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
 @EnableTransactionManagement // 트랜잭션 활성화
 @EnableAspectJAutoProxy // AOP 활성화
