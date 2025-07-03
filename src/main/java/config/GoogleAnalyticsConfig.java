@@ -7,8 +7,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 
 @Configuration
@@ -17,14 +17,20 @@ public class GoogleAnalyticsConfig {
     @Value("${ga4.property-id}")
     private String propertyId;
 
-    @Value("${ga4.key-path:/opt/ga/key.json}")  // 필요 시
+    @Value("${ga4.key-path:classpath:goyo-415004-a06976a1469f.json}")
     private String keyPath;
+
+    private final ResourceLoader resourceLoader;
+
+    public GoogleAnalyticsConfig(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
 
     @Bean(destroyMethod = "close")
     public BetaAnalyticsDataClient betaAnalyticsDataClient() throws IOException {
-        // 키 파일을 코드에서 직접 지정
+        // Spring ResourceLoader를 사용하여 classpath 리소스 읽기
         GoogleCredentials credentials =
-                GoogleCredentials.fromStream(new FileInputStream(keyPath));
+                GoogleCredentials.fromStream(resourceLoader.getResource(keyPath).getInputStream());
         BetaAnalyticsDataSettings settings = BetaAnalyticsDataSettings.newBuilder()
                 .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
                 .build();
