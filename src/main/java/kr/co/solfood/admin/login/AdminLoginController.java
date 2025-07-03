@@ -1,5 +1,6 @@
 package kr.co.solfood.admin.login;
 
+import kr.co.solfood.common.constants.UrlConstants;
 import kr.co.solfood.util.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,7 +32,7 @@ public class AdminLoginController {
     @PostMapping("")
     public String login(@RequestParam("password") String password, HttpSession session) {
         try {
-            session.setAttribute("adminLoginSession", adminLoginService.login(password));
+            session.setAttribute(UrlConstants.Session.ADMIN_LOGIN_SESSION, adminLoginService.login(password));
             return "redirect:home";
         } catch (CustomException e) {
             return "redirect:login";
