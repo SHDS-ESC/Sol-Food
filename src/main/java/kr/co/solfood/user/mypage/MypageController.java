@@ -161,6 +161,11 @@ public class MypageController {
         }
         Long usersId = loginUser.getUsersId();
 
+        // currentPage가 설정되어 있으면 offset을 계산
+        if (storeVO.getCurrentPage() > 0) {
+            storeVO.setOffset((storeVO.getCurrentPage() - 1) * storeVO.getPageSize());
+        }
+
         PageMaker<StoreVO> pageMaker = mypageService.getLikedStoresApi(usersId, storeVO);
 
         boolean hasNext = false;
