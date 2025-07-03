@@ -9,4 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class GameController {
     @GetMapping("/roulette")
     public void roulette() { }
+
+    @GetMapping("/climbing-ladder")
+    public void climbingLadder(){ }
 }
