@@ -46,7 +46,7 @@
         <!-- Store Info Card -->
         <div class="store-info-card">
             <div class="store-info-header">
-                <img src=${owner.storeMainImage} alt="상점 이미지" class="store-avatar">
+                <img src=${owner.storeMainimage} alt="상점 이미지" class="store-avatar">
                 <div class="store-details">
                     <h4>${owner.storeName}</h4>
                     <p>${owner.ownerEmail} | ${owner.storeAddress}</p>
@@ -178,7 +178,7 @@
     <div class="store-card">
         <!-- Store Header -->
         <div class="store-header">
-            <img src="${owner.storeMainImage != null ? owner.storeMainImage : 'https://via.placeholder.com/180x180/38a169/ffffff?text=Store'}"
+            <img src="${owner.storeMainimage != null ? owner.storeMainimage : 'https://via.placeholder.com/180x180/38a169/ffffff?text=Store'}"
                  alt="상점 이미지" class="store-avatar">
             <h2 class="store-name">${owner.storeName}</h2>
             <div class="store-category">${owner.categoryName}</div>
@@ -241,10 +241,10 @@
                 <div class="rating-container">
                     <div class="stars">
                         <c:forEach begin="1" end="5" var="i">
-                            <i class="fas fa-star ${i <= owner.storeAvgStar ? '' : 'text-muted'}"></i>
+                            <i class="fas fa-star ${i <= owner.storeAvgstar ? '' : 'text-muted'}"></i>
                         </c:forEach>
                     </div>
-                    <div class="rating-number">${owner.storeAvgStar}</div>
+                    <div class="rating-number">${owner.storeAvgstar}</div>
                 </div>
             </div>
 
