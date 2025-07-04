@@ -40,7 +40,7 @@ function updateQuantity(menuId, quantity) {
     
     const requestBody = `menuId=${numMenuId}&quantity=${numQuantity}`;
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/update'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_UPDATE), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: requestBody
@@ -69,7 +69,7 @@ function removeItem(menuId) {
     
     const numMenuId = parseInt(menuId);
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/remove'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_REMOVE), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `menuId=${numMenuId}`
@@ -98,7 +98,7 @@ function clearCart() {
         return;
     }
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/clear'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_CLEAR), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
@@ -125,7 +125,7 @@ function addToCart(menuId, quantity = 1) {
         btn.innerHTML = '<i class="cart-icon">⏳</i> 추가중...';
     }
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/add'), {
+    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `menuId=${menuId}&quantity=${quantity}`
@@ -183,7 +183,7 @@ function addToCartWithOptions(cartItem) {
     
     const requestBody = `menuId=${cartItem.menuId}&quantity=${cartItem.quantity}&unitPrice=${unitPriceWithOptions}&options=${encodeURIComponent(optionsJson)}`;
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/add'), {
+    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: requestBody
@@ -239,12 +239,12 @@ function updateBottomCartBar(count, totalAmount) {
 
 // 장바구니 페이지로 이동
 function goToCart() {
-    window.location.href = UrlConstants.Builder.fullUrl('/user/cart');
+    window.location.href = UrlConstants.Builder.fullUrl(UrlConstants.Pages.CART);
 }
 
 // 결제 페이지로 이동
 function proceedToPayment() {
-    window.location.href = UrlConstants.Builder.fullUrl('/user/cart/payment-method');
+    window.location.href = UrlConstants.Builder.fullUrl(UrlConstants.Pages.CART_PAYMENT_METHOD);
 }
 
 // 옵션 한글 매핑 상수
@@ -368,7 +368,7 @@ function displayOptions() {
 
 // 카트 정보 가져오기
 function fetchCartInfo() {
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/total'))
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_TOTAL))
         .then(response => response.json())
         .then(data => {
             const count = data.count || 0;
@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('bottomCartBar')) {
         fetchCartInfo();
     } else {
-        fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
             .then(response => response.json())
             .then(data => {
                 SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', data.count || 0);

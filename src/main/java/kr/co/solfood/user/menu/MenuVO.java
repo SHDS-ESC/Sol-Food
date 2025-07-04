@@ -19,29 +19,6 @@ public class MenuVO {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    // 카테고리 매핑 상수
-    private static final Map<String, String> CATEGORY_KEYWORDS = Map.of(
-        "프리미엄", "프리미엄",
-        "정식", "정식시리즈",
-        "마요", "마요시리즈",
-        "카레", "카레",
-        "볶음밥", "볶음밥",
-        "덮밥", "덮밥",
-        "비빔밥", "비빔밥",
-        "도시락", "도시락"
-    );
-
-    // 메뉴명을 기반으로 카테고리를 결정하는 메서드 (개선됨)
-    public String getCategory() {
-        if (menuName == null) return "기타";
-        
-        return CATEGORY_KEYWORDS.entrySet().stream()
-            .filter(entry -> menuName.contains(entry.getKey()))
-            .map(Map.Entry::getValue)
-            .findFirst()
-            .orElse("신메뉴");
-    }
-
     /**
      * 메뉴 추가 옵션이 있는지 확인
      */

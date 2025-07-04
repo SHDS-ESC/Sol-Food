@@ -382,30 +382,153 @@ body {
     font-weight: 600;
 }
 
-/* === 지도 섹션 === */
-.map-container {
-    padding: 30px 20px 60px 20px;
-}
-
-.store-info-header {
-    text-align: center;
-    margin-bottom: 20px;
+/* === 상세정보 섹션 === */
+.store-intro-section {
     padding: 20px;
     background: #fff;
+    margin-bottom: 16px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-.store-info-header h3 {
-    color: #333;
-    margin-bottom: 8px;
-    font-size: 1.3em;
+.store-intro-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
-.store-info-header p {
+.store-intro-header h3 {
+    color: #333;
+    margin: 0;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.store-category-badge {
+    background: #fee500;
+    color: #000;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 500;
+}
+
+.store-intro-content {
+    margin-bottom: 20px;
+}
+
+.store-intro-content h4 {
+    color: #333;
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.store-intro-content p {
     color: #666;
+    line-height: 1.6;
+    margin: 0;
     font-size: 0.95em;
-    line-height: 1.4;
+}
+
+.store-contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.contact-icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.contact-item span {
+    color: #333;
+    font-size: 0.95em;
+}
+
+/* === 위치 섹션 === */
+.location-section {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    overflow: hidden;
+}
+
+.location-header {
+    padding: 20px 20px 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.location-header h4 {
+    color: #333;
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.walking-time-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.walking-time-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #fee500;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.walking-time-result {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #fee500;
+    border-radius: 20px;
+    color: #000;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.walking-time-result i {
+    font-size: 14px;
+}
+
+/* === 지도 섹션 === */
+.map-container {
+    padding: 20px;
 }
 
 #map {
@@ -546,44 +669,8 @@ body {
     font-size: 1.1em;
 }
 
-/* === 카테고리 필터 === */
-.category-filter {
-    padding: 20px 16px 0 16px;
-    background: #fff;
-}
 
-.category-tabs {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 16px;
-}
 
-.category-tab {
-    background: #f8f9fa;
-    color: #666;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid #e9ecef;
-}
-
-.category-tab.active {
-    background: #333;
-    color: #fff;
-    border-color: #333;
-}
-
-.category-tab:hover {
-    background: #e9ecef;
-}
-
-.category-tab.active:hover {
-    background: #444;
-}
 
 /* === 거리 정보 === */
 .distance-info {
