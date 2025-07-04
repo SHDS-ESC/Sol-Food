@@ -591,7 +591,7 @@ function handleInvite() {
             
             // 수락 대기 페이지로 이동
             setTimeout(() => {
-                window.location.href = UrlConstants.Builder.fullUrl('/user/cart/waiting-approval');
+                window.location.href = UrlConstants.Builder.fullUrl('/user/cart/make-bill');
             }, 1000);
         } else {
             throw new Error(response.message || '초대 처리에 실패했습니다.');

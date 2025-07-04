@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -22,10 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+
+//@RequestMapping("/user/mypage")
 @Controller
 @RequestMapping(UrlConstants.User.MYPAGE_BASE)
 public class MypageController {
-
     @Autowired
     private LoginService loginService;
 
@@ -182,6 +185,26 @@ public class MypageController {
         result.put("hasNext", hasNext);
 
         return result;
+    }
+
+
+
+    // 결제 페이지에는 impCode를 전달해야함.
+    @GetMapping("/charge")
+    public void charge(Model model, @Value("${imp.code}") String impCode) {
+        model.addAttribute("impCode", impCode);
+    }
+
+    @GetMapping("/charge-history")
+    public String chargeHistoryPage() {
+        // 페이지 렌더링만 담당, 데이터는 JavaScript로 API 호출
+        return "user/mypage/charge-history";
+    }
+
+    @GetMapping("/payment-history")
+    public String paymentHistoryPage() {
+        // 페이지 렌더링만 담당, 데이터는 JavaScript로 API 호출
+        return "user/mypage/payment-history";
     }
 
 }
