@@ -47,7 +47,7 @@
                 
                 <!-- 장바구니 아이템들 -->
                 <c:forEach var="item" items="${cart.items}">
-                    <div class="cart-item" data-menu-id="${item.menuId}">
+                    <div class="cart-item" data-menu-id="${item.menuId}" data-total-price="${item.totalPrice}">
                         <div class="row align-items-center">
                             <!-- 메뉴 이미지 -->
                             <div class="col-auto">
