@@ -104,12 +104,4 @@
         LIMIT 20
     </select>
 
-    <select id="getUserById" parameterType="long" resultType="kr.co.solfood.user.login.UserVO">
-        SELECT u.*, c.company_name, d.department_name
-        FROM users u
-        LEFT JOIN company c ON u.company_id = c.company_id
-        LEFT JOIN department d ON u.department_id = d.department_id
-        WHERE u.users_id = #{userId}
-    </select>
-
 </mapper>

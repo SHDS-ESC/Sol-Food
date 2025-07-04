@@ -1,6 +1,5 @@
 package kr.co.solfood.user.store;
 
-import properties.KakaoProperties;
 import kr.co.solfood.common.constants.UrlConstants;
 import kr.co.solfood.user.login.UserVO;
 import kr.co.solfood.user.category.CategoryService;
@@ -168,7 +167,7 @@ public class StoreController {
 
             String searchCategory = (category == null) ? "전체" : category;
             PageMaker<StoreVO> pageMaker;
-
+            
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
@@ -176,15 +175,15 @@ public class StoreController {
             } else {
                 pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
             }
-
+            
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(
-                pageMaker.getList(),
-                hasNext,
-                offset,
-                pageSize,
-                pageMaker.getCount()
+                    pageMaker.getList(),
+                    hasNext,
+                    offset,
+                    pageSize,
+                    pageMaker.getCount()
             );
 
         } catch (Exception e) {
@@ -211,7 +210,7 @@ public class StoreController {
             pageDTO.setPageSize(pageSize);
 
             PageMaker<StoreVO> pageMaker;
-
+            
             // 로그인 여부에 따라 다른 메서드 호출
             UserVO loginUser = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
             if (loginUser != null) {
@@ -219,7 +218,7 @@ public class StoreController {
             } else {
                 pageMaker = service.getPagedSearchResults(keyword, pageDTO);
             }
-
+            
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(

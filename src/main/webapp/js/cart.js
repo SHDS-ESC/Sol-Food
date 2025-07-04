@@ -132,6 +132,8 @@ function addToCart(menuId, quantity = 1) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('🛒 장바구니 추가 응답:', data);
+        
         if (data.result === 'success') {
             if (btn) {
                 btn.innerHTML = '<i class="cart-icon">✅</i> 완료!';
@@ -145,6 +147,7 @@ function addToCart(menuId, quantity = 1) {
             }
             
             const cartCount = data.cartCount || data.count || 0;
+            console.log('🛒 장바구니 개수:', cartCount);
             
             if (document.getElementById('bottomCartBar')) {
                 setTimeout(() => fetchCartInfo(), 200);
@@ -275,10 +278,15 @@ function displayOptions() {
         const menuId = element.getAttribute('data-menu-id');
         const optionsScript = element.querySelector('script.options-data');
         
+
+        
         let rawOptions = null;
         if (optionsScript) {
             rawOptions = optionsScript.textContent || optionsScript.innerText;
         }
+        
+
+
         
         // 안전한 옵션 표시
         let optionHtml = '';
@@ -344,6 +352,7 @@ function displayOptions() {
                     return;
                 }
             } catch (e) {
+                console.warn('옵션 파싱 실패:', e.message);
                 optionHtml = '<span class="option-item">⚙️ 옵션 오류</span>';
             }
         } else {
@@ -374,6 +383,8 @@ function fetchCartInfo() {
             const count = data.count || 0;
             const totalAmount = data.totalAmount || 0;
             
+            console.log('🛒 장바구니 정보:', { count, totalAmount });
+            
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', count);
             updateBottomCartBar(count, totalAmount);
         })
@@ -395,12 +406,41 @@ function updateCartItemDisplay(menuId, quantity, totalAmount, cartCount) {
     const cartItem = document.querySelector(`[data-menu-id="${menuId}"]`);
     if (!cartItem) return;
     
+    console.log('🔄 가격 업데이트:', {menuId, quantity, totalAmount, cartCount});
+    
+    const quantityInput = cartItem.querySelector('.quantity-input');
+    if (quantityInput) {
+        quantityInput.value = quantity;
+        quantityInput.defaultValue = quantity;
+    }
+    
     const totalPriceElement = cartItem.querySelector('.fw-bold');
     if (totalPriceElement) {
-        // 서버에서 내려준 totalPrice를 그대로 사용
-        const totalPrice = cartItem.getAttribute('data-total-price');
-        if (totalPrice) {
-            totalPriceElement.textContent = SolFoodUtils.formatNumber(parseInt(totalPrice)) + '원';
+        // 개별 아이템 가격 계산을 위해 unitPrice 추출 개선
+        const itemPriceElement = cartItem.querySelector('.item-price');
+        if (itemPriceElement) {
+            let unitPrice = 0;
+            
+            // final-price가 있으면 (옵션 포함 가격) 그것을 사용
+            const finalPriceElement = itemPriceElement.querySelector('.final-price');
+            if (finalPriceElement) {
+                const finalPriceText = finalPriceElement.textContent || finalPriceElement.innerText;
+                unitPrice = parseInt(finalPriceText.replace(/[^0-9]/g, ''));
+                console.log('📊 옵션 포함 단가 사용:', unitPrice);
+            } else {
+                // 일반 가격 사용
+                const priceText = itemPriceElement.textContent || itemPriceElement.innerText;
+                unitPrice = parseInt(priceText.replace(/[^0-9]/g, ''));
+                console.log('📊 기본 단가 사용:', unitPrice);
+            }
+            
+            if (!isNaN(unitPrice) && unitPrice > 0) {
+                const itemTotal = unitPrice * quantity;
+                console.log('💰 계산된 아이템 총액:', itemTotal, '(단가:', unitPrice, 'x 수량:', quantity, ')');
+                totalPriceElement.textContent = SolFoodUtils.formatNumber(itemTotal) + '원';
+            } else {
+                console.warn('⚠️ 단가 추출 실패:', unitPrice);
+            }
         }
     }
     

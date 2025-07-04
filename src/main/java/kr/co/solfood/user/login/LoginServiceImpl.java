@@ -176,9 +176,4 @@ public class LoginServiceImpl implements LoginService {
         return mapper.getUsersByDepartmentIdExcludingCurrentUser(departmentId, currentUserId);
     }
 
-    @Override
-    public UserVO getUserById(long userId) {
-        return mapper.getUserById(userId);
-    }
-
 }
