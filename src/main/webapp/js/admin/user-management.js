@@ -149,12 +149,11 @@ document.addEventListener('keydown', function (e) {
     }
 });
 
-function openRejectionModal(usersId, userProfile, userName, userNickName, userEmail) {
+function openRejectionModal(userProfile, userName, userNickName, userEmail) {
     $('#moal_image').attr('src', userProfile)
     $('#modal_user_name').text(userName)
     $('#modal_user_nickname').text(userNickName)
     $('#modal_user_info').text(userEmail)
-    userId = usersId
     const modal = document.getElementById('rejectionModal');
     modal.style.display = 'flex';
     modal.style.animation = 'fadeIn 0.3s ease-out';
@@ -189,9 +188,9 @@ function closeModal() {
 
 $(document).ready(function () {
 
-    $('.status_selector').on('change', function () {
+    $(document).on('change', '.status-select', function () {
         const newStatus = $(this).val(); // 선택된 값
-        const userId = $(this).closest('tr').find('td:first').text(); // 첫 번째 <td>가 id라고 가정
+        userId = $(this).closest('tr').find('td:first').text(); // 첫 번째 <td>가 id라고 가정
 
         const userProfile = $(this).closest('tr').find('td').eq(1).find('img').attr('src'); // 두 번째 td
         const userName = $(this).closest('tr').find('td').eq(2).text()
@@ -201,8 +200,11 @@ $(document).ready(function () {
         console.log(`사용자 ID: ${userId}, 변경된 상태: ${newStatus}`);
 
         if (newStatus === 'inactive') {
-            openRejectionModal(userId, userProfile, userName, userNickName, userEmail)
+            openRejectionModal(userProfile, userName, userNickName, userEmail)
+            return
         }
+
+        sendUpdateUserState('active')
     });
 
     $('.filter-btns button').on('click', function () {
@@ -325,13 +327,18 @@ $(document).ready(function () {
         console.log(reason)
 
         // 예시: 서버에 거절 사유 전송
+        sendUpdateUserState('inactive',reason)
+
+    });
+
+    function sendUpdateUserState(status = '',reason = ''){
         $.ajax({
             type: 'GET',
             url: ctx + '/admin/user-management/status-update',
             contentType: 'application/json',
-            data: {usersId: userId, status: 'inactive', usersRejectedReason: reason},
+            data: {usersId: userId, status: status, usersRejectedReason: reason},
             success: function () {
-                alert('승인 거절이 처리되었습니다.');
+                alert('승인이 처리되었습니다.');
                 closeModal();
                 // 페이지 새로고침 또는 리스트 재요청 등
             },
@@ -339,6 +346,6 @@ $(document).ready(function () {
                 alert('처리 중 오류가 발생했습니다.');
             }
         });
-    });
+    }
 
 });
