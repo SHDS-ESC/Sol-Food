@@ -15,9 +15,10 @@ $(document).ready(function() {
 
 // 필터 이벤트 바인딩
 function bindFilterEvents() {
-    $('#storeFilter').on('change', function() {
-        loadReviews();
-    });
+    loadReviews();
+    // $('#storeFilter').on('change', function() {
+    //     loadReviews();
+    // });
     
     $('#ratingFilter').on('change', filterReviews);
     $('#responseFilter').on('change', filterReviews);
@@ -37,8 +38,9 @@ function bindFilterEvents() {
 
 // 리뷰 목록 로드
 function loadReviews() {
-    currentStoreId = $('#storeFilter').val();
-    
+    // currentStoreId = $('#storeFilter').val();
+    currentStoreId = $('#storeIdInput').val();
+
     if (!currentStoreId) {
         return;
     }
