@@ -24,4 +24,6 @@ public interface AdminMapper {
     int updateStoreStatus(StoreStatusUpdateDTO storeStatusUpdateDTO);
 
     OwnerSearchResponseDTO detailStoreInfo(String ownerId);
+
+    int updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO);
 }
