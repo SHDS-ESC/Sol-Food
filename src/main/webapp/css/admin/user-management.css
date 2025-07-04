@@ -148,6 +148,11 @@
             background: #f0fdf4;
         }
 
+        .user-profile {
+            display: flex;
+            justify-content: space-around;
+        }
+
         .badge-kakao {
             background: #fee500;
             color: #3c1e1e;

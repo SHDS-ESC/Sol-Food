@@ -92,7 +92,7 @@
                     <c:forEach var="user" items="${userList.list}">
                         <tr>
                             <td>${user.usersId}</td>
-                            <td>
+                            <td class="user-profile">
                                 <c:choose>
                                     <c:when test="${not empty user.usersProfile}">
                                         <img src="${user.usersProfile}" class="user-avatar"
