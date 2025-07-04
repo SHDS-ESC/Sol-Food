@@ -27,4 +27,5 @@ public class UserSearchResponseDTO extends PageDTO {
     private String usersLoginType;
     private String companyName; // 부서 이름
     private String departmentName;
+    private String usersRejectedReason;
 }

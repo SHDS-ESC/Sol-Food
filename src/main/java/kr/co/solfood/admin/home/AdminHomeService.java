@@ -15,4 +15,6 @@ public interface AdminHomeService {
     void updateStoreStatus(StoreStatusUpdateDTO storeStatusUpdateDTO);
 
     OwnerSearchResponseDTO detailStoreInfo(String ownerId);
+
+    void updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO);
 }
