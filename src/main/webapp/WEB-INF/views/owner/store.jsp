@@ -446,12 +446,6 @@
           <span>리뷰 관리</span>
         </a>
       </li>
-      <li>
-        <a href="#" data-tab="faq">
-          <span class="icon">❓</span>
-          <span>FAQ</span>
-        </a>
-      </li>
     </ul>
   </nav>
 

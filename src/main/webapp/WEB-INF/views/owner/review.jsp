@@ -53,12 +53,6 @@
                         <span>리뷰 관리</span>
                     </a>
                 </li>
-                <li>
-                    <a href="#" data-tab="faq">
-                        <span class="icon">❓</span>
-                        <span>FAQ</span>
-                    </a>
-                </li>
             </ul>
         </nav>
 
@@ -82,13 +76,13 @@
             <!-- 필터 섹션 -->
             <section class="filter-section">
                 <div class="filter-grid">
-                    <div class="filter-group">
-                        <label for="storeFilter">가게 선택</label>
-                        <select id="storeFilter">
-                            <option value="">가게를 선택하세요</option>
-                            <option value="1">테스트 가게 (Store ID: 1)</option>
-                        </select>
-                    </div>
+                    <input type="hidden" id="storeIdInput" value="${store.storeId}">
+<%--                    <div class="filter-group">--%>
+<%--                        <select id="storeFilter">--%>
+<%--                            <option value="">가게를 선택하세요</option>--%>
+<%--                            <option value="322">테스트 가게 (Store ID: 322)</option>--%>
+<%--                        </select>--%>
+<%--                    </div>--%>
                     <div class="filter-group">
                         <label for="ratingFilter">별점 필터</label>
                         <select id="ratingFilter">
