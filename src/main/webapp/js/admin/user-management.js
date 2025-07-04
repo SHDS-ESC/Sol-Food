@@ -61,7 +61,7 @@ function renderUserRows(userList) {
 
 
         const $tdStatus = $('<td>');
-        const $select = $('<select>').addClass('status-select');
+        const $select = $('<select>').addClass('status_selector');
 
         ['active', 'inactive'].forEach(status => {
             const $opt = $('<option>')
@@ -188,7 +188,7 @@ function closeModal() {
 
 $(document).ready(function () {
 
-    $(document).on('change', '.status-select', function () {
+    $(document).on('change', '.status_selector', function () {
         const newStatus = $(this).val(); // 선택된 값
         userId = $(this).closest('tr').find('td:first').text(); // 첫 번째 <td>가 id라고 가정
 
