@@ -591,11 +591,6 @@
                 <div class="menu-name">${item.menuName}</div>
                 <div class="menu-description">${item.menuIntro}</div>
                 <div class="menu-price">₩${item.menuPrice}</div>
-                <c:if test="${not empty item.menuExtra}">
-                  <div class="menu-options-info">
-                    <small style="color: #666;">📋 옵션 설정됨</small>
-                  </div>
-                </c:if>
               </div>
             </div>
           </c:forEach>

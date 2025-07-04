@@ -1,9 +1,6 @@
-<%@ include file="/WEB-INF/views/common/header.jsp" %>
-<%@ include file="/WEB-INF/views/common/payment-header.jsp" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -88,8 +85,6 @@
     <div id="currentUserData" 
          data-current-user-id="${currentUser.usersId}"
          data-current-user-name="${currentUser.usersName}"
-         data-current-user-email="${currentUser.usersEmail}"
-         data-current-user-tel="${currentUser.usersTel}"
          data-current-user-profile="${currentUser.usersProfile}"
          data-current-user-department="${currentUser.departmentId}" 
          data-current-user-company="${currentUser.companyId}"
@@ -121,24 +116,7 @@
     }
     </script>
     
-    <!-- 아임포트 코드 설정 -->
-    <script>
-        window.impCode = '${impCode}';
-        console.log('impCode 설정됨:', window.impCode);
-    </script>
-    
     <!-- 수락 대기 페이지 JavaScript -->
     <script src="<c:url value='/js/waiting-approval.js' />"></script>
-    
-    <!-- 페이지 로드 확인 -->
-    <script>
-        console.log('페이지 로드 완료, readyState:', document.readyState);
-        console.log('jQuery 로드됨:', typeof $);
-        console.log('IMP 로드됨:', typeof window.IMP);
-        console.log('requestPayment 로드됨:', typeof window.requestPayment);
-        console.log('SweetAlert2 로드됨:', typeof Swal);
-        console.log('showPaymentSuccessAlert 로드됨:', typeof showPaymentSuccessAlert);
-        console.log('showPaymentErrorAlert 로드됨:', typeof showPaymentErrorAlert);
-    </script>
 </body>
 </html> 

@@ -32,7 +32,4 @@ public interface LoginService {
     
     // 특정 부서의 사용자들 가져오기 (초대용)
     List<UserVO> getUsersByDepartmentIdExcludingCurrentUser(int departmentId, long currentUserId);
-
-    // 사용자 ID로 단일 사용자 정보 조회
-    UserVO getUserById(long userId);
 }

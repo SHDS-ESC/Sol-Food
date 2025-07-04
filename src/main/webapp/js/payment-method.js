@@ -2,7 +2,7 @@
 let selectedPaymentMethod = null;
 
 function goBack() {
-    history.back();
+    window.location.href = UrlConstants.Builder.fullUrl('/user/cart');
 }
 
 function selectPaymentMethod(method) {
@@ -75,71 +75,8 @@ function proceedToNext() {
         // 함께 결제 - 친구 초대 페이지로 이동
         window.location.href = UrlConstants.Builder.fullUrl('/user/cart/invite-friends');
     } else {
-        // 개인 결제
-        window.location.href = UrlConstants.Builder.fullUrl('/user/cart/make-bill');
-        // 결제 요청
-        // let amount = parseInt(cartTotalAmount);
-        // requestPayment({
-        //     impCode: impCode,
-        //     pg: 'html5_inicis',
-        //     pay_method: 'card',
-        //     merchant_uid: 'charge_' + new Date().getTime(),
-        //     name: '포인트 충전',
-        //     amount: amount,
-        //     buyer_email: userEmail,
-        //     buyer_name: userNickname,
-        //     buyer_tel: userTel
-        // }, function(rsp) {
-        //     console.log("결제 응답:", rsp); // 디버깅 로그 추가
-        //
-        //     let apiPath = UrlConstants.Builder.fullUrl("/payments/payment/verifyPayment/" + rsp.imp_uid);
-        //     let nextPath = UrlConstants.Builder.fullUrl("/user/cart/payment-complete");
-        //
-        //     if (rsp.success) {
-        //         console.log("Ajax 요청 시작 - URL:", apiPath); // 디버깅 로그 추가
-        //
-        //         $.ajax({
-        //             type: "POST",
-        //             url: apiPath,  // 실제 충전 엔드포인트
-        //             contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-        //             data: {
-        //                 amount: amount,
-        //                 merchant_uid: rsp.merchant_uid
-        //             },
-        //             success: function(data) {
-        //                 console.log("Ajax 성공:", data);
-        //
-        //                 // 주문 정보를 URL 파라미터로 전달
-        //                 const orderParams = new URLSearchParams({
-        //                     orderNumber: rsp.merchant_uid,
-        //                     storeName: cartStoreName,
-        //                     totalQuantity: cartTotalQuantity,
-        //                     totalAmount: amount,
-        //                     paymentMethod: '카드'
-        //                 });
-        //
-        //                 Swal.fire({
-        //                     title: "결제가 완료되었습니다!",
-        //                     text: "결제 완료 페이지로 이동합니다.",
-        //                     icon: "success",
-        //                     confirmButtonText: "확인",
-        //                     timer: 1500
-        //                 }).then(function() {
-        //                     window.location.replace(nextPath);
-        //                 });
-        //             },
-        //             error: function(xhr, status, error) {
-        //                 console.log("Ajax 실패 - Status:", status, "Error:", error); // 디버깅 로그 추가
-        //                 console.log("Response:", xhr.responseText); // 응답 내용 확인
-        //                 alert("결제 검증에 실패했습니다.");
-        //             }
-        //         });
-        //     } else {
-        //         alert("결제 실패: " + rsp.error_msg);
-        //     }
-        // });
-
-
+        // 개인 결제 - 결제 페이지로 이동 (추후 구현)
+        alert('개인 결제 기능은 추후 구현 예정입니다.');
     }
 }
 

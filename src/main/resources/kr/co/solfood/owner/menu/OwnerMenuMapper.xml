@@ -11,29 +11,27 @@
             menu_name,
             menu_price,
             menu_mainimage,
-            menu_intro,
-            menu_extra
+            menu_intro
         )
         VALUES (
            #{storeId},
            #{menuName},
            #{menuPrice},
            #{menuMainimage},
-           #{menuIntro},
-           #{menuExtra}
+           #{menuIntro}
         )
     </insert>
 
     <!--메뉴 조회-->
     <select id="selectMenu" parameterType="int" resultType="kr.co.solfood.owner.menu.OwnerMenuVO">
-        SELECT menu_id,store_id,menu_name,menu_price,menu_mainimage,menu_intro,menu_extra
+        SELECT menu_id,store_id,menu_name,menu_price,menu_mainimage,menu_intro
         FROM menu
         WHERE store_id=#{storeId}
     </select>
 
     <!--메뉴 단건 조회-->
     <select id="getMenuById" parameterType="int" resultType="kr.co.solfood.owner.menu.OwnerMenuVO">
-        SELECT menu_id,store_id,menu_name,menu_price,menu_mainimage,menu_intro,menu_extra
+        SELECT menu_id,store_id,menu_name,menu_price,menu_mainimage,menu_intro
         FROM menu
         WHERE menu_id=#{menuId}
     </select>
@@ -46,8 +44,7 @@
             menu_name =#{menuName},
             menu_price =#{menuPrice},
             menu_mainimage =#{menuMainimage},
-            menu_intro =#{menuIntro},
-            menu_extra =#{menuExtra}
+            menu_intro =#{menuIntro}
         WHERE menu_id=#{menuId}
     </update>
 

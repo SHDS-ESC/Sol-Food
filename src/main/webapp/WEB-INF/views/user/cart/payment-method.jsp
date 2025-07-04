@@ -1,10 +1,6 @@
-<%@ include file="/WEB-INF/views/common/header.jsp" %>
-<%@ include file="/WEB-INF/views/common/payment-header.jsp" %>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -72,32 +68,6 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<c:url value='/js/urlConstants.js' />"></script>
-    <!-- SweetAlert2 CDN 추가 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <!-- JSP에서 JavaScript로 데이터 전달 -->
-    <script>
-        // JSP에서 전달받은 cart 데이터를 JavaScript 변수로 설정
-        const cartTotalAmount = ${cart.totalAmount};
-        const cartStoreId = '${cart.storeId}';
-        const cartStoreName = '${cart.storeName}';
-        const cartTotalQuantity = ${cart.totalQuantity};
-        const userEmail = '${userLoginSession.usersEmail}';
-        const userNickname = '${userLoginSession.usersNickname}';
-        const userTel = '${userLoginSession.usersTel}';
-        const impCode = '${impCode}';
-
-        // var cartTotalAmount = <c:out value="${cart.totalAmount}" default="0"/>;
-        // var cartStoreId = "<c:out value='${cart.storeId}' default='' />";
-        // var cartStoreName = "<c:out value='${cart.storeName}' default='' />";
-        // var cartTotalQuantity = <c:out value="${cart.totalQuantity}" default="0"/>;
-        // var userEmail = "<c:out value='${userLoginSession.usersEmail}' default='' />";
-        // var userNickname = "<c:out value='${userLoginSession.usersNickname}' default='' />";
-        // var userTel = "<c:out value='${userLoginSession.usersTel}' default='' />";
-        // var impCode = "<c:out value='${impCode}' default='' />";
-
-    </script>
-    
     <!-- 결제 방법 선택 페이지 JavaScript -->
     <script src="<c:url value='/js/payment-method.js' />"></script>
 </body>

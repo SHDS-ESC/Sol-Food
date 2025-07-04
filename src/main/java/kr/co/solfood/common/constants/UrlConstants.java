@@ -60,7 +60,6 @@ public final class UrlConstants {
         public static final String CART_PAYMENT_METHOD = CART_BASE + "/payment-method";
         public static final String CART_INVITE_FRIENDS = CART_BASE + "/invite-friends";
         public static final String CART_WAITING_APPROVAL = CART_BASE + "/waiting-approval";
-        public static final String CART_PAYMENT_COMPLETE = CART_BASE + "/payment-complete";
         public static final String CART_USERS_DEPARTMENT = CART_BASE + "/users/department";
         
         private User() {}
@@ -110,8 +109,7 @@ public final class UrlConstants {
         public static final String USER_CART_PAYMENT_METHOD = "user/cart/payment-method";
         public static final String USER_CART_INVITE_FRIENDS = "user/cart/invite-friends";
         public static final String USER_CART_WAITING_APPROVAL = "user/cart/waiting-approval";
-        public static final String USER_CART_MAKE_BILL = "user/cart/make-bill";
-        public static final String USER_CART_PAYMENT_COMPLETE = "user/cart/payment-complete";
+        
         private View() {}
     }
     
