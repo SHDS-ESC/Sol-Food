@@ -10,4 +10,5 @@ public class OwnerMenuVO {
     private int menuPrice;
     private String menuMainimage;
     private String menuIntro;
+    private String menuExtra;
 }
