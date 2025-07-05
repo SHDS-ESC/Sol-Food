@@ -119,12 +119,12 @@ function clearCart() {
 function addToCart(menuId, quantity = 1) {
     const btn = event ? event.target : null;
     const originalText = btn ? btn.innerHTML : '';
-    
+
     if (btn) {
         btn.disabled = true;
         btn.innerHTML = '<i class="cart-icon">⏳</i> 추가중...';
     }
-    
+
     fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -136,20 +136,20 @@ function addToCart(menuId, quantity = 1) {
             if (btn) {
                 btn.innerHTML = '<i class="cart-icon">✅</i> 완료!';
                 btn.style.background = '#28a745';
-                
+
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                     btn.style.background = '';
                     btn.disabled = false;
                 }, 1500);
             }
-            
+
             const cartCount = data.cartCount || data.count || 0;
-            
+
             if (document.getElementById('bottomCartBar')) {
                 setTimeout(() => fetchCartInfo(), 200);
             }
-            
+
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', cartCount);
         } else {
             SolFoodUtils.showToast(data.message || '장바구니 추가에 실패했습니다.', 'error');
@@ -177,12 +177,12 @@ function addToCartWithOptions(cartItem) {
             return sum + (option.price || 0);
         }
     }, 0);
-    
+
     const unitPriceWithOptions = cartItem.menuPrice + optionsTotalPrice;
     const optionsJson = JSON.stringify(cartItem.options);
-    
+
     const requestBody = `menuId=${cartItem.menuId}&quantity=${cartItem.quantity}&unitPrice=${unitPriceWithOptions}&options=${encodeURIComponent(optionsJson)}`;
-    
+
     fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -201,11 +201,11 @@ function addToCartWithOptions(cartItem) {
                     timestamp: Date.now()
                 }
             });
-            
+
             if (document.getElementById('bottomCartBar')) {
                 setTimeout(() => fetchCartInfo(), 200);
             }
-            
+
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', data.cartCount || data.count || 0);
         } else {
             throw new Error(data.message || '장바구니 추가에 실패했습니다.');
@@ -274,12 +274,12 @@ function displayOptions() {
     allOptionElements.forEach((element, index) => {
         const menuId = element.getAttribute('data-menu-id');
         const optionsScript = element.querySelector('script.options-data');
-        
+
         let rawOptions = null;
         if (optionsScript) {
             rawOptions = optionsScript.textContent || optionsScript.innerText;
         }
-        
+
         // 안전한 옵션 표시
         let optionHtml = '';
         
@@ -373,7 +373,7 @@ function fetchCartInfo() {
         .then(data => {
             const count = data.count || 0;
             const totalAmount = data.totalAmount || 0;
-            
+
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', count);
             updateBottomCartBar(count, totalAmount);
         })
@@ -394,7 +394,7 @@ function restoreQuantityInput(menuId) {
 function updateCartItemDisplay(menuId, quantity, totalAmount, cartCount) {
     const cartItem = document.querySelector(`[data-menu-id="${menuId}"]`);
     if (!cartItem) return;
-    
+
     const totalPriceElement = cartItem.querySelector('.fw-bold');
     if (totalPriceElement) {
         // 서버에서 내려준 totalPrice를 그대로 사용

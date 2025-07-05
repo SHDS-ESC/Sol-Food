@@ -424,7 +424,7 @@
                 <c:choose>
                     <c:when test="${not empty sessionScope.userLoginSession}">
                         <li class="welcome-message">
-                            <i class="fas fa-user-circle"></i> 
+                            <i class="fas fa-user-circle"></i>
                             ${sessionScope.userLoginSession.usersName}님 환영합니다!
                         </li>
                         <li><a href="<c:url value="/user/login/logout"/>">로그아웃</a></li>
@@ -463,6 +463,12 @@
                 </c:choose>
                 <a href="#features" class="btn btn-secondary">
                     <i class="fas fa-info-circle"></i> 자세히 보기
+                </a>
+                <a href = "<c:url value = "user/store"/>" class = "btn btn-primary">
+                    <i class = "fas fa-user"></i> 상점 메인 페이지
+                </a>
+                <a href = "<c:url value = "user/mypage"/>" class = "btn btn-primary">
+                    <i class = "fas fa-user"></i> 마이 페이지
                 </a>
             </div>
         </div>

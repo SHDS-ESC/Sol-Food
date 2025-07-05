@@ -255,4 +255,15 @@ public class CartServiceImpl implements CartService {
             return 0;
         }
     }
+    
+    @Override
+    public int getCartTotalAmount(HttpSession session) {
+        try {
+            CartVO cart = getCart(session);
+            return cart.getTotalAmount();
+        } catch (Exception e) {
+            log.error("장바구니 총 금액 조회 중 오류 발생: {}", e.getMessage());
+            return 0;
+        }
+    }
 } 
