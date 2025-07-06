@@ -245,19 +245,18 @@
                         <c:otherwise>
                             <c:forEach var="review" items="${reviewList}" varStatus="status">
                                 <div class="review-card">
-                                    <div class="review-header">
-                                        <img class="profile-img" src="${review.userProfile}" alt="프로필" onerror="this.src='https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800'">
-                                        <span class="nickname">${review.userNickname}</span>
-                                        <span class="review-date">
+                                    <div class="review-header" style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <img class="profile-img" src="${review.userProfile}" alt="프로필" onerror="this.src='https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800'">
+                                            <span class="nickname">${review.userNickname}</span>
+                                        </div>
+                                        <span class="review-date" style="margin-left:auto; color:#888; font-size:0.95em;">
                                             <fmt:formatDate value="${review.reviewDate}" pattern="yyyy-MM-dd HH:mm"/>
                                         </span>
-                                        <span class="stars">
-                                            <c:forEach begin="1" end="5" var="i">
-                                                <c:choose>
-                                                    <c:when test="${i <= review.reviewStar}">⭐</c:when>
-                                                    <c:otherwise>☆</c:otherwise>
-                                                </c:choose>
-                                            </c:forEach>
+                                    </div>
+                                    <div class="review-title-area" style="margin: 8px 0 4px 0;">
+                                        <span class="review-title" style="font-size:1.15em; font-weight:bold; color:#222; display:inline-flex; align-items:center; gap:4px;">
+                                            <span style="font-size:1.1em;">🏷️</span> <span>${review.reviewTitle}</span>
                                         </span>
                                     </div>
                                     <c:if test="${not empty review.reviewImage}">

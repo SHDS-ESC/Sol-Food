@@ -186,9 +186,10 @@
 
     <!-- 특정 가게의 평균 별점 조회 -->
     <select id="selectAverageStarByStoreId" parameterType="int" resultType="double">
-        SELECT ROUND(AVG(review_star), 1)
+        SELECT COALESCE(ROUND(AVG(review_star), 1), 0.0)
         FROM review
         WHERE store_id = #{storeId}
+          AND review_status = 'Y'
     </select>
 
     <!-- 특정 가게의 총 리뷰 개수 조회 -->
@@ -196,6 +197,7 @@
         SELECT COUNT(*)
         FROM review
         WHERE store_id = #{storeId}
+          AND review_status = 'Y'
     </select>
 
     <!-- 특정 가게의 별점별 개수 조회 -->
@@ -208,6 +210,7 @@
             SUM(CASE WHEN review_star = 1 THEN 1 ELSE 0 END) as star1
         FROM review
         WHERE store_id = #{storeId}
+          AND review_status = 'Y'
     </select>
 
 </mapper> 

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import properties.KakaoProperties;
+import kr.co.solfood.common.s3.S3ServiceV2;
+import org.apache.commons.io.FilenameUtils;
 
 import javax.servlet.http.HttpSession;
 
@@ -29,6 +31,9 @@ public class ReviewController {
     
     @Autowired
     private KakaoProperties kakaoProperties;
+    
+    @Autowired
+    private S3ServiceV2 s3ServiceV2;
     
     // 리뷰 작성 페이지
     @GetMapping("/write")
@@ -89,6 +94,13 @@ public class ReviewController {
             if (review.getReviewContent() == null || review.getReviewContent().trim().isEmpty()) {
                 redirectAttributes.addFlashAttribute(UrlConstants.Model.ERROR, "리뷰 내용을 입력해주세요.");
                 return "redirect:" + UrlConstants.User.REVIEW_WRITE;
+            }
+            
+            // 이미지 업로드 처리
+            if (reviewImage != null && !reviewImage.isEmpty()) {
+                String fileName = s3ServiceV2.uploadReviewImage(reviewImage);
+                String publicUrl = s3ServiceV2.getPublicFileUrl(fileName);
+                review.setReviewImage(publicUrl);
             }
             
             reviewService.registerReview(review);
