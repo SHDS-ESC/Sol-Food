@@ -26,13 +26,16 @@
         </c:if>
 
         <form id="reviewForm" action="${pageContext.request.contextPath}/user/review/write" method="post" enctype="multipart/form-data">
-            <!-- 숨겨진 필드들 -->
-            <input type="hidden" name="usersId" value="${usersId}">
-            <input type="hidden" name="storeId" value="${storeId}">
+            <!-- 가게 ID 입력 필드 -->
+            <div class="form-group">
+                <label for="storeIdInput">가게 ID <span class="required">*</span></label>
+                <input type="number" id="storeIdInput" name="storeId" value="${storeId}" placeholder="가게 ID를 입력해주세요" required>
+                <small style="color: #666; font-size: 12px;">리뷰를 작성할 가게의 ID를 입력해주세요.</small>
+            </div>
 
             <!-- 별점 평가 -->
             <div class="form-group">
-                <label for="rating">별점 평가 <span class="required">*</span></label>
+                <label>별점 평가 <span class="required">*</span></label>
                 <div class="rating-container">
                     <div class="star-rating">
                         <input type="radio" id="star5" name="reviewStar" value="5">
@@ -73,7 +76,7 @@
 
             <!-- 버튼 영역 -->
             <div class="btn-container">
-                <a href="${pageContext.request.contextPath}/user/store/detail?storeId=${storeId}" class="btn btn-secondary">취소</a>
+                <a href="${pageContext.request.contextPath}/user/mypage" class="btn btn-secondary">취소</a>
                 <button type="submit" class="btn btn-primary">리뷰 등록</button>
             </div>
         </form>
@@ -91,6 +94,60 @@
                 starText.textContent = ratings[this.value];
                 starText.style.color = this.value >= 4 ? '#ffc107' : this.value >= 3 ? '#17a2b8' : '#dc3545';
             });
+        });
+        
+        // 가게 ID 입력 필드 유효성 검사
+        document.getElementById('storeIdInput').addEventListener('input', function() {
+            const value = this.value.trim();
+            if (value && !isNaN(value) && parseInt(value) > 0) {
+                this.style.borderColor = '#28a745';
+            } else {
+                this.style.borderColor = '#dc3545';
+            }
+        });
+        
+        // 폼 제출 시 가게 ID 검증
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            const storeId = document.getElementById('storeIdInput').value.trim();
+            const reviewStar = document.querySelector('input[name="reviewStar"]:checked');
+            const reviewContent = document.getElementById('reviewContent').value.trim();
+            const reviewTitle = document.getElementById('reviewTitle').value.trim();
+            
+            console.log('=== 폼 제출 데이터 ===');
+            console.log('storeId:', storeId);
+            console.log('reviewStar:', reviewStar ? reviewStar.value : null);
+            console.log('reviewContent:', reviewContent);
+            console.log('reviewTitle:', reviewTitle);
+            console.log('========================');
+            
+            // FormData 객체로 모든 폼 데이터 확인
+            const formData = new FormData(this);
+            console.log('FormData 내용:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ':', value);
+            }
+            
+            if (!storeId || isNaN(storeId) || parseInt(storeId) <= 0) {
+                e.preventDefault();
+                alert('올바른 가게 ID를 입력해주세요.');
+                document.getElementById('storeIdInput').focus();
+                return false;
+            }
+            
+            if (!reviewStar) {
+                e.preventDefault();
+                alert('별점을 선택해주세요.');
+                return false;
+            }
+            
+            if (!reviewContent) {
+                e.preventDefault();
+                alert('리뷰 내용을 입력해주세요.');
+                document.getElementById('reviewContent').focus();
+                return false;
+            }
+            
+            console.log('폼 검증 통과 - 서버로 전송됩니다.');
         });
     </script>
 </body>

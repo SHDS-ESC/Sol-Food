@@ -30,6 +30,10 @@ public class ReviewVO {
     private String reviewContent;
     private String reviewResponse;
     
+    private String userNickname;
+    private String userProfile;
+    private String reviewDateStr;
+    
     /**
      * 활성 상태인지 확인
      */

@@ -58,8 +58,15 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public boolean registerReview(ReviewVO review) {
-        validateReview(review);
-        return reviewMapper.insertReview(review) > 0;
+        try {
+            validateReview(review);
+            
+            int result = reviewMapper.insertReview(review);
+            
+            return result > 0;
+        } catch (Exception e) {
+            throw e;
+        }
     }
     
     @Override
