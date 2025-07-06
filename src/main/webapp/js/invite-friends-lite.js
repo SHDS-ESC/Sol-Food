@@ -622,4 +622,9 @@ window.changeFilter = changeFilter;
 window.performSearch = performSearch;
 window.clearSearch = clearSearch;
 window.handleInvite = handleInvite;
-window.goBack = goBack; 
+window.goBack = goBack;
+
+// 뒤로가기(bfcache) 등으로 복원될 때 버튼 상태 초기화
+window.addEventListener('pageshow', function() {
+    updateSelectedFriendsDisplay();
+}); 

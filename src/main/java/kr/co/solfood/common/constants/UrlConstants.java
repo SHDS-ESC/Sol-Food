@@ -167,6 +167,7 @@ public final class UrlConstants {
         public static final String TO_OWNER_LOGIN = "redirect:" + Owner.LOGIN;
         public static final String TO_ROOT = "redirect:" + Common.ROOT;
         public static final String TO_USER_CART = "redirect:" + User.CART_BASE;
+        public static final String TO_ERROR = "redirect:/error/404.jsp";
         
         private Redirect() {}
     }

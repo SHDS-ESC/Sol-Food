@@ -5,7 +5,8 @@ import kr.co.solfood.payments.integrated.IntegratedPaymentService;
 import kr.co.solfood.payments.payment.PaymentService;
 import kr.co.solfood.user.login.LoginService;
 import kr.co.solfood.user.login.UserVO;
-import kr.co.solfood.util.PageDTO;
+import kr.co.solfood.util.CustomException;
+import kr.co.solfood.util.ErrorCode;
 import kr.co.solfood.util.PageMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,35 +56,39 @@ public class CartController {
     private final Map<Long, BillDTO> billMap = new ConcurrentHashMap<>();
 
     /**
-     * 사용자 로그인 체크 공통 메서드
+     * 세션에서 유효한 사용자 정보를 가져옴
+     * @param session HttpSession
+     * @return UserVO 사용자 정보
+     * @throws CustomException 로그인되지 않은 경우
      */
-    private UserVO validateUserLogin(HttpSession session) {
-        return (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+    private UserVO getValidatedUser(HttpSession session) {
+        UserVO user = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+        if (user == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        return user;
     }
-
+    
     /**
-     * 로그인 실패 응답 생성 공통 메서드
+     * 장바구니 유효성 검증 (비어있지 않은지 확인)
+     * @param session HttpSession
+     * @throws CustomException 장바구니가 비어있는 경우
      */
-    private Map<String, Object> createLoginRequiredResponse() {
-        Map<String, Object> response = new HashMap<>();
-        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-        response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_LOGIN_REQUIRED);
-        return response;
+    private void validateCart(HttpSession session) {
+        CartVO cart = cartService.getCart(session);
+        if (cart == null || cart.isEmpty()) {
+            throw new CustomException(ErrorCode.CART_EMPTY);
+        }
     }
-
 
     // =============================== 페이지 이동 API ===============================
-    // =============================== 친구 초대 관련 API ===============================
-
+    
     /**
      * 장바구니 페이지
      */
     @GetMapping
     public String cartPage(HttpSession session, Model model) {
-        UserVO user = validateUserLogin(session);
-        if (user == null) {
-            return UrlConstants.Redirect.TO_USER_LOGIN;
-        }
+        getValidatedUser(session); // 로그인 검증만 필요
         
         CartVO cart = cartService.getCart(session);
         model.addAttribute(UrlConstants.Model.CART, cart);
@@ -94,28 +99,273 @@ public class CartController {
      * 결제 방식 선택 페이지
      */
     @GetMapping("/payment-method")
-    public String paymentMethodPage(HttpSession session, Model model, @Value("${imp.code}") String impCode) {
-        UserVO user = validateUserLogin(session);
-        if (user == null) {
-            return UrlConstants.Redirect.TO_USER_LOGIN;
-        }
+    public String paymentMethodPage(HttpSession session, Model model) {
+        getValidatedUser(session); // 로그인 검증만 필요
+        validateCart(session);
         
         CartVO cart = cartService.getCart(session);
-        if (cart == null || cart.isEmpty()) {
-            return UrlConstants.Redirect.TO_USER_CART;
-        }
-        
         model.addAttribute(UrlConstants.Model.CART, cart);
-        model.addAttribute("impCode", impCode);
         return UrlConstants.View.USER_CART_PAYMENT_METHOD;
+    }
+
+    /**
+     * 친구 초대 페이지 (개선된 서버 중심)
+     */
+    @GetMapping("/invite-friends")
+    public String inviteFriendsPage(
+            @RequestParam(value = CartConstants.PARAM_PAGE, defaultValue = "1") int page,
+            @RequestParam(value = CartConstants.PARAM_SIZE, defaultValue = "10") int size,
+            @RequestParam(value = CartConstants.PARAM_SEARCH, required = false) String search,
+            @RequestParam(value = "filter", defaultValue = "all") String filter,
+            HttpSession session, Model model) {
+        
+        UserVO user = getValidatedUser(session);
+        validateCart(session);
+        
+        CartVO cart = cartService.getCart(session);
+        
+        // 친구 초대 페이지 진입시 항상 초기화 (현재 사용자만 선택)
+        Set<Long> selectedFriendIds = new HashSet<>();
+        selectedFriendIds.add((long) user.getUsersId());
+        inviteMap.put(user.getUsersId(), selectedFriendIds);
+        
+        log.info("친구 초대 페이지 진입: 사용자 {} - 선택 상태 초기화", user.getUsersId());
+        
+        // 필터링된 친구 목록 조회
+        List<UserVO> filteredUsers = getFilteredFriends(user, filter, search);
+        
+        // 페이징 처리
+        PageMaker<UserVO> pageMaker = getPagedFriends(filteredUsers, page, size);
+        
+        // JSP에서 사용할 데이터 준비
+        model.addAttribute(UrlConstants.Model.CART, cart);
+        model.addAttribute("friends", pageMaker.getList());
+        model.addAttribute("selectedFriends", selectedFriendIds);
+        model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
+        model.addAttribute("pageMaker", pageMaker);
+        model.addAttribute("currentPage", page);
+        model.addAttribute(CartConstants.PARAM_SEARCH, search);
+        model.addAttribute("filter", filter);
+        model.addAttribute("totalCount", pageMaker.getCount());
+        
+        return UrlConstants.View.USER_CART_INVITE_FRIENDS;
+    }
+
+    /**
+     * 결제 금액 결정 페이지
+     */
+    @GetMapping("/make-bill")
+    public String makeBillPage(HttpSession session, Model model) {
+        getValidatedUser(session); // 로그인 검증만 필요
+        validateCart(session);
+        
+        return UrlConstants.View.USER_CART_MAKE_BILL;
     }
     
     /**
-     * 친구 초대 AJAX API (페이징 포함)
+     * 수락 대기 페이지
      */
-    @GetMapping("/invite-friends-ajax")
+    @GetMapping("/waiting-approval")
+    public String waitingApprovalPage(HttpSession session, Model model, @Value("${imp.code}") String impCode) {
+        UserVO user = getValidatedUser(session);
+        validateCart(session);
+        
+        CartVO cart = cartService.getCart(session);
+        
+        // inviteMap이 비어있으면 현재 사용자만 추가 (혼자 결제하는 경우)
+        Set<Long> selectedFriendIds = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
+        if (selectedFriendIds.isEmpty()) {
+            selectedFriendIds.add((long) user.getUsersId());
+            inviteMap.put(user.getUsersId(), selectedFriendIds);
+            log.info("혼자 결제하는 경우: 사용자 {}를 inviteMap에 추가", user.getUsersId());
+        }
+
+        // 선택된 친구들의 상세 정보 조회
+        List<UserVO> selectedFriends = getParticipantDetails(user);
+        
+        log.info("수락 대기 페이지: 사용자 {} - 선택된 친구들 {}명", user.getUsersId(), selectedFriends.size());
+        model.addAttribute(UrlConstants.Model.CART, cart);
+        model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
+        model.addAttribute("selectedFriends", selectedFriends);
+        model.addAttribute("friendCount", selectedFriends.size());
+        model.addAttribute("miniGameMessage", CartConstants.MSG_MINI_GAME_PREPARING);
+        model.addAttribute("impCode", impCode);
+        return UrlConstants.View.USER_CART_WAITING_APPROVAL;
+    }
+
+    /**
+     * 결제 완료 페이지
+     */
+    @GetMapping("/payment-complete")
+    public String paymentCompletePage(HttpSession session, Model model) {
+        UserVO user = getValidatedUser(session);
+        validateCart(session);
+        
+        CartVO cart = cartService.getCart(session);
+        
+        model.addAttribute(UrlConstants.Model.CART, cart);
+        model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
+        return UrlConstants.View.USER_CART_PAYMENT_COMPLETE;
+    }
+
+    // =============================== 장바구니 관련 API ===============================
+    
+    /**
+     * 장바구니에 메뉴 추가 API (옵션 자동 계산)
+     */
+    @PostMapping("/add-with-options")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> inviteFriendsAjax(
+    public ResponseEntity<Map<String, Object>> addToCartWithOptions(
+            @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
+            @RequestParam(UrlConstants.Param.QUANTITY) int quantity,
+            @RequestParam(value = "selectedOptions", required = false) String selectedOptions,
+            HttpSession session) {
+        
+        try {
+            getValidatedUser(session); // 로그인 검증만 필요
+            
+            boolean success = cartService.addToCartWithOptions(session, menuId, quantity, selectedOptions);
+            
+            if (success) {
+                return ResponseEntity.ok(createCartAddSuccessResponse(session, CartConstants.MSG_CART_ADD_SUCCESS));
+            } else {
+                return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_CART_ADD_FAILED));
+            }
+            
+        } catch (Exception e) {
+            log.error("장바구니 추가 오류 (옵션 자동 계산)", e);
+            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_CART_ADD_ERROR));
+        }
+    }
+    
+    /**
+     * 장바구니 아이템 수량 변경 API
+     */
+    @PostMapping("/update")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateCartItemQuantity(
+            @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
+            @RequestParam(UrlConstants.Param.QUANTITY) int quantity,
+            HttpSession session) {
+        
+        try {
+            getValidatedUser(session); // 로그인 검증만 필요
+            
+            boolean success = cartService.updateQuantity(session, menuId, quantity);
+            
+            if (success) {
+                return ResponseEntity.ok(createCartSuccessResponse(session, CartConstants.MSG_QUANTITY_UPDATE_SUCCESS));
+            } else {
+                return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_QUANTITY_UPDATE_FAILED));
+            }
+            
+        } catch (Exception e) {
+            log.error("수량 변경 오류", e);
+            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_QUANTITY_UPDATE_ERROR));
+        }
+    }
+    
+    /**
+     * 장바구니 아이템 삭제 API
+     */
+    @PostMapping("/remove")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> removeCartItem(
+            @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
+            HttpSession session) {
+        
+        try {
+            getValidatedUser(session); // 로그인 검증만 필요
+            
+            boolean success = cartService.removeItem(session, menuId);
+            
+            if (success) {
+                return ResponseEntity.ok(createCartSuccessResponse(session, CartConstants.MSG_ITEM_REMOVE_SUCCESS));
+            } else {
+                return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_ITEM_REMOVE_FAILED));
+            }
+            
+        } catch (Exception e) {
+            log.error("메뉴 삭제 오류", e);
+            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_ITEM_REMOVE_ERROR));
+        }
+    }
+    
+    /**
+     * 장바구니 전체 삭제 API
+     */
+    @PostMapping("/clear")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> clearCart(HttpSession session) {
+        
+        try {
+            getValidatedUser(session); // 로그인 검증만 필요
+            
+            cartService.clearCart(session);
+            
+            return ResponseEntity.ok(createCartClearSuccessResponse(CartConstants.MSG_CART_CLEAR_SUCCESS));
+            
+        } catch (Exception e) {
+            log.error("장바구니 비우기 오류", e);
+            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_CART_CLEAR_ERROR));
+        }
+    }
+    
+    /**
+     * 장바구니 아이템 개수 조회 API
+     */
+    @GetMapping("/count")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getCartItemCount(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            getValidatedUser(session); // 로그인 검증만 필요
+            
+            int count = cartService.getCartItemCount(session);
+            response.put(CartConstants.JSON_COUNT, count);
+            
+        } catch (Exception e) {
+            log.error("장바구니 개수 조회 오류", e);
+            response.put(CartConstants.JSON_COUNT, CartConstants.DEFAULT_CART_COUNT);
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * 장바구니 총 금액 조회 API
+     */
+    @GetMapping("/total")
+    public ResponseEntity<Map<String, Object>> getCartTotalAmount(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            getValidatedUser(session); // 로그인 검증만 필요
+            
+            int count = cartService.getCartItemCount(session);
+            int totalAmount = cartService.getCartTotalAmount(session);
+            
+            response.put(CartConstants.JSON_COUNT, count);
+            response.put(CartConstants.JSON_TOTAL_AMOUNT, totalAmount);
+            
+        } catch (Exception e) {
+            log.error("장바구니 총 금액 조회 오류", e);
+            response.put(CartConstants.JSON_COUNT, CartConstants.DEFAULT_CART_COUNT);
+            response.put(CartConstants.JSON_TOTAL_AMOUNT, 0);
+        }
+        
+        return ResponseEntity.ok(response);
+    }
+
+    // =============================== 친구 초대 관련 API ===============================
+    
+    /**
+     * 친구 목록 조회 API (페이징 포함)
+     */
+    @GetMapping("/friends-api")
+    @ResponseBody
+    private ResponseEntity<Map<String, Object>> getFriendsList(
             @RequestParam(value = CartConstants.PARAM_PAGE, defaultValue = "1") int page,
             @RequestParam(value = CartConstants.PARAM_SIZE, defaultValue = "10") int size,
             @RequestParam(value = CartConstants.PARAM_SEARCH, required = false) String search,
@@ -125,53 +375,19 @@ public class CartController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
+            UserVO user = getValidatedUser(session);
             
-            // 페이징 설정
-            PageDTO pageDTO = new PageDTO();
-            pageDTO.setCurrentPage(page);
-            pageDTO.setPageSize(size);
+            // 필터링된 친구 목록 조회
+            List<UserVO> filteredUsers = getFilteredFriends(user, filter, search);
             
-            // 필터에 따라 다른 사용자 목록 조회
-            List<UserVO> filteredUsers;
-            
-            switch (filter) {
-                case "department":
-                    filteredUsers = loginService.getUsersByDepartmentIdExcludingCurrentUser(
-                            user.getDepartmentId(), user.getUsersId());
-                    break;
-                case "all":
-                default:
-                    filteredUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
-                            user.getCompanyId(), user.getUsersId());
-                    break;
-            }
-            
-            // 검색어가 있으면 추가 필터링
-            if (search != null && !search.trim().isEmpty()) {
-                filteredUsers = filteredUsers.stream()
-                        .filter(u -> u.getUsersName().contains(search.trim()))
-                        .collect(java.util.stream.Collectors.toList());
-            }
-            
-            long totalCount = filteredUsers.size();
-            
-            // 페이징 처리 (메모리에서)
-            int offset = pageDTO.getOffset();
-            int endIndex = Math.min(offset + pageDTO.getPageSize(), filteredUsers.size());
-            List<UserVO> pagedUsers = filteredUsers.subList(offset, endIndex);
-            
-            // PageMaker 생성
-            PageMaker<UserVO> pageMaker = new PageMaker<>(pagedUsers, totalCount, size, page);
+            // 페이징 처리
+            PageMaker<UserVO> pageMaker = getPagedFriends(filteredUsers, page, size);
             
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put("friends", pagedUsers);
+            response.put("friends", pageMaker.getList());
             response.put("pageMaker", pageMaker);
             response.put("currentPage", page);
-            response.put("totalCount", totalCount);
+            response.put("totalCount", pageMaker.getCount());
             
         } catch (Exception e) {
             log.error("친구 초대 AJAX 오류", e);
@@ -183,20 +399,6 @@ public class CartController {
     }
     
     /**
-     * 친구 목록 API (JavaScript 호환용 별칭)
-     */
-    @GetMapping("/friends-api")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getFriendsApi(
-            @RequestParam(value = CartConstants.PARAM_PAGE, defaultValue = "1") int page,
-            @RequestParam(value = CartConstants.PARAM_SIZE, defaultValue = "10") int size,
-            @RequestParam(value = CartConstants.PARAM_SEARCH, required = false) String search,
-            @RequestParam(value = "filter", defaultValue = "all") String filter,
-            HttpSession session) {
-        return inviteFriendsAjax(page, size, search, filter, session);
-    }
-    
-    /**
      * 선택된 친구 목록 조회 API
      */
     @GetMapping("/selected-friends")
@@ -204,10 +406,8 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> getSelectedFriends(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
+            UserVO user = getValidatedUser(session);
+            
             Set<Long> selectedFriendIds = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
             if (selectedFriendIds.isEmpty()) {
                 selectedFriendIds.add((long) user.getUsersId());
@@ -236,10 +436,8 @@ public class CartController {
             HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
+            UserVO user = getValidatedUser(session);
+            
             Set<Long> selectedFriends = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
             boolean wasSelected = selectedFriends.contains(friendId);
             if (wasSelected) {
@@ -270,10 +468,8 @@ public class CartController {
             HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
+            UserVO user = getValidatedUser(session);
+            
             @SuppressWarnings("unchecked")
             List<Object> friendIdObjects = (List<Object>) request.get("selectedFriendIds");
             if (friendIdObjects == null) {
@@ -314,10 +510,9 @@ public class CartController {
             HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
+            UserVO user = getValidatedUser(session);
+            validateCart(session);
+            
             @SuppressWarnings("unchecked")
             List<Object> selectedFriendIdObjects = (List<Object>) request.get("selectedFriendIds");
             if (selectedFriendIdObjects == null || selectedFriendIdObjects.isEmpty()) {
@@ -355,424 +550,7 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * 친구 초대 페이지 (개선된 서버 중심)
-     */
-    @GetMapping("/invite-friends")
-    public String inviteFriendsPage(
-            @RequestParam(value = CartConstants.PARAM_PAGE, defaultValue = "1") int page,
-            @RequestParam(value = CartConstants.PARAM_SIZE, defaultValue = "10") int size,
-            @RequestParam(value = CartConstants.PARAM_SEARCH, required = false) String search,
-            @RequestParam(value = "filter", defaultValue = "all") String filter,
-            HttpSession session, Model model) {
-        
-        UserVO user = validateUserLogin(session);
-        if (user == null) {
-            return UrlConstants.Redirect.TO_USER_LOGIN;
-        }
-        
-        CartVO cart = cartService.getCart(session);
-        if (cart == null || cart.isEmpty()) {
-            return UrlConstants.Redirect.TO_USER_CART;
-        }
-        
-        // 친구 초대 페이지 진입시 항상 초기화 (현재 사용자만 선택)
-        Set<Long> selectedFriends = new HashSet<>();
-        selectedFriends.add((long) user.getUsersId());
-        session.setAttribute("selectedFriends", selectedFriends);
-        
-        log.info("친구 초대 페이지 진입: 사용자 {} - 선택 상태 초기화", user.getUsersId());
-        
-        // 페이징 설정
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setCurrentPage(page);
-        pageDTO.setPageSize(size);
-        
-        // 필터에 따라 다른 사용자 목록 조회
-        List<UserVO> filteredUsers;
-        switch (filter) {
-            case "department":
-                filteredUsers = loginService.getUsersByDepartmentIdExcludingCurrentUser(
-                        user.getDepartmentId(), user.getUsersId());
-                break;
-            case "all":
-            default:
-                filteredUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
-                        user.getCompanyId(), user.getUsersId());
-                break;
-        }
-        
-        // 검색어 필터링
-        if (search != null && !search.trim().isEmpty()) {
-            filteredUsers = filteredUsers.stream()
-                    .filter(u -> u.getUsersName().contains(search.trim()))
-                    .collect(java.util.stream.Collectors.toList());
-        }
-        
-        long totalCount = filteredUsers.size();
-        
-        // 페이징 처리
-        int offset = pageDTO.getOffset();
-        int endIndex = Math.min(offset + pageDTO.getPageSize(), filteredUsers.size());
-        List<UserVO> pagedUsers = offset < filteredUsers.size() ? 
-            filteredUsers.subList(offset, endIndex) : new ArrayList<>();
-        
-        // PageMaker 생성
-        PageMaker<UserVO> pageMaker = new PageMaker<>(pagedUsers, totalCount, size, page);
-        
-        // JSP에서 사용할 데이터 준비
-        model.addAttribute(UrlConstants.Model.CART, cart);
-        model.addAttribute("friends", pagedUsers);
-        model.addAttribute("selectedFriends", selectedFriends);
-        model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
-        model.addAttribute("pageMaker", pageMaker);
-        model.addAttribute("currentPage", page);
-        model.addAttribute(CartConstants.PARAM_SEARCH, search);
-        model.addAttribute("filter", filter);
-        model.addAttribute("totalCount", totalCount);
-        
-        return UrlConstants.View.USER_CART_INVITE_FRIENDS;
-    }
-    
-    /**
-     * 수락 대기 페이지
-     */
-    @GetMapping("/waiting-approval")
-    public String waitingApprovalPage(HttpSession session, Model model, @Value("${imp.code}") String impCode) {
-        UserVO user = validateUserLogin(session);
-        if (user == null) {
-            return UrlConstants.Redirect.TO_USER_LOGIN;
-        }
-        CartVO cart = cartService.getCart(session);
-        if (cart == null || cart.isEmpty()) {
-            return UrlConstants.Redirect.TO_USER_CART;
-        }
-        
-        // inviteMap이 비어있으면 현재 사용자만 추가 (혼자 결제하는 경우)
-        Set<Long> selectedFriendIds = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
-        if (selectedFriendIds.isEmpty()) {
-            selectedFriendIds.add((long) user.getUsersId());
-            inviteMap.put(user.getUsersId(), selectedFriendIds);
-            log.info("혼자 결제하는 경우: 사용자 {}를 inviteMap에 추가", user.getUsersId());
-        }
-        
-        List<UserVO> selectedFriends = new ArrayList<>();
-        selectedFriends.add(user);
-        if (selectedFriendIds != null && selectedFriendIds.size() > 1) {
-            List<UserVO> companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
-                    user.getCompanyId(), user.getUsersId());
-            for (Long friendId : selectedFriendIds) {
-                if (friendId != user.getUsersId()) {
-                    for (UserVO companyUser : companyUsers) {
-                        if (companyUser.getUsersId() == friendId.intValue()) {
-                            selectedFriends.add(companyUser);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        log.info("수락 대기 페이지: 사용자 {} - 선택된 친구들 {}명", user.getUsersId(), selectedFriends.size());
-        model.addAttribute(UrlConstants.Model.CART, cart);
-        model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
-        model.addAttribute("selectedFriends", selectedFriends);
-        model.addAttribute("friendCount", selectedFriends.size());
-        model.addAttribute("miniGameMessage", CartConstants.MSG_MINI_GAME_PREPARING);
-        model.addAttribute("impCode", impCode);
-        return UrlConstants.View.USER_CART_WAITING_APPROVAL;
-    }
-
-    // =============================== 장바구니 관련 API ===============================
-    
-    /**
-     * 장바구니에 메뉴 추가 API
-     */
-    @PostMapping("/add")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> addToCart(
-            @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
-            @RequestParam(UrlConstants.Param.QUANTITY) int quantity,
-            @RequestParam(value = "unitPrice", required = false) Integer unitPrice,
-            @RequestParam(value = "options", required = false) String options,
-            HttpSession session) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
-            
-            boolean success;
-            
-            if (options != null && !options.trim().isEmpty() && unitPrice != null && unitPrice > 0) {
-                success = cartService.addToCart(session, menuId, quantity, unitPrice, options);
-            } else if (unitPrice != null && unitPrice > 0) {
-                success = cartService.addToCart(session, menuId, quantity, unitPrice);
-            } else {
-                success = cartService.addToCart(session, menuId, quantity);
-            }
-            
-            if (success) {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_SUCCESS);
-                response.put(CartConstants.JSON_CART_COUNT, cartService.getCartItemCount(session));
-            } else {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_FAILED);
-            }
-            
-        } catch (Exception e) {
-            log.error("장바구니 추가 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_ERROR);
-        }
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * 장바구니에 메뉴 추가 API (옵션 자동 계산)
-     */
-    @PostMapping("/add-with-options")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> addToCartWithOptions(
-            @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
-            @RequestParam(UrlConstants.Param.QUANTITY) int quantity,
-            @RequestParam(value = "selectedOptions", required = false) String selectedOptions,
-            HttpSession session) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
-            
-            boolean success = cartService.addToCartWithOptions(session, menuId, quantity, selectedOptions);
-            
-            if (success) {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_SUCCESS);
-                response.put(CartConstants.JSON_CART_COUNT, cartService.getCartItemCount(session));
-                
-                // 추가된 아이템의 실제 계산된 가격 정보도 포함
-                CartVO cart = cartService.getCart(session);
-                response.put(CartConstants.JSON_TOTAL_AMOUNT, cart.getTotalAmount());
-            } else {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_FAILED);
-            }
-            
-        } catch (Exception e) {
-            log.error("장바구니 추가 오류 (옵션 자동 계산)", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_ERROR);
-        }
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * 장바구니 수량 변경 API
-     */
-    @PostMapping("/update")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> updateQuantity(
-            @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
-            @RequestParam(UrlConstants.Param.QUANTITY) int quantity,
-            HttpSession session) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
-            
-            boolean success = cartService.updateQuantity(session, menuId, quantity);
-            
-            if (success) {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_QUANTITY_UPDATE_SUCCESS);
-                CartVO cart = cartService.getCart(session);
-                response.put(CartConstants.JSON_TOTAL_AMOUNT, cart.getTotalAmount());
-                response.put(CartConstants.JSON_CART_COUNT, cartService.getCartItemCount(session));
-            } else {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_QUANTITY_UPDATE_FAILED);
-            }
-            
-        } catch (Exception e) {
-            log.error("수량 변경 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_QUANTITY_UPDATE_ERROR);
-        }
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * 장바구니 아이템 삭제 API
-     */
-    @PostMapping("/remove")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> removeFromCart(
-            @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
-            HttpSession session) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
-            
-            boolean success = cartService.removeItem(session, menuId);
-            
-            if (success) {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_ITEM_REMOVE_SUCCESS);
-                CartVO cart = cartService.getCart(session);
-                response.put(CartConstants.JSON_TOTAL_AMOUNT, cart.getTotalAmount());
-                response.put(CartConstants.JSON_CART_COUNT, cartService.getCartItemCount(session));
-            } else {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_ITEM_REMOVE_FAILED);
-            }
-            
-        } catch (Exception e) {
-            log.error("메뉴 삭제 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_ITEM_REMOVE_ERROR);
-        }
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * 장바구니 전체 삭제 API
-     */
-    @PostMapping("/clear")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> clearCart(HttpSession session) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
-            
-            cartService.clearCart(session);
-            
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_CLEAR_SUCCESS);
-            response.put(CartConstants.JSON_CART_COUNT, CartConstants.DEFAULT_CART_COUNT);
-            
-        } catch (Exception e) {
-            log.error("장바구니 비우기 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_CLEAR_ERROR);
-        }
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * 장바구니 아이템 개수 조회 API
-     */
-    @GetMapping("/count")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getCartCount(HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                response.put(CartConstants.JSON_COUNT, CartConstants.DEFAULT_CART_COUNT);
-                return ResponseEntity.ok(response);
-            }
-            
-            int count = cartService.getCartItemCount(session);
-            response.put(CartConstants.JSON_COUNT, count);
-            
-        } catch (Exception e) {
-            log.error("장바구니 개수 조회 오류", e);
-            response.put(CartConstants.JSON_COUNT, CartConstants.DEFAULT_CART_COUNT);
-        }
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * 장바구니 총 금액 조회 API
-     */
-    @GetMapping("/total")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getCartTotal(HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                response.put(CartConstants.JSON_COUNT, CartConstants.DEFAULT_CART_COUNT);
-                response.put(CartConstants.JSON_TOTAL_AMOUNT, 0);
-                return ResponseEntity.ok(response);
-            }
-            
-            CartVO cart = cartService.getCart(session);
-            int count = cart != null ? cart.getItems().size() : 0;
-            int totalAmount = cart != null ? cart.getTotalAmount() : 0;
-            
-            response.put(CartConstants.JSON_COUNT, count);
-            response.put(CartConstants.JSON_TOTAL_AMOUNT, totalAmount);
-            
-        } catch (Exception e) {
-            log.error("장바구니 총 금액 조회 오류", e);
-            response.put(CartConstants.JSON_COUNT, CartConstants.DEFAULT_CART_COUNT);
-            response.put(CartConstants.JSON_TOTAL_AMOUNT, 0);
-        }
-        
-        return ResponseEntity.ok(response);
-    }
-    
-    /**
-     * 부서별 사용자 목록 조회 API
-     */
-    @GetMapping("/users/department/{departmentId}")
-    @ResponseBody
-    public ResponseEntity<Map<String, Object>> getUsersByDepartment(
-            @PathVariable(UrlConstants.Param.DEPARTMENT_ID) int departmentId,
-            HttpSession session) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
-            
-            List<UserVO> departmentUsers = loginService.getUsersByDepartmentIdExcludingCurrentUser(
-                    departmentId, user.getUsersId());
-            
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put(CartConstants.JSON_USERS, departmentUsers);
-            
-        } catch (Exception e) {
-            log.error("부서별 사용자 조회 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_USER_LIST_ERROR);
-        }
-        
-        return ResponseEntity.ok(response);
-    }
+    // =============================== 더치페이 관련 API ===============================
     
     /**
      * 더치페이 가격 계산 API
@@ -782,105 +560,60 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> calculateDutchPay(
             @RequestBody Map<String, Object> request,
             HttpSession session) {
-        
         Map<String, Object> response = new HashMap<>();
-        
         try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
-            
+            UserVO user = getValidatedUser(session);
+            validateCart(session);
             CartVO cart = cartService.getCart(session);
-            if (cart == null || cart.isEmpty()) {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-                response.put(CartConstants.JSON_MESSAGE, "장바구니가 비어있습니다.");
-                return ResponseEntity.ok(response);
-            }
-            
-            @SuppressWarnings("unchecked")
-            List<String> participantIds = (List<String>) request.get("participantIds");
             String paymentMethod = (String) request.get("paymentMethod");
-            
-            if (participantIds == null || participantIds.isEmpty()) {
+
+            Set<Long> participantIds = getParticipantIds(user);
+            if (participantIds.isEmpty()) {
                 response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
                 response.put(CartConstants.JSON_MESSAGE, "참여자 정보가 없습니다.");
                 return ResponseEntity.ok(response);
             }
-            
+
             int totalAmount = cart.getTotalAmount();
             int participantCount = participantIds.size();
-            
             Map<String, Integer> paymentDistribution = new HashMap<>();
-            
+
             if ("equal".equals(paymentMethod)) {
-                // 균등 분할
                 int baseAmount = totalAmount / participantCount;
                 int remainder = totalAmount % participantCount;
-                
-                for (int i = 0; i < participantIds.size(); i++) {
-                    String participantId = participantIds.get(i);
+                int i = 0;
+                for (Long participantId : participantIds) {
                     int amount = baseAmount + (i < remainder ? 1 : 0);
-                    paymentDistribution.put(participantId, amount);
+                    paymentDistribution.put(participantId.toString(), amount);
+                    i++;
                 }
             } else if ("random".equals(paymentMethod)) {
-                // 랜덤 분할 (범위 제한)
                 int minAmount = Math.max(1000, totalAmount / participantCount / 2);
                 int maxAmount = Math.min(totalAmount - (participantCount - 1) * minAmount, 
                                        totalAmount / participantCount * 2);
-                
                 int remainingAmount = totalAmount;
                 java.util.Random random = new java.util.Random();
-                
-                for (int i = 0; i < participantIds.size() - 1; i++) {
-                    String participantId = participantIds.get(i);
-                    int remainingParticipants = participantIds.size() - i;
+                List<Long> participantIdList = new ArrayList<>(participantIds);
+                for (int i = 0; i < participantIdList.size() - 1; i++) {
+                    Long participantId = participantIdList.get(i);
+                    int remainingParticipants = participantIdList.size() - i;
                     int minForThisParticipant = Math.max(minAmount, 
                             remainingAmount - (remainingParticipants - 1) * maxAmount);
                     int maxForThisParticipant = Math.min(maxAmount, 
                             remainingAmount - (remainingParticipants - 1) * minAmount);
-                    
                     int amount = random.nextInt(maxForThisParticipant - minForThisParticipant + 1) 
                                + minForThisParticipant;
-                    
-                    paymentDistribution.put(participantId, amount);
+                    paymentDistribution.put(participantId.toString(), amount);
                     remainingAmount -= amount;
                 }
-                
-                // 마지막 참여자는 남은 금액
-                paymentDistribution.put(participantIds.get(participantIds.size() - 1), remainingAmount);
+                paymentDistribution.put(participantIdList.get(participantIdList.size() - 1).toString(), remainingAmount);
             }
-            
-            // 참여자 정보 조회
-            List<UserVO> participants = new ArrayList<>();
-            List<UserVO> companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
-                    user.getCompanyId(), user.getUsersId());
-            
-            for (String participantId : participantIds) {
-                try {
-                    int userId = Integer.parseInt(participantId);
-                    
-                    if (userId == user.getUsersId()) {
-                        participants.add(user);
-                    } else {
-                        for (UserVO companyUser : companyUsers) {
-                            if (companyUser.getUsersId() == userId) {
-                                participants.add(companyUser);
-                                break;
-                            }
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    log.warn("잘못된 참여자 ID: {}", participantId);
-                }
-            }
-            
-            // 응답 데이터 구성
+
+            List<UserVO> participants = getParticipantDetails(user);
             List<Map<String, Object>> paymentList = new ArrayList<>();
             for (UserVO participant : participants) {
                 String participantId = String.valueOf(participant.getUsersId());
                 Integer amount = paymentDistribution.get(participantId);
-                
                 if (amount != null) {
                     Map<String, Object> paymentInfo = new HashMap<>();
                     paymentInfo.put("userId", participant.getUsersId());
@@ -888,39 +621,35 @@ public class CartController {
                     paymentInfo.put("userProfile", participant.getUsersProfile());
                     paymentInfo.put("amount", amount);
                     paymentInfo.put("isCurrentUser", participant.getUsersId() == user.getUsersId());
-                    
                     paymentList.add(paymentInfo);
                 }
             }
-            
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
             response.put("totalAmount", totalAmount);
             response.put("participantCount", participantCount);
             response.put("paymentMethod", paymentMethod);
             response.put("paymentList", paymentList);
             response.put("cart", cart);
-            
+            response.put("participants", participants);
         } catch (Exception e) {
             log.error("더치페이 계산 오류", e);
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
             response.put(CartConstants.JSON_MESSAGE, "더치페이 계산에 실패했습니다.");
         }
-        
         return ResponseEntity.ok(response);
     }
 
     /**
-     * 더치페이 계산 API (GET, make-bill.jsp용)
+     * 더치페이 계산 결과 조회 API (GET, make-bill.jsp용)
      */
     @GetMapping("/calculate-dutch-pay")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getDutchPay(HttpSession session) {
+    public ResponseEntity<Map<String, Object>> getDutchPayCalculation(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                return ResponseEntity.ok(createLoginRequiredResponse());
-            }
+            UserVO user = getValidatedUser(session);
+            validateCart(session);
+            
             CartVO cart = cartService.getCart(session);
             if (cart == null || cart.isEmpty()) {
                 response.put("result", "error");
@@ -928,7 +657,7 @@ public class CartController {
                 return ResponseEntity.ok(response);
             }
             
-            List<UserVO> participantList = getParticipants(user);
+            List<UserVO> participantList = getParticipantDetails(user);
             List<Map<String, Object>> participants = new ArrayList<>();
             int totalAmount = cart.getTotalAmount();
             int participantCount = participantList.size();
@@ -954,23 +683,6 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
-    public List<UserVO> getParticipants(UserVO user) {
-        List<UserVO> participants = new ArrayList<>();
-        Set<Long> participantIds = inviteMap.get(user.getUsersId());
-        
-        // inviteMap이 null이거나 비어있으면 현재 사용자만 반환
-        if (participantIds == null || participantIds.isEmpty()) {
-            participants.add(user);
-            log.info("getParticipants: inviteMap이 비어있어서 현재 사용자 {}만 반환", user.getUsersId());
-        } else {
-            for (Long id : participantIds) {
-                participants.add(loginService.getUserById(id));
-            }
-        }
-
-        return participants;
-    }
-
     /**
      * BillDTO 생성/저장 API (POST, make-bill.jsp용)
      */
@@ -979,12 +691,7 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> submitBill(@RequestBody Map<String, Object> request, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         try {
-            UserVO user = validateUserLogin(session);
-            if (user == null) {
-                response.put("result", "error");
-                response.put("message", "로그인이 필요합니다.");
-                return ResponseEntity.ok(response);
-            }
+            UserVO user = getValidatedUser(session);
             
             // 1. session에서 cart 가져오기
             CartVO cart = cartService.getCart(session);
@@ -995,7 +702,7 @@ public class CartController {
             }
             
             // 2. controller의 inviteMap에서 참여자 목록 가져오기
-            List<UserVO> participants = getParticipants(user);
+            List<UserVO> participants = getParticipantDetails(user);
             int totalAmount = cart.getTotalAmount();
             int participantCount = participants.size();
             int amountPerPerson = participantCount > 0 ? totalAmount / participantCount : 0;
@@ -1035,38 +742,61 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/make-bill")
-    public String makeBillPage(HttpSession session, Model model) {
-        UserVO user = validateUserLogin(session);
-        if (user == null) {
-            return UrlConstants.Redirect.TO_USER_LOGIN;
+    /**
+     * 더치페이 페이지 데이터 통합 조회 API
+     */
+    @GetMapping("/dutch-pay-data")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDutchPayData(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            UserVO user = getValidatedUser(session);
+            validateCart(session);
+            CartVO cart = cartService.getCart(session);
+            List<UserVO> participants = getParticipantDetails(user);
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+            response.put("participants", participants);
+            response.put("cart", cart);
+            response.put("totalAmount", cart.getTotalAmount());
+            response.put("itemCount", cart.getItems().size());
+            response.put("participantCount", participants.size());
+        } catch (Exception e) {
+            log.error("더치페이 데이터 조회 오류", e);
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+            response.put(CartConstants.JSON_MESSAGE, "데이터 조회에 실패했습니다.");
         }
-        CartVO cart = cartService.getCart(session);
-        if (cart == null || cart.isEmpty()) {
-            return UrlConstants.Redirect.TO_USER_CART;
-        }
-        // model.addAttribute("cart", cart);
-        return UrlConstants.View.USER_CART_MAKE_BILL;
+        return ResponseEntity.ok(response);
     }
 
+    // =============================== 기타 API ===============================
+    
     /**
-     * 결제 완료 페이지
+     * 부서별 사용자 목록 조회 API
      */
-    @GetMapping("/payment-complete")
-    public String paymentCompletePage(HttpSession session, Model model) {
-        UserVO user = validateUserLogin(session);
-        if (user == null) {
-            return UrlConstants.Redirect.TO_USER_LOGIN;
+    @GetMapping("/users/department/{departmentId}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getUsersByDepartment(
+            @PathVariable(UrlConstants.Param.DEPARTMENT_ID) int departmentId,
+            HttpSession session) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            UserVO user = getValidatedUser(session);
+            
+            List<UserVO> departmentUsers = loginService.getUsersByDepartmentIdExcludingCurrentUser(
+                    departmentId, user.getUsersId());
+            
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+            response.put(CartConstants.JSON_USERS, departmentUsers);
+            
+        } catch (Exception e) {
+            log.error("부서별 사용자 조회 오류", e);
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_USER_LIST_ERROR);
         }
         
-        CartVO cart = cartService.getCart(session);
-        if (cart == null || cart.isEmpty()) {
-            return UrlConstants.Redirect.TO_USER_CART;
-        }
-        
-        model.addAttribute(UrlConstants.Model.CART, cart);
-        model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
-        return UrlConstants.View.USER_CART_PAYMENT_COMPLETE;
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -1074,10 +804,7 @@ public class CartController {
      */
     @GetMapping(value = "/payment-status-stream")
     public ResponseEntity<String> paymentStatusStream(HttpSession session) {
-        UserVO user = validateUserLogin(session);
-        if (user == null) {
-            return ResponseEntity.ok("data: {\"error\": \"로그인이 필요합니다\"}\n\n");
-        }
+        UserVO user = getValidatedUser(session);
         
         // SSE 응답 생성
         String sseData = "data: {\"type\": \"connected\", \"userId\": " + user.getUsersId() + "}\n\n";
@@ -1090,6 +817,132 @@ public class CartController {
                 .body(sseData);
     }
 
+    // =============================== 내부 메서드 ===============================
+    
+    /**
+     * 장바구니 성공 응답 생성 (카트 정보 포함)
+     */
+    private Map<String, Object> createCartSuccessResponse(HttpSession session, String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put(CartConstants.JSON_MESSAGE, message);
+        
+        // 카트 정보 추가
+        response.put(CartConstants.JSON_TOTAL_AMOUNT, cartService.getCartTotalAmount(session));
+        response.put(CartConstants.JSON_CART_COUNT, cartService.getCartItemCount(session));
+        
+        return response;
+    }
+    
+    /**
+     * 장바구니 실패 응답 생성
+     */
+    private Map<String, Object> createCartErrorResponse(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+        response.put(CartConstants.JSON_MESSAGE, message);
+        return response;
+    }
+    
+    /**
+     * 장바구니 비우기 성공 응답 생성 (카트 개수만 0으로 설정)
+     */
+    private Map<String, Object> createCartClearSuccessResponse(String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put(CartConstants.JSON_MESSAGE, message);
+        response.put(CartConstants.JSON_CART_COUNT, CartConstants.DEFAULT_CART_COUNT);
+        return response;
+    }
+    
+    /**
+     * 장바구니 추가 성공 응답 생성 (추가 정보 포함)
+     */
+    private Map<String, Object> createCartAddSuccessResponse(HttpSession session, String message) {
+        Map<String, Object> response = createCartSuccessResponse(session, message);
+        
+        // 추가된 아이템의 실제 계산된 가격 정보도 포함
+        response.put(CartConstants.JSON_TOTAL_AMOUNT, cartService.getCartTotalAmount(session));
+        
+        return response;
+    }
+    
+    /**
+     * 필터링된 친구 목록 조회 (페이징 포함)
+     */
+    private List<UserVO> getFilteredFriends(UserVO user, String filter, String search) {
+        List<UserVO> filteredUsers;
+        
+        switch (filter) {
+            case "department":
+                filteredUsers = loginService.getUsersByDepartmentIdExcludingCurrentUser(
+                        user.getDepartmentId(), user.getUsersId());
+                break;
+            case "all":
+            default:
+                filteredUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
+                        user.getCompanyId(), user.getUsersId());
+                break;
+        }
+        
+        // 검색어 필터링
+        if (search != null && !search.trim().isEmpty()) {
+            filteredUsers = filteredUsers.stream()
+                    .filter(u -> u.getUsersName().contains(search.trim()))
+                    .collect(java.util.stream.Collectors.toList());
+        }
+        
+        return filteredUsers;
+    }
+    
+    /**
+     * 페이징된 친구 목록 조회
+     */
+    private PageMaker<UserVO> getPagedFriends(List<UserVO> allUsers, int page, int size) {
+        long totalCount = allUsers.size();
+        
+        // 페이징 처리
+        int offset = (page - 1) * size;
+        int endIndex = Math.min(offset + size, allUsers.size());
+        List<UserVO> pagedUsers = offset < allUsers.size() ? 
+            allUsers.subList(offset, endIndex) : new ArrayList<>();
+        
+        return new PageMaker<>(pagedUsers, totalCount, size, page);
+    }
+    
+    /**
+     * 참여자 ID Set 반환 (항상 user 포함)
+     */
+    private Set<Long> getParticipantIds(UserVO user) {
+        Set<Long> ids = inviteMap.get(user.getUsersId());
+        if (ids == null || ids.isEmpty()) {
+            Set<Long> self = new HashSet<>();
+            self.add((long) user.getUsersId());
+            return self;
+        }
+        return new HashSet<>(ids);
+    }
 
+    /**
+     * 참여자 상세 정보 조회 (항상 user 포함, inviteMap 기반)
+     */
+    private List<UserVO> getParticipantDetails(UserVO user) {
+        List<UserVO> participants = new ArrayList<>();
+        Set<Long> participantIds = getParticipantIds(user);
+        participants.add(user); // 항상 user는 포함
+        List<UserVO> companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
+            user.getCompanyId(), user.getUsersId());
+        for (Long id : participantIds) {
+            if (id != user.getUsersId()) {
+                for (UserVO companyUser : companyUsers) {
+                    if (companyUser.getUsersId() == id.intValue()) {
+                        participants.add(companyUser);
+                        break;
+                    }
+                }
+            }
+        }
+        return participants;
+    }
 
 } 
