@@ -14,7 +14,7 @@ public interface OwnerStoreMapper {
     int insertStore(OwnerStoreVO vo);
 
     // 점주 <-> 상점 조회
-    OwnerStoreVO selectStoreById(long id);
+    OwnerStoreVO selectStoreById(int id);
 
     // 상점 수정
     int updateStore(OwnerStoreVO vo);

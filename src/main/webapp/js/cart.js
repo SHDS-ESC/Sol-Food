@@ -274,7 +274,7 @@ function renderOptions() {
         const menuId = container.dataset.menuId;
         const optionsDataScript = container.querySelector('.options-data');
         const menuExtraScript = container.querySelector('.menu-extra-data');
-        
+
         if (!optionsDataScript) {
             console.warn(`옵션 데이터를 찾을 수 없습니다. menuId: ${menuId}`);
             return;
@@ -284,12 +284,12 @@ function renderOptions() {
             // 옵션 데이터 파싱
             const rawData = optionsDataScript.textContent.trim();
             const selectedOptions = JSON.parse(rawData);
-            
+
             if (typeof selectedOptions !== 'object' || Array.isArray(selectedOptions)) {
                 console.warn(`유효하지 않은 옵션 데이터입니다. menuId: ${menuId}`);
                 return;
             }
-            
+
             // 메뉴 옵션 정보 파싱
             let menuExtra = [];
             if (menuExtraScript) {
@@ -299,7 +299,7 @@ function renderOptions() {
                     console.warn('메뉴 옵션 정보 파싱 실패:', e);
                 }
             }
-            
+
             // 선택된 옵션들을 배열로 변환
             const selectedOptionsList = [];
             for (const [groupName, selectedValue] of Object.entries(selectedOptions)) {
@@ -313,7 +313,7 @@ function renderOptions() {
                     selectedOptionsList.push({ groupName, value: selectedValue });
                 }
             }
-            
+
             // 옵션 가격 정보 맵 생성
             const optionPriceMap = {};
             menuExtra.forEach(group => {
@@ -321,10 +321,10 @@ function renderOptions() {
                     optionPriceMap[opt.name] = opt.price;
                 });
             });
-            
+
             // 옵션 HTML 생성
             let optionsHtml = '<div class="option-group">';
-            
+
             // 각 선택된 옵션을 개별적으로 표시
             selectedOptionsList.forEach(({ groupName, value }) => {
                 const optionPrice = optionPriceMap[value] || 0;
@@ -338,12 +338,12 @@ function renderOptions() {
                     </div>
                 `;
             });
-            
+
             optionsHtml += '</div>';
-            
+
             // 옵션 컨테이너 업데이트
             container.innerHTML = optionsHtml;
-            
+
         } catch (error) {
             console.error(`옵션 데이터 파싱 중 오류 발생:`, error);
             container.innerHTML = '<div class="error-message">옵션 정보를 불러올 수 없습니다.</div>';
