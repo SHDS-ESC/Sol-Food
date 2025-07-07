@@ -15,6 +15,70 @@
 </head>
 
 <body>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="rejectionModal">
+    <div class="modal-container">
+        <!-- Close Button -->
+        <button class="modal-close" onclick="closeModal()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="modal-title">유저 제한</h2>
+            <p class="modal-subtitle">유저를 정지하는 사유를 선택하고 상세 내용을 입력해주세요</p>
+        </div>
+
+        <!-- Store Info Card -->
+        <div class="store-info-card">
+            <div class="store-info-header">
+                <img id="moal_image" src=${user.profileImage} alt="상점이미지" class="store-avatar">
+                <div class="user-details">
+                    <h4 id="modal_user_name">${user.storeName}</h4><span id="modal_user_nickname"></span>
+                    <p id="modal_user_info">${user.ownerEmail} | ${user.storeAddress}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejection Form -->
+        <form id="rejectionForm">
+            <!-- Reason Selection -->
+            <div class="form-section">
+                <label class="form-label">거절 사유 선택</label>
+
+                <!-- Detailed Reason -->
+                <div class="form-section">
+                    <label class="form-label">상세 사유 (필수)</label>
+                    <textarea
+                            class="custom-textarea"
+                            name="detailedReason"
+                            id="detailedReason"
+                            maxlength="500"
+                            required
+                            placeholder="거절 사유에 대한 상세한 설명을 입력해주세요..."></textarea>
+                    <div class="character-count">
+                        <span id="charCount">0</span>/500자
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button type="button" class="btn-custom btn-cancel" onclick="closeModal()">
+                        <i class="fas fa-times"></i> 취소
+                    </button>
+                    <button type="submit" class="btn-custom btn-submit" id="submitBtn" disabled>
+                        <i class="fas fa-ban"></i> 승인 거절
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="d-flex">
     <!-- Sidebar -->
     <nav class="side-menu">
@@ -86,6 +150,7 @@
                         <th>나이</th>
                         <th>성별</th>
                         <th>상태</th>
+                        <th>정지사유</th>
                     </tr>
                     </thead>
                     <tbody id="userListBody">
@@ -133,13 +198,17 @@
                             <td>${user.usersGender}</td>
                             <td>
                                 <div class="page-selector">
-                                    <select class="status_selector" style="width: 100px;">
-                                        <option value="${user.usersStatus}">활성</option>
-                                        <option value="비활성">비활성</option>
-                                        <option value="정지">정지</option>
-                                    </select>
+                                    <label class="ownerSelectBody">
+                                        <select class="status_selector">
+                                            <option value="active" ${user.usersStatus == 'active' ? 'selected' : ''}>active
+                                            </option>
+                                            <option value="inactive" ${user.usersStatus == 'inactive' ? 'selected' : ''}>inactive
+                                            </option>
+                                        </select>
+                                    </label>
                                 </div>
                             </td>
+                            <td>${user.usersRejectedReason}</td>
                         </tr>
                     </c:forEach>
                     </tbody>
