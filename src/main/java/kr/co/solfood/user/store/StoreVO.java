@@ -12,7 +12,7 @@ public class StoreVO extends PageDTO {
     private String storeAddress;   // store_address
     private double storeLatitude;  // store_latitude
     private double storeLongitude; // store_longitude
-    private int storeAvgstar;      // store_avgstar
+    private double storeAvgstar;   // store_avgstar (소수점 지원)
     private String storeIntro;     // store_intro
     private String storeMainimage; // store_mainimage
     private String storeTel;       // store_tel

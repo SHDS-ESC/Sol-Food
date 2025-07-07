@@ -45,8 +45,6 @@ if (document.readyState === 'loading') {
     initializePage();
 }
 
-
-
 // 가격 분할 계산
 function calculateSplitAmounts() {
     if (totalAmount <= 0 || selectedFriendsData.length === 0) {
@@ -108,7 +106,7 @@ function fetchFriendsData() {
             const cartData = JSON.parse(cartScript.textContent);
             totalAmount = cartData.totalAmount || 0;
             
-            console.log('친구 데이터 로드:', selectedFriendsData.length + '명, 총 금액:', totalAmount);
+            // 친구 데이터 로드 완료
             
             if (selectedFriendsData.length > 0) {
                 displayFriends();
@@ -142,7 +140,7 @@ function displayFriends() {
         calculateSplitAmounts();
     }
     
-    console.log('친구 표시 완료:', selectedFriendsData.length, '명');
+    // 친구 표시 완료
 }
 
 function updateFriendDisplayWithAmounts() {
@@ -214,13 +212,7 @@ function createFriendElement(friend, index) {
     const currentUserId = currentUserData ? currentUserData.getAttribute('data-current-user-id') : null;
     const isCurrentUser = friend.usersId == currentUserId;
     
-    console.log('👤 친구 요소 생성:', {
-        userId: friend.usersId,
-        userName: friend.usersName,
-        currentUserId: currentUserId,
-        isCurrentUser: isCurrentUser,
-        typeCheck: `${friend.usersId} == ${currentUserId} = ${friend.usersId == currentUserId}`
-    });
+    // 친구 요소 생성
     
     div.className = isCurrentUser ? 'friend-status accepted' : 'friend-status pending';
     div.setAttribute('data-friend-id', friend.usersId);
@@ -481,8 +473,6 @@ function cancelInvitation() {
     }
 }
 
-
-
 function goToMiniGame() {
     if (selectedFriendsData.length === 0) {
         alert('참가자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
@@ -672,8 +662,6 @@ function proceedToPayment(userId) {
         }
     }
 }
-
-
 
 // ======== 게임 결과 처리 함수들 ========
 

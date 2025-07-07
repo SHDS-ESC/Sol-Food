@@ -403,6 +403,11 @@ function createStoreCardElement(store, usersId) {
             ? safeAddress.substring(0, 15) + '...'
             : safeAddress;
 
+        // 별점 표시 개선 (실시간 계산된 별점, 소수점 한 자리까지)
+        const starDisplay = safeRating > 0 
+            ? `⭐ ${safeRating.toFixed(1)}점` 
+            : '⭐ 신규매장';
+
         card.innerHTML = `
             <img src="${safeImage}" alt="${safeName}" class="store-img" 
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -416,7 +421,7 @@ function createStoreCardElement(store, usersId) {
                     📍 ${displayAddress}
                 </div>
                 <div style="font-size:12px;">
-                    ${safeRating > 0 ? `⭐ ${safeRating}점` : '⭐ 신규매장'}
+                    ${starDisplay}
                 </div>
                 ${safeTel && safeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:4px;">📞 ${safeTel}</div>` : ''}
                 <button

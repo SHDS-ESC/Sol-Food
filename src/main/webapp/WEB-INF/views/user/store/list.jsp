@@ -8,12 +8,11 @@
     <meta charset="UTF-8">
     <title>식당 목록</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="<c:url value='/css/reset.css' />" rel="stylesheet">
     <link href="<c:url value='/css/style.css' />" rel="stylesheet">
     <link href="<c:url value='/css/store.css' />" rel="stylesheet">
-
     <script>
         // Context Path를 JavaScript에서 사용할 수 있도록 설정
         var contextPath = '${pageContext.request.contextPath}';
@@ -171,9 +170,9 @@
         </div>
         <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;" onclick="loadMoreStores()">더보기</button>
     </div>
-</div>
+
 <div class="bottom-nav">
-    <a href="${pageContext.request.contextPath}/"><i class="bi bi-house" id="nav"></i>홈</a>
+    <a href="${pageContext.request.contextPath}/"><i class="bi bi-house"></i>홈</a>
     <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
         <i class="bi bi-bag" id="nav"></i>장바구니
         <span class="cart-nav-badge">0</span>
@@ -181,6 +180,7 @@
     <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill" id="nav"></i>찜</a>
     <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle" id="nav"></i>마이</a>
 </div>
+
 
     <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
     <script>

@@ -118,6 +118,38 @@ function initializeCharCounters() {
 }
 
 /* ===========================
+   별점 관련 공통 함수들
+   =========================== */
+
+/**
+ * 별점 텍스트 업데이트
+ */
+function updateStarText(starValue) {
+    const starText = document.getElementById('starText');
+    if (!starText) return;
+    
+    const ratings = ['', '⭐ 별로예요', '⭐⭐ 그저 그래요', '⭐⭐⭐ 좋아요', '⭐⭐⭐⭐ 맛있어요', '⭐⭐⭐⭐⭐ 최고예요!'];
+    starText.textContent = ratings[starValue] || '별점을 선택해주세요';
+    starText.style.color = starValue >= 4 ? '#ffc107' : starValue >= 3 ? '#17a2b8' : '#dc3545';
+}
+
+/**
+ * 별점 선택 이벤트 리스너 설정
+ */
+function setupStarRatingListeners() {
+    const starInputs = document.querySelectorAll('input[name="reviewStar"]');
+    const starText = document.getElementById('starText');
+    
+    if (starInputs.length > 0 && starText) {
+        starInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                updateStarText(this.value);
+            });
+        });
+    }
+}
+
+/* ===========================
    리뷰 작성 폼 관련 함수들
    =========================== */
 
@@ -137,18 +169,7 @@ function initializeReviewWriteForm() {
     }
     
     // 별점 선택 시 텍스트 업데이트
-    const starInputs = document.querySelectorAll('input[name="reviewStar"]');
-    const starText = document.getElementById('starText');
-    
-    if (starInputs.length > 0 && starText) {
-        starInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                const ratings = ['', '⭐ 별로예요', '⭐⭐ 그저 그래요', '⭐⭐⭐ 좋아요', '⭐⭐⭐⭐ 맛있어요', '⭐⭐⭐⭐⭐ 최고예요!'];
-                starText.textContent = ratings[this.value] || '별점을 선택해주세요';
-                starText.style.color = this.value >= 4 ? '#ffc107' : this.value >= 3 ? '#17a2b8' : '#dc3545';
-            });
-        });
-    }
+    setupStarRatingListeners();
 }
 
 /* ===========================

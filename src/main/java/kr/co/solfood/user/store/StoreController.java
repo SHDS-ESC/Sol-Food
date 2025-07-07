@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -177,10 +178,14 @@ public class StoreController {
                 pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
             }
 
+            // 화면 표시용 실시간 별점 계산 (페이징된 데이터만)
+            List<StoreVO> storeList = pageMaker.getList();
+            calculateRealTimeAverageStars(storeList);
+
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(
-                pageMaker.getList(),
+                storeList,
                 hasNext,
                 offset,
                 pageSize,
@@ -220,10 +225,14 @@ public class StoreController {
                 pageMaker = service.getPagedSearchResults(keyword, pageDTO);
             }
 
+            // 화면 표시용 실시간 별점 계산 (페이징된 데이터만)
+            List<StoreVO> storeList = pageMaker.getList();
+            calculateRealTimeAverageStars(storeList);
+
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
             return StoreListResponseVO.success(
-                    pageMaker.getList(),
+                    storeList,
                     hasNext,
                     offset,
                     pageSize,
@@ -244,6 +253,10 @@ public class StoreController {
     public ResponseEntity<StoreSearchResponseVO> searchStores(@RequestParam String keyword) {
         try {
             List<StoreVO> storeList = service.searchStores(keyword);
+            
+            // 각 가게의 실시간 평균 별점 계산하여 포함
+            calculateRealTimeAverageStars(storeList);
+            
             StoreSearchResponseVO response = StoreSearchResponseVO.success(keyword, storeList, "general");
             return ResponseEntity.ok(response);
 
@@ -262,6 +275,10 @@ public class StoreController {
     public ResponseEntity<StoreSearchResponseVO> searchStoresByName(@RequestParam String name) {
         try {
             List<StoreVO> storeList = service.searchStoresByName(name);
+            
+            // 각 가게의 실시간 평균 별점 계산하여 포함
+            calculateRealTimeAverageStars(storeList);
+            
             StoreSearchResponseVO response = StoreSearchResponseVO.success(name, storeList, "name");
             return ResponseEntity.ok(response);
 
@@ -280,6 +297,10 @@ public class StoreController {
     public ResponseEntity<StoreSearchResponseVO> searchStoresByAddress(@RequestParam String address) {
         try {
             List<StoreVO> storeList = service.searchStoresByAddress(address);
+            
+            // 각 가게의 실시간 평균 별점 계산하여 포함
+            calculateRealTimeAverageStars(storeList);
+            
             StoreSearchResponseVO response = StoreSearchResponseVO.success(address, storeList, "address");
             return ResponseEntity.ok(response);
 
@@ -298,6 +319,10 @@ public class StoreController {
     public ResponseEntity<CategoryResponseVO> getAllStoresApi() {
         try {
             List<StoreVO> storeList = service.getAllStore();
+            
+            // 각 가게의 실시간 평균 별점 계산하여 포함
+            calculateRealTimeAverageStars(storeList);
+            
             CategoryResponseVO response = CategoryResponseVO.storesByCategory("전체", storeList);
             return ResponseEntity.ok(response);
 
@@ -321,6 +346,9 @@ public class StoreController {
             } else {
                 storeList = service.getCategoryStore(category);
             }
+
+            // 각 가게의 실시간 평균 별점 계산하여 포함
+            calculateRealTimeAverageStars(storeList);
 
             CategoryResponseVO response = CategoryResponseVO.storesByCategory(category, storeList);
             return ResponseEntity.ok(response);
@@ -351,13 +379,18 @@ public class StoreController {
     }
 
     /**
-     * 카테고리 설정 정보 API
+     * 카테고리 설정 정보 조회 API
      */
     @GetMapping("/api/category/config")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getCategoryConfig() {
-        Map<String, Object> config = categoryService.getCategoryConfig();
-        return ResponseEntity.ok(Map.of("success", true, "data", config));
+        try {
+            Map<String, Object> config = categoryService.getCategoryConfig();
+            return ResponseEntity.ok(config);
+        } catch (Exception e) {
+            log.error("카테고리 설정 정보 조회 실패", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // ========================= 헬퍼 메서드들 =========================
@@ -383,6 +416,28 @@ public class StoreController {
         model.addAttribute("avgStar", avgStar != null ? avgStar : 0.0);
         model.addAttribute("totalCount", totalCount != null ? totalCount : 0);
         model.addAttribute("starCounts", starCounts);
+    }
+
+    // ========================= 실시간 별점 계산 유틸리티 메서드 =========================
+    
+    /**
+     * 가게 목록에 실시간 평균 별점을 계산하여 설정
+     */
+    private void calculateRealTimeAverageStars(List<StoreVO> storeList) {
+        if (storeList == null || storeList.isEmpty()) {
+            return;
+        }
+        
+        List<Integer> storeIds = storeList.stream()
+            .map(StoreVO::getStoreId)
+            .collect(Collectors.toList());
+        
+        Map<Integer, Double> avgStarsMap = reviewService.getAverageStarsByStoreIds(storeIds);
+        
+        for (StoreVO store : storeList) {
+            Double realAvgStar = avgStarsMap.get(store.getStoreId());
+            store.setStoreAvgstar(realAvgStar != null ? realAvgStar : 0.0);
+        }
     }
 
     // ========================= 예외 처리 =========================

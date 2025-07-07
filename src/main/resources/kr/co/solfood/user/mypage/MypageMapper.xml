@@ -45,7 +45,7 @@
         JOIN user_likes ul ON s.store_id = ul.store_id
         LEFT JOIN category c ON s.category_id = c.category_id
         WHERE ul.users_id = #{usersId}
-        AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+        AND s.store_status = <![CDATA['승인완료']]>
         ORDER BY ul.userlikes_id DESC
         LIMIT #{StoreVO.pageSize} OFFSET #{StoreVO.offset}
     </select>
@@ -55,7 +55,7 @@
         FROM user_likes ul
         JOIN store s ON ul.store_id = s.store_id
         WHERE ul.users_id = #{usersId}
-        AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+        AND s.store_status = <![CDATA['승인완료']]>
     </select>
 
 </mapper>
