@@ -412,13 +412,13 @@ function createStoreCardElement(store, usersId) {
             <div class="store-body">
                 <div class="store-name">${safeName}</div>
                 <div class="store-category">${safeCategory}</div>
-                <div style="font-size:11px; color:#666; margin-bottom:3px;">
+                <div style="font-size:11px; color:#666; margin-bottom:5px;">
                     📍 ${displayAddress}
                 </div>
                 <div style="font-size:12px;">
                     ${safeRating > 0 ? `⭐ ${safeRating}점` : '⭐ 신규매장'}
                 </div>
-                ${safeTel && safeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">📞 ${safeTel}</div>` : ''}
+                ${safeTel && safeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:4px;">📞 ${safeTel}</div>` : ''}
                 <button
                     class="like-btn ${likedClass}"
                     data-store-id="${store.storeId}"

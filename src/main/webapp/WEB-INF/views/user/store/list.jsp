@@ -8,9 +8,12 @@
     <meta charset="UTF-8">
     <title>식당 목록</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="<c:url value='/css/reset.css' />" rel="stylesheet">
+    <link href="<c:url value='/css/style.css' />" rel="stylesheet">
     <link href="<c:url value='/css/store.css' />" rel="stylesheet">
+
     <script>
         // Context Path를 JavaScript에서 사용할 수 있도록 설정
         var contextPath = '${pageContext.request.contextPath}';
@@ -43,17 +46,22 @@
     </script>
 </head>
 <body>
-
-<div class="app-container">
+<style>
+.logo{display:block;width: 50px;height: 50px;background-image: url('<c:url value="/img/logo.png" />');background-size: cover;background-position: center;}
+</style>
+<div class="wrap">
     <div class="header">
-        <div><strong>로고</strong></div>
+        <div>
+        <span class = "logo"></span>
+
+        </div>
         <div class="toggle-btns">
             <button id="mapBtn" class="btn btn-outline-secondary btn-sm" onclick="showMap()">지도</button>
             <button id="listBtn" class="btn btn-outline-secondary btn-sm btn-active" onclick="showList()">목록</button>
         </div>
         <div><i class="bi bi-list" style="font-size: 20px;"></i></div>
     </div>
-
+    <div class = "content">
     <div class="search-bar">
         <input type="text" id="searchInput" class="form-control" placeholder="음식점명, 주소, 카테고리를 검색해보세요">
         <button id="searchBtn" class="btn btn-primary" onclick="performSearch()">
@@ -136,14 +144,21 @@
     </div>
 
      <div class="sort-select-group">
-          <label for="sortSelect" class="form-label" style="margin-bottom:4px; font-weight:500;">
+          <!-- <label for="sortSelect" class="form-label" style="margin-bottom:4px; font-weight:500;">
             정렬 기준
           </label>
           <select id="sortSelect" class="form-select sort-select" onchange="changeSort(this.value)">
             <option value="star">별점순</option>
             <option value="like">찜 많은순</option>
+            <option value="id">최신순</option> -->
+          <select class="custom-select" style="margin-bottom: 20px" onchange="changeSort(this.value)">
+            <option>정렬</option>
+            <option value="star">별점순</option>
+            <option value="like">찜 많은순</option>
             <option value="id">최신순</option>
           </select>
+          </select>
+
     </div>
 
     <div id="mapContainer" class="map-container">
@@ -156,18 +171,16 @@
         </div>
         <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;" onclick="loadMoreStores()">더보기</button>
     </div>
-
+</div>
 <div class="bottom-nav">
-    <a href="${pageContext.request.contextPath}/"><i class="bi bi-house"></i>홈</a>
+    <a href="${pageContext.request.contextPath}/"><i class="bi bi-house" id="nav"></i>홈</a>
     <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
-        <i class="bi bi-bag"></i>장바구니
+        <i class="bi bi-bag" id="nav"></i>장바구니
         <span class="cart-nav-badge">0</span>
     </a>
-    <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-    <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill"></i>찜</a>
-    <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle"></i>마이</a>
+    <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill" id="nav"></i>찜</a>
+    <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle" id="nav"></i>마이</a>
 </div>
-
 
     <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
     <script>
