@@ -181,4 +181,9 @@ public class LoginServiceImpl implements LoginService {
         return mapper.getUserById(userId);
     }
 
+    @Override
+    public List<UserVO> getUsersByIds(List<Long> userIds) {
+        return mapper.getUsersByIds(userIds);
+    }
+
 }

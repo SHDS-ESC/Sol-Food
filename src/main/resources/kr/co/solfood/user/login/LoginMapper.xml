@@ -112,4 +112,12 @@
         WHERE u.users_id = #{userId}
     </select>
 
+    <select id="getUsersByIds" resultType="kr.co.solfood.user.login.UserVO">
+        SELECT * FROM users
+        WHERE users_id IN
+        <foreach item="id" collection="userIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

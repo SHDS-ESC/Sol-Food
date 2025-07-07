@@ -33,29 +33,25 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequestMapping(UrlConstants.User.CART_BASE)
 public class CartController {
 
-    @Autowired
-    private CartService cartService;
-
-    @Autowired
-    private IntegratedPaymentService integratedPaymentService;
-
-    @Autowired
-    private PaymentService paymentService;
-
-    @Autowired
-    private LoginService loginService;
-
     // 사용자별 초대 친구 목록을 저장하는 Map
     // 엔티티 삭제 필요. 만약 Key가 겹치는 경우엔 초기화 할 것인지 불러올 것인지 선택
     // Key : 발의자 ID
     // Value : 초대 친구 ID Set
     private final Map<Long, Set<Long>> inviteMap = new ConcurrentHashMap<>();
-
     // 최종 영수증 정보를 저장하는 Map
     // 엔티티 삭제 필요. 만약 Key가 겹치는 경우엔 초기화 할 것인지 불러올 것인지 선택
     // Key : 발의자 ID
     // Value : 최종 영수증 VO
     private final Map<Long, BillDTO> billMap = new ConcurrentHashMap<>();
+
+    @Autowired
+    private CartService cartService;
+    @Autowired
+    private IntegratedPaymentService integratedPaymentService;
+    @Autowired
+    private PaymentService paymentService;
+    @Autowired
+    private LoginService loginService;
 
     /**
      * 세션에서 유효한 사용자 정보를 가져옴
@@ -105,7 +101,7 @@ public class CartController {
      */
     @GetMapping("/payment-method")
     public String paymentMethodPage(HttpSession session, Model model) {
-        getValidatedUser(session); // 로그인 검증만 필요
+        getValidatedUser(session);
         validateCart(session);
 
         CartVO cart = cartService.getCart(session);
@@ -284,10 +280,11 @@ public class CartController {
     @PostMapping("/clear")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> clearCart(HttpSession session) {
-
-        getValidatedUser(session); // 로그인 검증만 필요
-
+        UserVO user = getValidatedUser(session);
         cartService.clearCart(session);
+
+        // 장바구니 비우면 inviteMap에서도 삭제
+        inviteMap.remove(user.getUsersId());
 
         return ResponseEntity.ok(createCartClearSuccessResponse(CartConstants.MSG_CART_CLEAR_SUCCESS));
     }
@@ -862,22 +859,19 @@ public class CartController {
      * 참여자 상세 정보 조회 (항상 user 포함, inviteMap 기반)
      */
     private List<UserVO> getParticipantDetails(UserVO user) {
-        List<UserVO> participants = new ArrayList<>();
         Set<Long> participantIds = getParticipantIds(user);
-        participants.add(user); // 항상 user는 포함
-        List<UserVO> companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
-                user.getCompanyId(), user.getUsersId());
-        for (Long id : participantIds) {
-            if (id != user.getUsersId()) {
-                for (UserVO companyUser : companyUsers) {
-                    if (companyUser.getUsersId() == id.intValue()) {
-                        participants.add(companyUser);
-                        break;
-                    }
-                }
-            }
-        }
-        return participants;
+        List<Long> idList = new ArrayList<>(participantIds);
+        return loginService.getUsersByIds(idList);
+    }
+
+    @PostMapping("/invite-reset")
+    @ResponseBody
+    public ResponseEntity<?> resetInviteMap(HttpSession session) {
+        UserVO user = getValidatedUser(session);
+        Set<Long> self = new HashSet<>();
+        self.add((long) user.getUsersId());
+        inviteMap.put(user.getUsersId(), self);
+        return ResponseEntity.ok().build();
     }
 
 }
