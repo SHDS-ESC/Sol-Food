@@ -59,7 +59,7 @@
                 <div class="icon doc"></div>
                 <div>예약 내역</div>
             </div>
-            <div class="menu-item" onclick="showComingSoonAlert('payment')">
+            <div class="menu-item" onclick="location.href='${pageContext.request.contextPath}/user/mypage/payment-history'">
                 <div class="icon pay"></div>
                 <div>결제 내역</div>
             </div>

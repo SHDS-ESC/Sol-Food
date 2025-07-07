@@ -48,6 +48,8 @@
             border-bottom: 1px solid #ddd;
         }
         
+
+        
         .history-table th {
             background-color: #007bff;
             color: white;
@@ -159,6 +161,26 @@
             background-color: #6c757d;
             cursor: not-allowed;
         }
+        
+        .review-btn {
+            padding: 4px 8px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+        
+        .review-btn:hover {
+            background-color: #218838;
+        }
+        
+        .review-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -179,6 +201,7 @@
                         <th>상태</th>
                         <th>주문번호</th>
                         <th>관리</th>
+                        <th>리뷰</th>
                     </tr>
                 </thead>
                 <tbody id="history-tbody">
@@ -194,6 +217,19 @@
         </div>
         
         <a href="${pageContext.request.contextPath}/user/mypage" class="back-btn">마이페이지로 돌아가기</a>
+    </div>
+    
+    <!-- 가게 ID 입력 모달 -->
+    <div id="storeIdModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: white; margin: 15% auto; padding: 20px; border-radius: 10px; width: 400px; max-width: 90%;">
+            <h3 style="margin-bottom: 20px; text-align: center;">리뷰 작성</h3>
+            <p style="margin-bottom: 15px; color: #666;">리뷰를 작성할 가게의 ID를 입력해주세요:</p>
+            <input type="number" id="storeIdInput" placeholder="가게 ID를 입력하세요" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px;">
+            <div style="text-align: center;">
+                <button id="confirmStoreId" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; margin-right: 10px; cursor: pointer;">확인</button>
+                <button id="cancelStoreId" style="background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">취소</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -289,6 +325,14 @@
                     }
                     row.append($('<td>').append(cancelBtn));
                     
+                    // 리뷰 작성 버튼
+                    const reviewBtn = $('<button class="review-btn">').text('리뷰작성');
+                    reviewBtn.click(function() {
+                        // 리뷰 작성 페이지로 이동 (가게 ID 입력 모달 표시)
+                        showStoreIdModal();
+                    });
+                    row.append($('<td>').append(reviewBtn));
+                    
                     tbody.append(row);
                 });
             }
@@ -312,6 +356,47 @@
                     default: return 'pending';
                 }
             }
+            
+            // 가게 ID 입력 모달 관련 함수들
+            function showStoreIdModal() {
+                $('#storeIdModal').show();
+                $('#storeIdInput').focus();
+            }
+            
+            function hideStoreIdModal() {
+                $('#storeIdModal').hide();
+                $('#storeIdInput').val('');
+            }
+            
+            // 모달 이벤트 리스너
+            $('#confirmStoreId').click(function() {
+                const storeId = $('#storeIdInput').val().trim();
+                if (!storeId) {
+                    alert('가게 ID를 입력해주세요.');
+                    return;
+                }
+                
+                // 리뷰 작성 페이지로 이동
+                window.location.href = '${pageContext.request.contextPath}/user/review/write?storeId=' + storeId;
+            });
+            
+            $('#cancelStoreId').click(function() {
+                hideStoreIdModal();
+            });
+            
+            // 모달 외부 클릭 시 닫기
+            $(window).click(function(event) {
+                if (event.target == document.getElementById('storeIdModal')) {
+                    hideStoreIdModal();
+                }
+            });
+            
+            // Enter 키로 확인
+            $('#storeIdInput').keypress(function(e) {
+                if (e.which == 13) { // Enter key
+                    $('#confirmStoreId').click();
+                }
+            });
             
             // payment.js의 cancelPayment 함수를 오버라이드하여 페이지 새로고침 대신 내역 다시 로드
             const originalCancelPayment = window.cancelPayment;

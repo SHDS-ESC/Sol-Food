@@ -135,7 +135,7 @@
         </c:if>
     </div>
 
-     <div class="sort-select-group">
+    <div class="sort-select-group">
           <label for="sortSelect" class="form-label" style="margin-bottom:4px; font-weight:500;">
             정렬 기준
           </label>
