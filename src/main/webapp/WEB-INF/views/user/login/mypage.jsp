@@ -60,10 +60,10 @@
                       내 찜
                       <span class="menu-icon">🗨️</span>
                   </div>
-                 <div class="menu-card exercise">
+                 <a class="menu-card exercise" href="<c:url value='/user/mypage/payment-history'/>">
                      결제 내역
                      <span class="menu-icon">🏋️‍♂️</span>
-                 </div>
+                 </a>
                   <div class="menu-card exercise">
                      리뷰 관리
                      <span class="menu-icon">🥤</span>

@@ -6,146 +6,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>리뷰 작성</title>
-    
-    <!-- 외부 CSS 파일 -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/review.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/reset.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/review.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
-<body class="review-write-page">
+<body>
     <div class="header">
-        <h1>리뷰 작성</h1>
-        <p>맛있는 식사는 어떠셨나요? 소중한 리뷰를 남겨주세요!</p>
+        <div class="header-inner">
+            <a href="${pageContext.request.contextPath}/" class="header-logo-link">
+                <img src="${pageContext.request.contextPath}/img/logo.png" alt="SolFood 로고" class="header-logo" />
+            </a>
+            <button id="darkmode-toggle" class="header-darkmode-btn">
+                <i class="bi bi-moon"></i>
+            </button>
+        </div>
     </div>
-
-    <div class="form-container">
-        <!-- 성공/오류 메시지 표시 -->
-        <c:if test="${not empty successMessage}">
-            <div class="alert alert-success">${successMessage}</div>
-        </c:if>
-        <c:if test="${not empty errorMessage}">
-            <div class="alert alert-danger">${errorMessage}</div>
-        </c:if>
-
-        <form id="reviewForm" action="${pageContext.request.contextPath}/user/review/write" method="post" enctype="multipart/form-data">
-            <!-- 가게 ID 입력 필드 -->
-            <div class="form-group">
-                <label for="storeIdInput">가게 ID <span class="required">*</span></label>
-                <input type="number" id="storeIdInput" name="storeId" value="${storeId}" placeholder="가게 ID를 입력해주세요" required>
-                <small style="color: #666; font-size: 12px;">리뷰를 작성할 가게의 ID를 입력해주세요.</small>
-            </div>
-
-            <!-- 별점 평가 -->
-            <div class="form-group">
-                <label>별점 평가 <span class="required">*</span></label>
-                <div class="rating-container">
-                    <div class="star-rating">
-                        <input type="radio" id="star5" name="reviewStar" value="5">
-                        <label for="star5">★</label>
-                        <input type="radio" id="star4" name="reviewStar" value="4">
-                        <label for="star4">★</label>
-                        <input type="radio" id="star3" name="reviewStar" value="3">
-                        <label for="star3">★</label>
-                        <input type="radio" id="star2" name="reviewStar" value="2">
-                        <label for="star2">★</label>
-                        <input type="radio" id="star1" name="reviewStar" value="1">
-                        <label for="star1">★</label>
+    <div class="wrap">
+        <div class="content">
+            <div class="review-container">
+                <div class="review-intro">
+                    <i class="bi bi-chat-quote"></i>
+                    맛있는 식사는 어떠셨나요? <br/>소중한 리뷰를 남겨주세요!
+                </div>
+                <c:if test="${not empty successMessage}">
+                    <div class="alert alert-success">${successMessage}</div>
+                </c:if>
+                <c:if test="${not empty errorMessage}">
+                    <div class="alert alert-danger">${errorMessage}</div>
+                </c:if>
+                <form id="reviewForm" action="${pageContext.request.contextPath}/user/review/write" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="storeIdInput">가게 ID <span class="required">*</span></label>
+                        <input type="number" id="storeIdInput" name="storeId" value="${storeId}" placeholder="가게 ID를 입력해주세요" required>
+                        <small class="form-hint">리뷰를 작성할 가게의 ID를 입력해주세요.</small>
                     </div>
-                    <span id="starText">별점을 선택해주세요</span>
+                    <div class="form-group">
+                        <label>별점 평가 <span class="required">*</span></label>
+                        <div class="rating-container">
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="reviewStar" value="5">
+                                <label for="star5">★</label>
+                                <input type="radio" id="star4" name="reviewStar" value="4">
+                                <label for="star4">★</label>
+                                <input type="radio" id="star3" name="reviewStar" value="3">
+                                <label for="star3">★</label>
+                                <input type="radio" id="star2" name="reviewStar" value="2">
+                                <label for="star2">★</label>
+                                <input type="radio" id="star1" name="reviewStar" value="1">
+                                <label for="star1">★</label>
+                            </div>
+                            <span id="starText">별점을 선택해주세요</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reviewTitle">리뷰 제목</label>
+                        <input type="text" id="reviewTitle" name="reviewTitle" maxlength="100" placeholder="리뷰 제목을 입력해주세요 (선택사항)">
+                        <div class="char-count" id="reviewTitleCounter">0/100</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reviewContent">리뷰 내용 <span class="required">*</span></label>
+                        <textarea id="reviewContent" name="reviewContent" maxlength="1000" placeholder="솔직한 리뷰를 작성해주세요! 음식의 맛, 서비스, 분위기 등에 대한 생생한 후기를 들려주세요." required></textarea>
+                        <div class="char-count" id="reviewContentCounter">0/1000</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reviewImage">리뷰 사진</label>
+                        <input type="file" id="reviewImage" name="reviewImage" accept="image/*">
+                        <small class="form-hint">JPG, PNG 파일만 업로드 가능합니다. (최대 5MB)</small>
+                    </div>
+                </form>
+                <div class="review-btns">
+                    <a href="${pageContext.request.contextPath}/user/mypage" class="btn cancel"><i class="bi bi-x-circle"></i> 취소</a>
+                    <button type="submit" form="reviewForm" class="btn submit"><i class="bi bi-check-circle"></i> 리뷰 등록</button>
                 </div>
             </div>
-
-            <!-- 리뷰 제목 -->
-            <div class="form-group">
-                <label for="reviewTitle">리뷰 제목</label>
-                <input type="text" id="reviewTitle" name="reviewTitle" maxlength="100" placeholder="리뷰 제목을 입력해주세요 (선택사항)">
-                <div class="char-count" id="reviewTitleCounter">0/100</div>
-            </div>
-
-            <!-- 리뷰 내용 -->
-            <div class="form-group">
-                <label for="reviewContent">리뷰 내용 <span class="required">*</span></label>
-                <textarea id="reviewContent" name="reviewContent" maxlength="1000" placeholder="솔직한 리뷰를 작성해주세요! 음식의 맛, 서비스, 분위기 등에 대한 생생한 후기를 들려주세요." required></textarea>
-                <div class="char-count" id="reviewContentCounter">0/1000</div>
-            </div>
-
-            <!-- 리뷰 이미지 -->
-            <div class="form-group">
-                <label for="reviewImage">리뷰 사진</label>
-                <input type="file" id="reviewImage" name="reviewImage" accept="image/*">
-                <small style="color: #666; font-size: 12px;">JPG, PNG 파일만 업로드 가능합니다. (최대 5MB)</small>
-            </div>
-
-            <!-- 버튼 영역 -->
-            <div class="btn-container">
-                <a href="${pageContext.request.contextPath}/user/mypage" class="btn btn-secondary">취소</a>
-                <button type="submit" class="btn btn-primary">리뷰 등록</button>
-            </div>
-        </form>
+        </div>
+        <div class="bottom-nav">
+            <a href="${pageContext.request.contextPath}/"><i class="bi bi-house" id="nav"></i>홈</a>
+            <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
+                <i class="bi bi-bag" id="nav"></i>장바구니
+                <span class="cart-nav-badge">0</span>
+            </a>
+            <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill" id="nav"></i>찜</a>
+            <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle" id="nav"></i>마이</a>
+        </div>
     </div>
-
-    <!-- 외부 JavaScript 파일 -->
     <script src="${pageContext.request.contextPath}/js/review.js"></script>
-    
-    <script>
-        // 별점 텍스트 업데이트
-        document.querySelectorAll('input[name="reviewStar"]').forEach(input => {
-            input.addEventListener('change', function() {
-                updateStarText(this.value);
-            });
-        });
-        
-        // 가게 ID 입력 필드 유효성 검사
-        document.getElementById('storeIdInput').addEventListener('input', function() {
-            const value = this.value.trim();
-            if (value && !isNaN(value) && parseInt(value) > 0) {
-                this.style.borderColor = '#28a745';
-            } else {
-                this.style.borderColor = '#dc3545';
-            }
-        });
-        
-        // 폼 제출 시 가게 ID 검증
-        document.getElementById('reviewForm').addEventListener('submit', function(e) {
-            const storeId = document.getElementById('storeIdInput').value.trim();
-            const reviewStar = document.querySelector('input[name="reviewStar"]:checked');
-            const reviewContent = document.getElementById('reviewContent').value.trim();
-            const reviewTitle = document.getElementById('reviewTitle').value.trim();
-            
-            console.log('=== 폼 제출 데이터 ===');
-            console.log('storeId:', storeId);
-            console.log('reviewStar:', reviewStar ? reviewStar.value : null);
-            console.log('reviewContent:', reviewContent);
-            console.log('reviewTitle:', reviewTitle);
-            console.log('========================');
-            
-            // FormData 객체로 모든 폼 데이터 확인
-            const formData = new FormData(this);
-            console.log('FormData 내용:');
-            for (let [key, value] of formData.entries()) {
-                console.log(key + ':', value);
-            }
-            
-            if (!storeId || isNaN(storeId) || parseInt(storeId) <= 0) {
-                e.preventDefault();
-                alert('올바른 가게 ID를 입력해주세요.');
-                document.getElementById('storeIdInput').focus();
-                return false;
-            }
-            
-            if (!reviewStar) {
-                e.preventDefault();
-                alert('별점을 선택해주세요.');
-                return false;
-            }
-            
-            if (!reviewContent) {
-                e.preventDefault();
-                alert('리뷰 내용을 입력해주세요.');
-                document.getElementById('reviewContent').focus();
-                return false;
-            }
-            
-            console.log('폼 검증 통과 - 서버로 전송됩니다.');
-        });
-    </script>
+    <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
 </body>
 </html> 

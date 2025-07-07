@@ -11,10 +11,9 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Common CSS -->
-    <link rel="stylesheet" href="<c:url value='/css/reset.css' />">
-    <link rel="stylesheet" href="<c:url value='/css/style.css' />">
-    <!-- Cart CSS -->
-    <link rel="stylesheet" href="<c:url value='/css/cart.css' />?v=${pageContext.session.creationTime}">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/reset.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/cart.css?v=${pageContext.session.creationTime}" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
