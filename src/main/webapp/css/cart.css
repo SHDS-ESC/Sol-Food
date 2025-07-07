@@ -250,27 +250,37 @@ body.dark .empty-cart {
     border-color: var(--color-border);
 }
 
+body.dark .info h1 {
+    color: var(--color-text);
+}
+
 body.dark .store-name {
-    background: var(--color-input-bg);
+    background: var(--color-bg-light);
+    color: var(--color-text);
+}
+
+body.dark .item-name {
+    color: var(--color-text);
 }
 
 body.dark .quantity-controls {
-    background: var(--color-input-bg);
+    background: var(--color-bg-light);
 }
 
 body.dark .quantity-btn,
 body.dark .quantity-input {
-    background: var(--color-input-bg);
+    background: var(--color-bg);
     border-color: var(--color-border);
+    color: var(--color-text);
 }
 
 body.dark .quantity-btn:hover {
-    background: var(--color-gray-dark);
+    background: var(--color-bg-light);
 }
 
 body.dark .remove-btn {
-    background: var(--color-input-bg);
-    color: var(--color-gray-dark);
+    background: var(--color-bg-light);
+    color: var(--color-text-muted);
 }
 
 body.dark .remove-btn:hover {
@@ -281,6 +291,26 @@ body.dark .remove-btn:hover {
 body.dark .footer {
     background: var(--color-bg);
     border-color: var(--color-border);
+}
+
+body.dark .empty-cart h4 {
+    color: var(--color-text);
+}
+
+body.dark .empty-cart .text-muted {
+    color: var(--color-text-muted);
+}
+
+body.dark .empty-cart i {
+    color: var(--color-text-muted);
+}
+
+body.dark .item-image-placeholder {
+    background: var(--color-bg-light);
+}
+
+body.dark .item-image-placeholder i {
+    color: var(--color-text-muted);
 }
 
 /* 유틸리티 클래스 */
@@ -443,4 +473,34 @@ body.dark .item-image-placeholder i {
     font-size: 0.9em;
     margin-top: 4px;
     font-weight: 500;
+}
+
+/* 옵션 관련 다크모드 스타일 추가 */
+body.dark .group-header {
+    background: var(--color-bg-light);
+}
+
+body.dark .group-name {
+    color: var(--color-text);
+}
+
+body.dark .group-price {
+    color: var(--color-text-muted);
+}
+
+body.dark .option-name {
+    color: var(--color-text);
+}
+
+body.dark .option-price {
+    color: var(--color-text-muted);
+}
+
+body.dark .option-info i {
+    color: var(--color-text-muted);
+}
+
+body.dark .error-message {
+    color: var(--color-main);
+    background: var(--color-main-light);
 } 

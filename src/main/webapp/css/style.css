@@ -12,8 +12,10 @@
     --color-white: #fff;
     --color-black: #000;
     --font-main: 'Pretendard-Regular';
-
-
+    --color-text: #000;
+    --color-text-muted: #666;
+    --color-bg: #fff;
+    --color-bg-light: #f8f8f8;
 }
 
 /* 다크모드 */
@@ -28,11 +30,13 @@ body.dark, .dark {
     --color-white: #18181c;
     --color-black: #fff;
     --color-bg: #18181c;
+    --color-bg-light: #23242a;
     --color-input-bg: #23242a;
     --color-btn-disabled: #222;
     --color-btn-text-disabled: #888;
+    --color-text: #fff;
+    --color-text-muted: #999;
 }
-
 
 ::-webkit-scrollbar { display:none; }
 
