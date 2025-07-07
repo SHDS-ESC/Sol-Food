@@ -25,7 +25,7 @@ public class OwnerStoreServiceImpl implements OwnerStoreService {
 
     // 점주 <-> 상점 조회
     @Override
-    public OwnerStoreVO getOwnerStore(long id) {
+    public OwnerStoreVO getOwnerStore(int id) {
         return ownerStoreMapper.selectStoreById(id);
     }
 

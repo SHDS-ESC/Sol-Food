@@ -28,7 +28,7 @@ public class OwnerStoreController {
         Optional<OwnerVO> ownerOpt = Optional.ofNullable((OwnerVO) sess.getAttribute("ownerLoginSession"));
 
         if (ownerOpt.isPresent()) {
-            long ownerId = ownerOpt.get().getOwnerId();
+            int ownerId = ownerOpt.get().getOwnerId();
             OwnerStoreVO store = ownerStoreService.getOwnerStore(ownerId);
             model.addAttribute("store", store);
             return "owner/store";

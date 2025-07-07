@@ -12,7 +12,7 @@ import lombok.*;
 @Data
 public class OwnerStoreVO {
     private int storeId; // 상점 아이디 o
-    private long ownerId; // 점주
+    private int ownerId; // 점주
     private int categoryId; // 카테고리 아이디 o
     private String storeName; // 상점명 o
     private String storeAddress; // 상점 위치 o
