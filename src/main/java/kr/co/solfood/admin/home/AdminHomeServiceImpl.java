@@ -93,4 +93,13 @@ public class AdminHomeServiceImpl implements AdminHomeService {
         }
         return ownerSearchResponseDTO;
     }
+
+    @Override
+    public void updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO) {
+        // 업데이트
+        int updated = adminMapper.updateUserStatus(userStatusUpdateDTO);
+        if (updated == 0) {
+            throw new IllegalArgumentException("유효하지 않은 userStatusUpdateDTO 입니다.");
+        }
+    }
 }

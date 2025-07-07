@@ -14,14 +14,15 @@ public class AdminLoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 로그인 체크
         HttpSession session = request.getSession();
-        if (session.getAttribute(UrlConstants.Session.ADMIN_LOGIN_SESSION) == null) {
+        AdminVO adminSession = (AdminVO)session.getAttribute(UrlConstants.Session.ADMIN_LOGIN_SESSION);
+        if (adminSession == null) {
             response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();
+            out.println("<script>");
             out.println("alert('관리자 로그인이 필요합니다.');");
-
-            // Context Path를 동적으로 가져오기
             String contextPath = request.getContextPath();
             out.println("location.href = '" + contextPath + "/admin/login';");
+            out.println("</script>");
             out.flush();
             return false;
         }

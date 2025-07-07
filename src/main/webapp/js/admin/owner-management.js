@@ -37,23 +37,22 @@ function renderOwnerRows(ownerList) {
         $row.append($('<td>').text(owner.storeAddress || ''));
         $row.append($('<td>').text(owner.storeIntro || ''));
         const $tdStatus = $('<td>');
-        const $select = $('<select>').addClass('status-select');
-
-        ['승인완료', '승인대기', '승인거절'].forEach(status => {
-            const $opt = $('<option>')
-                .val(status)
-                .text(status);
-
-            if (owner.storeStatus === status) {
-                $opt.prop('selected', true);
-            }
-
-            $select.append($opt);
-        });
-
-        $tdStatus.append($select);
+        const status = owner.storeStatus;
+        const $status = $('<span>').addClass('status-badge').text(owner.storeStatus);
+        switch (status){
+            case "승인완료":
+                $status.addClass('status-approved')
+                break;
+            case "승인대기":
+                $status.addClass('status-pending')
+                break;
+            case "승인거절":
+                $status.addClass('status-rejected')
+                break;
+        }
+        $tdStatus.append($status);
         $row.append($tdStatus);
-
+        $row.append($('<td>').text(owner.storeRejectReason || ''));
         $tbody.append($row);
     });
 }
