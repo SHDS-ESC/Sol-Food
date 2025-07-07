@@ -24,6 +24,10 @@ const CONFIG = {
 let kakaoMapLoaded = false;
 let kakaoMapLoading = false;
 
+// 도보 시간 계산 관련 변수
+let currentPosition = null;
+let walkingTimeCalculated = false;
+
 /* ===========================
    카카오맵 관련 함수들
    =========================== */
@@ -201,38 +205,157 @@ function showMapError() {
 }
 
 /* ===========================
-   탭 및 UI 관련 함수들
+   도보 시간 계산 관련 함수들
    =========================== */
 
 /**
- * 카테고리 필터 초기화
+ * 현재 위치 가져오기
  */
-function initializeCategoryFilter() {
-    const categoryTabs = document.querySelectorAll('.category-tab');
-    const menuItems = document.querySelectorAll('.menu-item');
-    
-    if (categoryTabs.length === 0 || menuItems.length === 0) return;
-    
-    categoryTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            // 모든 탭에서 active 클래스 제거
-            categoryTabs.forEach(t => t.classList.remove('active'));
-            // 클릭된 탭에 active 클래스 추가
-            tab.classList.add('active');
-            
-            const category = tab.getAttribute('data-category');
-            
-            // 메뉴 항목 필터링
-            menuItems.forEach(item => {
-                if (category === '전체' || item.getAttribute('data-category') === category) {
-                    item.classList.remove('hidden');
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
-        });
+function getCurrentPosition() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported'));
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                currentPosition = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                resolve(currentPosition);
+            },
+            (error) => {
+                console.error('위치 정보를 가져올 수 없습니다:', error);
+                reject(error);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 60000
+            }
+        );
     });
 }
+
+/**
+ * 도보 시간 계산
+ */
+function calculateWalkingTime() {
+    if (walkingTimeCalculated) return;
+
+    const walkingTimeInfo = document.getElementById('walkingTimeInfo');
+    if (!walkingTimeInfo) return;
+
+    // 로딩 상태 표시
+    walkingTimeInfo.innerHTML = `
+        <div class="walking-time-loading">
+            <div class="spinner"></div>
+            <span>도보 시간 계산 중...</span>
+        </div>
+    `;
+
+    // 위치 권한 확인
+    if (!navigator.geolocation) {
+        walkingTimeInfo.innerHTML = `
+            <div class="walking-time-result" style="background: #f8f9fa; color: #666;">
+                <i>❓</i>
+                <span>위치 서비스 미지원</span>
+            </div>
+        `;
+        walkingTimeCalculated = true;
+        return;
+    }
+
+    getCurrentPosition()
+        .then((position) => {
+            const storeData = getStoreDataFromPage();
+
+            // 거리 계산 및 도보 시간 추정
+            const distance = calculateDistance(position.lat, position.lng, storeData.latitude, storeData.longitude);
+            const estimatedTime = Math.round(distance * 20); // 1km당 20분으로 추정 (도보 속도 약 3km/h)
+
+            // 거리에 따른 정확도 조정
+            let timeText = '';
+            if (distance < 0.1) {
+                timeText = '도보 1-2분';
+            } else if (distance < 0.5) {
+                timeText = `도보 약 ${estimatedTime}분`;
+            } else if (distance < 1) {
+                timeText = `도보 약 ${estimatedTime}분`;
+            } else {
+                timeText = `도보 약 ${estimatedTime}분 (${distance.toFixed(1)}km)`;
+            }
+
+            walkingTimeInfo.innerHTML = `
+                <div class="walking-time-result">
+                    <i>🚶‍♂️</i>
+                    <span>${timeText}</span>
+                </div>
+            `;
+            walkingTimeCalculated = true;
+        })
+        .catch((error) => {
+            console.error('도보 시간 계산 실패:', error);
+
+            let errorMessage = '위치 정보 없음';
+            if (error.code === 1) {
+                errorMessage = '위치 권한 거부됨';
+            } else if (error.code === 2) {
+                errorMessage = '위치 정보 없음';
+            } else if (error.code === 3) {
+                errorMessage = '위치 요청 시간 초과';
+            }
+
+            walkingTimeInfo.innerHTML = `
+                <div class="walking-time-result" style="background: #f8f9fa; color: #666;">
+                    <i>❓</i>
+                    <span>${errorMessage}</span>
+                </div>
+            `;
+            walkingTimeCalculated = true;
+        });
+}
+
+/**
+ * 두 지점 간의 거리 계산 (Haversine 공식)
+ */
+function calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // 지구의 반지름 (km)
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c; // km
+    return distance;
+}
+
+/* ===========================
+   네비게이션 함수들
+   =========================== */
+
+/**
+ * 뒤로 가기
+ */
+function goBack() {
+    window.location.href = UrlConstants.Builder.fullUrl(UrlConstants.Pages.STORE_LIST);
+}
+
+/**
+ * 장바구니로 이동
+ */
+function goToCart() {
+    window.location.href = UrlConstants.Builder.fullUrl(UrlConstants.Pages.CART);
+}
+
+/* ===========================
+   탭 및 UI 관련 함수들
+   =========================== */
+
+
 
 /**
  * 별점 막대 그래프 초기화
@@ -317,9 +440,13 @@ function handleHeaderChange(tabName) {
         }
     }
     
-    // 지도 탭일 때 지도 초기화
+    // 상세정보 탭일 때 지도 초기화 및 도보 시간 계산
     if (tabName === 'map') {
-        setTimeout(loadKakaoMap, 300);
+        setTimeout(() => {
+            loadKakaoMap();
+            // 도보 시간 계산 (지도 로딩 후 약간의 지연을 두고 실행)
+            setTimeout(calculateWalkingTime, 1000);
+        }, 300);
     }
 }
 
@@ -377,10 +504,7 @@ function initializeScrollEvents() {
 function initializeStoreDetailPage() {
     // 탭 이벤트 초기화
     initializeTabEvents();
-    
-    // 카테고리 필터 초기화
-    initializeCategoryFilter();
-    
+
     // 별점 막대 그래프 초기화
     initializeStarBars();
     
@@ -398,7 +522,7 @@ function initializeStoreDetailPage() {
         } else if (typeof updateCartBadge === 'function') {
             // 하단 카트 바가 없는 경우 개수만 조회
             console.log('🏷️ 배지만 초기화');
-            fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
                 .then(response => response.json())
                 .then(data => updateCartBadge(data.count || 0))
                 .catch(error => console.error('장바구니 개수 로드 실패:', error));
@@ -428,7 +552,7 @@ function loadStoreDetail() {
         return;
     }
     
-    fetch(UrlConstants.Builder.fullUrl('/user/store/api/detail/' + storeId))
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.STORE_DETAIL + '/' + storeId))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -445,7 +569,7 @@ function loadStoreDetail() {
 }
 
 function loadReviews(storeId) {
-    fetch(UrlConstants.Builder.fullUrl(`/user/review/api/list?storeId=${storeId}`))
+            fetch(UrlConstants.Builder.fullUrl(`${UrlConstants.API.REVIEW_LIST}?storeId=${storeId}`))
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -835,7 +959,7 @@ function addMenuToCart() {
     formData.append('quantity', currentMenuData.quantity);
     formData.append('selectedOptions', JSON.stringify(selectedOptions));
 
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/add-with-options'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD_WITH_OPTIONS), {
         method: 'POST',
         body: formData
     })
@@ -857,6 +981,7 @@ function addMenuToCart() {
         }
     })
     .catch(error => {
+        console.error('❌ 장바구니 추가 실패:', error);
         alert('장바구니 추가 중 오류가 발생했습니다.');
     });
 }

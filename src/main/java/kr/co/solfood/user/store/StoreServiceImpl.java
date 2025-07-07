@@ -4,6 +4,7 @@ import kr.co.solfood.util.CustomException;
 import kr.co.solfood.util.ErrorCode;
 import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
+import kr.co.solfood.user.review.ReviewService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -20,6 +21,9 @@ public class StoreServiceImpl implements StoreService {
 
     @Autowired
     private StoreMapper mapper;
+    
+    @Autowired
+    private ReviewService reviewService;
 
     @Override
     public List<StoreVO> getAllStore() {
@@ -148,6 +152,20 @@ public class StoreServiceImpl implements StoreService {
 
         return new PageMaker<>(list, total, pageDTO.getPageSize(),
                 pageDTO.getCurrentPage());
+    }
+
+    // ========================= 별점 평균 업데이트 메서드 =========================
+    
+    @Override
+    @Transactional
+    public boolean updateStoreAvgStar(int storeId, double avgStar) {
+        try {
+            int result = mapper.updateStoreAvgStar(storeId, avgStar);
+            return result > 0;
+        } catch (Exception e) {
+            log.error("가게 평균 별점 업데이트 실패", e);
+            throw new CustomException(ErrorCode.STORE_UPDATE_FAILED);
+        }
     }
 
 }

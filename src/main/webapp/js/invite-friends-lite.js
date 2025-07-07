@@ -591,7 +591,7 @@ function handleInvite() {
             
             // 수락 대기 페이지로 이동
             setTimeout(() => {
-                window.location.href = UrlConstants.Builder.fullUrl('/user/cart/waiting-approval');
+                window.location.href = UrlConstants.Builder.fullUrl('/user/cart/make-bill');
             }, 1000);
         } else {
             throw new Error(response.message || '초대 처리에 실패했습니다.');
@@ -622,4 +622,9 @@ window.changeFilter = changeFilter;
 window.performSearch = performSearch;
 window.clearSearch = clearSearch;
 window.handleInvite = handleInvite;
-window.goBack = goBack; 
+window.goBack = goBack;
+
+// 뒤로가기(bfcache) 등으로 복원될 때 버튼 상태 초기화
+window.addEventListener('pageshow', function() {
+    updateSelectedFriendsDisplay();
+}); 

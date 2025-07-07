@@ -6,8 +6,6 @@ import java.util.Date;
 
 @Data
 public class CartItemVO {
-    private int cartItemId;
-    private int cartId;
     private int menuId;
     private String menuName;
     private String menuImage;

@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 장바구니 개수 업데이트
     if (typeof updateCartBadge === 'function') {
-        fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
             .then(response => response.json())
             .then(data => updateCartBadge(data.count || 0))
             .catch(error => console.error('장바구니 개수 로드 실패:', error));
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // updateCartBadge 함수는 cart.js에서 제공됨
 
 function loadCategoryConfig() {
-    fetch(UrlConstants.Builder.fullUrl('/user/store/api/category/config'))
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.STORE_CATEGORY_CONFIG))
         .then(response => response.json())
         .then(data => {
             categoryConfig = data.data || data;
@@ -294,10 +294,10 @@ function loadStoreList() {
     let apiUrl;
 
     if (isSearchActive) {
-        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
-    } else {
-        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
-    }
+                    apiUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_SEARCH}?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
+        } else {
+            apiUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_LIST}?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
+        }
 
     fetch(apiUrl)
         .then(res => {
@@ -403,6 +403,11 @@ function createStoreCardElement(store, usersId) {
             ? safeAddress.substring(0, 15) + '...'
             : safeAddress;
 
+        // 별점 표시 개선 (실시간 계산된 별점, 소수점 한 자리까지)
+        const starDisplay = safeRating > 0 
+            ? `⭐ ${safeRating.toFixed(1)}점` 
+            : '⭐ 신규매장';
+
         card.innerHTML = `
             <img src="${safeImage}" alt="${safeName}" class="store-img" 
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -412,13 +417,13 @@ function createStoreCardElement(store, usersId) {
             <div class="store-body">
                 <div class="store-name">${safeName}</div>
                 <div class="store-category">${safeCategory}</div>
-                <div style="font-size:11px; color:#666; margin-bottom:3px;">
+                <div style="font-size:11px; color:#666; margin-bottom:5px;">
                     📍 ${displayAddress}
                 </div>
                 <div style="font-size:12px;">
-                    ${safeRating > 0 ? `⭐ ${safeRating}점` : '⭐ 신규매장'}
+                    ${starDisplay}
                 </div>
-                ${safeTel && safeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">📞 ${safeTel}</div>` : ''}
+                ${safeTel && safeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:4px;">📞 ${safeTel}</div>` : ''}
                 <button
                     class="like-btn ${likedClass}"
                     data-store-id="${store.storeId}"
@@ -747,7 +752,7 @@ function goToStoreDetailFromMap(placeName, placeId) {
     document.body.appendChild(loadingOverlay);
 
     // 가게명으로 DB 검색
-    const searchUrl = UrlConstants.Builder.fullUrl(`/user/store/search/name?name=${encodeURIComponent(placeName)}`);
+    const searchUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_SEARCH_BY_NAME}?name=${encodeURIComponent(placeName)}`);
     
     fetch(searchUrl)
         .then(response => response.json())
@@ -760,8 +765,8 @@ function goToStoreDetailFromMap(placeName, placeId) {
                 const store = data.stores[0];
                 window.location.href = UrlConstants.Builder.storeDetail(store.storeId);
             } else {
-                // 가게가 없는 경우 - 알람 표시 후 인포윈도우 닫기
-                alert(`'${placeName}' 가게를 찾을 수 없습니다.\n현재 Sol Food에 등록되지 않은 가게입니다.`);
+                // 가게가 없는 경우 - 모달 표시
+                showKakaoMapModal(placeName, placeId);
                 closeCurrentInfoWindow();
             }
         })
@@ -772,6 +777,137 @@ function goToStoreDetailFromMap(placeName, placeId) {
             alert('가게 정보를 확인하는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
             closeCurrentInfoWindow();
         });
+}
+
+// ESC 키 이벤트 핸들러 (전역 변수)
+let kakaoMapModalEscHandler = null;
+
+// 카카오맵 모달 표시 함수
+function showKakaoMapModal(placeName, placeId) {
+    // 기존 모달이 있다면 제거
+    const existingModal = document.getElementById('kakaoMapModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // 모달 생성
+    const modal = document.createElement('div');
+    modal.id = 'kakaoMapModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10001;
+    `;
+    
+    // 모달 외부 클릭 시 닫기
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeKakaoMapModal();
+        }
+    });
+
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        ">
+            <div style="margin-bottom: 20px;">
+                <div style="
+                    width: 60px;
+                    height: 60px;
+                    background: #fee500;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 16px;
+                ">
+                    <span style="font-size: 24px;">🗺️</span>
+                </div>
+                <h3 style="margin: 0 0 8px 0; color: #333; font-size: 18px;">카카오맵으로 이동</h3>
+                <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.4;">
+                    '${placeName}' 가게는 현재 Sol Food에 등록되지 않았습니다.<br>
+                    카카오맵에서 자세한 정보를 확인하시겠습니까?
+                </p>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button onclick="closeKakaoMapModal()" style="
+                    padding: 12px 24px;
+                    border: 1px solid #ddd;
+                    background: white;
+                    color: #666;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                " onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                    취소
+                </button>
+                <button onclick="openKakaoMap('${placeName}')" style="
+                    padding: 12px 24px;
+                    border: none;
+                    background: #fee500;
+                    color: #000;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                " onmouseover="this.style.background='#f4d800'" onmouseout="this.style.background='#fee500'">
+                    카카오맵 열기
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    
+    // ESC 키 이벤트 리스너 추가
+    kakaoMapModalEscHandler = function(e) {
+        if (e.key === 'Escape') {
+            closeKakaoMapModal();
+        }
+    };
+    document.addEventListener('keydown', kakaoMapModalEscHandler);
+}
+
+// 카카오맵 모달 닫기 함수
+function closeKakaoMapModal() {
+    const modal = document.getElementById('kakaoMapModal');
+    if (modal) {
+        modal.remove();
+    }
+    
+    // ESC 키 이벤트 리스너 정리
+    if (kakaoMapModalEscHandler) {
+        document.removeEventListener('keydown', kakaoMapModalEscHandler);
+        kakaoMapModalEscHandler = null;
+    }
+}
+
+// 카카오맵 열기 함수
+function openKakaoMap(placeName) {
+    // 카카오맵 URL 생성 (검색어로 검색)
+    const encodedPlaceName = encodeURIComponent(placeName);
+    const kakaoMapUrl = `https://map.kakao.com/link/search/${encodedPlaceName}`;
+    
+    // 새 창에서 카카오맵 열기
+    window.open(kakaoMapUrl, '_blank');
+    
+    // 모달 닫기
+    closeKakaoMapModal();
 }
 
 function callStore(phoneNumber) {

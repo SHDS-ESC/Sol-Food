@@ -2,7 +2,7 @@
 let selectedPaymentMethod = null;
 
 function goBack() {
-    window.location.href = UrlConstants.Builder.fullUrl('/user/cart');
+    history.back();
 }
 
 function selectPaymentMethod(method) {
@@ -75,8 +75,8 @@ function proceedToNext() {
         // 함께 결제 - 친구 초대 페이지로 이동
         window.location.href = UrlConstants.Builder.fullUrl('/user/cart/invite-friends');
     } else {
-        // 개인 결제 - 결제 페이지로 이동 (추후 구현)
-        alert('개인 결제 기능은 추후 구현 예정입니다.');
+        // 개인 결제
+        window.location.href = UrlConstants.Builder.fullUrl('/user/cart/make-bill');
     }
 }
 

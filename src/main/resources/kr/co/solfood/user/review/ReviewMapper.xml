@@ -5,21 +5,24 @@
     <!-- 리뷰 목록 조회 (최신순) -->
     <select id="selectReviewList" resultType="kr.co.solfood.user.review.ReviewVO">
         SELECT 
-            review_id,
-            users_id,
-            store_id,
-            userspayment_id,
-            reviewcomment_id,
-            review_star,
-            review_image,
-            review_date,
-            review_status,
-            review_title,
-            review_content,
-            review_response
-        FROM review
-        WHERE review_status = 'Y'
-        ORDER BY review_id DESC
+            r.review_id,
+            r.users_id,
+            r.store_id,
+            r.userspayment_id,
+            r.reviewcomment_id,
+            r.review_star,
+            r.review_image,
+            r.review_date,
+            r.review_status,
+            r.review_title,
+            r.review_content,
+            r.review_response,
+            u.users_nickname AS userNickname,
+            u.users_profile AS userProfile
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.review_status = 'Y'
+        ORDER BY r.review_id DESC
     </select>
 
     <!-- 평균 별점 조회 -->
@@ -176,19 +179,20 @@
             r.review_title,
             r.review_content,
             r.review_response,
-            u.users_nickname,
-            u.users_profile
+            u.users_nickname AS userNickname,
+            u.users_profile AS userProfile
         FROM review r
-        LEFT JOIN users u ON r.users_id = u.users_id
+        JOIN users u ON r.users_id = u.users_id
         WHERE r.store_id = #{storeId}
         ORDER BY r.review_id DESC
     </select>
 
     <!-- 특정 가게의 평균 별점 조회 -->
     <select id="selectAverageStarByStoreId" parameterType="int" resultType="double">
-        SELECT ROUND(AVG(review_star), 1)
+        SELECT COALESCE(ROUND(AVG(review_star), 1), 0.0)
         FROM review
         WHERE store_id = #{storeId}
+          AND review_status = 'Y'
     </select>
 
     <!-- 특정 가게의 총 리뷰 개수 조회 -->
@@ -196,6 +200,7 @@
         SELECT COUNT(*)
         FROM review
         WHERE store_id = #{storeId}
+          AND review_status = 'Y'
     </select>
 
     <!-- 특정 가게의 별점별 개수 조회 -->
@@ -208,6 +213,7 @@
             SUM(CASE WHEN review_star = 1 THEN 1 ELSE 0 END) as star1
         FROM review
         WHERE store_id = #{storeId}
+          AND review_status = 'Y'
     </select>
 
 </mapper> 
