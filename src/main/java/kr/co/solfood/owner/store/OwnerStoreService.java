@@ -10,7 +10,7 @@ public interface OwnerStoreService {
     int insertStore(OwnerStoreVO vo);
 
     // 점주 <-> 상점 조회
-    OwnerStoreVO getOwnerStore(int id);
+    OwnerStoreVO getOwnerStore(long id);
 
     // 상점 수정
     int updateStore(OwnerStoreVO vo);
