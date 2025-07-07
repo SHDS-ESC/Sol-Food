@@ -244,7 +244,7 @@ function getCurrentPosition() {
  */
 function calculateWalkingTime() {
     if (walkingTimeCalculated) return;
-    
+
     const walkingTimeInfo = document.getElementById('walkingTimeInfo');
     if (!walkingTimeInfo) return;
 
@@ -271,11 +271,11 @@ function calculateWalkingTime() {
     getCurrentPosition()
         .then((position) => {
             const storeData = getStoreDataFromPage();
-            
+
             // 거리 계산 및 도보 시간 추정
             const distance = calculateDistance(position.lat, position.lng, storeData.latitude, storeData.longitude);
             const estimatedTime = Math.round(distance * 20); // 1km당 20분으로 추정 (도보 속도 약 3km/h)
-            
+
             // 거리에 따른 정확도 조정
             let timeText = '';
             if (distance < 0.1) {
@@ -287,7 +287,7 @@ function calculateWalkingTime() {
             } else {
                 timeText = `도보 약 ${estimatedTime}분 (${distance.toFixed(1)}km)`;
             }
-            
+
             walkingTimeInfo.innerHTML = `
                 <div class="walking-time-result">
                     <i>🚶‍♂️</i>
@@ -298,7 +298,7 @@ function calculateWalkingTime() {
         })
         .catch((error) => {
             console.error('도보 시간 계산 실패:', error);
-            
+
             let errorMessage = '위치 정보 없음';
             if (error.code === 1) {
                 errorMessage = '위치 권한 거부됨';
@@ -307,7 +307,7 @@ function calculateWalkingTime() {
             } else if (error.code === 3) {
                 errorMessage = '위치 요청 시간 초과';
             }
-            
+
             walkingTimeInfo.innerHTML = `
                 <div class="walking-time-result" style="background: #f8f9fa; color: #666;">
                     <i>❓</i>
@@ -504,7 +504,7 @@ function initializeScrollEvents() {
 function initializeStoreDetailPage() {
     // 탭 이벤트 초기화
     initializeTabEvents();
-    
+
     // 별점 막대 그래프 초기화
     initializeStarBars();
     
@@ -981,6 +981,7 @@ function addMenuToCart() {
         }
     })
     .catch(error => {
+        console.error('❌ 장바구니 추가 실패:', error);
         alert('장바구니 추가 중 오류가 발생했습니다.');
     });
 }
