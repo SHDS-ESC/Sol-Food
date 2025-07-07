@@ -1,53 +1,35 @@
 /**
  * 더치페이 JavaScript - 서버 기반 분할 계산
- * common-utils.js 활용으로 경량화
+ * 전역변수 없이 서버에서 모든 정보를 받아오는 방식으로 리팩토링
  */
-let participants = [];
-let cartData = null;
-
 document.addEventListener('DOMContentLoaded', function() {
     initializeDutchPay();
 });
 
 function initializeDutchPay() {
-    loadSelectedFriends();
-    loadCartInfo();
+    loadDutchPayData();
     setupDutchPayEvents();
 }
 
-async function loadSelectedFriends() {
+/**
+ * 더치페이에 필요한 모든 데이터를 서버에서 로드
+ */
+async function loadDutchPayData() {
     try {
-        const data = await SolFoodUtils.syncToServer('/user/cart/get-selected-friends', 'GET', null);
-        if (data.result === 'success') {
-            participants = data.friends;
-            displayParticipants();
-        } else {
-            SolFoodUtils.showToast('친구 정보 로드에 실패했습니다.', 'error');
-        }
-    } catch (error) {
-        SolFoodUtils.showToast('친구 정보 로드 중 오류가 발생했습니다.', 'error');
-    }
-}
-
-async function loadCartInfo() {
-    try {
-        const response = await fetch(UrlConstants.Builder.fullUrl('/user/cart/total'), {
-            method: 'GET',
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        });
-        const data = await response.json();
+        SolFoodUtils.showLoading('#participantsContainer, #cartInfoContainer');
         
-        if (data.count !== undefined) {
-            cartData = {
-                totalAmount: data.totalAmount || 0,
-                itemCount: data.count || 0
-            };
-            displayCartInfo();
+        // 통합 API로 모든 데이터를 한 번에 로드
+        const data = await SolFoodUtils.syncToServer('/user/cart/dutch-pay-data', 'GET', null);
+        
+        if (data.result === 'success') {
+            displayParticipants(data.participants);
+            displayCartInfo(data);
         } else {
-            SolFoodUtils.showToast('장바구니 정보 로드에 실패했습니다.', 'error');
+            SolFoodUtils.showToast('데이터 로드에 실패했습니다.', 'error');
         }
     } catch (error) {
-        SolFoodUtils.showToast('장바구니 정보 로드 중 오류가 발생했습니다.', 'error');
+        console.error('데이터 로드 오류:', error);
+        SolFoodUtils.showToast('데이터 로드 중 오류가 발생했습니다.', 'error');
     }
 }
 
@@ -62,16 +44,16 @@ function setupDutchPayEvents() {
         randomBtn.addEventListener('click', () => calculateDutchPay('random'));
     }
     
-    const recalculateBtn = document.getElementById('recalculateBtn');
-    if (recalculateBtn) {
-        recalculateBtn.addEventListener('click', function() {
-            const method = this.getAttribute('data-method') || 'equal';
+    // 동적으로 생성되는 재계산 버튼을 위한 이벤트 위임
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#recalculateBtn')) {
+            const method = e.target.closest('#recalculateBtn').getAttribute('data-method') || 'equal';
             calculateDutchPay(method);
-        });
-    }
+        }
+    });
 }
 
-function displayParticipants() {
+function displayParticipants(participants) {
     const container = document.getElementById('participantsContainer');
     if (!container || !participants || participants.length === 0) return;
     
@@ -100,20 +82,20 @@ function displayParticipants() {
     container.innerHTML = html;
 }
 
-function displayCartInfo() {
+function displayCartInfo(data) {
     const container = document.getElementById('cartInfoContainer');
-    if (!container || !cartData) return;
+    if (!container || !data) return;
     
     const html = `
         <div class="cart-summary">
             <h5><i class="bi bi-cart3"></i> 주문 정보</h5>
             <div class="d-flex justify-content-between">
                 <span>총 상품 수:</span>
-                <span class="fw-bold">${cartData.itemCount}개</span>
+                <span class="fw-bold">${data.itemCount || 0}개</span>
             </div>
             <div class="d-flex justify-content-between mt-2">
                 <span class="h6">총 결제 금액:</span>
-                <span class="h5 text-primary fw-bold">${SolFoodUtils.formatNumber(cartData.totalAmount)}원</span>
+                <span class="h5 text-primary fw-bold">${SolFoodUtils.formatNumber(data.totalAmount || 0)}원</span>
             </div>
         </div>
     `;
@@ -122,22 +104,11 @@ function displayCartInfo() {
 }
 
 async function calculateDutchPay(method) {
-    if (!participants || participants.length === 0) {
-        SolFoodUtils.showToast('참여자 정보가 없습니다.', 'warning');
-        return;
-    }
-    
-    if (!cartData || cartData.totalAmount === 0) {
-        SolFoodUtils.showToast('장바구니 정보가 없습니다.', 'warning');
-        return;
-    }
-    
     SolFoodUtils.showLoading('#paymentResultContainer');
     
     try {
-        const participantIds = participants.map(p => p.usersId.toString());
+        // 서버에서 모든 정보를 받아와서 계산
         const requestData = {
-            participantIds: participantIds,
             paymentMethod: method
         };
         
@@ -236,12 +207,12 @@ function displayPaymentResult(data, method) {
     `;
     
     container.innerHTML = html;
-    setupDutchPayEvents();
 }
 
 function proceedToPayment() {
     SolFoodUtils.showToast('결제 시스템으로 이동합니다. (미구현)', 'info');
 }
 
+// 전역 함수로 노출 (HTML에서 호출하기 위해)
 window.calculateDutchPay = calculateDutchPay;
 window.proceedToPayment = proceedToPayment; 

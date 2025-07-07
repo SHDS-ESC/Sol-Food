@@ -30,4 +30,7 @@ public interface CartService {
     
     // 장바구니 아이템 개수 조회
     int getCartItemCount(HttpSession session);
+    
+    // 장바구니 총 금액 조회
+    int getCartTotalAmount(HttpSession session);
 } 

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.payments.payment.PaymentMapper">
+
+    <resultMap id="PaymentMap" type="kr.co.solfood.payments.payment.PaymentVO">
+        <id property="paymentId" column="payment_id"/>
+        <result property="usersId" column="users_id"/>
+        <result property="integratedpaymentId" column="integratedpayment_id"/>
+        <result property="paymentUsedPoint" column="payment_used_point"/>
+        <result property="paymentPaidAmount" column="payment_paid_amount"/>
+        
+        <result property="impUid" column="payment_impuid"/>
+        <result property="merchantUid" column="payment_merchant_uid"/>
+        <result property="payMethod" column="payment_method"/>
+        <result property="pgProvider" column="payment_pg_provider"/>
+        <result property="pgTid" column="payment_pg_tid"/>
+        <result property="receiptUrl" column="payment_receipt_url"/>
+        <result property="status" column="payment_status"/>
+        <result property="statusDetail" column="payment_status_detail"/>
+        <result property="amount" column="payment_amount"/>
+        <result property="cancelAmount" column="payment_cancel_amount"/>
+        <result property="buyerName" column="payment_buyer_name"/>
+        <result property="buyerEmail" column="payment_buyer_email"/>
+        <result property="buyerTel" column="payment_buyer_tel"/>
+        <result property="failReason" column="payment_fail_reason"/>
+        <result property="cancelReason" column="payment_cancel_reason"/>
+        <result property="paidAt" column="payment_paid_at"/>
+        <result property="cancelledAt" column="payment_cancelled_at"/>
+        <result property="createdAt" column="payment_created_at"/>
+        <result property="updatedAt" column="payment_updated_at"/>
+    </resultMap>
+
+    <select id="isAlreadyProcessed" parameterType="String" resultType="Boolean">
+        SELECT COUNT(*) > 0
+        FROM payment
+        WHERE payment_impuid = #{imp_uid}
+    </select>
+
+    <update id="updateUserPoint" parameterType="kr.co.solfood.user.login.UserVO">
+        UPDATE users
+        SET users_point = #{usersPoint}
+        WHERE users_id = #{usersId}
+    </update>
+
+    <!-- 결제 정보 삽입 -->
+    <insert id="insertPayment" parameterType="kr.co.solfood.payments.payment.PaymentVO" useGeneratedKeys="true" keyProperty="paymentId">
+        INSERT INTO payment (
+            users_id,
+            integratedpayment_id,
+            payment_used_point,
+            payment_paid_amount,
+            payment_impuid, 
+            payment_merchant_uid, 
+            payment_method, 
+            payment_pg_provider, 
+            payment_pg_tid, 
+            payment_receipt_url,
+            payment_status, 
+            payment_status_detail, 
+            payment_amount, 
+            payment_cancel_amount,
+            payment_buyer_name,
+            payment_buyer_email,
+            payment_buyer_tel,
+            payment_fail_reason, 
+            payment_cancel_reason,
+            payment_paid_at, 
+            payment_cancelled_at,
+            payment_created_at,
+            payment_updated_at
+        ) VALUES (
+            #{usersId},
+            #{integratedpaymentId},
+            #{paymentUsedPoint},
+            #{paymentPaidAmount},
+            #{impUid}, 
+            #{merchantUid}, 
+            #{payMethod}, 
+            #{pgProvider}, 
+            #{pgTid}, 
+            #{receiptUrl},
+            #{status}, 
+            #{statusDetail}, 
+            #{amount}, 
+            #{cancelAmount},
+            #{buyerName},
+            #{buyerEmail},
+            #{buyerTel},
+            #{failReason}, 
+            #{cancelReason}, 
+            #{paidAt}, 
+            #{cancelledAt},
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+    <select id="getPaymentHistory" resultMap="PaymentMap">
+        SELECT *
+        FROM payment
+        WHERE users_id = #{usersId}
+        ORDER BY payment_created_at DESC
+        LIMIT #{offset}, #{size}
+    </select>
+
+    <!-- 결제 정보 수정 -->
+    <update id="updatePayment" parameterType="kr.co.solfood.payments.payment.PaymentVO">
+        UPDATE payment SET
+            payment_cancel_amount = #{cancelAmount},
+            payment_cancel_reason = #{cancelReason},
+            payment_cancelled_at = #{cancelledAt},
+            payment_status = #{status},
+            payment_used_point = #{paymentUsedPoint},
+            payment_paid_amount = #{paymentPaidAmount},
+            payment_updated_at = CURRENT_TIMESTAMP
+        WHERE payment_id = #{paymentId}
+    </update>
+
+    <!-- 결제 상태 업데이트 -->
+    <update id="updatePaymentStatus">
+        UPDATE payment SET
+            payment_status = #{status},
+            payment_status_detail = #{statusDetail},
+            payment_paid_at = #{paidAt},
+            payment_updated_at = CURRENT_TIMESTAMP
+        WHERE payment_id = #{paymentId}
+    </update>
+
+    <!-- 결제 취소/환불 처리 -->
+    <update id="cancelPayment">
+        UPDATE payment SET
+            payment_status = 'cancelled',
+            payment_status_detail = #{cancelReason},
+            payment_cancel_amount = #{cancelAmount},
+            payment_cancelled_at = CURRENT_TIMESTAMP,
+            payment_updated_at = CURRENT_TIMESTAMP
+        WHERE payment_id = #{paymentId}
+    </update>
+
+    <!-- 결제 정보 조회 (ID로) -->
+    <select id="selectPaymentById" resultMap="PaymentMap">
+        SELECT * FROM payment WHERE payment_id = #{paymentId}
+    </select>
+
+    <!-- 결제 정보 조회 (merchant_uid로) -->
+    <select id="selectPaymentByMerchantUid" resultMap="PaymentMap">
+        SELECT * FROM payment WHERE payment_merchant_uid = #{merchantUid}
+    </select>
+
+    <!-- 결제 정보 조회 (imp_uid로) -->
+    <select id="selectPaymentByImpUid" resultMap="PaymentMap">
+        SELECT * FROM payment WHERE payment_impuid = #{impUid}
+    </select>
+
+    <!-- 사용자별 결제 내역 조회 -->
+    <select id="selectPaymentsByUserId" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        WHERE users_id = #{userId}
+        ORDER BY payment_created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+
+    <!-- 결제 상태별 조회 -->
+    <select id="selectPaymentsByStatus" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        WHERE payment_status = #{status}
+        ORDER BY payment_created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 최근 결제 내역 조회 -->
+    <select id="selectRecentPayments" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        ORDER BY payment_created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 결제 통계 조회 -->
+    <select id="selectPaymentStatistics" resultType="java.util.Map">
+        <![CDATA[
+        SELECT 
+            COUNT(*) as total_count,
+            SUM(payment_amount) as total_amount,
+            AVG(payment_amount) as avg_amount,
+            COUNT(CASE WHEN payment_status = 'paid' THEN 1 END) as paid_count,
+            SUM(CASE WHEN payment_status = 'paid' THEN payment_amount ELSE 0 END) as paid_amount,
+            COUNT(CASE WHEN payment_status = 'cancelled' THEN 1 END) as cancelled_count,
+            SUM(CASE WHEN payment_status = 'cancelled' THEN payment_cancel_amount ELSE 0 END) as cancelled_amount
+        FROM payment
+        WHERE payment_created_at >= #{startDate} AND payment_created_at <= #{endDate}
+        ]]>
+    </select>
+
+    <!-- 결제 검증을 위한 조회 -->
+    <select id="selectPaymentForVerification" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        WHERE payment_merchant_uid = #{merchantUid} 
+        AND payment_impuid = #{impUid}
+        AND payment_amount = #{amount}
+    </select>
+
+    <!-- 결제 삭제 (관리자용) -->
+    <delete id="deletePayment">
+        DELETE FROM payment WHERE payment_id = #{paymentId}
+    </delete>
+
+    <!-- 조건부 검색 -->
+    <select id="searchPayments" resultMap="PaymentMap">
+        <![CDATA[
+        SELECT * FROM payment
+        ]]>
+        <where>
+            <if test="intergratedpaymentId != null">
+                AND intergratedpayment_id = #{intergratedpaymentId}
+            </if>
+            <if test="usersId != null">
+                AND users_id = #{usersId}
+            </if>
+            <if test="status != null and status != ''">
+                AND payment_status = #{status}
+            </if>
+            <if test="startDate != null">
+                <![CDATA[AND payment_created_at >= #{startDate}]]>
+            </if>
+            <if test="endDate != null">
+                <![CDATA[AND payment_created_at <= #{endDate}]]>
+            </if>
+            <if test="minAmount != null">
+                <![CDATA[AND payment_amount >= #{minAmount}]]>
+            </if>
+            <if test="maxAmount != null">
+                <![CDATA[AND payment_amount <= #{maxAmount}]]>
+            </if>
+        </where>
+        <![CDATA[
+        ORDER BY payment_created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+        ]]>
+    </select>
+
+</mapper>

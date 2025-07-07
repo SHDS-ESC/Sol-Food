@@ -40,7 +40,7 @@ function updateQuantity(menuId, quantity) {
     
     const requestBody = `menuId=${numMenuId}&quantity=${numQuantity}`;
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/update'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_UPDATE), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: requestBody
@@ -69,7 +69,7 @@ function removeItem(menuId) {
     
     const numMenuId = parseInt(menuId);
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/remove'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_REMOVE), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `menuId=${numMenuId}`
@@ -98,7 +98,7 @@ function clearCart() {
         return;
     }
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/clear'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_CLEAR), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
@@ -119,40 +119,37 @@ function clearCart() {
 function addToCart(menuId, quantity = 1) {
     const btn = event ? event.target : null;
     const originalText = btn ? btn.innerHTML : '';
-    
+
     if (btn) {
         btn.disabled = true;
         btn.innerHTML = '<i class="cart-icon">⏳</i> 추가중...';
     }
-    
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/add'), {
+
+    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `menuId=${menuId}&quantity=${quantity}`
     })
     .then(response => response.json())
     .then(data => {
-        console.log('🛒 장바구니 추가 응답:', data);
-        
         if (data.result === 'success') {
             if (btn) {
                 btn.innerHTML = '<i class="cart-icon">✅</i> 완료!';
                 btn.style.background = '#28a745';
-                
+
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                     btn.style.background = '';
                     btn.disabled = false;
                 }, 1500);
             }
-            
+
             const cartCount = data.cartCount || data.count || 0;
-            console.log('🛒 장바구니 개수:', cartCount);
-            
+
             if (document.getElementById('bottomCartBar')) {
                 setTimeout(() => fetchCartInfo(), 200);
             }
-            
+
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', cartCount);
         } else {
             SolFoodUtils.showToast(data.message || '장바구니 추가에 실패했습니다.', 'error');
@@ -180,13 +177,13 @@ function addToCartWithOptions(cartItem) {
             return sum + (option.price || 0);
         }
     }, 0);
-    
+
     const unitPriceWithOptions = cartItem.menuPrice + optionsTotalPrice;
     const optionsJson = JSON.stringify(cartItem.options);
-    
+
     const requestBody = `menuId=${cartItem.menuId}&quantity=${cartItem.quantity}&unitPrice=${unitPriceWithOptions}&options=${encodeURIComponent(optionsJson)}`;
-    
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/add'), {
+
+    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: requestBody
@@ -204,11 +201,11 @@ function addToCartWithOptions(cartItem) {
                     timestamp: Date.now()
                 }
             });
-            
+
             if (document.getElementById('bottomCartBar')) {
                 setTimeout(() => fetchCartInfo(), 200);
             }
-            
+
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', data.cartCount || data.count || 0);
         } else {
             throw new Error(data.message || '장바구니 추가에 실패했습니다.');
@@ -242,12 +239,12 @@ function updateBottomCartBar(count, totalAmount) {
 
 // 장바구니 페이지로 이동
 function goToCart() {
-    window.location.href = UrlConstants.Builder.fullUrl('/user/cart');
+    window.location.href = UrlConstants.Builder.fullUrl(UrlConstants.Pages.CART);
 }
 
 // 결제 페이지로 이동
 function proceedToPayment() {
-    window.location.href = UrlConstants.Builder.fullUrl('/user/cart/payment-method');
+    window.location.href = UrlConstants.Builder.fullUrl(UrlConstants.Pages.CART_PAYMENT_METHOD);
 }
 
 // 옵션 한글 매핑 상수
@@ -277,17 +274,12 @@ function displayOptions() {
     allOptionElements.forEach((element, index) => {
         const menuId = element.getAttribute('data-menu-id');
         const optionsScript = element.querySelector('script.options-data');
-        
 
-        
         let rawOptions = null;
         if (optionsScript) {
             rawOptions = optionsScript.textContent || optionsScript.innerText;
         }
-        
 
-
-        
         // 안전한 옵션 표시
         let optionHtml = '';
         
@@ -352,7 +344,6 @@ function displayOptions() {
                     return;
                 }
             } catch (e) {
-                console.warn('옵션 파싱 실패:', e.message);
                 optionHtml = '<span class="option-item">⚙️ 옵션 오류</span>';
             }
         } else {
@@ -377,14 +368,12 @@ function displayOptions() {
 
 // 카트 정보 가져오기
 function fetchCartInfo() {
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/total'))
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_TOTAL))
         .then(response => response.json())
         .then(data => {
             const count = data.count || 0;
             const totalAmount = data.totalAmount || 0;
-            
-            console.log('🛒 장바구니 정보:', { count, totalAmount });
-            
+
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', count);
             updateBottomCartBar(count, totalAmount);
         })
@@ -405,42 +394,13 @@ function restoreQuantityInput(menuId) {
 function updateCartItemDisplay(menuId, quantity, totalAmount, cartCount) {
     const cartItem = document.querySelector(`[data-menu-id="${menuId}"]`);
     if (!cartItem) return;
-    
-    console.log('🔄 가격 업데이트:', {menuId, quantity, totalAmount, cartCount});
-    
-    const quantityInput = cartItem.querySelector('.quantity-input');
-    if (quantityInput) {
-        quantityInput.value = quantity;
-        quantityInput.defaultValue = quantity;
-    }
-    
+
     const totalPriceElement = cartItem.querySelector('.fw-bold');
     if (totalPriceElement) {
-        // 개별 아이템 가격 계산을 위해 unitPrice 추출 개선
-        const itemPriceElement = cartItem.querySelector('.item-price');
-        if (itemPriceElement) {
-            let unitPrice = 0;
-            
-            // final-price가 있으면 (옵션 포함 가격) 그것을 사용
-            const finalPriceElement = itemPriceElement.querySelector('.final-price');
-            if (finalPriceElement) {
-                const finalPriceText = finalPriceElement.textContent || finalPriceElement.innerText;
-                unitPrice = parseInt(finalPriceText.replace(/[^0-9]/g, ''));
-                console.log('📊 옵션 포함 단가 사용:', unitPrice);
-            } else {
-                // 일반 가격 사용
-                const priceText = itemPriceElement.textContent || itemPriceElement.innerText;
-                unitPrice = parseInt(priceText.replace(/[^0-9]/g, ''));
-                console.log('📊 기본 단가 사용:', unitPrice);
-            }
-            
-            if (!isNaN(unitPrice) && unitPrice > 0) {
-                const itemTotal = unitPrice * quantity;
-                console.log('💰 계산된 아이템 총액:', itemTotal, '(단가:', unitPrice, 'x 수량:', quantity, ')');
-                totalPriceElement.textContent = SolFoodUtils.formatNumber(itemTotal) + '원';
-            } else {
-                console.warn('⚠️ 단가 추출 실패:', unitPrice);
-            }
+        // 서버에서 내려준 totalPrice를 그대로 사용
+        const totalPrice = cartItem.getAttribute('data-total-price');
+        if (totalPrice) {
+            totalPriceElement.textContent = SolFoodUtils.formatNumber(parseInt(totalPrice)) + '원';
         }
     }
     
@@ -505,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('bottomCartBar')) {
         fetchCartInfo();
     } else {
-        fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
             .then(response => response.json())
             .then(data => {
                 SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', data.count || 0);
