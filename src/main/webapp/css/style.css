@@ -93,3 +93,37 @@ position: fixed; transform: translate(-50%,-50%); top: 50%; left: 50%;}
   .header .menu {  width: 36px;  height: 36px; }
   .footer .ico { width: 32px;  height: 32px;}
 }
+
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: #fff;
+    border-top: 1px solid #ccc;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000;
+}
+
+.bottom-nav a {
+    color: #555;
+    text-decoration: none;
+    font-size: 12px;
+    text-align: center;
+    position: relative;
+}
+
+.bottom-nav i {
+    font-size: 20px;
+    display: block;
+}
+
+#nav {
+    color: #ff4d6d;
+    margin-bottom : 3px;
+}
