@@ -12,7 +12,8 @@
             department_name,
             YEAR(CURDATE()) - YEAR(users_birth) AS usersAge,
             users_gender,
-            users_status
+            users_status,
+            users_rejected_reason
         FROM users U
         JOIN department D ON U.department_id = D.department_id
         <where>
@@ -122,5 +123,16 @@
             </if>
         </set>
         WHERE owner_id = #{ownerId}
+    </update>
+
+    <update id="updateUserStatus" parameterType="kr.co.solfood.admin.dto.UserStatusUpdateDTO">
+        UPDATE users
+        <set>
+            users_status = #{usersStatus}
+            <if test="usersRejectReason != null">
+                , users_rejected_reason = #{usersRejectReason}
+            </if>
+        </set>
+        WHERE users_id = #{usersId}
     </update>
 </mapper>

@@ -20,9 +20,6 @@ public class UserLoginInterceptor implements HandlerInterceptor {
         if (user == null) {
             out.println("<script>");
             out.println("alert('로그인이 필요합니다.');");
-
-            // Context Path를 동적으로 가져오기
-            String contextPath = request.getContextPath();
             out.println("location.href = '" + contextPath + "/user/login';");
             out.println("</script>");
             out.flush();
