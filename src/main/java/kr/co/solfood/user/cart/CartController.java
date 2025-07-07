@@ -5,6 +5,8 @@ import kr.co.solfood.payments.integrated.IntegratedPaymentService;
 import kr.co.solfood.payments.payment.PaymentService;
 import kr.co.solfood.user.login.LoginService;
 import kr.co.solfood.user.login.UserVO;
+import kr.co.solfood.user.menu.MenuService;
+import kr.co.solfood.user.menu.MenuVO;
 import kr.co.solfood.util.CustomException;
 import kr.co.solfood.util.ErrorCode;
 import kr.co.solfood.util.PageMaker;
@@ -33,6 +35,9 @@ public class CartController {
     
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private MenuService menuService;
 
     @Autowired
     private IntegratedPaymentService integratedPaymentService;
@@ -91,6 +96,17 @@ public class CartController {
         getValidatedUser(session); // 로그인 검증만 필요
         
         CartVO cart = cartService.getCart(session);
+        
+        // 각 메뉴의 옵션 정보 설정
+        if (cart != null && cart.getItems() != null) {
+            for (CartItemVO item : cart.getItems()) {
+                MenuVO menu = menuService.getMenuById(item.getMenuId());
+                if (menu != null) {
+                    item.setMenuExtra(menu.getMenuExtra());
+                }
+            }
+        }
+        
         model.addAttribute(UrlConstants.Model.CART, cart);
         return UrlConstants.View.USER_CART;
     }
