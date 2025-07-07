@@ -31,7 +31,7 @@ function renderOwnerRows(ownerList) {
         $row.append($('<td>').text(owner.storeName || ''));
         $row.append($('<td>').text(owner.ownerEmail || ''));
         $row.append($('<td>').text(owner.categoryName || ''));
-        $row.append($('<td>').text(owner.storeAvgStar || ''));
+        $row.append($('<td>').text(owner.storeAvgStar != null ? owner.storeAvgStar.toFixed(1) : '0.0'));
         $row.append($('<td>').text(owner.ownerTel || ''));
         $row.append($('<td>').text(owner.storeTel || ''));
         $row.append($('<td>').text(owner.storeAddress || ''));
