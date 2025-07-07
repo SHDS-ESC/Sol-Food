@@ -1,0 +1,220 @@
+/*body {*/
+/*    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);*/
+/*    min-height: 100vh;*/
+/*    margin: 0;*/
+/*    font-family: 'Segoe UI', Arial, sans-serif;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*}*/
+.profile-container {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 48px 40px;
+    text-align: center;
+    min-width: 340px;
+}
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #6366f1;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.15);
+}
+.nickname {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #3730a3;
+    margin-bottom: 12px;
+}
+.welcome {
+    font-size: 1.2rem;
+    color: #4b5563;
+}
+.logout-btn {
+    margin-top: 24px;
+}
+
+/* 공통 버튼 스타일 */
+.btn {
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin: 0 4px;
+}
+
+/* 빨간색(로그아웃) */
+.btn-logout {
+    background-color: #ef4444;
+}
+.btn-logout:hover {
+    background-color: #dc2626;
+}
+
+/* 파란색(메인으로) */
+.btn-main {
+    background-color: #3b82f6;
+}
+.btn-main:hover {
+    background-color: #2563eb;
+}
+
+/* 초록색(확인/저장 등) */
+.btn-charge {
+    background-color: #22c55e;
+}
+.btn-charge:hover {
+    background-color: #16a34a;
+}
+
+/* 회색(취소/중립) */
+.btn-cancel {
+    background-color: #6b7280;
+}
+.btn-cancel:hover {
+    background-color: #374151;
+}
+
+/* 충전 페이지 전용 스타일 */
+.charge-container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.current-balance {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.balance-label {
+    font-size: 16px;
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+.balance-amount {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.balance-unit {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.charge-input-section {
+    margin-bottom: 30px;
+}
+
+.charge-label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.charge-input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
+}
+
+.charge-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.quick-amounts {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.quick-amount-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.quick-amount-btn:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+}
+
+.quick-amount-btn.active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.charge-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.charge-btn:hover {
+    transform: translateY(-2px);
+}
+
+.charge-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.back-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.back-btn:hover {
+    background: #5a6268;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+}
