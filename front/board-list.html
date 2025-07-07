@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+        /> -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <title>게시판 목록</title>
+    <link rel="stylesheet" href="./css/reset.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/board-list.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header flex flex-sb">
+        <div><strong>로고</strong></div>
+        <div style="display: flex; gap: 12px; align-items: center">
+          <button
+            id="darkmode-toggle"
+            style="
+              background: none;
+              border: none;
+              cursor: pointer;
+              font-size: 20px;
+              color: var(--color-black);
+            "
+          >
+            <i class="bi bi-moon"></i>
+          </button>
+          <i class="bi bi-list" style="font-size: 20px"></i>
+        </div>
+      </div>
+      <div class="content board-list">
+        <ul class="feed">
+          <li class="feed-item">
+            <div class="board-list-meta">
+              <img
+                class="board-list-profile"
+                src="./img/user.svg"
+                alt="프로필"
+              />
+              <div class="board-list-info">
+                <div>
+                  <b>닉네임</b> <span class="board-list-time">2025-07-07</span>
+                </div>
+              </div>
+              <button class="board-list-more">
+                <i class="bi bi-three-dots"></i>
+              </button>
+            </div>
+            <div class="board-list-title">게시글 제목</div>
+            <p class="board-list-content">
+              내용내용내용 1줄이상 ... 말줄임 처리 내용내용내용 1줄이상 ... 처리
+              내용내용내용 1줄이상 ... 처리 내용내용내용 1줄이상 ... 처리
+              내용내용내용 1줄이상 ... 처리
+            </p>
+            <div class="board-list-imgbox">
+              <img class="board-list-img" src="./img/boardimg.jpg" />
+            </div>
+            <div class="board-list-footer">
+              <div class="board-list-footer-left">
+                <i class="bi bi-heart"></i> 0 <i class="bi bi-chat"></i> 0
+                <span>조회수 1</span>
+              </div>
+              <div class="board-list-footer-right"></div>
+            </div>
+          </li>
+          <li class="feed-item">
+            <div class="board-list-meta">
+              <img
+                class="board-list-profile"
+                src="./img/user.svg"
+                alt="프로필"
+              />
+              <div class="board-list-info">
+                <div>
+                  <b>닉네임</b> <span class="board-list-time">2025-07-07</span>
+                </div>
+              </div>
+              <button class="board-list-more">
+                <i class="bi bi-three-dots"></i>
+              </button>
+            </div>
+            <div class="board-list-title">게시글 제목</div>
+            <p class="board-list-content">내용내용내용</p>
+            <div class="board-list-imgbox">
+              <img
+                class="board-list-img"
+                src="./img/boardimg2.jpg"
+                alt="test"
+              />
+            </div>
+            <div class="board-list-footer">
+              <div class="board-list-footer-left">
+                <i class="bi bi-heart"></i> 0 <i class="bi bi-chat"></i> 0
+                <span>조회수 1</span>
+              </div>
+              <div class="board-list-footer-right"></div>
+            </div>
+          </li>
+          <button class="btn submit">더보기</button>
+        </ul>
+      </div>
+      <div class="footer flex flex-sa">
+        <div class="bottom-nav">
+          <a href="${pageContext.request.contextPath}/"
+            ><i class="bi bi-house"></i>홈</a
+          >
+          <a
+            href="${pageContext.request.contextPath}/user/cart"
+            class="cart-nav-item"
+          >
+            <i class="bi bi-bag"></i>장바구니
+            <span class="cart-nav-badge">0</span>
+          </a>
+          <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
+          <a href="${pageContext.request.contextPath}/user/mypage/like"
+            ><i class="bi bi-heart-fill"></i>찜</a
+          >
+          <a href="${pageContext.request.contextPath}/user/mypage"
+            ><i class="bi bi-person-circle"></i>마이</a
+          >
+        </div>
+      </div>
+    </div>
+    <script src="./js/darkmode.js"></script>
+  </body>
+</html>

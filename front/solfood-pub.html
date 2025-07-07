@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>퍼블리싱 현황판</title>
+    <link rel="stylesheet" href="./css/reset.css" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <style>
+      .pub-table {
+        width: 100%;
+        max-width: 700px;
+        margin: 40px auto;
+        border-collapse: collapse;
+        font-size: 15px;
+        background: #fff;
+        box-shadow: 0 2px 8px #0001;
+      }
+      .pub-table th,
+      .pub-table td {
+        border: 1.5px solid #eee;
+        padding: 12px 8px;
+        text-align: left;
+      }
+      .pub-table th {
+        background: var(--color-main);
+        color: #fff;
+        font-weight: 700;
+      }
+      .pub-table tr:nth-child(even) {
+        background: #fafafa;
+      }
+      .pub-table .status-done {
+        color: #22b573;
+        font-weight: 600;
+      }
+      .pub-table .status-wip {
+        color: #ffb300;
+        font-weight: 600;
+      }
+      .pub-table .status-todo {
+        color: #ff4d6d;
+        font-weight: 600;
+      }
+      @media (max-width: 700px) {
+        .pub-table {
+          font-size: 13px;
+        }
+      }
+      td:nth-child(1) {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h2 style="text-align: center; margin: 32px 0 16px 0">퍼블리싱 현황판</h2>
+    <table class="pub-table">
+      <thead>
+        <tr>
+          <th>파일명</th>
+          <th>주요 기능/화면</th>
+          <th>상태</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="./index.html">index.html</a></td>
+          <td>메인/홈</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./login.html">login.html</a></td>
+          <td>로그인(소셜, 이메일)</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./register.html">register.html</a></td>
+          <td>회원가입(이메일, 약관동의)</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./native-login.html">native-login.html</a></td>
+          <td>이메일 로그인</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./search-password.html">search-password.html</a></td>
+          <td>아이디/비밀번호 찾기(탭)</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><a href="./mypage.html">mypage.html</a></td>
+          <td>마이페이지 회원정보 (내 정보 수정)</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./mypage-edit.html">mypage-edit.html</a></td>
+          <td>마이페이지 회원정보 > 회원정보 수정</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./mypage-logout.html">mypage-logout.html</a></td>
+          <td>마이페이지 회원정보 > 로그아웃</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./mypage-withdraw.html">mypage-withdraw.html</a></td>
+          <td>마이페이지 회원정보 > 회원탈퇴</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><a href="./board-list.html">board-list.html</a></td>
+          <td>게시판 목록</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./board-update.html">board-update.html</a></td>
+          <td>게시판 수정</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./board-add.html">board-add.html</a></td>
+          <td>게시판 등록</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td><a href="./board-detail.html">board-detail.html</a></td>
+          <td>게시판 상세</td>
+          <td class="status-done">완료</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><a href="./owner-register.html">owner-register.html</a></td>
+          <td>점주 - 회원가입</td>
+          <td class="status-done"></td>
+        </tr>
+        <tr>
+          <td><a href="./owner-login.html">owner-login.html</a></td>
+          <td>점주 - 로그인</td>
+          <td class="status-done"></td>
+        </tr>
+        <tr>
+          <td><a href="./owner-store.html">owner-store.html</a></td>
+          <td>점주 - 상점관리 목록</td>
+          <td class="status-done"></td>
+        </tr>
+        <tr>
+          <td><a href="./owner-store-add.html">owner-store-add.html</a></td>
+          <td>점주 - 상점관리 등록</td>
+          <td class="status-done"></td>
+        </tr>
+        <tr>
+          <td>
+            <a href="./owner-store-detail.html">owner-store-detail.html</a>
+          </td>
+          <td>점주 - 상점관리 상세</td>
+          <td class="status-done"></td>
+        </tr>
+        <tr>
+          <td>
+            <a href="./owner-store-update.html">owner-store-update.html</a>
+          </td>
+          <td>점주 - 상점관리 수정</td>
+          <td class="status-done"></td>
+        </tr>
+        <tr>
+          <td><a href="./owner-menu.html">owner-menu.html</a></td>
+          <td>점주 - 메뉴관리 목록</td>
+          <td class="status-done"></td>
+        </tr>
+        <tr>
+          <td><a href="./owner-menu-add.html">owner-menu-add.html</a></td>
+          <td>점주 - 메뉴관리 등록</td>
+          <td class="status-done"></td>
+        </tr>
+        <tr>
+          <td>
+            <a href="./owner-menu-detail.html">owner-menu-detail.html</a>
+          </td>
+          <td>점주 - 메뉴관리 상세</td>
+          <td class="status-done"></td>
+        </tr>
+        <tr>
+          <td>
+            <a href="./owner-menu-update.html">owner-menu-update.html</a>
+          </td>
+          <td>점주 - 메뉴관리 수정</td>
+          <td class="status-done"></td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
