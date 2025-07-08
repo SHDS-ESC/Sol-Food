@@ -230,7 +230,6 @@ body {
 }
 
 .wrap {
-  transition: 1s;
   width: 100%;
   max-width: 428px;
   height: 100vh;
@@ -247,7 +246,6 @@ body {
 }
 
 .header {
-  transition: 1s;
   background-color: var(--color-white);
   z-index: 99;
   padding: 0 16px;
@@ -277,7 +275,6 @@ body {
 
 .footer {
   z-index: 999999;
-  transition: 1s;
   padding: 16px;
   position: fixed;
   bottom: 0;
@@ -306,7 +303,6 @@ body {
 
 /* 바텀 네비게이션 */
 .bottom-nav {
-  transition: 1s;
   position: fixed;
   bottom: 0;
   left: 50%;
@@ -492,7 +488,6 @@ body {
   border-radius: 8px;
   padding: 15px 0;
   cursor: pointer;
-  transition: 0.2s;
 }
 .footer-btn:disabled {
   background: var(--color-gray-light);
