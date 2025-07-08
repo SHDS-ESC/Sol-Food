@@ -91,6 +91,7 @@
             <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle" id="nav"></i>마이</a>
         </div>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/review.js"></script>
     <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
 </body>

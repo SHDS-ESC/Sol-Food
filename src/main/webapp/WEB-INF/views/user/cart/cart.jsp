@@ -35,7 +35,7 @@
                 <div class="info">
                     <h1><i class="bi bi-cart3"></i> 장바구니</h1>
                 </div>
-
+                <div class="cart-scroll-area"></div>
                 <c:choose>
                     <c:when test="${empty cart || empty cart.items}">
                         <!-- 빈 장바구니 -->
@@ -53,7 +53,6 @@
                         <div class="store-name">
                             <i class="bi bi-shop"></i> ${cart.storeName}
                         </div>
-                        
                         <!-- 장바구니 아이템들 -->
                         <c:forEach var="item" items="${cart.items}">
                             <div class="cart-item" data-menu-id="${item.menuId}" data-total-price="${item.totalPrice}">
@@ -63,7 +62,6 @@
                                 <div class="item-image-placeholder" style="display: none;">
                                     <i class="bi bi-image"></i>
                                 </div>
-
                                 <!-- 상품 정보 -->
                                 <div class="item-info">
                                     <div class="item-header">
@@ -79,12 +77,7 @@
                                             </span>
                                         </div>
                                     </div>
-
                                     <!-- 옵션 정보 -->
-                                    <!-- 디버깅: 옵션 데이터 출력 -->
-                                    <% System.out.println("=== 옵션 데이터 디버깅 ==="); %>
-                                    <% System.out.println(pageContext.getAttribute("item")); %>
-                                    
                                     <c:if test="${not empty item.options}">
                                         <div class="item-options" data-menu-id="${item.menuId}">
                                             <script type="application/json" class="options-data">
@@ -98,7 +91,6 @@
                                         </div>
                                         <div class="options-price" data-options-price="${item.optionsPrice}"></div>
                                     </c:if>
-
                                     <!-- 수량 조절 -->
                                     <div class="quantity-controls">
                                         <button type="button" class="quantity-btn minus" onclick="changeQuantity('${item.menuId}', -1)">
@@ -113,7 +105,6 @@
                                         </button>
                                     </div>
                                 </div>
-
                                 <!-- 삭제 버튼 -->
                                 <button type="button" class="remove-btn" onclick="removeItem('${item.menuId}')">
                                     <i class="bi bi-trash"></i>
@@ -122,18 +113,41 @@
                         </c:forEach>
                     </c:otherwise>
                 </c:choose>
+                </div>
             </div>
         </div>
 
-        <!-- 푸터 -->
+        <!-- 결제 버튼: 푸터 위에 고정 -->
         <c:if test="${not empty cart && not empty cart.items}">
-            <div class="footer flex flex-sa">
+            <div class="footer-btn-bar">
                 <button class="footer-btn" onclick="proceedToPayment()">
                     <span class="total-amount"><fmt:formatNumber value="${cart.totalAmount}" pattern="#,###"/>원</span>
                     결제하기
                 </button>
             </div>
         </c:if>
+
+        <!-- 하단 네비게이션 푸터: 항상 고정 -->
+        <div class="footer flex flex-sa">
+            <div class="bottom-nav">
+                <a href="${pageContext.request.contextPath}/">
+                    <i class="bi bi-house"></i>홈
+                </a>
+                <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
+                    <i class="bi bi-bag"></i>장바구니
+                    <span class="cart-nav-badge">0</span>
+                </a>
+                <a href="#">
+                    <i class="bi bi-calendar2-week"></i>캘린더
+                </a>
+                <a href="${pageContext.request.contextPath}/user/mypage/like">
+                    <i class="bi bi-heart-fill"></i>찜
+                </a>
+                <a href="${pageContext.request.contextPath}/user/mypage">
+                    <i class="bi bi-person-circle"></i>마이
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- 팝업 -->
@@ -157,5 +171,28 @@
     <!-- Cart JavaScript -->
     <script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
     <script src="<c:url value='/js/darkmode.js' />"></script>
+    
+    <script>
+    // 페이지 로드 시 장바구니 개수 조회
+    document.addEventListener('DOMContentLoaded', function() {
+        // 로그인된 사용자인 경우에만 장바구니 개수 조회
+        <c:if test="${not empty sessionScope.userLoginSession}">
+            fetchCartCount();
+        </c:if>
+    });
+
+    // 장바구니 개수 조회 함수
+    function fetchCartCount() {
+        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
+            .then(response => response.json())
+            .then(data => {
+                const count = data.count || 0;
+                SolFoodUtils.updateBadge('.cart-nav-badge', count);
+            })
+            .catch(error => {
+                console.log('장바구니 개수 조회 실패 (로그인하지 않은 경우 등):', error);
+            });
+    }
+    </script>
 </body>
 </html> 
