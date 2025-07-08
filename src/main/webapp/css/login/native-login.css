@@ -1,0 +1,38 @@
+.content.native-login {
+  width: 100%;
+  max-width: 428px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.native-login-form {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.form-group {
+  position: relative;
+}
+.c-kfnGxn {
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+}
+
+.form-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 14px 0 8px 0;
+}
+.form-link {
+  font-size: 15px;
+  text-decoration: none;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 2px;
+}
