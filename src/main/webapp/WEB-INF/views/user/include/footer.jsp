@@ -12,23 +12,28 @@
 <body>
     <div class="footer flex flex-sa">
         <div class="bottom-nav">
-            <a href="${pageContext.request.contextPath}/"
-            ><i class="bi bi-house"></i>홈</a
-            >
-            <a
-                    href="${pageContext.request.contextPath}/user/cart"
-                    class="cart-nav-item"
-            >
-                <i class="bi bi-bag"></i>장바구니
-                <span class="cart-nav-badge">0</span>
+            <a href="${pageContext.request.contextPath}/"><i class="bi bi-house"></i>홈</a>
+
+            <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill"></i>찜</a>
+
+            <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
+                <i class="bi bi-bag" id="nav"></i>장바구니
+                <span class="cart-nav-badge">
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.userLoginSession}">
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.userCart}">
+                                    <c:out value="${sessionScope.userCart.totalQuantity}" />
+                                </c:when>
+                                <c:otherwise>0</c:otherwise>
+                            </c:choose>
+                        </c:when>
+                        <c:otherwise>0</c:otherwise>
+                    </c:choose>
+                </span>
             </a>
-            <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-            <a href="${pageContext.request.contextPath}/user/mypage/like"
-            ><i class="bi bi-heart-fill"></i>찜</a
-            >
-            <a href="${pageContext.request.contextPath}/user/mypage"
-            ><i class="bi bi-person-circle"></i>마이</a
-            >
+
+            <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle"></i>마이</a>
         </div>
     </div>
 
