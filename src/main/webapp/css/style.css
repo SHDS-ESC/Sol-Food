@@ -38,6 +38,38 @@ body.dark, .dark {
     --color-text-muted: #999;
 }
 
+/* 장바구니 네비게이션 스타일 */
+.cart-nav-item {
+    position: relative;
+}
+
+.cart-nav-badge {
+    position: absolute;
+    top: -8px;
+    right: 50%;
+    transform: translateX(50%);
+    background: #ff4d6d;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    min-width: 18px;
+    text-align: center;
+    line-height: 1;
+}
+
+.cart-nav-badge.hidden {
+    display: none;
+}
+
+
 ::-webkit-scrollbar { display:none; }
 
 /* 유틸 */
@@ -85,7 +117,7 @@ input:focus ~ .highlight { animation:inputHighlighter 0.3s ease; } */
 .custom-select:focus { outline:none; border-color:var(--color-main-hover); box-shadow:0 0 0 2px #ff4d6e3c; }
 
 /* a태그 */
-a { color: var(--color-text); }
+a{color: var(--color-black);}
 
 /* 구조 */
 body { font-family:var(--font-main); background-color:#d6eeff; background-image:url('../img/mainBackground.png'); background-size:cover; background-position:bottom; background-repeat:no-repeat; width:100%; height:100vh;
@@ -166,8 +198,8 @@ body { font-family:var(--font-main); background-color:#d6eeff; background-image:
 @media (max-width: 428px) { .register-content { max-width:100vw; } .register-form { max-width:96vw; } }
 
 /* 친구 초대 카드형 리스트 개선 */
-.friends-list { 
-  display: flex; flex-direction: column; gap: 14px; 
+.friends-list {
+  display: flex; flex-direction: column; gap: 14px;
   max-height: 400px; overflow-y: auto; padding-right: 4px;
   border: 1px solid var(--color-gray); border-radius: 12px; padding: 16px;
   background: var(--color-bg-light);
