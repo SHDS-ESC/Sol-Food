@@ -1,439 +1,182 @@
-/* 친구 초대 페이지 스타일 */
-body {
-    background-color: #f8f9fa;
-    font-family: 'Segoe UI', sans-serif;
-}
+/* 친구 초대 페이지 전용 스타일 */
 
-.invite-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+.friends-list { 
+  display: flex; flex-direction: column; gap: 14px; 
+  max-height: 490px; overflow-y: auto; padding-right: 4px;
+  border: 1px solid var(--color-gray); border-radius: 12px; padding: 16px;
+  background: var(--color-bg-light);
 }
+.friends-list::-webkit-scrollbar { width: 6px; }
+.friends-list::-webkit-scrollbar-track { background: var(--color-gray); border-radius: 3px; }
+.friends-list::-webkit-scrollbar-thumb { background: var(--color-main); border-radius: 3px; }
+.friends-list::-webkit-scrollbar-thumb:hover { background: var(--color-main-hover); }
 
-.invite-header {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    display: flex;
-    align-items: center;
-    gap: 15px;
+.friend-card {
+  display: flex; align-items: center; background: var(--color-bg-light);
+  border-radius: 12px; padding: 13px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s, background 0.2s, border 0.2s;
+  margin-bottom: 0;
+  border: 1.5px solid transparent;
+  cursor: pointer;
 }
-
-.back-btn {
-    color: #6c757d;
-    font-size: 24px;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.back-btn:hover {
-    color: #007bff;
-}
-
-.status-tabs {
-    background: white;
-    border-radius: 12px;
-    padding: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.status-tab {
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    flex: 1;
-    font-weight: 600;
-    transition: all 0.3s;
-    color: #6c757d;
-}
-
-.status-tab.active {
-    background: #007bff;
-    color: white;
-}
-
-.status-tab:hover:not(.active) {
-    background: #f8f9fa;
-    color: #007bff;
-}
-
-.friends-section {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    flex: 1;
-}
-
-.friends-list {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.friend-item {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-}
-
-.friend-item:hover {
-    background: #f8f9fa;
-    border-color: #e9ecef;
-}
-
-.friend-item.selected {
-    background: #e3f2fd;
-    border-color: #007bff;
-    box-shadow: 0 2px 8px rgba(0,123,255,0.2);
-}
-
+.friend-card.selected { background: var(--color-main-light); border: 1.5px solid var(--color-main); }
+.friend-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); border: 1.5px solid var(--color-main-hover); }
 .friend-avatar {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background: #007bff;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    margin-right: 15px;
-    background-size: cover;
-    background-position: center;
-    overflow: hidden;
-    position: relative;
+  width: 44px; height: 44px; border-radius: 50%; background: #eee; margin-right: 16px;
+  background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 19px;
+  flex-shrink: 0;
 }
-
-.friend-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.friend-info {
-    flex: 1;
-}
-
-.friend-name {
-    font-weight: 600;
-    margin-bottom: 3px;
-}
-
-.friend-company {
-    font-size: 13px;
-    color: #6c757d;
-}
-
-.check-icon {
-    font-size: 24px;
-    color: #007bff;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.friend-item.selected .check-icon {
-    opacity: 1;
-}
-
-.selected-count {
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-.continue-btn {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    border: none;
-    border-radius: 12px;
-    padding: 15px 30px;
-    font-weight: 600;
-    color: white;
-    width: 100%;
-    font-size: 18px;
-    transition: all 0.3s;
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.continue-btn.active {
-    opacity: 1;
-    cursor: pointer;
-}
-
-.continue-btn.active:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,123,255,0.3);
-}
-
-/* 검색 스타일 */
-.search-section {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.search-input {
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 16px;
-    transition: border-color 0.3s;
-}
-
-.search-input:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
-}
-
-.search-btn {
-    background: #007bff;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 20px;
-    color: white;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.search-btn:hover {
-    background: #0056b3;
-    transform: translateY(-1px);
-}
-
-.clear-btn {
-    background: #6c757d;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 16px;
-    color: white;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.clear-btn:hover {
-    background: #5a6268;
-}
-
-/* 페이징 스타일 */
-.pagination-section {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-.pagination .page-link {
-    border: 2px solid #e9ecef;
-    color: #007bff;
-    padding: 10px 15px;
-    margin: 0 2px;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.pagination .page-link:hover {
-    background: #007bff;
-    color: white;
-    border-color: #007bff;
-    transform: translateY(-1px);
-}
-
-.pagination .page-item.active .page-link {
-    background: #007bff;
-    border-color: #007bff;
-    color: white;
-}
-
-.pagination .page-item.disabled .page-link {
-    color: #6c757d;
-    background: #f8f9fa;
-    border-color: #e9ecef;
-}
-
-/* 결과 정보 스타일 */
-.result-info {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 10px 15px;
-    margin-bottom: 15px;
-    font-size: 14px;
-    color: #6c757d;
-}
-
-/* 선택된 친구들 표시 영역 */
-.selected-friends-section {
-    background: white !important;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    border: 2px solid #e3f2fd !important;
-    display: block; /* 기본적으로 표시 */
-}
-
-.selected-friends-section.show {
-    display: block !important;
-}
-
-.selected-friends-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.selected-friends-header h6 {
-    margin: 0;
-    color: #007bff;
-    font-weight: 600;
-}
-
-.selected-count-badge {
-    background: #007bff;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-}
+.friend-info { flex: 1; min-width: 0; }
+.friend-name { font-weight: 600; font-size: 16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color: var(--color-text); }
+.friend-meta { font-size: 13px; color: var(--color-text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.select-btn { background: none; border: none; font-size: 22px; color: var(--color-main); cursor: pointer; margin-left: 8px; transition: color 0.2s; }
+.select-btn.selected { color: var(--color-main-hover); }
 
 .selected-friends-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+  display: flex; flex-direction: row; gap: 12px; margin-top: 8px;
+  max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: 8px 0 8px 2px;
+  border: 1px solid var(--color-gray); border-radius: 8px; background: var(--color-bg-light);
+  scrollbar-height: thin;
+  scrollbar-color: var(--color-main) var(--color-gray);
+}
+.selected-friends-list::-webkit-scrollbar { height: 8px; background: var(--color-gray); }
+.selected-friends-list::-webkit-scrollbar-thumb { background: var(--color-main); border-radius: 4px; }
+.selected-friends-list::-webkit-scrollbar-track { background: var(--color-gray); border-radius: 4px; }
+.selected-friends-list { scrollbar-width: thin; }
+
+.selected-friend-tag {
+  display: flex; flex-direction: column; align-items: center; min-width: 60px; max-width: 80px;
+  background: transparent; border: none; box-shadow: none; padding: 0; gap: 2px; position: relative;
+}
+.selected-friend-tag .avatar {
+  width: 38px; height: 38px; border-radius: 50%; background: #eee; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; font-weight: 700; margin-bottom: 2px; position: relative;
+}
+.selected-friend-tag .badge-me, .selected-friend-tag .remove-btn {
+  position: absolute; top: -6px; right: -6px; z-index: 2;
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-size: 13px; font-weight: 700; border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.selected-friend-tag .badge-me {
+  background: var(--color-main); color: #fff;
+}
+.selected-friend-tag .remove-btn {
+  background: var(--color-main-light); color: var(--color-main); border: 2px solid #fff; cursor: pointer; transition: background 0.2s, color 0.2s;
+  font-size: 15px; padding: 0;
+}
+.selected-friend-tag .remove-btn:hover { background: var(--color-main); color: #fff; }
+.selected-friend-tag .name {
+  font-size: 13px; font-weight: 600; color: var(--color-main); text-align: center; max-width: 80px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-.selected-friend-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    margin-bottom: 10px;
+@media (max-width: 428px) {
+  .friends-list { max-height: 300px; padding: 12px; }
+  .friend-card { padding: 10px 8px; }
+  .friend-avatar { width: 34px; height: 34px; font-size: 15px; margin-right: 10px; }
+  .friend-name { font-size: 15px; }
+  .selected-friends-list { max-height: 100px; }
+  .selected-friend-tag { font-size: 13px; padding: 3px 8px 3px 4px; }
+  .selected-friend-tag .avatar { width: 18px; height: 18px; font-size: 11px; }
 }
 
-.selected-friend-avatar {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: #007bff;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 18px;
-    background-size: cover;
-    background-position: center;
-    border: 3px solid #e3f2fd;
-    position: relative;
-    margin-bottom: 8px;
+.search-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+#searchInput {
+  flex: 2; min-width: 0; border: 1.5px solid var(--color-gray); border-radius: 8px; padding: 8px 12px; font-size: 15px;
+}
+.search-btn, .clear-btn {
+  flex: 0 0 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 8px; background: var(--color-main-light); color: var(--color-main); font-size: 20px; cursor: pointer; transition: background 0.2s, color 0.2s;
+}
+.search-btn:hover, .clear-btn:hover { background: var(--color-main); color: #fff; }
+
+.footer-btn-bar { margin-top: 18px; }
+.footer-btn { box-shadow: 0 4px 16px rgba(255,77,109,0.10); font-size: 18px; border-radius: 12px; font-weight: 700; letter-spacing: 1px; }
+
+/* 페이징 가로 정렬 */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap; margin: 12px 0 0 0; }
+.pagination .page-btn {
+  background: var(--color-bg-light); border: 1px solid var(--color-gray); color: var(--color-text-muted); border-radius: 8px; padding: 4px 12px; font-size: 15px; cursor: pointer; transition: background 0.2s, color 0.2s;
+}
+.pagination .page-btn.active, .pagination .page-btn:hover {
+  background: var(--color-main); color: #fff; border-color: var(--color-main);
 }
 
-.selected-friend-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
+/* Bootstrap 페이징 색상 커스텀 */
+.pagination .page-link {
+  color: var(--color-main);
+  border: 1.5px solid var(--color-gray);
+  background: var(--color-bg-light);
+  font-weight: 600;
+  font-size: 18px;
+  border-radius: 8px;
+  margin: 0 2px;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.pagination .page-item.active .page-link {
+  background: var(--color-main);
+  color: #fff;
+  border-color: var(--color-main);
+  box-shadow: 0 2px 8px rgba(255,77,109,0.10);
+}
+.pagination .page-link:focus, .pagination .page-link:hover {
+  background: var(--color-main-hover);
+  color: #fff;
+  border-color: var(--color-main-hover);
 }
 
-.selected-friend-name {
-    font-size: 12px;
-    font-weight: 600;
-    color: #333;
-    text-align: center;
-    max-width: 60px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+/* 안내문구 강조 */
+#selectedCount {
+  color: #22bb33;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+#selectedMessage {
+  color: #222;
+  font-weight: 700;
+  font-size: 16px;
+  margin-left: 6px;
 }
 
-.remove-friend-btn {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #dc3545;
-    color: white;
-    border: 2px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+/* 다크모드 대응: 검색창, 버튼 */
+body.dark #searchInput {
+  color: #fff;
+  background: #23242a;
+  border: 1.5px solid #444;
+}
+body.dark #searchInput::placeholder {
+  color: #bbb;
 }
 
-.remove-friend-btn:hover {
-    background: #c82333;
-    transform: scale(1.1);
+body.dark #selectedCount {
+  color: #22bb33 !important;
 }
-
-.remove-friend-btn i {
-    font-size: 10px;
+body.dark #selectedMessage {
+  color: #fff !important;
 }
+body.dark #selectedMessageSub { color: #fff !important; }
 
-/* 현재 사용자 배지 */
-.current-user-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #28a745;
-    color: white;
-    border: 2px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    cursor: default;
+/* 상태 탭 */
+.status-tab, .btn.status-tab {
+  background: var(--color-bg-light);
+  color: var(--color-main);
+  border: 2px solid var(--color-gray);
+  border-radius: 16px;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s, border 0.2s;
 }
-
-.current-user-badge:hover {
-    background: #218838;
+body.dark .status-tab, body.dark .btn.status-tab {
+  background: #23242a;
+  color: #fff;
+  border: 2px solid #888;
 }
-
-.current-user-badge i {
-    font-size: 8px;
+.status-tab.active, .btn.status-tab.active {
+  background: var(--color-main);
+  color: #fff;
+  border: 2px solid var(--color-main);
 }
-
-/* 로딩 애니메이션 */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+body.dark .status-tab.active, body.dark .btn.status-tab.active {
+  background: var(--color-main);
+  color: #fff;
+  border: 2px solid var(--color-main);
 } 

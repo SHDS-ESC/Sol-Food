@@ -102,8 +102,7 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userLoginInterceptor())
                 .addPathPatterns(UrlConstants.User.BASE + "/**")
-                .excludePathPatterns(UrlConstants.User.LOGIN_BASE + "/**")
-                .excludePathPatterns(UrlConstants.User.STORE_BASE + "/**");         // 상점 목록/상세는 로그인 없이 접근 가능
+                .excludePathPatterns(UrlConstants.User.LOGIN_BASE + "/**");
 
         registry.addInterceptor(adminLoginInterceptor())
                 .addPathPatterns(UrlConstants.Admin.BASE + "/**")

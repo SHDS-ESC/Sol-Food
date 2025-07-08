@@ -244,7 +244,7 @@
                             <i class="fas fa-star ${i <= owner.storeAvgstar ? '' : 'text-muted'}"></i>
                         </c:forEach>
                     </div>
-                    <div class="rating-number">${owner.storeAvgstar}</div>
+                    <div class="rating-number">${owner.storeAvgstar != null ? String.format("%.1f", owner.storeAvgstar) : '0.0'}</div>
                 </div>
             </div>
 

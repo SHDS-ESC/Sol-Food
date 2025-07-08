@@ -1,8 +1,11 @@
 package kr.co.solfood.user.cart;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 
-import java.util.Date;
+import java.util.*;
 
 @Data
 public class CartItemVO {
@@ -14,6 +17,7 @@ public class CartItemVO {
     private int quantity;
     private int totalPrice; // unitPrice * quantity
     private String options; // 선택된 옵션 정보 (JSON 형태)
+    private String menuExtra; // 메뉴의 원본 옵션 정보 (JSON 형태)
     private Date createdAt;
     private Date updatedAt;
     
@@ -47,5 +51,15 @@ public class CartItemVO {
     // 옵션 가격만 계산
     public int getOptionsPrice() {
         return unitPrice - menuPrice;
+    }
+
+    // options getter는 원본 데이터 그대로 반환
+    public String getOptions() {
+        return this.options;
+    }
+
+    // options setter는 원본 데이터 그대로 저장
+    public void setOptions(String options) {
+        this.options = options;
     }
 } 
