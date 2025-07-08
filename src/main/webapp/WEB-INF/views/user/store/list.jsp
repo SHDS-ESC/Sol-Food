@@ -232,5 +232,27 @@
     <script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
     <script src="<c:url value='/js/darkmode.js' />"></script>
 
+    <script>
+    // 페이지 로드 시 장바구니 개수 조회
+    document.addEventListener('DOMContentLoaded', function() {
+        // 로그인된 사용자인 경우에만 장바구니 개수 조회
+        <c:if test="${not empty sessionScope.userLoginSession}">
+            fetchCartCount();
+        </c:if>
+    });
+
+    // 장바구니 개수 조회 함수
+    function fetchCartCount() {
+        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
+            .then(response => response.json())
+            .then(data => {
+                const count = data.count || 0;
+                SolFoodUtils.updateBadge('.cart-nav-badge', count);
+            })
+            .catch(error => {
+                console.log('장바구니 개수 조회 실패 (로그인하지 않은 경우 등):', error);
+            });
+    }
+    </script>
 </body>
 </html>

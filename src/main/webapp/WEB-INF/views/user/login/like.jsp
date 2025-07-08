@@ -20,25 +20,9 @@
 </head>
 <body>
 <div class="wrap">
-    <div class="header flex flex-sb">
-        <div><strong>로고</strong></div>
-        <div class="like-title">찜</div>
-        <div style="display: flex; gap: 12px; align-items: center">
-            <button
-                    id="darkmode-toggle"
-                    style="
-                  background: none;
-                  border: none;
-                  cursor: pointer;
-                  font-size: 20px;
-                  color: var(--color-black);
-                "
-            >
-                <i class="bi bi-moon"></i>
-            </button>
-            <i class="bi bi-list" style="font-size: 20px"></i>
-        </div>
-    </div>
+
+    <%@ include file="../include/header.jsp" %>
+
     <div class="content like-list">
 
         <div class="store-count">
@@ -49,27 +33,9 @@
         </div>
         <button id="loadMoreBtn" class="more-btn">더보기</button>
     </div>
-    <div class="footer flex flex-sa">
-        <div class="bottom-nav">
-            <a href="${pageContext.request.contextPath}/"
-            ><i class="bi bi-house"></i>홈</a
-            >
-            <a
-                    href="${pageContext.request.contextPath}/user/cart"
-                    class="cart-nav-item"
-            >
-                <i class="bi bi-bag"></i>장바구니
-                <span class="cart-nav-badge">0</span>
-            </a>
-            <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-            <a href="${pageContext.request.contextPath}/user/mypage/like"
-            ><i class="bi bi-heart-fill"></i>찜</a
-            >
-            <a href="${pageContext.request.contextPath}/user/mypage"
-            ><i class="bi bi-person-circle"></i>마이</a
-            >
-        </div>
-    </div>
+
+    <%@ include file="../include/footer.jsp" %>
+
 </div>
 
 <script src="<c:url value='/js/urlConstants.js' />"></script>

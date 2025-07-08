@@ -340,10 +340,55 @@
         </div>
     </div>
     
+    <!-- 푸터 -->
+    <div class="footer flex flex-sa">
+        <div class="bottom-nav">
+            <a href="${pageContext.request.contextPath}/">
+                <i class="bi bi-house"></i>홈
+            </a>
+            <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
+                <i class="bi bi-bag"></i>장바구니
+                <span class="cart-nav-badge">0</span>
+            </a>
+            <a href="#">
+                <i class="bi bi-calendar2-week"></i>캘린더
+            </a>
+            <a href="${pageContext.request.contextPath}/user/mypage/like">
+                <i class="bi bi-heart-fill"></i>찜
+            </a>
+            <a href="${pageContext.request.contextPath}/user/mypage">
+                <i class="bi bi-person-circle"></i>마이
+            </a>
+        </div>
+    </div>
+    
     <!-- 외부 JavaScript 파일 (로딩 순서 중요!) -->
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
     <script src="${pageContext.request.contextPath}/js/common-utils.js"></script>
     <script src="${pageContext.request.contextPath}/js/cart.js"></script>
     <script src="${pageContext.request.contextPath}/js/storedetail.js"></script>
+    
+    <script>
+    // 페이지 로드 시 장바구니 개수 조회
+    document.addEventListener('DOMContentLoaded', function() {
+        // 로그인된 사용자인 경우에만 장바구니 개수 조회
+        <c:if test="${not empty sessionScope.userLoginSession}">
+            fetchCartCount();
+        </c:if>
+    });
+
+    // 장바구니 개수 조회 함수
+    function fetchCartCount() {
+        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
+            .then(response => response.json())
+            .then(data => {
+                const count = data.count || 0;
+                SolFoodUtils.updateBadge('.cart-nav-badge', count);
+            })
+            .catch(error => {
+                console.log('장바구니 개수 조회 실패 (로그인하지 않은 경우 등):', error);
+            });
+    }
+    </script>
 </body>
 </html>

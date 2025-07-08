@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -56,7 +57,7 @@
                 <span><span class="menu-icon">❤️</span>내 찜 </span>
                 <div class="menu-arrow">&gt;</div>
             </a>
-            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/charge-history">
+            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/payment-history">
                 <span><span class="menu-icon">💳</span>결제 내역</span>
                 <span class="menu-arrow">&gt;</span>
             </a>
