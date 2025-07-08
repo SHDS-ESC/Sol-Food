@@ -92,6 +92,91 @@
 .footer-btn-bar { margin-top: 18px; }
 .footer-btn { box-shadow: 0 4px 16px rgba(255,77,109,0.10); font-size: 18px; border-radius: 12px; font-weight: 700; letter-spacing: 1px; }
 
-body.dark #selectedCount { color: #22bb33 !important; }
-body.dark #selectedMessage { color: #fff !important; }
-body.dark #selectedMessageSub { color: #fff !important; } 
+/* 페이징 가로 정렬 */
+.pagination { display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap; margin: 12px 0 0 0; }
+.pagination .page-btn {
+  background: var(--color-bg-light); border: 1px solid var(--color-gray); color: var(--color-text-muted); border-radius: 8px; padding: 4px 12px; font-size: 15px; cursor: pointer; transition: background 0.2s, color 0.2s;
+}
+.pagination .page-btn.active, .pagination .page-btn:hover {
+  background: var(--color-main); color: #fff; border-color: var(--color-main);
+}
+
+/* Bootstrap 페이징 색상 커스텀 */
+.pagination .page-link {
+  color: var(--color-main);
+  border: 1.5px solid var(--color-gray);
+  background: var(--color-bg-light);
+  font-weight: 600;
+  font-size: 18px;
+  border-radius: 8px;
+  margin: 0 2px;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+.pagination .page-item.active .page-link {
+  background: var(--color-main);
+  color: #fff;
+  border-color: var(--color-main);
+  box-shadow: 0 2px 8px rgba(255,77,109,0.10);
+}
+.pagination .page-link:focus, .pagination .page-link:hover {
+  background: var(--color-main-hover);
+  color: #fff;
+  border-color: var(--color-main-hover);
+}
+
+/* 안내문구 강조 */
+#selectedCount {
+  color: #22bb33;
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+#selectedMessage {
+  color: #222;
+  font-weight: 700;
+  font-size: 16px;
+  margin-left: 6px;
+}
+
+/* 다크모드 대응: 검색창, 버튼 */
+body.dark #searchInput {
+  color: #fff;
+  background: #23242a;
+  border: 1.5px solid #444;
+}
+body.dark #searchInput::placeholder {
+  color: #bbb;
+}
+
+body.dark #selectedCount {
+  color: #22bb33 !important;
+}
+body.dark #selectedMessage {
+  color: #fff !important;
+}
+body.dark #selectedMessageSub { color: #fff !important; }
+
+/* 상태 탭 */
+.status-tab, .btn.status-tab {
+  background: var(--color-bg-light);
+  color: var(--color-main);
+  border: 2px solid var(--color-gray);
+  border-radius: 16px;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+body.dark .status-tab, body.dark .btn.status-tab {
+  background: #23242a;
+  color: #fff;
+  border: 2px solid #888;
+}
+.status-tab.active, .btn.status-tab.active {
+  background: var(--color-main);
+  color: #fff;
+  border: 2px solid var(--color-main);
+}
+body.dark .status-tab.active, body.dark .btn.status-tab.active {
+  background: var(--color-main);
+  color: #fff;
+  border: 2px solid var(--color-main);
+} 
