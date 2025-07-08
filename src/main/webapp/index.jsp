@@ -8,11 +8,16 @@
     <meta charset="UTF-8">
     <title>Sol-Food</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        // Context Path를 JavaScript에서 사용할 수 있도록 설정
+        var contextPath = '${pageContext.request.contextPath}';
+    </script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="<c:url value='/css/reset.css' />" rel="stylesheet">
-    <link href="<c:url value='/css/style.css' />" rel="stylesheet">
-    <link href="<c:url value='/css/index.css' />" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/reset.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/index.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 </head>
