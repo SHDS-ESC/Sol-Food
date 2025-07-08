@@ -13,9 +13,9 @@
         window.loginUserId = '${sessionScope.userLoginSession.usersId}';
     </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-    <link href="<c:url value='/css/reset.css' />" rel="stylesheet">
-    <link href="<c:url value='/css/like.css' />" rel="stylesheet">
-    <link href="<c:url value='/css/style.css' />" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/reset.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/like.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
@@ -47,7 +47,7 @@
         <div class="store-grid" id="storeGrid">
             <!-- JS로 동적으로 store 목록이 추가될 것 -->
         </div>
-        <button id="loadMoreBtn" class="more-btn" style="width:100%;margin:20px auto;display:none;">더보기</button>
+        <button id="loadMoreBtn" class="more-btn">더보기</button>
     </div>
     <div class="footer flex flex-sa">
         <div class="bottom-nav">
