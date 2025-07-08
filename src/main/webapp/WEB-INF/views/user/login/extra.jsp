@@ -87,15 +87,22 @@
             <label for="usersBirth">생년월일</label>
             <input class="border-input" type="date" id="usersBirth" name="usersBirth" required>
 
-            <label for="usersGender">성별</label>
-            <select id="usersGender" name="usersGender" class="custom-select" required>
-                <option value="">선택하세요</option>
-                <option value="남성">남성</option>
-                <option value="여성">여성</option>
-            </select>
-
             <label for="usersTel">전화번호</label>
             <input class="border-input" type="tel" id="usersTel" name="usersTel" required>
+
+            <div>
+                <label style="display: block; margin-bottom: 8px" for="usersGender"
+                >성별</label
+                >
+                <label class="radio">
+                    <input type="radio" name="usersGender" value="male" checked />
+                    <span>남자</span>
+                </label>
+                <label class="radio">
+                    <input type="radio" name="usersGender" value="female" />
+                    <span>여자</span>
+                </label>
+            </div>
 
             <div class="footer flex flex-sa" style="left: 0">
                 <button class="footer-btn">가입하기</button>
