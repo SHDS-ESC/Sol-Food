@@ -21,8 +21,6 @@ public class CartItemVO {
     private Date createdAt;
     private Date updatedAt;
     
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    
     public CartItemVO() {}
     
     public CartItemVO(int menuId, String menuName, String menuImage, int menuPrice, int quantity) {
