@@ -17,7 +17,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Controller
 @RequestMapping(UrlConstants.User.CART_BASE)
 public class CartController {
-    
+
     @Autowired
     private CartService cartService;
 
@@ -39,7 +41,7 @@ public class CartController {
 
     @Autowired
     private PaymentService paymentService;
-    
+
     @Autowired
     private LoginService loginService;
 
@@ -62,13 +64,16 @@ public class CartController {
      * @throws CustomException 로그인되지 않은 경우
      */
     private UserVO getValidatedUser(HttpSession session) {
+        System.out.println("로그인 체크");
         UserVO user = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
         if (user == null) {
+            System.out.println("로그인되지 않은 사용자");
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
+        System.out.println("로그인 한 사용자");
         return user;
     }
-    
+
     /**
      * 장바구니 유효성 검증 (비어있지 않은지 확인)
      * @param session HttpSession
@@ -82,14 +87,14 @@ public class CartController {
     }
 
     // =============================== 페이지 이동 API ===============================
-    
+
     /**
      * 장바구니 페이지
      */
     @GetMapping
     public String cartPage(HttpSession session, Model model) {
         getValidatedUser(session); // 로그인 검증만 필요
-        
+
         CartVO cart = cartService.getCart(session);
         model.addAttribute(UrlConstants.Model.CART, cart);
         return UrlConstants.View.USER_CART;
@@ -102,7 +107,7 @@ public class CartController {
     public String paymentMethodPage(HttpSession session, Model model) {
         getValidatedUser(session); // 로그인 검증만 필요
         validateCart(session);
-        
+
         CartVO cart = cartService.getCart(session);
         model.addAttribute(UrlConstants.Model.CART, cart);
         return UrlConstants.View.USER_CART_PAYMENT_METHOD;
@@ -118,25 +123,25 @@ public class CartController {
             @RequestParam(value = CartConstants.PARAM_SEARCH, required = false) String search,
             @RequestParam(value = "filter", defaultValue = "all") String filter,
             HttpSession session, Model model) {
-        
+
         UserVO user = getValidatedUser(session);
         validateCart(session);
-        
+
         CartVO cart = cartService.getCart(session);
-        
+
         // 친구 초대 페이지 진입시 항상 초기화 (현재 사용자만 선택)
         Set<Long> selectedFriendIds = new HashSet<>();
         selectedFriendIds.add((long) user.getUsersId());
         inviteMap.put(user.getUsersId(), selectedFriendIds);
-        
+
         log.info("친구 초대 페이지 진입: 사용자 {} - 선택 상태 초기화", user.getUsersId());
-        
+
         // 필터링된 친구 목록 조회
         List<UserVO> filteredUsers = getFilteredFriends(user, filter, search);
-        
+
         // 페이징 처리
         PageMaker<UserVO> pageMaker = getPagedFriends(filteredUsers, page, size);
-        
+
         // JSP에서 사용할 데이터 준비
         model.addAttribute(UrlConstants.Model.CART, cart);
         model.addAttribute("friends", pageMaker.getList());
@@ -147,7 +152,7 @@ public class CartController {
         model.addAttribute(CartConstants.PARAM_SEARCH, search);
         model.addAttribute("filter", filter);
         model.addAttribute("totalCount", pageMaker.getCount());
-        
+
         return UrlConstants.View.USER_CART_INVITE_FRIENDS;
     }
 
@@ -158,10 +163,10 @@ public class CartController {
     public String makeBillPage(HttpSession session, Model model) {
         getValidatedUser(session); // 로그인 검증만 필요
         validateCart(session);
-        
+
         return UrlConstants.View.USER_CART_MAKE_BILL;
     }
-    
+
     /**
      * 수락 대기 페이지
      */
@@ -169,9 +174,9 @@ public class CartController {
     public String waitingApprovalPage(HttpSession session, Model model, @Value("${imp.code}") String impCode) {
         UserVO user = getValidatedUser(session);
         validateCart(session);
-        
+
         CartVO cart = cartService.getCart(session);
-        
+
         // inviteMap이 비어있으면 현재 사용자만 추가 (혼자 결제하는 경우)
         Set<Long> selectedFriendIds = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
         if (selectedFriendIds.isEmpty()) {
@@ -182,7 +187,7 @@ public class CartController {
 
         // 선택된 친구들의 상세 정보 조회
         List<UserVO> selectedFriends = getParticipantDetails(user);
-        
+
         log.info("수락 대기 페이지: 사용자 {} - 선택된 친구들 {}명", user.getUsersId(), selectedFriends.size());
         model.addAttribute(UrlConstants.Model.CART, cart);
         model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
@@ -200,16 +205,16 @@ public class CartController {
     public String paymentCompletePage(HttpSession session, Model model) {
         UserVO user = getValidatedUser(session);
         validateCart(session);
-        
+
         CartVO cart = cartService.getCart(session);
-        
+
         model.addAttribute(UrlConstants.Model.CART, cart);
         model.addAttribute(UrlConstants.Model.CURRENT_USER, user);
         return UrlConstants.View.USER_CART_PAYMENT_COMPLETE;
     }
 
     // =============================== 장바구니 관련 API ===============================
-    
+
     /**
      * 장바구니에 메뉴 추가 API (옵션 자동 계산)
      */
@@ -220,24 +225,18 @@ public class CartController {
             @RequestParam(UrlConstants.Param.QUANTITY) int quantity,
             @RequestParam(value = "selectedOptions", required = false) String selectedOptions,
             HttpSession session) {
-        
-        try {
-            getValidatedUser(session); // 로그인 검증만 필요
-            
-            boolean success = cartService.addToCartWithOptions(session, menuId, quantity, selectedOptions);
-            
-            if (success) {
-                return ResponseEntity.ok(createCartAddSuccessResponse(session, CartConstants.MSG_CART_ADD_SUCCESS));
-            } else {
-                return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_CART_ADD_FAILED));
-            }
-            
-        } catch (Exception e) {
-            log.error("장바구니 추가 오류 (옵션 자동 계산)", e);
-            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_CART_ADD_ERROR));
+
+        getValidatedUser(session); // 로그인 검증만 필요
+
+        boolean success = cartService.addToCartWithOptions(session, menuId, quantity, selectedOptions);
+
+        if (success) {
+            return ResponseEntity.ok(createCartAddSuccessResponse(session, CartConstants.MSG_CART_ADD_SUCCESS));
+        } else {
+            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_CART_ADD_FAILED));
         }
     }
-    
+
     /**
      * 장바구니 아이템 수량 변경 API
      */
@@ -247,24 +246,18 @@ public class CartController {
             @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
             @RequestParam(UrlConstants.Param.QUANTITY) int quantity,
             HttpSession session) {
-        
-        try {
-            getValidatedUser(session); // 로그인 검증만 필요
-            
-            boolean success = cartService.updateQuantity(session, menuId, quantity);
-            
-            if (success) {
-                return ResponseEntity.ok(createCartSuccessResponse(session, CartConstants.MSG_QUANTITY_UPDATE_SUCCESS));
-            } else {
-                return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_QUANTITY_UPDATE_FAILED));
-            }
-            
-        } catch (Exception e) {
-            log.error("수량 변경 오류", e);
-            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_QUANTITY_UPDATE_ERROR));
+
+        getValidatedUser(session); // 로그인 검증만 필요
+
+        boolean success = cartService.updateQuantity(session, menuId, quantity);
+
+        if (success) {
+            return ResponseEntity.ok(createCartSuccessResponse(session, CartConstants.MSG_QUANTITY_UPDATE_SUCCESS));
+        } else {
+            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_QUANTITY_UPDATE_FAILED));
         }
     }
-    
+
     /**
      * 장바구니 아이템 삭제 API
      */
@@ -273,93 +266,81 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> removeCartItem(
             @RequestParam(UrlConstants.Param.MENU_ID) int menuId,
             HttpSession session) {
-        
-        try {
-            getValidatedUser(session); // 로그인 검증만 필요
-            
-            boolean success = cartService.removeItem(session, menuId);
-            
-            if (success) {
-                return ResponseEntity.ok(createCartSuccessResponse(session, CartConstants.MSG_ITEM_REMOVE_SUCCESS));
-            } else {
-                return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_ITEM_REMOVE_FAILED));
-            }
-            
-        } catch (Exception e) {
-            log.error("메뉴 삭제 오류", e);
-            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_ITEM_REMOVE_ERROR));
+
+        getValidatedUser(session); // 로그인 검증만 필요
+
+        boolean success = cartService.removeItem(session, menuId);
+
+        if (success) {
+            return ResponseEntity.ok(createCartSuccessResponse(session, CartConstants.MSG_ITEM_REMOVE_SUCCESS));
+        } else {
+            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_ITEM_REMOVE_FAILED));
         }
     }
-    
+
     /**
      * 장바구니 전체 삭제 API
      */
     @PostMapping("/clear")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> clearCart(HttpSession session) {
-        
-        try {
-            getValidatedUser(session); // 로그인 검증만 필요
-            
-            cartService.clearCart(session);
-            
-            return ResponseEntity.ok(createCartClearSuccessResponse(CartConstants.MSG_CART_CLEAR_SUCCESS));
-            
-        } catch (Exception e) {
-            log.error("장바구니 비우기 오류", e);
-            return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_CART_CLEAR_ERROR));
-        }
+
+        getValidatedUser(session); // 로그인 검증만 필요
+
+        cartService.clearCart(session);
+
+        return ResponseEntity.ok(createCartClearSuccessResponse(CartConstants.MSG_CART_CLEAR_SUCCESS));
     }
-    
+
     /**
      * 장바구니 아이템 개수 조회 API
      */
     @GetMapping("/count")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getCartItemCount(HttpSession session) {
+        getValidatedUser(session); // 로그인 검증만 필요
+
+        int count = cartService.getCartItemCount(session);
+
         Map<String, Object> response = new HashMap<>();
-        
-        try {
-            getValidatedUser(session); // 로그인 검증만 필요
-            
-            int count = cartService.getCartItemCount(session);
-            response.put(CartConstants.JSON_COUNT, count);
-            
-        } catch (Exception e) {
-            log.error("장바구니 개수 조회 오류", e);
-            response.put(CartConstants.JSON_COUNT, CartConstants.DEFAULT_CART_COUNT);
-        }
-        
+        response.put(CartConstants.JSON_COUNT, count);
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * 장바구니 총 금액 조회 API
      */
     @GetMapping("/total")
+    @ResponseBody
     public ResponseEntity<Map<String, Object>> getCartTotalAmount(HttpSession session) {
+        System.out.println("API Total Called");
+        getValidatedUser(session); // 로그인 검증만 필요
+
+        int count = cartService.getCartItemCount(session);
+        int totalAmount = cartService.getCartTotalAmount(session);
+
         Map<String, Object> response = new HashMap<>();
-        
-        try {
-            getValidatedUser(session); // 로그인 검증만 필요
-            
-            int count = cartService.getCartItemCount(session);
-            int totalAmount = cartService.getCartTotalAmount(session);
-            
-            response.put(CartConstants.JSON_COUNT, count);
-            response.put(CartConstants.JSON_TOTAL_AMOUNT, totalAmount);
-            
-        } catch (Exception e) {
-            log.error("장바구니 총 금액 조회 오류", e);
-            response.put(CartConstants.JSON_COUNT, CartConstants.DEFAULT_CART_COUNT);
-            response.put(CartConstants.JSON_TOTAL_AMOUNT, 0);
-        }
-        
+        response.put(CartConstants.JSON_COUNT, count);
+        response.put(CartConstants.JSON_TOTAL_AMOUNT, totalAmount);
+
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 테스트용 API - getWriter() 직접 사용
+     */
+    @GetMapping("/test-getwriter")
+    public void testGetWriter(HttpServletResponse response) throws Exception {
+        log.info("테스트 API 호출 - getWriter() 직접 사용");
+        response.setContentType("application/json; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        out.println("{}");
+        out.flush();
+    }
+
     // =============================== 친구 초대 관련 API ===============================
-    
+
     /**
      * 친구 목록 조회 API (페이징 포함)
      */
@@ -371,58 +352,46 @@ public class CartController {
             @RequestParam(value = CartConstants.PARAM_SEARCH, required = false) String search,
             @RequestParam(value = "filter", defaultValue = "all") String filter,
             HttpSession session) {
-        
+
+        UserVO user = getValidatedUser(session);
+
+        // 필터링된 친구 목록 조회
+        List<UserVO> filteredUsers = getFilteredFriends(user, filter, search);
+
+        // 페이징 처리
+        PageMaker<UserVO> pageMaker = getPagedFriends(filteredUsers, page, size);
+
         Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = getValidatedUser(session);
-            
-            // 필터링된 친구 목록 조회
-            List<UserVO> filteredUsers = getFilteredFriends(user, filter, search);
-            
-            // 페이징 처리
-            PageMaker<UserVO> pageMaker = getPagedFriends(filteredUsers, page, size);
-            
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put("friends", pageMaker.getList());
-            response.put("pageMaker", pageMaker);
-            response.put("currentPage", page);
-            response.put("totalCount", pageMaker.getCount());
-            
-        } catch (Exception e) {
-            log.error("친구 초대 AJAX 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, "친구 목록 조회에 실패했습니다.");
-        }
-        
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put("friends", pageMaker.getList());
+        response.put("pageMaker", pageMaker);
+        response.put("currentPage", page);
+        response.put("totalCount", pageMaker.getCount());
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * 선택된 친구 목록 조회 API
      */
     @GetMapping("/selected-friends")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getSelectedFriends(HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            UserVO user = getValidatedUser(session);
-            
-            Set<Long> selectedFriendIds = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
-            if (selectedFriendIds.isEmpty()) {
-                selectedFriendIds.add((long) user.getUsersId());
-                inviteMap.put(user.getUsersId(), selectedFriendIds);
-            }
-            List<String> selectedFriendIdStrings = selectedFriendIds.stream()
-                    .map(String::valueOf)
-                    .collect(java.util.stream.Collectors.toList());
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put("selectedFriendIds", selectedFriendIdStrings);
-        } catch (Exception e) {
-            log.error("선택된 친구 목록 조회 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, "선택된 친구 목록 조회에 실패했습니다.");
+        UserVO user = getValidatedUser(session);
+
+        Set<Long> selectedFriendIds = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
+        if (selectedFriendIds.isEmpty()) {
+            selectedFriendIds.add((long) user.getUsersId());
+            inviteMap.put(user.getUsersId(), selectedFriendIds);
         }
+        List<String> selectedFriendIdStrings = selectedFriendIds.stream()
+                .map(String::valueOf)
+                .collect(java.util.stream.Collectors.toList());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put("selectedFriendIds", selectedFriendIdStrings);
+
         return ResponseEntity.ok(response);
     }
 
@@ -432,32 +401,28 @@ public class CartController {
     @PostMapping("/friends/toggle")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleFriend(
-            @RequestParam long friendId, 
+            @RequestParam long friendId,
             HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            UserVO user = getValidatedUser(session);
-            
-            Set<Long> selectedFriends = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
-            boolean wasSelected = selectedFriends.contains(friendId);
-            if (wasSelected) {
-                selectedFriends.remove(friendId);
-            } else {
-                selectedFriends.add(friendId);
-            }
-            inviteMap.put(user.getUsersId(), selectedFriends);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put("friendId", friendId);
-            response.put("selected", !wasSelected);
-            response.put("totalSelected", selectedFriends.size());
-        } catch (Exception e) {
-            log.error("친구 토글 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, "친구 선택 처리에 실패했습니다.");
+        UserVO user = getValidatedUser(session);
+
+        Set<Long> selectedFriends = inviteMap.getOrDefault(user.getUsersId(), new HashSet<>());
+        boolean wasSelected = selectedFriends.contains(friendId);
+        if (wasSelected) {
+            selectedFriends.remove(friendId);
+        } else {
+            selectedFriends.add(friendId);
         }
+        inviteMap.put(user.getUsersId(), selectedFriends);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put("friendId", friendId);
+        response.put("selected", !wasSelected);
+        response.put("totalSelected", selectedFriends.size());
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * 친구 일괄 동기화 (개선된 버전)
      */
@@ -466,40 +431,36 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> syncSelectedFriends(
             @RequestBody Map<String, Object> request,
             HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            UserVO user = getValidatedUser(session);
-            
-            @SuppressWarnings("unchecked")
-            List<Object> friendIdObjects = (List<Object>) request.get("selectedFriendIds");
-            if (friendIdObjects == null) {
-                friendIdObjects = (List<Object>) request;
-            }
-            Set<Long> selectedFriends = new HashSet<>();
-            if (friendIdObjects != null) {
-                for (Object friendIdObj : friendIdObjects) {
-                    try {
-                        if (friendIdObj instanceof Number) {
-                            selectedFriends.add(((Number) friendIdObj).longValue());
-                        } else if (friendIdObj instanceof String) {
-                            selectedFriends.add(Long.parseLong((String) friendIdObj));
-                        }
-                    } catch (NumberFormatException e) {
-                        log.warn("잘못된 친구 ID 형식: {}", friendIdObj);
+        UserVO user = getValidatedUser(session);
+
+        @SuppressWarnings("unchecked")
+        List<Object> friendIdObjects = (List<Object>) request.get("selectedFriendIds");
+        if (friendIdObjects == null) {
+            friendIdObjects = (List<Object>) request;
+        }
+        Set<Long> selectedFriends = new HashSet<>();
+        if (friendIdObjects != null) {
+            for (Object friendIdObj : friendIdObjects) {
+                try {
+                    if (friendIdObj instanceof Number) {
+                        selectedFriends.add(((Number) friendIdObj).longValue());
+                    } else if (friendIdObj instanceof String) {
+                        selectedFriends.add(Long.parseLong((String) friendIdObj));
                     }
+                } catch (NumberFormatException e) {
+                    log.warn("잘못된 친구 ID 형식: {}", friendIdObj);
                 }
             }
-            inviteMap.put(user.getUsersId(), selectedFriends);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put("syncedCount", selectedFriends.size());
-        } catch (Exception e) {
-            log.error("친구 동기화 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, "친구 동기화에 실패했습니다.");
         }
+        inviteMap.put(user.getUsersId(), selectedFriends);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put("syncedCount", selectedFriends.size());
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * 초대 확정 API -> Controller의 Map에 저장
      */
@@ -508,50 +469,47 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> confirmInvite(
             @RequestBody Map<String, Object> request,
             HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            UserVO user = getValidatedUser(session);
-            validateCart(session);
-            
-            @SuppressWarnings("unchecked")
-            List<Object> selectedFriendIdObjects = (List<Object>) request.get("selectedFriendIds");
-            if (selectedFriendIdObjects == null || selectedFriendIdObjects.isEmpty()) {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-                response.put(CartConstants.JSON_MESSAGE, "선택된 친구가 없습니다.");
-                return ResponseEntity.ok(response);
-            }
-            Set<Long> friendIdSet = new HashSet<>();
-            for (Object friendIdObj : selectedFriendIdObjects) {
-                try {
-                    long friendId;
-                    if (friendIdObj instanceof Number) {
-                        friendId = ((Number) friendIdObj).longValue();
-                    } else if (friendIdObj instanceof String) {
-                        friendId = Long.parseLong((String) friendIdObj);
-                    } else {
-                        continue;
-                    }
-                    friendIdSet.add(friendId);
-                } catch (NumberFormatException e) {
-                    log.warn("잘못된 친구 ID 형식: {}", friendIdObj);
-                }
-            }
-            // Controller의 Map에 저장
-            inviteMap.put(user.getUsersId(), friendIdSet);
-            log.info("초대 확정 완료: 사용자 {} - 선택된 친구들 {} (Map에 저장)", user.getUsersId(), friendIdSet);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put(CartConstants.JSON_MESSAGE, "친구 초대가 완료되었습니다.");
-            response.put("selectedFriendCount", friendIdSet.size());
-        } catch (Exception e) {
-            log.error("초대 확정 오류", e);
+        UserVO user = getValidatedUser(session);
+        validateCart(session);
+
+        @SuppressWarnings("unchecked")
+        List<Object> selectedFriendIdObjects = (List<Object>) request.get("selectedFriendIds");
+        if (selectedFriendIdObjects == null || selectedFriendIdObjects.isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, "초대 확정에 실패했습니다.");
+            response.put(CartConstants.JSON_MESSAGE, "선택된 친구가 없습니다.");
+            return ResponseEntity.ok(response);
         }
+        Set<Long> friendIdSet = new HashSet<>();
+        for (Object friendIdObj : selectedFriendIdObjects) {
+            try {
+                long friendId;
+                if (friendIdObj instanceof Number) {
+                    friendId = ((Number) friendIdObj).longValue();
+                } else if (friendIdObj instanceof String) {
+                    friendId = Long.parseLong((String) friendIdObj);
+                } else {
+                    continue;
+                }
+                friendIdSet.add(friendId);
+            } catch (NumberFormatException e) {
+                log.warn("잘못된 친구 ID 형식: {}", friendIdObj);
+            }
+        }
+        // Controller의 Map에 저장
+        inviteMap.put(user.getUsersId(), friendIdSet);
+        log.info("초대 확정 완료: 사용자 {} - 선택된 친구들 {} (Map에 저장)", user.getUsersId(), friendIdSet);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put(CartConstants.JSON_MESSAGE, "친구 초대가 완료되었습니다.");
+        response.put("selectedFriendCount", friendIdSet.size());
+
         return ResponseEntity.ok(response);
     }
 
     // =============================== 더치페이 관련 API ===============================
-    
+
     /**
      * 더치페이 가격 계산 API
      */
@@ -560,82 +518,79 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> calculateDutchPay(
             @RequestBody Map<String, Object> request,
             HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            UserVO user = getValidatedUser(session);
-            validateCart(session);
-            CartVO cart = cartService.getCart(session);
-            String paymentMethod = (String) request.get("paymentMethod");
+        UserVO user = getValidatedUser(session);
+        validateCart(session);
+        CartVO cart = cartService.getCart(session);
+        String paymentMethod = (String) request.get("paymentMethod");
 
-            Set<Long> participantIds = getParticipantIds(user);
-            if (participantIds.isEmpty()) {
-                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-                response.put(CartConstants.JSON_MESSAGE, "참여자 정보가 없습니다.");
-                return ResponseEntity.ok(response);
-            }
-
-            int totalAmount = cart.getTotalAmount();
-            int participantCount = participantIds.size();
-            Map<String, Integer> paymentDistribution = new HashMap<>();
-
-            if ("equal".equals(paymentMethod)) {
-                int baseAmount = totalAmount / participantCount;
-                int remainder = totalAmount % participantCount;
-                int i = 0;
-                for (Long participantId : participantIds) {
-                    int amount = baseAmount + (i < remainder ? 1 : 0);
-                    paymentDistribution.put(participantId.toString(), amount);
-                    i++;
-                }
-            } else if ("random".equals(paymentMethod)) {
-                int minAmount = Math.max(1000, totalAmount / participantCount / 2);
-                int maxAmount = Math.min(totalAmount - (participantCount - 1) * minAmount, 
-                                       totalAmount / participantCount * 2);
-                int remainingAmount = totalAmount;
-                java.util.Random random = new java.util.Random();
-                List<Long> participantIdList = new ArrayList<>(participantIds);
-                for (int i = 0; i < participantIdList.size() - 1; i++) {
-                    Long participantId = participantIdList.get(i);
-                    int remainingParticipants = participantIdList.size() - i;
-                    int minForThisParticipant = Math.max(minAmount, 
-                            remainingAmount - (remainingParticipants - 1) * maxAmount);
-                    int maxForThisParticipant = Math.min(maxAmount, 
-                            remainingAmount - (remainingParticipants - 1) * minAmount);
-                    int amount = random.nextInt(maxForThisParticipant - minForThisParticipant + 1) 
-                               + minForThisParticipant;
-                    paymentDistribution.put(participantId.toString(), amount);
-                    remainingAmount -= amount;
-                }
-                paymentDistribution.put(participantIdList.get(participantIdList.size() - 1).toString(), remainingAmount);
-            }
-
-            List<UserVO> participants = getParticipantDetails(user);
-            List<Map<String, Object>> paymentList = new ArrayList<>();
-            for (UserVO participant : participants) {
-                String participantId = String.valueOf(participant.getUsersId());
-                Integer amount = paymentDistribution.get(participantId);
-                if (amount != null) {
-                    Map<String, Object> paymentInfo = new HashMap<>();
-                    paymentInfo.put("userId", participant.getUsersId());
-                    paymentInfo.put("userName", participant.getUsersName());
-                    paymentInfo.put("userProfile", participant.getUsersProfile());
-                    paymentInfo.put("amount", amount);
-                    paymentInfo.put("isCurrentUser", participant.getUsersId() == user.getUsersId());
-                    paymentList.add(paymentInfo);
-                }
-            }
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put("totalAmount", totalAmount);
-            response.put("participantCount", participantCount);
-            response.put("paymentMethod", paymentMethod);
-            response.put("paymentList", paymentList);
-            response.put("cart", cart);
-            response.put("participants", participants);
-        } catch (Exception e) {
-            log.error("더치페이 계산 오류", e);
+        Set<Long> participantIds = getParticipantIds(user);
+        if (participantIds.isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
             response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, "더치페이 계산에 실패했습니다.");
+            response.put(CartConstants.JSON_MESSAGE, "참여자 정보가 없습니다.");
+            return ResponseEntity.ok(response);
         }
+
+        int totalAmount = cart.getTotalAmount();
+        int participantCount = participantIds.size();
+        Map<String, Integer> paymentDistribution = new HashMap<>();
+
+        if ("equal".equals(paymentMethod)) {
+            int baseAmount = totalAmount / participantCount;
+            int remainder = totalAmount % participantCount;
+            int i = 0;
+            for (Long participantId : participantIds) {
+                int amount = baseAmount + (i < remainder ? 1 : 0);
+                paymentDistribution.put(participantId.toString(), amount);
+                i++;
+            }
+        } else if ("random".equals(paymentMethod)) {
+            int minAmount = Math.max(1000, totalAmount / participantCount / 2);
+            int maxAmount = Math.min(totalAmount - (participantCount - 1) * minAmount,
+                    totalAmount / participantCount * 2);
+            int remainingAmount = totalAmount;
+            java.util.Random random = new java.util.Random();
+            List<Long> participantIdList = new ArrayList<>(participantIds);
+            for (int i = 0; i < participantIdList.size() - 1; i++) {
+                Long participantId = participantIdList.get(i);
+                int remainingParticipants = participantIdList.size() - i;
+                int minForThisParticipant = Math.max(minAmount,
+                        remainingAmount - (remainingParticipants - 1) * maxAmount);
+                int maxForThisParticipant = Math.min(maxAmount,
+                        remainingAmount - (remainingParticipants - 1) * minAmount);
+                int amount = random.nextInt(maxForThisParticipant - minForThisParticipant + 1)
+                        + minForThisParticipant;
+                paymentDistribution.put(participantId.toString(), amount);
+                remainingAmount -= amount;
+            }
+            paymentDistribution.put(participantIdList.get(participantIdList.size() - 1).toString(), remainingAmount);
+        }
+
+        List<UserVO> participants = getParticipantDetails(user);
+        List<Map<String, Object>> paymentList = new ArrayList<>();
+        for (UserVO participant : participants) {
+            String participantId = String.valueOf(participant.getUsersId());
+            Integer amount = paymentDistribution.get(participantId);
+            if (amount != null) {
+                Map<String, Object> paymentInfo = new HashMap<>();
+                paymentInfo.put("userId", participant.getUsersId());
+                paymentInfo.put("userName", participant.getUsersName());
+                paymentInfo.put("userProfile", participant.getUsersProfile());
+                paymentInfo.put("amount", amount);
+                paymentInfo.put("isCurrentUser", participant.getUsersId() == user.getUsersId());
+                paymentList.add(paymentInfo);
+            }
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put("totalAmount", totalAmount);
+        response.put("participantCount", participantCount);
+        response.put("paymentMethod", paymentMethod);
+        response.put("paymentList", paymentList);
+        response.put("cart", cart);
+        response.put("participants", participants);
+
         return ResponseEntity.ok(response);
     }
 
@@ -645,41 +600,38 @@ public class CartController {
     @GetMapping("/calculate-dutch-pay")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getDutchPayCalculation(HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            UserVO user = getValidatedUser(session);
-            validateCart(session);
-            
-            CartVO cart = cartService.getCart(session);
-            if (cart == null || cart.isEmpty()) {
-                response.put("result", "error");
-                response.put("message", "장바구니가 비어있습니다.");
-                return ResponseEntity.ok(response);
-            }
-            
-            List<UserVO> participantList = getParticipantDetails(user);
-            List<Map<String, Object>> participants = new ArrayList<>();
-            int totalAmount = cart.getTotalAmount();
-            int participantCount = participantList.size();
-            int amountPerPerson = participantCount > 0 ? totalAmount / participantCount : 0;
+        UserVO user = getValidatedUser(session);
+        validateCart(session);
 
-            for (UserVO participant : participantList) {
-                Map<String, Object> participantInfo = new HashMap<>();
-                participantInfo.put("userId", participant.getUsersId());
-                participantInfo.put("userName", participant.getUsersName());
-                participantInfo.put("userProfile", participant.getUsersProfile());
-                participantInfo.put("amount", amountPerPerson);
-                participantInfo.put("isCurrentUser", participant.getUsersId() == user.getUsersId());
-                participants.add(participantInfo);
-            }
-
-            response.put("result", "success");
-            response.put("participantList", participants);
-            response.put("totalAmount", totalAmount);
-        } catch (Exception e) {
+        CartVO cart = cartService.getCart(session);
+        if (cart == null || cart.isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
             response.put("result", "error");
-            response.put("message", "더치페이 계산 실패");
+            response.put("message", "장바구니가 비어있습니다.");
+            return ResponseEntity.ok(response);
         }
+
+        List<UserVO> participantList = getParticipantDetails(user);
+        List<Map<String, Object>> participants = new ArrayList<>();
+        int totalAmount = cart.getTotalAmount();
+        int participantCount = participantList.size();
+        int amountPerPerson = participantCount > 0 ? totalAmount / participantCount : 0;
+
+        for (UserVO participant : participantList) {
+            Map<String, Object> participantInfo = new HashMap<>();
+            participantInfo.put("userId", participant.getUsersId());
+            participantInfo.put("userName", participant.getUsersName());
+            participantInfo.put("userProfile", participant.getUsersProfile());
+            participantInfo.put("amount", amountPerPerson);
+            participantInfo.put("isCurrentUser", participant.getUsersId() == user.getUsersId());
+            participants.add(participantInfo);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("result", "success");
+        response.put("participantList", participants);
+        response.put("totalAmount", totalAmount);
+
         return ResponseEntity.ok(response);
     }
 
@@ -689,56 +641,51 @@ public class CartController {
     @PostMapping("/submit-bill")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> submitBill(@RequestBody Map<String, Object> request, HttpSession session) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            UserVO user = getValidatedUser(session);
-            
-            // 1. session에서 cart 가져오기
-            CartVO cart = cartService.getCart(session);
-            if (cart == null || cart.isEmpty()) {
-                response.put("result", "error");
-                response.put("message", "장바구니가 비어있습니다.");
-                return ResponseEntity.ok(response);
-            }
-            
-            // 2. controller의 inviteMap에서 참여자 목록 가져오기
-            List<UserVO> participants = getParticipantDetails(user);
-            int totalAmount = cart.getTotalAmount();
-            int participantCount = participants.size();
-            int amountPerPerson = participantCount > 0 ? totalAmount / participantCount : 0;
+        UserVO user = getValidatedUser(session);
 
-            // 3. BillDTO 생성
-            BillDTO billDTO = new BillDTO();
-            billDTO.setLeaderId(user.getUsersId());
-            billDTO.setTotalAmount(totalAmount);
-            billDTO.setStoreId(cart.getStoreId());
-            billDTO.setStoreName(cart.getStoreName());
-            billDTO.setCartItems(cart.getItems());
-            Map<Long, Integer> userBill = new HashMap<>();
-            for (UserVO participant : participants) {
-                userBill.put(participant.getUsersId(), amountPerPerson);
-            }
-            billDTO.setUserBill(userBill);
-            
-            // 4. billMap에 저장, inviteMap에서 참여자 목록 제거
-            billMap.put(user.getUsersId(), billDTO);
-//            inviteMap.remove(user.getUsersId());
-            
-            // log.info("BillDTO 생성 완료: 사용자 {} - 총 금액 {}원, 참여자 {}명", 
-            //         user.getUsersId(), billDTO.getTotalAmount(), billDTO.getCartItems().size());
-
-            // 5. DB 저장
-            int integratedPaymentId = integratedPaymentService.createIntegratedPayment(billDTO);
-            paymentService.createPayment(billDTO, integratedPaymentId);
-            
-            response.put("result", "success");
-            response.put("message", "영수증이 생성되었습니다.");
-            
-        } catch (Exception e) {
-            log.error("영수증 생성 오류", e);
+        // 1. session에서 cart 가져오기
+        CartVO cart = cartService.getCart(session);
+        if (cart == null || cart.isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
             response.put("result", "error");
-            response.put("message", "영수증 생성 실패");
+            response.put("message", "장바구니가 비어있습니다.");
+            return ResponseEntity.ok(response);
         }
+
+        // 2. controller의 inviteMap에서 참여자 목록 가져오기
+        List<UserVO> participants = getParticipantDetails(user);
+        int totalAmount = cart.getTotalAmount();
+        int participantCount = participants.size();
+        int amountPerPerson = participantCount > 0 ? totalAmount / participantCount : 0;
+
+        // 3. BillDTO 생성
+        BillDTO billDTO = new BillDTO();
+        billDTO.setLeaderId(user.getUsersId());
+        billDTO.setTotalAmount(totalAmount);
+        billDTO.setStoreId(cart.getStoreId());
+        billDTO.setStoreName(cart.getStoreName());
+        billDTO.setCartItems(cart.getItems());
+        Map<Long, Integer> userBill = new HashMap<>();
+        for (UserVO participant : participants) {
+            userBill.put(participant.getUsersId(), amountPerPerson);
+        }
+        billDTO.setUserBill(userBill);
+
+        // 4. billMap에 저장, inviteMap에서 참여자 목록 제거
+        billMap.put(user.getUsersId(), billDTO);
+//        inviteMap.remove(user.getUsersId());
+
+        // log.info("BillDTO 생성 완료: 사용자 {} - 총 금액 {}원, 참여자 {}명",
+        //         user.getUsersId(), billDTO.getTotalAmount(), billDTO.getCartItems().size());
+
+        // 5. DB 저장
+        int integratedPaymentId = integratedPaymentService.createIntegratedPayment(billDTO);
+        paymentService.createPayment(billDTO, integratedPaymentId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("result", "success");
+        response.put("message", "영수증이 생성되었습니다.");
+
         return ResponseEntity.ok(response);
     }
 
@@ -748,28 +695,24 @@ public class CartController {
     @GetMapping("/dutch-pay-data")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getDutchPayData(HttpSession session) {
+        UserVO user = getValidatedUser(session);
+        validateCart(session);
+        CartVO cart = cartService.getCart(session);
+        List<UserVO> participants = getParticipantDetails(user);
+
         Map<String, Object> response = new HashMap<>();
-        try {
-            UserVO user = getValidatedUser(session);
-            validateCart(session);
-            CartVO cart = cartService.getCart(session);
-            List<UserVO> participants = getParticipantDetails(user);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put("participants", participants);
-            response.put("cart", cart);
-            response.put("totalAmount", cart.getTotalAmount());
-            response.put("itemCount", cart.getItems().size());
-            response.put("participantCount", participants.size());
-        } catch (Exception e) {
-            log.error("더치페이 데이터 조회 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, "데이터 조회에 실패했습니다.");
-        }
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put("participants", participants);
+        response.put("cart", cart);
+        response.put("totalAmount", cart.getTotalAmount());
+        response.put("itemCount", cart.getItems().size());
+        response.put("participantCount", participants.size());
+
         return ResponseEntity.ok(response);
     }
 
     // =============================== 기타 API ===============================
-    
+
     /**
      * 부서별 사용자 목록 조회 API
      */
@@ -778,24 +721,16 @@ public class CartController {
     public ResponseEntity<Map<String, Object>> getUsersByDepartment(
             @PathVariable(UrlConstants.Param.DEPARTMENT_ID) int departmentId,
             HttpSession session) {
-        
+
+        UserVO user = getValidatedUser(session);
+
+        List<UserVO> departmentUsers = loginService.getUsersByDepartmentIdExcludingCurrentUser(
+                departmentId, user.getUsersId());
+
         Map<String, Object> response = new HashMap<>();
-        
-        try {
-            UserVO user = getValidatedUser(session);
-            
-            List<UserVO> departmentUsers = loginService.getUsersByDepartmentIdExcludingCurrentUser(
-                    departmentId, user.getUsersId());
-            
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
-            response.put(CartConstants.JSON_USERS, departmentUsers);
-            
-        } catch (Exception e) {
-            log.error("부서별 사용자 조회 오류", e);
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_USER_LIST_ERROR);
-        }
-        
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put(CartConstants.JSON_USERS, departmentUsers);
+
         return ResponseEntity.ok(response);
     }
 
@@ -805,10 +740,10 @@ public class CartController {
     @GetMapping(value = "/payment-status-stream")
     public ResponseEntity<String> paymentStatusStream(HttpSession session) {
         UserVO user = getValidatedUser(session);
-        
+
         // SSE 응답 생성
         String sseData = "data: {\"type\": \"connected\", \"userId\": " + user.getUsersId() + "}\n\n";
-        
+
         return ResponseEntity.ok()
                 .contentType(MediaType.valueOf("text/event-stream;charset=UTF-8"))
                 .header("Cache-Control", "no-cache")
@@ -818,7 +753,7 @@ public class CartController {
     }
 
     // =============================== 내부 메서드 ===============================
-    
+
     /**
      * 장바구니 성공 응답 생성 (카트 정보 포함)
      */
@@ -826,14 +761,14 @@ public class CartController {
         Map<String, Object> response = new HashMap<>();
         response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
         response.put(CartConstants.JSON_MESSAGE, message);
-        
+
         // 카트 정보 추가
         response.put(CartConstants.JSON_TOTAL_AMOUNT, cartService.getCartTotalAmount(session));
         response.put(CartConstants.JSON_CART_COUNT, cartService.getCartItemCount(session));
-        
+
         return response;
     }
-    
+
     /**
      * 장바구니 실패 응답 생성
      */
@@ -843,7 +778,7 @@ public class CartController {
         response.put(CartConstants.JSON_MESSAGE, message);
         return response;
     }
-    
+
     /**
      * 장바구니 비우기 성공 응답 생성 (카트 개수만 0으로 설정)
      */
@@ -854,25 +789,25 @@ public class CartController {
         response.put(CartConstants.JSON_CART_COUNT, CartConstants.DEFAULT_CART_COUNT);
         return response;
     }
-    
+
     /**
      * 장바구니 추가 성공 응답 생성 (추가 정보 포함)
      */
     private Map<String, Object> createCartAddSuccessResponse(HttpSession session, String message) {
         Map<String, Object> response = createCartSuccessResponse(session, message);
-        
+
         // 추가된 아이템의 실제 계산된 가격 정보도 포함
         response.put(CartConstants.JSON_TOTAL_AMOUNT, cartService.getCartTotalAmount(session));
-        
+
         return response;
     }
-    
+
     /**
      * 필터링된 친구 목록 조회 (페이징 포함)
      */
     private List<UserVO> getFilteredFriends(UserVO user, String filter, String search) {
         List<UserVO> filteredUsers;
-        
+
         switch (filter) {
             case "department":
                 filteredUsers = loginService.getUsersByDepartmentIdExcludingCurrentUser(
@@ -884,32 +819,32 @@ public class CartController {
                         user.getCompanyId(), user.getUsersId());
                 break;
         }
-        
+
         // 검색어 필터링
         if (search != null && !search.trim().isEmpty()) {
             filteredUsers = filteredUsers.stream()
                     .filter(u -> u.getUsersName().contains(search.trim()))
                     .collect(java.util.stream.Collectors.toList());
         }
-        
+
         return filteredUsers;
     }
-    
+
     /**
      * 페이징된 친구 목록 조회
      */
     private PageMaker<UserVO> getPagedFriends(List<UserVO> allUsers, int page, int size) {
         long totalCount = allUsers.size();
-        
+
         // 페이징 처리
         int offset = (page - 1) * size;
         int endIndex = Math.min(offset + size, allUsers.size());
-        List<UserVO> pagedUsers = offset < allUsers.size() ? 
-            allUsers.subList(offset, endIndex) : new ArrayList<>();
-        
+        List<UserVO> pagedUsers = offset < allUsers.size() ?
+                allUsers.subList(offset, endIndex) : new ArrayList<>();
+
         return new PageMaker<>(pagedUsers, totalCount, size, page);
     }
-    
+
     /**
      * 참여자 ID Set 반환 (항상 user 포함)
      */
@@ -931,7 +866,7 @@ public class CartController {
         Set<Long> participantIds = getParticipantIds(user);
         participants.add(user); // 항상 user는 포함
         List<UserVO> companyUsers = loginService.getUsersByCompanyIdExcludingCurrentUser(
-            user.getCompanyId(), user.getUsersId());
+                user.getCompanyId(), user.getUsersId());
         for (Long id : participantIds) {
             if (id != user.getUsersId()) {
                 for (UserVO companyUser : companyUsers) {
@@ -945,4 +880,4 @@ public class CartController {
         return participants;
     }
 
-} 
+}

@@ -97,9 +97,9 @@ public class MenuVO {
             return 0;
         }
     }
+    
 
-
-
+    
     /**
      * 선택 항목이 선택되었는지 확인 (새로운 구조용)
      * 새로운 구조: {"value":"대","price":1000}

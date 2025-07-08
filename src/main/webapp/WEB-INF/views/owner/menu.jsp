@@ -481,15 +481,9 @@
         </a>
       </li>
       <li>
-        <a href="#" data-tab="testimonials">
+        <a href="${pageContext.request.contextPath}/owner/review" data-tab="testimonials">
           <span class="icon">💬</span>
           <span>리뷰 관리</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" data-tab="faq">
-          <span class="icon">❓</span>
-          <span>FAQ</span>
         </a>
       </li>
     </ul>

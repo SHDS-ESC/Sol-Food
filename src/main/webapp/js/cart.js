@@ -343,7 +343,6 @@ function displayOptions() {
                     return;
                 }
             } catch (e) {
-                console.warn('옵션 파싱 실패:', e.message);
                 optionHtml = '<span class="option-item">⚙️ 옵션 오류</span>';
             }
         } else {
@@ -394,6 +393,7 @@ function restoreQuantityInput(menuId) {
 function updateCartItemDisplay(menuId, quantity, totalAmount, cartCount) {
     const cartItem = document.querySelector(`[data-menu-id="${menuId}"]`);
     if (!cartItem) return;
+
     const totalPriceElement = cartItem.querySelector('.fw-bold');
     if (totalPriceElement) {
         // 서버에서 내려준 totalPrice를 그대로 사용
