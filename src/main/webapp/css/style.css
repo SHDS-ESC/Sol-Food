@@ -131,9 +131,9 @@ body { font-family:var(--font-main); background-color:#d6eeff; background-image:
 .header .logo { display:block; }
 .header .menu { display:block; background-image:url("../img/hamburger.svg"); width:40px; height:40px; cursor:pointer; }
 
-.content { padding:16px; padding-top:72px; height:calc(100vh - 52px); overflow:auto; box-sizing:border-box; color: var(--color-text); }
+.content { padding:16px; padding-top:72px; height:calc(100vh - 52px); overflow:auto; box-sizing:border-box; }
 
-.footer { transition: 1s; padding:16px; position:fixed; bottom:0; width:100%; background-color:var(--color-white);  box-sizing: border-box; color: var(--color-text); }
+.footer { transition: 1s; padding:16px; position:fixed; bottom:0; width:100%; background-color:var(--color-white); box-sizing: border-box;}
 .footer .ico { display:block; width:40px; height:40px; cursor:pointer; }
 .footer .ico:nth-child(1) { background-image:url("../img/home-alt.svg"); }
 .footer .ico:nth-child(2) { background-image:url("../img/feed.svg"); }
@@ -142,7 +142,7 @@ body { font-family:var(--font-main); background-color:#d6eeff; background-image:
 
 /* 바텀 네비게이션 */
 .bottom-nav { transition: 1s; position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:430px; background:var(--color-white); border-top:1px solid #ccc; display:flex; justify-content:space-around; padding:10px 0; z-index:1000; }
-.bottom-nav a { color: var(--color-text); text-decoration:none; font-size:12px; text-align:center; position:relative; }
+.bottom-nav a { color:var(--color-gray-dark); text-decoration:none; font-size:12px; text-align:center; position:relative; }
 .bottom-nav i { font-size:20px; display:block; }
 
 /* 반응형 */
