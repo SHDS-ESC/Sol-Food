@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <div class="header flex flex-sb">
-    <div><strong>로고</strong></div>
+    <div onclick="history.back()"><i class="bi bi-arrow-left"></i></div>
     <div style="display: flex; gap: 12px; align-items: center">
         <button
                 id="darkmode-toggle"
