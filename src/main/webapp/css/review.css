@@ -242,8 +242,8 @@ body.dark .form-group textarea {
     border-radius: 18px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     max-width: 500px;
-    margin: 40px auto 0 auto;
-    padding: 32px 24px;
+    margin: 0px auto 0 auto;
+    padding: 0px 24px 32px 24px;
     min-width: 320px;
 }
 body.dark .review-container {
@@ -289,7 +289,6 @@ label, .required {
 }
 
 .header {
-    background: transparent !important;
     box-shadow: none !important;
     border-bottom: none !important;
     width: 100%;

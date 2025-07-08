@@ -2,7 +2,7 @@
 
 .friends-list { 
   display: flex; flex-direction: column; gap: 14px; 
-  max-height: 400px; overflow-y: auto; padding-right: 4px;
+  max-height: 490px; overflow-y: auto; padding-right: 4px;
   border: 1px solid var(--color-gray); border-radius: 12px; padding: 16px;
   background: var(--color-bg-light);
 }

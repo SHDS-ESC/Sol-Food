@@ -20,31 +20,28 @@
 <body>
     <div class="wrap">
         <!-- 헤더 -->
-        <jsp:include page="../include/header.jsp" />
+        <div class="header flex flex-sb">
+            <div><i class="bi bi-arrow-left"></i></div>
+            <div style="display: flex; gap: 12px; align-items: center">
+                <button
+                        id="darkmode-toggle"
+                        style="
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  font-size: 20px;
+                  color: var(--color-black);
+                "
+                >
+                    <i class="bi bi-moon"></i>
+                </button>
+                <i class="bi bi-list" style="font-size: 20px"></i>
+            </div>
+        </div>
 
         <!-- 컨텐츠 -->
-        <div class="content">
+        <div class="content payment-method">
             <div class="payment-container">
-                <!-- 결제 방식 선택 -->
-                <div class="payment-methods">
-                    <button class="payment-option" data-method="solo">
-                        <div class="emoji">😊</div>
-                        <div class="payment-title">혼자 결제하기</div>
-                        <div class="payment-desc">
-                            일반적인 개인 결제 방식입니다.<br>
-                            바로 결제를 진행합니다.
-                        </div>
-                    </button>
-                    
-                    <button class="payment-option" data-method="group">
-                        <div class="emoji">👥</div>
-                        <div class="payment-title">함께 결제하기</div>
-                        <div class="payment-desc">
-                            친구들과 함께 나눠서 결제합니다.<br>
-                            더치페이 및 미니게임을 즐길 수 있어요!
-                        </div>
-                    </button>
-                </div>
 
                 <!-- 주문 내역 -->
                 <div class="receipt">
@@ -95,6 +92,29 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 결제 방식 선택 -->
+                <div class="payment-methods">
+                    <button class="payment-option" data-method="solo">
+                        <div class="emoji">😊</div>
+                        <div class="payment-title">혼자 결제하기</div>
+                        <div class="payment-desc">
+                            일반적인 개인 결제 방식입니다.<br>
+                            바로 결제를 진행합니다.
+                        </div>
+                    </button>
+                    
+                    <button class="payment-option" data-method="group">
+                        <div class="emoji">👥</div>
+                        <div class="payment-title">함께 결제하기</div>
+                        <div class="payment-desc">
+                            친구들과 함께 나눠서 결제합니다.<br>
+                            더치페이 및 미니게임을 즐길 수 있어요!
+                        </div>
+                    </button>
+                </div>
+
+
             </div>
         </div>
 
@@ -106,8 +126,7 @@
             </button>
         </div>
 
-        <!-- 푸터 -->
-        <jsp:include page="../include/footer.jsp" />
+
     </div>
 
 <!-- JavaScript -->

@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-    <jsp:include page="../include/header.jsp" />
     <div class="wrap">
+        <jsp:include page="../include/header.jsp" />
         <div class="content">
             <div class="review-container">
                 <div class="review-intro">

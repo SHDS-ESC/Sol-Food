@@ -133,7 +133,7 @@ body { font-family:var(--font-main); background-color:#d6eeff; background-image:
 
 .content { padding:16px; padding-top:72px; height:calc(100vh - 52px); overflow:auto; box-sizing:border-box; }
 
-.footer { transition: 1s; padding:16px; position:fixed; bottom:0; width:100%; background-color:var(--color-white); box-sizing: border-box;}
+.footer {z-index: 999999; transition: 1s; padding:16px; position:fixed; bottom:0; width:100%; background-color:var(--color-white); box-sizing: border-box;}
 .footer .ico { display:block; width:40px; height:40px; cursor:pointer; }
 .footer .ico:nth-child(1) { background-image:url("../img/home-alt.svg"); }
 .footer .ico:nth-child(2) { background-image:url("../img/feed.svg"); }

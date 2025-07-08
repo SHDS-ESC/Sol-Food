@@ -16,7 +16,25 @@
 </head>
 <body>
 <div class="wrap">
-    <jsp:include page="../include/header.jsp" />
+    <!-- 헤더 -->
+    <div class="header flex flex-sb">
+        <div><i class="bi bi-arrow-left"></i></div>
+        <div style="display: flex; gap: 12px; align-items: center">
+            <button
+                    id="darkmode-toggle"
+                    style="
+                  background: none;
+                  border: none;
+                  cursor: pointer;
+                  font-size: 20px;
+                  color: var(--color-black);
+                "
+            >
+                <i class="bi bi-moon"></i>
+            </button>
+            <i class="bi bi-list" style="font-size: 20px"></i>
+        </div>
+    </div>
     <div class="content" style="padding:16px; padding-top:72px;">
         <!-- 선택된 친구들 -->
         <div class="selected-friends" style="margin-bottom:16px;">
@@ -53,12 +71,14 @@
         <div class="text-center text-muted mb-3" style="font-size:15px;">
             <span id="selectedCount">0명</span><span id="selectedMessageSub"> 선택됨</span> · <span id="selectedMessage">친구를 선택해주세요.</span>
         </div>
+
+    </div>
+    <div class="footer">
         <!-- 초대하기 버튼 -->
         <div class="footer-btn-bar">
             <button class="footer-btn" id="inviteBtn" onclick="handleInvite()" disabled>친구를 선택해주세요</button>
         </div>
     </div>
-    <jsp:include page="../include/footer.jsp" />
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="<c:url value='/js/urlConstants.js' />"></script>

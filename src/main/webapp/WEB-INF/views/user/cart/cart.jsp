@@ -22,7 +22,7 @@
         <jsp:include page="../include/header.jsp" />
 
         <!-- 컨텐츠 -->
-        <div class="content">
+        <div class="content cart">
             <div class="cart-container">
                 <div class="info">
                     <h1><i class="bi bi-cart3"></i> 장바구니</h1>
@@ -35,7 +35,7 @@
                             <i class="bi bi-cart-x"></i>
                             <h4>장바구니가 비어있습니다</h4>
                             <p class="text-muted">맛있는 메뉴를 담아보세요!</p>
-                            <a href="${pageContext.request.contextPath}/user/store" class="btn submit mt-3">
+                            <a href="${pageContext.request.contextPath}/user/store" class="btn mt-3">
                                 <i class="bi bi-shop"></i> 가게 둘러보기
                             </a>
                         </div>
@@ -110,17 +110,13 @@
         </div>
 
         <!-- 결제 버튼: 푸터 위에 고정 -->
-        <c:if test="${not empty cart && not empty cart.items}">
-            <div class="footer-btn-bar">
-                <button class="footer-btn" onclick="proceedToPayment()">
-                    <span class="total-amount"><fmt:formatNumber value="${cart.totalAmount}" pattern="#,###"/>원</span>
-                    결제하기
-                </button>
-            </div>
-        </c:if>
+    <div class="footer-btn-bar">
+        <button class="footer-btn" onclick="proceedToPayment()">
+            <span class="total-amount"><fmt:formatNumber value="${cart.totalAmount}" pattern="#,###"/>원</span>
+            결제하기
+        </button>
+    </div>
 
-        <!-- 하단 네비게이션 푸터: 항상 고정 -->
-        <jsp:include page="../include/footer.jsp" />
     </div>
 
     <!-- 팝업 -->
