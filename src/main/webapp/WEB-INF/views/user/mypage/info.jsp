@@ -29,24 +29,8 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
   </head>
   <body>
     <div class="wrap">
-      <div class="header flex flex-sb">
-        <div><strong>로고</strong></div>
-        <div style="display: flex; gap: 12px; align-items: center">
-          <button
-            id="darkmode-toggle"
-            style="
-              background: none;
-              border: none;
-              cursor: pointer;
-              font-size: 20px;
-              color: var(--color-black);
-            "
-          >
-            <i class="bi bi-moon"></i>
-          </button>
-          <i class="bi bi-list" style="font-size: 20px"></i>
-        </div>
-      </div>
+      <jsp:include page="../include/backbtn-header.jsp"></jsp:include>
+
       <div class="content register">
         <form
           class="register-form"
@@ -155,7 +139,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
               value="${user.usersNickname}"
               required
             />
-            <div class="border-error" style="display:none;">한글/영문/숫자 혼합 2~16자만 사용 가능합니다</div>
+            <div class="border-error" style="display:none;">한글 2~16자만 사용 가능합니다</div>
           </div>
           <div class="form-group">
             <label for="name">이름</label>
@@ -216,11 +200,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
           <input type="hidden" id="usersProfile" name="usersProfile" value="${user.usersProfile}">
           <input type="hidden" name="usersPoint" value="${user.usersPoint}">
           <input type="hidden" name="usersLoginType" value="${user.usersLoginType}">
-          <input type="hidden" name="usersPwd" value="${user.usersPwd}">
           <input type="hidden" name="usersStatus" value="${user.usersStatus}">
-        </form>
-        <form id="withdrawForm" action="${pageContext.request.contextPath}/user/mypage/withdraw" method="post" style="display: inline;">
-            <button type="submit" class="btn btn-cancel">탈퇴하기</button>
         </form>
       </div>
     </div>
@@ -251,6 +231,8 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
             }
         }
     </script>
+    <script src="${pageContext.request.contextPath}/js/validateInput.js"></script>
+    <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
     <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
     <script>
@@ -309,6 +291,10 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
             } else {
                 hiddenInput.value = currentProfileUrl;
             }
+        })
+
+        $(function(){
+          applyPhoneHyphen('#phone');
         })
     
     

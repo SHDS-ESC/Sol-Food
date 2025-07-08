@@ -40,30 +40,17 @@ uri="http://www.springframework.org/tags/form" %>
   </head>
   <body>
     <div class="wrap">
-      <div class="header flex flex-sb">
-        <div><strong>로고</strong></div>
-        <div style="display: flex; gap: 12px; align-items: center">
-          <button
-            id="darkmode-toggle"
-            style="
-              background: none;
-              border: none;
-              cursor: pointer;
-              font-size: 20px;
-              color: var(--color-black);
-            "
-          >
-            <i class="bi bi-moon"></i>
-          </button>
-          <i class="bi bi-list" style="font-size: 20px"></i>
-        </div>
-      </div>
+      <%--헤더--%>
+      <jsp:include page="../include/header.jsp"></jsp:include>
       <div class="content native-login">
+
         <form
           class="native-login-form"
           action="${pageContext.request.contextPath}/user/login/native-login"
           method="post"
         >
+          <p class="text">안녕하세요 :) <br>쏠푸드입니다.</p>
+          <span>로그인 후 사용가능합니다.</span>
           <div class="form-group">
             <label for="email">이메일</label>
             <input
@@ -142,35 +129,21 @@ uri="http://www.springframework.org/tags/form" %>
               class="form-link"
               >비밀번호 찾기</a
             >
+            <a href="${pageContext.request.contextPath}/user/login/register" class="form-link">
+              회원가입
+            </a>
           </div>
           <div class="footer flex flex-sa" style="left: 0">
             <button class="footer-btn" type="submit">로그인</button>
           </div>
+          <a href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}${pageContext.request.contextPath}/user/login/kakao-login&response_type=code"
+             class="kakao-login">
+            <span style="margin: 0">💬</span>
+            카카오로 간편 로그인
+          </a>
         </form>
-        <style>
-          .kakao {
-            display: inline-block;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(255, 205, 0, 0.15);
-            transition: transform 0.15s, box-shadow 0.15s;
-          }
-          .kakao:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 6px 16px rgba(255, 205, 0, 0.25);
-          }
-        </style>
-        <a
-          id="login-kakao-btn"
-          class="kakao"
-          href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}${pageContext.request.contextPath}/user/login/kakao-login&response_type=code"
-        >
-          <img
-            src="https://k.kakaocdn.net/14/dn/btroDszwNrM/I6efHub1SN5KCJqLm1Ovx1/o.jpg"
-            alt="카카오 로그인 버튼"
-            width="222"
-          />
-        </a>
+
+
       </div>
     </div>
     <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>

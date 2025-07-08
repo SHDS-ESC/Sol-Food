@@ -32,24 +32,8 @@ uri="http://www.springframework.org/tags/form" %>
   </head>
   <body>
     <div class="wrap">
-      <div class="header flex flex-sb">
-        <div><strong>로고</strong></div>
-        <div style="display: flex; gap: 12px; align-items: center">
-          <button
-            id="darkmode-toggle"
-            style="
-              background: none;
-              border: none;
-              cursor: pointer;
-              font-size: 20px;
-              color: var(--color-black);
-            "
-          >
-            <i class="bi bi-moon"></i>
-          </button>
-          <i class="bi bi-list" style="font-size: 20px"></i>
-        </div>
-      </div>
+      <jsp:include page="../include/backbtn-header.jsp" />
+
       <div class="content search">
         <div class="search-tab-box">
           <button class="search-tab active" data-tab="id">아이디 찾기</button>
@@ -136,7 +120,6 @@ uri="http://www.springframework.org/tags/form" %>
                     border: none;
                     cursor: pointer;
                     position: absolute;
-                    right: 30px;
                   "
                 >
                   <i class="bi bi-clipboard"></i>

@@ -67,6 +67,7 @@
             <input type="hidden" name="accessToken" value="${userLoginSession.accessToken}">
             <input type="hidden" name="usersPoint" value="${userLoginSession.usersPoint}">
             <input type="hidden" name="usersLoginType" value="${userLoginSession.usersLoginType}">
+            <input type="hidden" name="usersStatus" value="active">
 
             <label for="companySelect">회사 *</label>
             <select class="custom-select" id="companySelect" name="companyId" required onchange="loadDepts(this.value)">
@@ -119,6 +120,7 @@
 
 </div>
 
+<script src="${pageContext.request.contextPath}/js/validateInput.js"></script>
 <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
 <script>
     const contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
@@ -143,6 +145,10 @@
                 alert("부서 목록을 불러오지 못했습니다.");
             });
     }
+
+    $(function(){
+          applyPhoneHyphen('#usersTel');
+        })
 
 </script>
 </body>

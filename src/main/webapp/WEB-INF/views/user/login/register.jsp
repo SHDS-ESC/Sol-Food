@@ -29,24 +29,8 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
   </head>
   <body>
     <div class="wrap">
-      <div class="header flex flex-sb">
-        <div><strong>로고</strong></div>
-        <div style="display: flex; gap: 12px; align-items: center">
-          <button
-            id="darkmode-toggle"
-            style="
-              background: none;
-              border: none;
-              cursor: pointer;
-              font-size: 20px;
-              color: var(--color-black);
-            "
-          >
-            <i class="bi bi-moon"></i>
-          </button>
-          <i class="bi bi-list" style="font-size: 20px"></i>
-        </div>
-      </div>
+      <%--헤더--%>
+      <jsp:include page="../include/header.jsp"></jsp:include>
       <div class="content register">
         <form
           class="register-form"
@@ -244,9 +228,11 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
           />
           <input type="hidden" name="usersPoint" value="0" />
           <input type="hidden" name="usersLoginType" value="native" />
+          <input type="hidden" name="usersStatus" value="active" />
         </form>
       </div>
     </div>
+    <script src="${pageContext.request.contextPath}/js/validateInput.js"></script>
     <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
     <script src="${pageContext.request.contextPath}/js/validateInput.js"></script>
 
@@ -323,6 +309,10 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
             alert("부서 목록을 불러오지 못했습니다.");
           });
       }
+
+      $(function () {
+        applyPhoneHyphen("#phone");
+      });
     </script>
   </body>
 </html>
