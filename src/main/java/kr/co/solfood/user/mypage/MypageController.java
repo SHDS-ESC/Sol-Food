@@ -38,16 +38,14 @@ public class MypageController {
     @GetMapping("")
     public String myPage(Model model, HttpSession sess) {
         UserVO userVO = (UserVO) sess.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
-        if(userVO == null){
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        if(userVO == null){ // 로그인 안되어있으면 
+            return "/user/mypage/non-user-mypage"; // 여기로 바로 포워딩 (리다이렉트x)
         }
-
-
-
         model.addAttribute("currentUser", userVO);
         return UrlConstants.View.USER_MYPAGE;
     }
 
+   
     // 마이페이지 > 내정보 get
     @GetMapping("/info")
     public String myPageInfo(Model model, HttpSession sess) {
@@ -60,7 +58,7 @@ public class MypageController {
         sess.setAttribute("s3InProgress", true);
         sess.setAttribute("uploadCount", 0);
         sess.setMaxInactiveInterval(30 * 60); // 30분 후 만료
-        return UrlConstants.View.USER_LOGIN_INFO;
+        return "/user/mypage/info";
     }
 
     // 마이페이지 > 내정보 post
