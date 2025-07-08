@@ -874,4 +874,228 @@ public class CartController {
         return ResponseEntity.ok().build();
     }
 
+    // =============================== Map 초기화 및 상태 관리 ===============================
+
+    /**
+     * 결제 완료 후 Map 초기화
+     */
+    @PostMapping("/payment-complete-cleanup")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> cleanupAfterPaymentComplete(HttpSession session) {
+        UserVO user = getValidatedUser(session);
+        
+        // Map 초기화
+        inviteMap.remove(user.getUsersId());
+        billMap.remove(user.getUsersId());
+        
+        // 장바구니 비우기
+        cartService.clearCart(session);
+        
+        log.info("결제 완료 후 정리 완료: 사용자 {}", user.getUsersId());
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put(CartConstants.JSON_MESSAGE, "정리가 완료되었습니다."); // TODO 상수 추가
+        
+        return ResponseEntity.ok(response);
+    }
+    // DB 처리는 어디서?
+
+    /**
+     * 결제 취소/실패 후 Map 초기화
+     */
+    @PostMapping("/payment-cancel-cleanup")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> cleanupAfterPaymentCancel(
+            @RequestParam(required = false) String reason,
+            HttpSession session) {
+        UserVO user = getValidatedUser(session);
+        
+        // Map 초기화
+        inviteMap.remove(user.getUsersId());
+        billMap.remove(user.getUsersId());
+        
+        // 장바구니는 유지 (사용자가 다시 시도할 수 있도록)
+        
+        log.info("결제 취소/실패 후 정리 완료: 사용자 {}, 사유: {}", user.getUsersId(), reason);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put(CartConstants.JSON_MESSAGE, "결제가 취소되었습니다."); // TODO 상수 추가
+        
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 세션 만료 시 Map 정리 (세션 리스너에서 호출)
+     */
+    public void cleanupOnSessionExpire(long userId) {
+        inviteMap.remove(userId);
+        billMap.remove(userId);
+        log.info("세션 만료로 인한 Map 정리: 사용자 {}", userId);
+    }
+    // TODO 세션 만료 이거 bean 등록 안해놔서 안될텐데
+
+    /**
+     * 결제 상태 업데이트 (성공)
+     */
+    @PostMapping("/update-payment-success")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updatePaymentSuccess(
+            @RequestParam int integratedPaymentId,
+            HttpSession session) {
+        UserVO user = getValidatedUser(session);
+        
+        try {
+            // 더치페이 전체 성공 처리 (통합결제 + 개별결제들)
+            integratedPaymentService.processDutchPaySuccess(integratedPaymentId);
+            
+            log.info("결제 성공 처리 완료: 통합결제ID {}, 사용자 {}", integratedPaymentId, user.getUsersId());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+            response.put(CartConstants.JSON_MESSAGE, "결제가 성공적으로 완료되었습니다."); // TODO 상수 추가
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("결제 성공 처리 중 오류: {}", e.getMessage());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+            response.put(CartConstants.JSON_MESSAGE, "결제 상태 업데이트에 실패했습니다."); // TODO 상수 추가
+            
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    /**
+     * 결제 상태 업데이트 (실패)
+     */
+    @PostMapping("/update-payment-failed")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updatePaymentFailed(
+            @RequestParam int integratedPaymentId,
+            @RequestParam String failReason,
+            HttpSession session) {
+        UserVO user = getValidatedUser(session);
+        
+        try {
+            // 더치페이 전체 실패 처리 (통합결제 + 개별결제들)
+            integratedPaymentService.processDutchPayFailed(integratedPaymentId, failReason);
+            
+            Object[] objs = {integratedPaymentId, user.getUsersId(), failReason};
+            log.info("결제 실패 처리 완료: 통합결제ID {}, 사용자 {}, 사유: {}", objs);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+            response.put(CartConstants.JSON_MESSAGE, "결제 실패가 처리되었습니다.");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("결제 실패 처리 중 오류: {}", e.getMessage());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+            response.put(CartConstants.JSON_MESSAGE, "결제 상태 업데이트에 실패했습니다.");
+            
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    /**
+     * 결제 상태 업데이트 (취소)
+     */
+    @PostMapping("/update-payment-cancelled")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updatePaymentCancelled(
+            @RequestParam int integratedPaymentId,
+            @RequestParam String cancelReason,
+            HttpSession session) {
+        UserVO user = getValidatedUser(session);
+        
+        try {
+            // 더치페이 전체 취소 처리 (통합결제 + 개별결제들)
+            integratedPaymentService.processDutchPayCancelled(integratedPaymentId, cancelReason);
+
+            Object[] objs = {integratedPaymentId, user.getUsersId(), cancelReason};
+            log.info("결제 취소 처리 완료: 통합결제ID {}, 사용자 {}, 사유: {}", objs);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+            response.put(CartConstants.JSON_MESSAGE, "결제가 취소되었습니다.");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("결제 취소 처리 중 오류: {}", e.getMessage());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+            response.put(CartConstants.JSON_MESSAGE, "결제 상태 업데이트에 실패했습니다.");
+            
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    /**
+     * 만료된 pending 결제 정리 (스케줄러용)
+     */
+    @PostMapping("/cleanup-expired-payments")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> cleanupExpiredPayments() {
+        try {
+            // 30분 이상 pending 상태인 더치페이들을 찾아서 cancelled로 변경
+            int cleanedCount = integratedPaymentService.cleanupExpiredDutchPayments();
+            
+            log.info("만료된 pending 결제 정리 완료: {}건", cleanedCount);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+            response.put("cleanedCount", cleanedCount);
+            response.put(CartConstants.JSON_MESSAGE, "만료된 결제가 정리되었습니다.");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("만료된 결제 정리 중 오류: {}", e.getMessage());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+            response.put(CartConstants.JSON_MESSAGE, "결제 정리에 실패했습니다.");
+            
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    /**
+     * 타임아웃된 더치페이 자동 취소 (스케줄러용)
+     */
+    @PostMapping("/process-timeout-dutch-payments")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> processTimeoutDutchPayments(@RequestParam int timeoutMinutes) {
+        try {
+            int cancelledCount = integratedPaymentService.processTimeoutDutchPayments(timeoutMinutes);
+            
+            log.info("타임아웃 더치페이 처리 완료: {}건 취소", cancelledCount);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+            response.put("cancelledCount", cancelledCount);
+            response.put(CartConstants.JSON_MESSAGE, "타임아웃된 더치페이가 처리되었습니다.");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("타임아웃 더치페이 처리 중 오류: {}", e.getMessage());
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+            response.put(CartConstants.JSON_MESSAGE, "타임아웃 더치페이 처리에 실패했습니다.");
+            
+            return ResponseEntity.ok(response);
+        }
+    }
+
 }

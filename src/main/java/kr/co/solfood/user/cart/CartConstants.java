@@ -49,4 +49,19 @@ public final class CartConstants {
     public static final String JSON_TOTAL_AMOUNT = "totalAmount";
     public static final String JSON_COUNT = "count";
     public static final String JSON_USERS = "users";
+    
+    // === 결제 상태 상수 ===
+    public static final String PAYMENT_STATUS_PENDING = "pending";
+    public static final String PAYMENT_STATUS_COMPLETED = "completed";
+    public static final String PAYMENT_STATUS_FAILED = "failed";
+    public static final String PAYMENT_STATUS_CANCELLED = "cancelled";
+    
+    // === 결제 정리 관련 메시지 ===
+    public static final String MSG_PAYMENT_COMPLETE_CLEANUP = "결제 완료 후 정리가 완료되었습니다.";
+    public static final String MSG_PAYMENT_CANCEL_CLEANUP = "결제 취소 후 정리가 완료되었습니다.";
+    public static final String MSG_EXPIRED_PAYMENT_CLEANUP = "만료된 결제가 정리되었습니다.";
+    
+    // === 스케줄러 관련 상수 ===
+    public static final int PAYMENT_EXPIRY_MINUTES = 30; // 30분 후 만료
+    public static final int CLEANUP_SCHEDULE_INTERVAL = 600000; // 10분 (밀리초)
 } 
