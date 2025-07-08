@@ -40,7 +40,7 @@ function updateQuantity(menuId, quantity) {
     
     const requestBody = `menuId=${numMenuId}&quantity=${numQuantity}`;
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/update'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_UPDATE), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: requestBody
@@ -69,7 +69,7 @@ function removeItem(menuId) {
     
     const numMenuId = parseInt(menuId);
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/remove'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_REMOVE), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `menuId=${numMenuId}`
@@ -98,7 +98,7 @@ function clearCart() {
         return;
     }
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/clear'), {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_CLEAR), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     })
@@ -119,21 +119,19 @@ function clearCart() {
 function addToCart(menuId, quantity = 1) {
     const btn = event ? event.target : null;
     const originalText = btn ? btn.innerHTML : '';
-    
+
     if (btn) {
         btn.disabled = true;
         btn.innerHTML = '<i class="cart-icon">⏳</i> 추가중...';
     }
     
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/add'), {
+    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `menuId=${menuId}&quantity=${quantity}`
     })
     .then(response => response.json())
     .then(data => {
-        console.log('🛒 장바구니 추가 응답:', data);
-        
         if (data.result === 'success') {
             if (btn) {
                 btn.innerHTML = '<i class="cart-icon">✅</i> 완료!';
@@ -147,12 +145,10 @@ function addToCart(menuId, quantity = 1) {
             }
             
             const cartCount = data.cartCount || data.count || 0;
-            console.log('🛒 장바구니 개수:', cartCount);
-            
             if (document.getElementById('bottomCartBar')) {
                 setTimeout(() => fetchCartInfo(), 200);
             }
-            
+
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', cartCount);
         } else {
             SolFoodUtils.showToast(data.message || '장바구니 추가에 실패했습니다.', 'error');
@@ -185,8 +181,8 @@ function addToCartWithOptions(cartItem) {
     const optionsJson = JSON.stringify(cartItem.options);
     
     const requestBody = `menuId=${cartItem.menuId}&quantity=${cartItem.quantity}&unitPrice=${unitPriceWithOptions}&options=${encodeURIComponent(optionsJson)}`;
-    
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/add'), {
+
+    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: requestBody
@@ -204,11 +200,11 @@ function addToCartWithOptions(cartItem) {
                     timestamp: Date.now()
                 }
             });
-            
+
             if (document.getElementById('bottomCartBar')) {
                 setTimeout(() => fetchCartInfo(), 200);
             }
-            
+
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', data.cartCount || data.count || 0);
         } else {
             throw new Error(data.message || '장바구니 추가에 실패했습니다.');
@@ -242,12 +238,12 @@ function updateBottomCartBar(count, totalAmount) {
 
 // 장바구니 페이지로 이동
 function goToCart() {
-    window.location.href = UrlConstants.Builder.fullUrl('/user/cart');
+    window.location.href = UrlConstants.Builder.fullUrl(UrlConstants.Pages.CART);
 }
 
 // 결제 페이지로 이동
 function proceedToPayment() {
-    window.location.href = UrlConstants.Builder.fullUrl('/user/cart/payment-method');
+    window.location.href = UrlConstants.Builder.fullUrl(UrlConstants.Pages.CART_PAYMENT_METHOD);
 }
 
 // 옵션 한글 매핑 상수
@@ -270,121 +266,109 @@ const OPTION_MAPPING = {
     }
 };
 
-// 장바구니 아이템의 옵션 정보 표시
-function displayOptions() {
-    const allOptionElements = document.querySelectorAll('.item-options');
+// 옵션 정보 표시 함수
+function renderOptions() {
+    const optionsContainers = document.querySelectorAll('.item-options');
     
-    allOptionElements.forEach((element, index) => {
-        const menuId = element.getAttribute('data-menu-id');
-        const optionsScript = element.querySelector('script.options-data');
-        
+    optionsContainers.forEach(container => {
+        const menuId = container.dataset.menuId;
+        const optionsDataScript = container.querySelector('.options-data');
+        const menuExtraScript = container.querySelector('.menu-extra-data');
 
-        
-        let rawOptions = null;
-        if (optionsScript) {
-            rawOptions = optionsScript.textContent || optionsScript.innerText;
-        }
-        
-
-
-        
-        // 안전한 옵션 표시
-        let optionHtml = '';
-        
-        if (rawOptions && rawOptions.trim() && 
-            rawOptions !== 'null' && rawOptions !== 'undefined' && rawOptions !== '{}') {
-            
-            // JSON 유효성 검증 및 옵션 표시 생성
-            try {
-                const parsedOptions = JSON.parse(rawOptions);
-                
-                // 유효한 옵션 객체인지 확인
-                if (parsedOptions && typeof parsedOptions === 'object' && Object.keys(parsedOptions).length > 0) {
-                    let detailHtml = '';
-                    
-                    for (const [key, value] of Object.entries(parsedOptions)) {
-                        if (key && key !== 'menuId' && value) {
-                            const cleanKey = String(key).trim();
-                            
-                            // 새로운 형태의 옵션 데이터 처리 {value: "매운맛", price: 1000}
-                            if (typeof value === 'object' && value.value) {
-                                const optionValue = String(value.value).trim();
-                                const optionPrice = parseInt(value.price) || 0;
-                                
-                                // 매핑 없이 원본 데이터 사용 (디버깅용)
-                                const displayKey = cleanKey;
-                                const displayValue = optionValue;
-                                
-                                // 개별 옵션 가격 표시
-                                let optionText = `${displayKey}: ${displayValue}`;
-                                if (optionPrice > 0) {
-                                    optionText += ` (+${SolFoodUtils.formatNumber(optionPrice)}원)`;
-                                }
-                                
-                                // 파란색 블럭으로 표시
-                                detailHtml += `<span class="option-item">${optionText}</span> `;
-                            }
-                            // 기존 형태의 옵션 데이터 처리 (호환성)
-                            else if (String(value).trim()) {
-                                const cleanValue = String(value).trim();
-                                
-                                // 원본 데이터 사용
-                                const displayKey = cleanKey;
-                                const displayValue = cleanValue;
-                                
-                                // 파란색 블럭으로 표시
-                                detailHtml += `<span class="option-item">${displayKey}: ${displayValue}</span> `;
-                            }
-                        }
-                    }
-                    
-                    // 파란색 블럭들로 표시
-                    if (detailHtml) {
-                        optionHtml = detailHtml;
-                    } else {
-                        // 옵션이 없는 경우 숨김
-                        element.style.display = 'none';
-                        return;
-                    }
-                } else {
-                    // 옵션이 없는 경우 숨김
-                    element.style.display = 'none';
-                    return;
-                }
-            } catch (e) {
-                console.warn('옵션 파싱 실패:', e.message);
-                optionHtml = '<span class="option-item">⚙️ 옵션 오류</span>';
-            }
-        } else {
-            // 옵션이 없는 경우 숨김
-            element.style.display = 'none';
+        if (!optionsDataScript) {
+            console.warn(`옵션 데이터를 찾을 수 없습니다. menuId: ${menuId}`);
             return;
         }
         
-        // 옵션 표시 적용
-        const small = element.querySelector('small');
-        
-        if (small && optionHtml) {
-            // DOM에 옵션 HTML 적용
-            const parentElement = small.parentElement;
-            small.remove(); // 기존 small 요소 제거
-            parentElement.innerHTML += optionHtml; // 옵션 HTML 추가
-        } else {
-            element.style.display = 'none';
+        try {
+            // 옵션 데이터 파싱
+            const rawData = optionsDataScript.textContent.trim();
+            const selectedOptions = JSON.parse(rawData);
+
+            if (typeof selectedOptions !== 'object' || Array.isArray(selectedOptions)) {
+                console.warn(`유효하지 않은 옵션 데이터입니다. menuId: ${menuId}`);
+                return;
+            }
+
+            // 메뉴 옵션 정보 파싱
+            let menuExtra = [];
+            if (menuExtraScript) {
+                try {
+                    menuExtra = JSON.parse(menuExtraScript.textContent.trim());
+                } catch (e) {
+                    console.warn('메뉴 옵션 정보 파싱 실패:', e);
+                }
+            }
+
+            // 선택된 옵션들을 배열로 변환
+            const selectedOptionsList = [];
+            for (const [groupName, selectedValue] of Object.entries(selectedOptions)) {
+                // 선택된 값이 배열인 경우 각각 처리
+                if (Array.isArray(selectedValue)) {
+                    selectedValue.forEach(value => {
+                        selectedOptionsList.push({ groupName, value });
+                    });
+                } else {
+                    // 단일 값인 경우
+                    selectedOptionsList.push({ groupName, value: selectedValue });
+                }
+            }
+
+            // 옵션 가격 정보 맵 생성
+            const optionPriceMap = {};
+            menuExtra.forEach(group => {
+                group.options.forEach(opt => {
+                    optionPriceMap[opt.name] = opt.price;
+                });
+            });
+
+            // 옵션 HTML 생성
+            let optionsHtml = '<div class="option-group">';
+
+            // 각 선택된 옵션을 개별적으로 표시
+            selectedOptionsList.forEach(({ groupName, value }) => {
+                const optionPrice = optionPriceMap[value] || 0;
+                optionsHtml += `
+                    <div class="option-item">
+                        <div class="option-info">
+                            <i class="bi bi-plus-circle-fill"></i>
+                            <span class="option-name">${groupName} : ${value}</span>
+                        </div>
+                        <span class="option-price">${optionPrice > 0 ? `(+${formatPrice(optionPrice)}원)` : ''}</span>
+                    </div>
+                `;
+            });
+
+            optionsHtml += '</div>';
+
+            // 옵션 컨테이너 업데이트
+            container.innerHTML = optionsHtml;
+
+        } catch (error) {
+            console.error(`옵션 데이터 파싱 중 오류 발생:`, error);
+            container.innerHTML = '<div class="error-message">옵션 정보를 불러올 수 없습니다.</div>';
         }
     });
 }
 
+// 가격 포맷팅 함수
+function formatPrice(price) {
+    return new Intl.NumberFormat('ko-KR').format(price);
+}
+
+// 페이지 로드 시 옵션 렌더링
+document.addEventListener('DOMContentLoaded', () => {
+    renderOptions();
+});
+
 // 카트 정보 가져오기
 function fetchCartInfo() {
-    fetch(UrlConstants.Builder.fullUrl('/user/cart/total'))
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_TOTAL))
         .then(response => response.json())
         .then(data => {
             const count = data.count || 0;
             const totalAmount = data.totalAmount || 0;
-            
-            console.log('🛒 장바구니 정보:', { count, totalAmount });
-            
+
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', count);
             updateBottomCartBar(count, totalAmount);
         })
@@ -405,42 +389,12 @@ function restoreQuantityInput(menuId) {
 function updateCartItemDisplay(menuId, quantity, totalAmount, cartCount) {
     const cartItem = document.querySelector(`[data-menu-id="${menuId}"]`);
     if (!cartItem) return;
-    
-    console.log('🔄 가격 업데이트:', {menuId, quantity, totalAmount, cartCount});
-    
-    const quantityInput = cartItem.querySelector('.quantity-input');
-    if (quantityInput) {
-        quantityInput.value = quantity;
-        quantityInput.defaultValue = quantity;
-    }
-    
     const totalPriceElement = cartItem.querySelector('.fw-bold');
     if (totalPriceElement) {
-        // 개별 아이템 가격 계산을 위해 unitPrice 추출 개선
-        const itemPriceElement = cartItem.querySelector('.item-price');
-        if (itemPriceElement) {
-            let unitPrice = 0;
-            
-            // final-price가 있으면 (옵션 포함 가격) 그것을 사용
-            const finalPriceElement = itemPriceElement.querySelector('.final-price');
-            if (finalPriceElement) {
-                const finalPriceText = finalPriceElement.textContent || finalPriceElement.innerText;
-                unitPrice = parseInt(finalPriceText.replace(/[^0-9]/g, ''));
-                console.log('📊 옵션 포함 단가 사용:', unitPrice);
-            } else {
-                // 일반 가격 사용
-                const priceText = itemPriceElement.textContent || itemPriceElement.innerText;
-                unitPrice = parseInt(priceText.replace(/[^0-9]/g, ''));
-                console.log('📊 기본 단가 사용:', unitPrice);
-            }
-            
-            if (!isNaN(unitPrice) && unitPrice > 0) {
-                const itemTotal = unitPrice * quantity;
-                console.log('💰 계산된 아이템 총액:', itemTotal, '(단가:', unitPrice, 'x 수량:', quantity, ')');
-                totalPriceElement.textContent = SolFoodUtils.formatNumber(itemTotal) + '원';
-            } else {
-                console.warn('⚠️ 단가 추출 실패:', unitPrice);
-            }
+        // 서버에서 내려준 totalPrice를 그대로 사용
+        const totalPrice = cartItem.getAttribute('data-total-price');
+        if (totalPrice) {
+            totalPriceElement.textContent = SolFoodUtils.formatNumber(parseInt(totalPrice)) + '원';
         }
     }
     
@@ -499,13 +453,13 @@ function showEmptyCart() {
 document.addEventListener('DOMContentLoaded', function() {
     // 장바구니 페이지인 경우 옵션 표시
     if (document.querySelector('.item-options')) {
-        displayOptions();
+        renderOptions();
     }
     
     if (document.getElementById('bottomCartBar')) {
         fetchCartInfo();
     } else {
-        fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
             .then(response => response.json())
             .then(data => {
                 SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', data.count || 0);

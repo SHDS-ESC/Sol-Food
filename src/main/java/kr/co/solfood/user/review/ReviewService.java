@@ -51,4 +51,9 @@ public interface ReviewService {
     
     // 별점 유효성 검증
     boolean isValidStarRating(Integer star);
+    
+    // ========================= 실시간 평균 별점 계산 =========================
+    
+    // 여러 가게의 평균 별점을 한 번에 계산
+    Map<Integer, Double> getAverageStarsByStoreIds(List<Integer> storeIds);
 }

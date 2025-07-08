@@ -481,15 +481,9 @@
         </a>
       </li>
       <li>
-        <a href="#" data-tab="testimonials">
+        <a href="${pageContext.request.contextPath}/owner/review" data-tab="testimonials">
           <span class="icon">💬</span>
           <span>리뷰 관리</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" data-tab="faq">
-          <span class="icon">❓</span>
-          <span>FAQ</span>
         </a>
       </li>
     </ul>
@@ -591,6 +585,11 @@
                 <div class="menu-name">${item.menuName}</div>
                 <div class="menu-description">${item.menuIntro}</div>
                 <div class="menu-price">₩${item.menuPrice}</div>
+                <c:if test="${not empty item.menuExtra}">
+                  <div class="menu-options-info">
+                    <small style="color: #666;">📋 옵션 설정됨</small>
+                  </div>
+                </c:if>
               </div>
             </div>
           </c:forEach>

@@ -14,6 +14,8 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
@@ -116,5 +118,20 @@ public class S3ServiceV2 {
             log.error("파일 삭제 v2 실패: {}", e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * 리뷰 이미지 업로드 (MultipartFile → S3)
+     */
+    public String uploadReviewImage(MultipartFile file) throws IOException {
+        String ext = file.getOriginalFilename() != null ? file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1) : "jpg";
+        String fileName = "reviews/" + UUID.randomUUID() + "." + ext;
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(s3Properties.getBucket())
+                .key(fileName)
+                .contentType(file.getContentType())
+                .build();
+        s3Client.putObject(putObjectRequest, software.amazon.awssdk.core.sync.RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+        return fileName;
     }
 } 

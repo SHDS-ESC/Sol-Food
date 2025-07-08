@@ -21,8 +21,6 @@ const InviteFriendsState = {
  * 페이지 초기화
  */
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('👥 친구 초대 페이지 초기화 시작');
-    
     try {
         // 현재 사용자 정보 로드
         loadCurrentUserInfo();
@@ -35,8 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // 검색 이벤트 리스너
         setupSearchListener();
-        
-        console.log('✅ 친구 초대 페이지 초기화 완료');
     } catch (error) {
         console.error('❌ 초기화 중 오류 발생:', error);
         SolFoodUtils.showToast('페이지 초기화에 실패했습니다.', 'error');
@@ -67,8 +63,6 @@ function loadCurrentUserInfo() {
             usersProfile: InviteFriendsState.currentUser.usersProfile,
             companyInfo: `${InviteFriendsState.currentUser.companyName} - ${InviteFriendsState.currentUser.departmentName}`
         });
-        
-        console.log('👤 현재 사용자 정보:', InviteFriendsState.currentUser);
     }
 }
 
@@ -82,7 +76,6 @@ function loadSelectedFriendsFromServer() {
                 data.selectedFriendIds.forEach(id => {
                     InviteFriendsState.selectedFriends.add(parseInt(id));
                 });
-                console.log('📋 서버에서 로드된 선택 친구들:', data.selectedFriendIds);
             }
             updateSelectedFriendsDisplay();
         })
@@ -163,41 +156,38 @@ function displayFriendsList(friends) {
     }
 
     friendsList.innerHTML = friends.map(user => {
-        const isSelected = InviteFriendsState.selectedFriends.has(user.usersId);
-        const isCurrentUser = user.usersId === InviteFriendsState.currentUser?.usersId;
-        
+        const isSelected = InviteFriendsState.selectedFriends.has(Number(user.usersId));
+        const isCurrentUser = Number(user.usersId) === Number(InviteFriendsState.currentUser?.usersId);
         // 페이지에 표시되는 친구 정보를 Map에 저장 (이미 선택된 친구든 아니든)
         if (!isCurrentUser) { // 현재 사용자는 이미 저장됨
-            InviteFriendsState.selectedFriendsData.set(user.usersId, {
-                usersId: user.usersId,
+            InviteFriendsState.selectedFriendsData.set(Number(user.usersId), {
+                usersId: Number(user.usersId),
                 usersName: user.usersName,
                 usersProfile: user.usersProfile,
                 companyInfo: `${user.companyName} - ${user.departmentName}`
             });
         }
-        
-        console.log(`👤 ${user.usersName} (ID: ${user.usersId}) - 선택됨: ${isSelected}`);
-        
         return `
-            <div class="friend-item ${isSelected ? 'selected' : ''}" 
+            <div class="friend-card${isSelected ? ' selected' : ''}" 
                  data-friend-id="${user.usersId}" 
                  data-user-name="${user.usersName}"
                  data-user-profile="${user.usersProfile || ''}"
                  data-company-info="${user.companyName} - ${user.departmentName}"
                  onclick="toggleFriend(this)">
                 <div class="friend-avatar" 
-                     ${user.usersProfile ? `style="background-image: url('${user.usersProfile}');"` : ''}>
+                     ${user.usersProfile ? `style=\"background-image: url('${user.usersProfile}');\"` : ''}>
                     ${!user.usersProfile ? user.usersName.substring(0, 1) : ''}
                 </div>
                 <div class="friend-info">
                     <div class="friend-name">${user.usersName}${isCurrentUser ? ' (나)' : ''}</div>
-                    <div class="friend-company">${user.companyName} - ${user.departmentName}</div>
+                    <div class="friend-meta">${user.companyName} - ${user.departmentName}</div>
                 </div>
-                <i class="bi bi-check-circle-fill check-icon"></i>
+                <button class="select-btn${isSelected ? ' selected' : ''}" tabindex="-1" onclick="event.stopPropagation(); toggleFriend(this.parentElement); return false;">
+                  <i class="bi ${isSelected ? 'bi-check-circle-fill' : 'bi-circle'}"></i>
+                </button>
             </div>
         `;
     }).join('');
-    
     // 선택된 친구들 표시 업데이트
     updateSelectedFriendsDisplay();
 }
@@ -207,87 +197,26 @@ function displayFriendsList(friends) {
  */
 function displayPagination(pageMaker, currentPage, totalCount) {
     const paginationSection = document.getElementById('paginationSection');
-    
     if (!pageMaker || pageMaker.pageCount <= 1) {
-        paginationSection.style.display = 'none';
+        paginationSection.innerHTML = '';
         return;
     }
-    
-    InviteFriendsState.totalCount = totalCount;
-    paginationSection.style.display = 'block';
-    
-    let paginationHTML = `
-        <nav aria-label="페이지 네비게이션">
-            <ul class="pagination justify-content-center mb-0">
-    `;
-    
-    // 첫 페이지
-    if (currentPage > 1) {
-        paginationHTML += `
-            <li class="page-item">
-                <a class="page-link" href="#" onclick="goToPage(1); return false;">
-                    <i class="bi bi-chevron-double-left"></i>
-                </a>
-            </li>
-        `;
-    }
-    
+    let html = '';
     // 이전 페이지
-    if (currentPage > 1) {
-        paginationHTML += `
-            <li class="page-item">
-                <a class="page-link" href="#" onclick="goToPage(${currentPage - 1}); return false;">
-                    <i class="bi bi-chevron-left"></i>
-                </a>
-            </li>
-        `;
-    }
-    
+    html += `<li class="page-item${currentPage === 1 ? ' disabled' : ''}">
+        <a class="page-link" href="#" tabindex="-1" onclick="goToPage(${currentPage - 1}); return false;" aria-label="이전"><span aria-hidden="true">&laquo;</span></a>
+    </li>`;
     // 페이지 번호들
     for (let pageNum = pageMaker.firstPage; pageNum <= pageMaker.lastPage; pageNum++) {
-        paginationHTML += `
-            <li class="page-item ${currentPage === pageNum ? 'active' : ''}">
-                <a class="page-link" href="#" onclick="goToPage(${pageNum}); return false;">
-                    ${pageNum}
-                </a>
-            </li>
-        `;
+        html += `<li class="page-item${currentPage === pageNum ? ' active' : ''}">
+            <a class="page-link" href="#" onclick="goToPage(${pageNum}); return false;">${pageNum}</a>
+        </li>`;
     }
-    
     // 다음 페이지
-    if (currentPage < pageMaker.pageCount) {
-        paginationHTML += `
-            <li class="page-item">
-                <a class="page-link" href="#" onclick="goToPage(${currentPage + 1}); return false;">
-                    <i class="bi bi-chevron-right"></i>
-                </a>
-            </li>
-        `;
-    }
-    
-    // 마지막 페이지
-    if (currentPage < pageMaker.pageCount) {
-        paginationHTML += `
-            <li class="page-item">
-                <a class="page-link" href="#" onclick="goToPage(${pageMaker.pageCount}); return false;">
-                    <i class="bi bi-chevron-double-right"></i>
-                </a>
-            </li>
-        `;
-    }
-    
-    paginationHTML += `
-            </ul>
-        </nav>
-        <div class="mt-3 text-muted">
-            <small>
-                <i class="bi bi-info-circle"></i>
-                ${currentPage} / ${pageMaker.pageCount} 페이지 (총 ${totalCount}명)
-            </small>
-        </div>
-    `;
-    
-    paginationSection.innerHTML = paginationHTML;
+    html += `<li class="page-item${currentPage === pageMaker.pageCount ? ' disabled' : ''}">
+        <a class="page-link" href="#" tabindex="-1" onclick="goToPage(${currentPage + 1}); return false;" aria-label="다음"><span aria-hidden="true">&raquo;</span></a>
+    </li>`;
+    paginationSection.innerHTML = html;
 }
 
 /**
@@ -295,13 +224,7 @@ function displayPagination(pageMaker, currentPage, totalCount) {
  */
 function updateResultInfo(data) {
     const resultInfo = document.getElementById('resultInfo');
-    const filterText = InviteFriendsState.currentFilter === 'department' ? '부서 내' : '전체';
-    
-    resultInfo.innerHTML = `
-        <i class="bi bi-info-circle"></i>
-        ${filterText} ${data.totalCount}명 중 ${data.friends?.length || 0}명 표시 
-        (${data.currentPage}/${data.pageMaker?.pageCount || 1} 페이지)
-    `;
+    resultInfo.innerHTML = '';
 }
 
 /**
@@ -388,28 +311,20 @@ function clearSearch() {
  * 선택된 친구 제거
  */
 function removeFriend(friendId, friendName) {
+    friendId = Number(friendId); // 항상 숫자로 변환
     // 현재 사용자는 제거할 수 없음
-    if (friendId === InviteFriendsState.currentUser?.usersId) {
+    if (friendId === Number(InviteFriendsState.currentUser?.usersId)) {
         SolFoodUtils.showToast('본인은 제거할 수 없습니다.', 'warning');
         return;
     }
-    
     // 선택에서 제거
     InviteFriendsState.selectedFriends.delete(friendId);
-    console.log(`➖ 친구 제거: ${friendName} (ID: ${friendId})`);
-    
     // 친구 목록에서도 선택 상태 해제 (현재 페이지에 표시된 경우)
-    const friendElement = document.querySelector(`[data-friend-id="${friendId}"]`);
-    if (friendElement) {
-        friendElement.classList.remove('selected');
-    }
-    
     // 서버 동기화 (디바운스)
     syncToServerDebounced();
-    
     // UI 업데이트
     updateSelectedFriendsDisplay();
-    
+    loadFriendsList(); // 친구 리스트도 즉시 다시 렌더링
     // 제거 알림
     SolFoodUtils.showToast(`${friendName}님을 제거했습니다.`, 'info');
 }
@@ -418,36 +333,25 @@ function removeFriend(friendId, friendName) {
  * 친구 선택 토글
  */
 function toggleFriend(element) {
-    const friendId = parseInt(element.dataset.friendId);
+    const friendId = Number(element.dataset.friendId);
     const friendName = element.dataset.userName;
     const friendProfile = element.dataset.userProfile;
     const companyInfo = element.dataset.companyInfo;
-    
+    // 이미 선택된 친구라면 아무 동작도 하지 않음 (X버튼으로만 제거)
     if (InviteFriendsState.selectedFriends.has(friendId)) {
-        InviteFriendsState.selectedFriends.delete(friendId);
-        // 선택 해제해도 친구 정보는 Map에서 삭제하지 않음 (다시 선택할 수 있으므로)
-        element.classList.remove('selected');
-        console.log(`➖ 친구 선택 해제: ${friendName} (ID: ${friendId})`);
-    } else {
-        InviteFriendsState.selectedFriends.add(friendId);
-        // 친구 상세 정보가 아직 없다면 저장 (이미 displayFriendsList에서 저장되었을 것)
-        if (!InviteFriendsState.selectedFriendsData.has(friendId)) {
-            InviteFriendsState.selectedFriendsData.set(friendId, {
-                usersId: friendId,
-                usersName: friendName,
-                usersProfile: friendProfile,
-                companyInfo: companyInfo
-            });
-        }
-        element.classList.add('selected');
-        console.log(`➕ 친구 선택: ${friendName} (ID: ${friendId})`);
+        return;
     }
-    
-    // 서버 동기화 (디바운스)
+    InviteFriendsState.selectedFriends.add(friendId);
+    if (!InviteFriendsState.selectedFriendsData.has(friendId)) {
+        InviteFriendsState.selectedFriendsData.set(friendId, {
+            usersId: friendId,
+            usersName: friendName,
+            usersProfile: friendProfile,
+            companyInfo: companyInfo
+        });
+    }
     syncToServerDebounced();
-    
-    // UI 업데이트
-    updateSelectedFriendsDisplay();
+    loadFriendsList();
 }
 
 /**
@@ -485,48 +389,35 @@ function updateSelectedFriendsDisplay() {
         selectedFriendsList.innerHTML = '';
     } else {
         let listHTML = '';
-        
         // 현재 사용자 먼저 표시
         if (InviteFriendsState.currentUser && InviteFriendsState.selectedFriends.has(InviteFriendsState.currentUser.usersId)) {
             const user = InviteFriendsState.currentUser;
             listHTML += `
-                <div class="selected-friend-item" data-selected-friend-id="${user.usersId}">
-                    <div class="selected-friend-avatar" 
-                         ${user.usersProfile ? `style="background-image: url('${user.usersProfile}');"` : ''}>
-                        ${!user.usersProfile ? user.usersName.substring(0, 1) : ''}
-                        <div class="current-user-badge">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                    </div>
-                    <div class="selected-friend-name">${user.usersName} (나)</div>
+                <div class="selected-friend-tag" data-selected-friend-id="${user.usersId}">
+                  <span class="avatar" style="background-image:${user.usersProfile ? `url('${user.usersProfile}')` : 'none'};">
+                    ${!user.usersProfile ? user.usersName.substring(0, 1) : ''}
+                    <span class="badge-me"><i class="bi bi-person-fill"></i></span>
+                  </span>
+                  <span class="name">${user.usersName}</span>
                 </div>
             `;
         }
-        
-        // 다른 선택된 친구들 표시 (실제 선택된 친구만)
+        // 다른 선택된 친구들 표시
         InviteFriendsState.selectedFriendsData.forEach((friendData, friendId) => {
-            if (friendId !== InviteFriendsState.currentUser?.usersId && 
-                InviteFriendsState.selectedFriends.has(friendId)) {
+            if (friendId !== InviteFriendsState.currentUser?.usersId && InviteFriendsState.selectedFriends.has(friendId)) {
                 const friendProfile = friendData.usersProfile;
                 const friendName = friendData.usersName;
-                
                 listHTML += `
-                    <div class="selected-friend-item" data-selected-friend-id="${friendId}">
-                        <div class="selected-friend-avatar" 
-                             ${friendProfile && friendProfile !== 'null' && friendProfile !== '' ? 
-                               `style="background-image: url('${friendProfile}');"` : ''}>
-                            ${(!friendProfile || friendProfile === 'null' || friendProfile === '') ? 
-                              friendName.substring(0, 1) : ''}
-                        </div>
-                        <div class="selected-friend-name">${friendName}</div>
-                        <div class="remove-friend-btn" onclick="removeFriend(${friendId}, '${friendName}')">
-                            <i class="bi bi-x"></i>
-                        </div>
-                    </div>
+                  <div class="selected-friend-tag" data-selected-friend-id="${friendId}">
+                    <span class="avatar" style="background-image:${friendProfile ? `url('${friendProfile}')` : 'none'};">
+                      ${!friendProfile ? friendName.substring(0, 1) : ''}
+                      <button class="remove-btn" title="제거" onclick="removeFriend('${friendId}', '${friendName}');event.stopPropagation();"><i class="bi bi-x"></i></button>
+                    </span>
+                    <span class="name">${friendName}</span>
+                  </div>
                 `;
             }
         });
-        
         selectedFriendsList.innerHTML = listHTML;
     }
     
@@ -553,12 +444,6 @@ function updateSelectedFriendsDisplay() {
         inviteBtn.classList.remove('active');
         inviteBtn.textContent = '친구를 선택해주세요';
     }
-    
-    console.log('🔄 선택된 친구들 표시 업데이트:', {
-        총인원: count,
-        저장된데이터: InviteFriendsState.selectedFriendsData.size,
-        선택된친구들: Array.from(InviteFriendsState.selectedFriends)
-    });
 }
 
 /**
@@ -591,7 +476,7 @@ function handleInvite() {
             
             // 수락 대기 페이지로 이동
             setTimeout(() => {
-                window.location.href = UrlConstants.Builder.fullUrl('/user/cart/waiting-approval');
+                window.location.href = UrlConstants.Builder.fullUrl('/user/cart/make-bill');
             }, 1000);
         } else {
             throw new Error(response.message || '초대 처리에 실패했습니다.');
@@ -622,4 +507,9 @@ window.changeFilter = changeFilter;
 window.performSearch = performSearch;
 window.clearSearch = clearSearch;
 window.handleInvite = handleInvite;
-window.goBack = goBack; 
+window.goBack = goBack;
+
+// 뒤로가기(bfcache) 등으로 복원될 때 버튼 상태 초기화
+window.addEventListener('pageshow', function() {
+    updateSelectedFriendsDisplay();
+}); 
