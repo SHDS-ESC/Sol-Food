@@ -708,8 +708,8 @@ function createDynamicOptions(extraData) {
         optionItems.className = 'option-items';
 
         if (group.options && group.options.length > 0) {
-            // 라디오 버튼 또는 체크박스 선택
-            const inputType = group.maxSelect === 1 ? 'radio' : 'checkbox';
+            // 체크박스로 통일 (단일 선택도 체크박스로 처리)
+            const inputType = 'checkbox';
             const inputName = `dynamic_${groupIndex}`;
 
             group.options.forEach((option, optionIndex) => {
@@ -724,8 +724,8 @@ function createDynamicOptions(extraData) {
                 input.dataset.optionName = group.groupName;
                 input.dataset.maxSelect = group.maxSelect;
 
-                // 라디오 버튼인 경우 첫 번째 옵션 기본 선택
-                if (inputType === 'radio' && optionIndex === 0) {
+                // 체크박스인 경우 필수 옵션만 첫 번째 옵션 기본 선택
+                if (inputType === 'checkbox' && optionIndex === 0 && group.required) {
                     input.checked = true;
                 }
 
@@ -743,13 +743,15 @@ function createDynamicOptions(extraData) {
                     calculateTotalPrice();
                 });
 
+
+
                 label.appendChild(input);
                 label.appendChild(optionText);
                 label.appendChild(optionPrice);
                 optionItems.appendChild(label);
 
-                // 기본값 설정 (라디오 버튼인 경우)
-                if (inputType === 'radio' && optionIndex === 0) {
+                // 기본값 설정 (필수 체크박스인 경우만)
+                if (inputType === 'checkbox' && optionIndex === 0 && group.required) {
                     if (!currentMenuData.options[group.groupName]) {
                         currentMenuData.options[group.groupName] = [];
                     }
@@ -780,36 +782,53 @@ function handleOptionChange(group, input) {
         currentMenuData.options[groupName] = [];
     }
 
-    if (input.type === 'radio') {
-        // 라디오 버튼: 단일 선택
-        const optionPrice = parseInt(input.dataset.price) || 0;
-        currentMenuData.options[groupName] = [{
-            name: input.value,
-            price: optionPrice
-        }];
-    } else {
-        // 체크박스: 다중 선택
+    if (input.type === 'checkbox') {
+        // 체크박스: 다중 선택 또는 단일 선택
         const selectedOptions = currentMenuData.options[groupName];
+        const maxSelect = group.maxSelect;
 
         if (input.checked) {
             // 선택된 경우
-            if (selectedOptions.length < maxSelect) {
+            if (maxSelect === 1) {
+                // 단일 선택인 경우: 기존 선택 모두 해제하고 현재 옵션만 선택
+                selectedOptions.length = 0;
+                
+                // 같은 그룹의 다른 체크박스들 모두 해제
+                const currentGroup = input.closest('.option-group');
+                if (currentGroup) {
+                    const otherCheckboxes = currentGroup.querySelectorAll('input[type="checkbox"]');
+                    otherCheckboxes.forEach(checkbox => {
+                        if (checkbox !== input) {
+                            checkbox.checked = false;
+                        }
+                    });
+                }
+                
                 const optionPrice = parseInt(input.dataset.price) || 0;
                 selectedOptions.push({
                     name: input.value,
                     price: optionPrice
                 });
             } else {
-                // 최대 선택 개수 초과 시 체크 해제
-                input.checked = false;
-                alert(`최대 ${maxSelect}개까지 선택할 수 있습니다.`);
-                return;
+                // 다중 선택인 경우
+                if (selectedOptions.length < maxSelect) {
+                    const optionPrice = parseInt(input.dataset.price) || 0;
+                    selectedOptions.push({
+                        name: input.value,
+                        price: optionPrice
+                    });
+                } else {
+                    // 최대 선택 개수 초과 시 체크 해제
+                    input.checked = false;
+                    alert(`최대 ${maxSelect}개까지 선택할 수 있습니다.`);
+                    return;
+                }
             }
         } else {
             // 선택 해제된 경우
             const index = selectedOptions.findIndex(opt => opt.name === input.value);
             if (index > -1) {
-                const removedOption = selectedOptions.splice(index, 1)[0];
+                selectedOptions.splice(index, 1);
             }
         }
 

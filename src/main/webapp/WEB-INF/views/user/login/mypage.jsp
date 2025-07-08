@@ -101,6 +101,7 @@
   </div>
 </div>
 
+<script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/darkmode.js' />"></script>
 
