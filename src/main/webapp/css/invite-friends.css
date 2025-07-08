@@ -1,0 +1,97 @@
+/* 친구 초대 페이지 전용 스타일 */
+
+.friends-list { 
+  display: flex; flex-direction: column; gap: 14px; 
+  max-height: 400px; overflow-y: auto; padding-right: 4px;
+  border: 1px solid var(--color-gray); border-radius: 12px; padding: 16px;
+  background: var(--color-bg-light);
+}
+.friends-list::-webkit-scrollbar { width: 6px; }
+.friends-list::-webkit-scrollbar-track { background: var(--color-gray); border-radius: 3px; }
+.friends-list::-webkit-scrollbar-thumb { background: var(--color-main); border-radius: 3px; }
+.friends-list::-webkit-scrollbar-thumb:hover { background: var(--color-main-hover); }
+
+.friend-card {
+  display: flex; align-items: center; background: var(--color-bg-light);
+  border-radius: 12px; padding: 13px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s, background 0.2s, border 0.2s;
+  margin-bottom: 0;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+}
+.friend-card.selected { background: var(--color-main-light); border: 1.5px solid var(--color-main); }
+.friend-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.10); border: 1.5px solid var(--color-main-hover); }
+.friend-avatar {
+  width: 44px; height: 44px; border-radius: 50%; background: #eee; margin-right: 16px;
+  background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 19px;
+  flex-shrink: 0;
+}
+.friend-info { flex: 1; min-width: 0; }
+.friend-name { font-weight: 600; font-size: 16px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color: var(--color-text); }
+.friend-meta { font-size: 13px; color: var(--color-text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.select-btn { background: none; border: none; font-size: 22px; color: var(--color-main); cursor: pointer; margin-left: 8px; transition: color 0.2s; }
+.select-btn.selected { color: var(--color-main-hover); }
+
+.selected-friends-list {
+  display: flex; flex-direction: row; gap: 12px; margin-top: 8px;
+  max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: 8px 0 8px 2px;
+  border: 1px solid var(--color-gray); border-radius: 8px; background: var(--color-bg-light);
+  scrollbar-height: thin;
+  scrollbar-color: var(--color-main) var(--color-gray);
+}
+.selected-friends-list::-webkit-scrollbar { height: 8px; background: var(--color-gray); }
+.selected-friends-list::-webkit-scrollbar-thumb { background: var(--color-main); border-radius: 4px; }
+.selected-friends-list::-webkit-scrollbar-track { background: var(--color-gray); border-radius: 4px; }
+.selected-friends-list { scrollbar-width: thin; }
+
+.selected-friend-tag {
+  display: flex; flex-direction: column; align-items: center; min-width: 60px; max-width: 80px;
+  background: transparent; border: none; box-shadow: none; padding: 0; gap: 2px; position: relative;
+}
+.selected-friend-tag .avatar {
+  width: 38px; height: 38px; border-radius: 50%; background: #eee; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; font-weight: 700; margin-bottom: 2px; position: relative;
+}
+.selected-friend-tag .badge-me, .selected-friend-tag .remove-btn {
+  position: absolute; top: -6px; right: -6px; z-index: 2;
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; font-size: 13px; font-weight: 700; border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.selected-friend-tag .badge-me {
+  background: var(--color-main); color: #fff;
+}
+.selected-friend-tag .remove-btn {
+  background: var(--color-main-light); color: var(--color-main); border: 2px solid #fff; cursor: pointer; transition: background 0.2s, color 0.2s;
+  font-size: 15px; padding: 0;
+}
+.selected-friend-tag .remove-btn:hover { background: var(--color-main); color: #fff; }
+.selected-friend-tag .name {
+  font-size: 13px; font-weight: 600; color: var(--color-main); text-align: center; max-width: 80px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+@media (max-width: 428px) {
+  .friends-list { max-height: 300px; padding: 12px; }
+  .friend-card { padding: 10px 8px; }
+  .friend-avatar { width: 34px; height: 34px; font-size: 15px; margin-right: 10px; }
+  .friend-name { font-size: 15px; }
+  .selected-friends-list { max-height: 100px; }
+  .selected-friend-tag { font-size: 13px; padding: 3px 8px 3px 4px; }
+  .selected-friend-tag .avatar { width: 18px; height: 18px; font-size: 11px; }
+}
+
+.search-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+#searchInput {
+  flex: 2; min-width: 0; border: 1.5px solid var(--color-gray); border-radius: 8px; padding: 8px 12px; font-size: 15px;
+}
+.search-btn, .clear-btn {
+  flex: 0 0 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 8px; background: var(--color-main-light); color: var(--color-main); font-size: 20px; cursor: pointer; transition: background 0.2s, color 0.2s;
+}
+.search-btn:hover, .clear-btn:hover { background: var(--color-main); color: #fff; }
+
+.footer-btn-bar { margin-top: 18px; }
+.footer-btn { box-shadow: 0 4px 16px rgba(255,77,109,0.10); font-size: 18px; border-radius: 12px; font-weight: 700; letter-spacing: 1px; }
+
+body.dark #selectedCount { color: #22bb33 !important; }
+body.dark #selectedMessage { color: #fff !important; }
+body.dark #selectedMessageSub { color: #fff !important; } 
