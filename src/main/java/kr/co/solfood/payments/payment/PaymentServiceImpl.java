@@ -33,7 +33,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     // 사용자별 결제 내역 조회
     @Override
-    public List<PaymentVO> getPaymentHistory(int usersId, int page, int size) {
+    public List<PaymentVO> getPaymentHistory(long usersId, int page, int size) {
         int offset = (page - 1) * size;
         return paymentMapper.getPaymentHistory(usersId, offset, size);
     }
@@ -74,6 +74,12 @@ public class PaymentServiceImpl implements PaymentService {
             
             paymentMapper.insertPayment(payment);
         }
+    }
+    
+    // 통합결제ID로 모든 결제 상태 업데이트
+    @Override
+    public void updatePaymentStatusByIntegratedPaymentId(int integratedPaymentId, String status) {
+        paymentMapper.updatePaymentStatusByIntegratedPaymentId(integratedPaymentId, status);
     }
     
 }
