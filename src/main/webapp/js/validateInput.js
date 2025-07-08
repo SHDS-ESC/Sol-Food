@@ -51,7 +51,7 @@ $(function () {
   validateInput(
     $("#nickname"),
     function (v) {
-      return v.length >= 2 && v.length <= 16;
+      return v.length >= 2;
     },
     $("#nickname").closest(".form-group").find(".border-error")
   );
@@ -60,7 +60,7 @@ $(function () {
   validateInput(
     $("#name"),
     function (v) {
-      return v.length >= 2 && v.length <= 16;
+      return v.length >= 2;
     },
     $("#name").closest(".form-group").find(".border-error")
   );
@@ -74,3 +74,37 @@ $(function () {
     $("#phone").closest(".form-group").find(".border-error")
   );
 });
+
+// src/main/webapp/js/utils/phone-hyphen.js
+
+/**
+ * 하이픈 자동 입력 유틸
+ * @param {string|jQuery} selector - input selector 또는 jQuery 객체
+ */
+function applyPhoneHyphen(selector) {
+  var $inputs = selector instanceof jQuery ? selector : $(selector);
+
+  $inputs.on("input", function () {
+    let value = $(this)
+      .val()
+      .replace(/[^0-9]/g, "");
+    let result = "";
+
+    if (value.length < 4) {
+      result = value;
+    } else if (value.length < 7) {
+      result = value.substr(0, 3) + "-" + value.substr(3);
+    } else if (value.length < 11) {
+      result =
+        value.substr(0, 3) + "-" + value.substr(3, 3) + "-" + value.substr(6);
+    } else {
+      result =
+        value.substr(0, 3) +
+        "-" +
+        value.substr(3, 4) +
+        "-" +
+        value.substr(7, 4);
+    }
+    $(this).val(result);
+  });
+}
