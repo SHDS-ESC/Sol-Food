@@ -119,7 +119,7 @@ function searchUsers(query, page, size) {
             renderPagination(firstPage, lastPage, page);
         },
         error: function () {
-            alert('검색 중 오류가 발생했습니다.');
+            showErrorPopup('검색 중 오류가 발생했습니다.');
         }
     });
 }
@@ -338,12 +338,12 @@ $(document).ready(function () {
             contentType: 'application/json',
             data: {usersId: userId, status: status, usersRejectedReason: reason},
             success: function () {
-                alert('승인이 처리되었습니다.');
+                showSuccessPopup('승인이 처리되었습니다.');
                 closeModal();
                 // 페이지 새로고침 또는 리스트 재요청 등
             },
             error: function () {
-                alert('처리 중 오류가 발생했습니다.');
+                showErrorPopup('처리 중 오류가 발생했습니다.');
             }
         });
     }

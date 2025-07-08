@@ -7,12 +7,12 @@ function generateLadder() {
     currentLines = parseInt(document.getElementById('lines').value);
 
     if (currentParticipants < 2 || currentParticipants > 10) {
-        alert('참가자 수는 2~10명 사이로 설정해주세요!');
+        showWarningPopup('참가자 수는 2~10명 사이로 설정해주세요!');
         return;
     }
 
     if (currentLines < 5 || currentLines > 20) {
-        alert('가로줄 수는 5~20개 사이로 설정해주세요!');
+        showWarningPopup('가로줄 수는 5~20개 사이로 설정해주세요!');
         return;
     }
 
@@ -139,7 +139,7 @@ function addSparkles() {
 
 function playLadder(startCol) {
     if (ladderData.length === 0) {
-        alert('먼저 사다리를 생성해주세요!');
+        showWarningPopup('먼저 사다리를 생성해주세요!');
         return;
     }
 

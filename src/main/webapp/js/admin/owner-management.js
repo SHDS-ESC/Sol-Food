@@ -95,7 +95,7 @@ function searchOwners(query, page, size) {
             renderPagination(firstPage, lastPage, page);
         },
         error: function () {
-            alert('검색 중 오류가 발생했습니다.');
+            showErrorPopup('검색 중 오류가 발생했습니다.');
         }
     });
 }

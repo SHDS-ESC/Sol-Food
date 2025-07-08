@@ -547,7 +547,7 @@ initializeStoreDetailSystem();
 function loadStoreDetail() {
     const storeId = getStoreIdFromUrl();
     if (!storeId) {
-        alert('가게 정보를 찾을 수 없습니다.');
+        showErrorPopup('가게 정보를 찾을 수 없습니다.');
         history.back();
         return;
     }
@@ -559,12 +559,12 @@ function loadStoreDetail() {
                 renderStoreDetail(data.data);
                 loadReviews(storeId);
             } else {
-                alert('가게 정보를 불러오는데 실패했습니다.');
+                showErrorPopup('가게 정보를 불러오는데 실패했습니다.');
             }
         })
         .catch(error => {
             console.error('가게 상세 정보 로드 실패:', error);
-            alert('가게 정보를 불러오는데 실패했습니다.');
+            showErrorPopup('가게 정보를 불러오는데 실패했습니다.');
         });
 }
 
@@ -820,7 +820,7 @@ function handleOptionChange(group, input) {
                 } else {
                     // 최대 선택 개수 초과 시 체크 해제
                     input.checked = false;
-                    alert(`최대 ${maxSelect}개까지 선택할 수 있습니다.`);
+                    showWarningPopup(`최대 ${maxSelect}개까지 선택할 수 있습니다.`);
                     return;
                 }
             }
@@ -996,12 +996,12 @@ function addMenuToCart() {
             // 모달 닫기
             closeMenuDetail();
         } else {
-            alert(response.message || '장바구니 추가에 실패했습니다.');
+            showErrorPopup(response.message || '장바구니 추가에 실패했습니다.');
         }
     })
     .catch(error => {
         console.error('❌ 장바구니 추가 실패:', error);
-        alert('장바구니 추가 중 오류가 발생했습니다.');
+        showErrorPopup('장바구니 추가 중 오류가 발생했습니다.');
     });
 }
 

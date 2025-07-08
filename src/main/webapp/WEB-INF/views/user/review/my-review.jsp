@@ -173,6 +173,8 @@
     <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
     <!-- Common Utils -->
     <script src="<c:url value='/js/common-utils.js' />?v=${pageContext.session.creationTime}"></script>
+    <!-- Popup JavaScript -->
+    <script src="<c:url value='/js/popup.js' />?v=${pageContext.session.creationTime}"></script>
     <!-- My Review JavaScript -->
     <script src="<c:url value='/js/my-review.js' />?v=${pageContext.session.creationTime}"></script>
     <script src="<c:url value='/js/darkmode.js' />"></script>

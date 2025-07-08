@@ -293,13 +293,13 @@ function displayResponsePanel(review) {
 // 답글 제출
 function submitResponse() {
     if (!currentReviewId) {
-        alert('리뷰를 선택해주세요.');
+        showWarningPopup('리뷰를 선택해주세요.');
         return;
     }
     
     const responseText = $('#responseText').val().trim();
     if (!responseText) {
-        alert('답글 내용을 입력해주세요.');
+        showWarningPopup('답글 내용을 입력해주세요.');
         return;
     }
     
@@ -317,7 +317,7 @@ function submitResponse() {
             currentStoreId: currentStoreId
         },
         success: function(response) {
-            alert('답글이 저장되었습니다.');
+            showSuccessPopup('답글이 저장되었습니다.');
             
             // 현재 리뷰 데이터 업데이트
             const reviewIndex = allReviews.findIndex(r => r.reviewId == currentReviewId);
@@ -328,7 +328,7 @@ function submitResponse() {
             }
         },
         error: function(xhr, status, error) {
-            alert('답글 저장에 실패했습니다: ' + (xhr.responseJSON?.message || error));
+            showErrorPopup('답글 저장에 실패했습니다: ' + (xhr.responseJSON?.message || error));
         },
         complete: function() {
             $submitBtn.prop('disabled', false).text('답글 저장');
@@ -339,7 +339,7 @@ function submitResponse() {
 // 답글 삭제
 function deleteResponse() {
     if (!currentReviewId) {
-        alert('리뷰를 선택해주세요.');
+        showWarningPopup('리뷰를 선택해주세요.');
         return;
     }
     
@@ -357,7 +357,7 @@ function deleteResponse() {
             currentStoreId: currentStoreId
         },
         success: function(response) {
-            alert('답글이 삭제되었습니다.');
+            showSuccessPopup('답글이 삭제되었습니다.');
             
             // 현재 리뷰 데이터 업데이트
             const reviewIndex = allReviews.findIndex(r => r.reviewId == currentReviewId);
@@ -368,7 +368,7 @@ function deleteResponse() {
             }
         },
         error: function(xhr, status, error) {
-            alert('답글 삭제에 실패했습니다: ' + (xhr.responseJSON?.message || error));
+            showErrorPopup('답글 삭제에 실패했습니다: ' + (xhr.responseJSON?.message || error));
         },
         complete: function() {
             $deleteBtn.prop('disabled', false).text('답글 삭제');

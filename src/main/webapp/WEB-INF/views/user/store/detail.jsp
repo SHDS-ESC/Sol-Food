@@ -365,6 +365,7 @@
     <!-- 외부 JavaScript 파일 (로딩 순서 중요!) -->
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
     <script src="${pageContext.request.contextPath}/js/common-utils.js"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/js/cart.js"></script>
     <script src="${pageContext.request.contextPath}/js/storedetail.js"></script>
     
