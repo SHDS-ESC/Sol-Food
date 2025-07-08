@@ -1,0 +1,189 @@
+.store-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px 0 40px 0;
+    max-width: 620px;
+    margin: 0 auto;
+}
+
+.store-img {
+    width: 85px; /* 원하는 고정 크기(px) */
+    height: 85px;
+    object-fit: cover; /* 이미지가 꽉 차게, 찌그러지지 않게 */
+    border-radius: 10px;
+    margin: 3px 25px 3px 5px;
+    flex-shrink: 0;
+    background: #f9f9f9;
+    border: 1px solid #f3f3f3;
+    display: block;
+}
+
+.store-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    padding: -10px 9px;
+    position: relative;
+    min-height: 90px;
+    transition: box-shadow 0.15s;
+}
+
+.store-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.store-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.store-title {
+    font-size: 1.13rem;
+    font-weight: 600;
+    margin-bottom: 3px;
+}
+
+.store-category {
+    font-size: 0.98rem;
+    color: #888;
+}
+
+.store-address {
+    font-size: 0.98rem;
+    color: #666;
+}
+
+.store-rating {
+    font-size: 0.97rem;
+    color: #ffb300;
+}
+
+.store-tel {
+    font-size: 0.97rem;
+    color: #46b48c;
+}
+
+/* 하트 버튼은 기존 스타일 그대로 써도 됩니다 */
+.like-btn {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    position: absolute;
+    top: 22px;
+    right: 24px;
+    z-index: 10;
+    padding: 0;
+}
+
+.like-btn i {
+    font-size: 22px;
+    transition: color 0.2s;
+}
+
+.like-btn .bi-heart {
+    color: #bbb;
+}
+
+.like-btn .bi-heart-fill {
+    color: #ff4d6d;
+}
+
+.like-btn.liked .bi-heart {
+    color: #ff4d6d;
+}
+
+.like-btn.liked .bi-heart-fill {
+    color: #ff4d6d;
+}
+
+.store-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+/* 찜 페이지 하트 버튼 스타일 - store 메인과 동일 */
+.like-btn {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    padding: 0;
+}
+
+.like-btn i {
+    font-size: 20px;
+    transition: color 0.2s;
+}
+
+.like-btn .bi-heart {
+    color: #bbb;
+}
+
+.like-btn .bi-heart-fill {
+    color: #ff4d6d;
+}
+
+.like-btn.liked .bi-heart {
+    color: #ff4d6d;
+}
+
+.like-btn.liked .bi-heart-fill {
+    color: #ff4d6d;
+}
+
+.more-btn {
+    width: 100%;
+    background: var(--color-main);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    border: none;
+    border-radius: 40px;
+    padding: 15px 0;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.like-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.store-grid {
+    display: flex;
+    flex-direction: column; /* 리스트처럼 세로로 */
+    gap: 0; /* 카드 간의 간격을 0으로 */
+    padding: 0;
+    margin: 0;
+}
+
+.store-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 0; /* 라운드 제거 (혹은 위/아래만 라운드 적용) */
+    box-shadow: none; /* 그림자 제거로 한 줄처럼 */
+    border-bottom: 1px solid #eee; /* 밑줄만 살짝 */
+    width: 90%;
+    min-height: 90px;
+    padding: 14px 16px;
+    margin: 0; /* 카드 간 마진 없음 */
+    transition: background 0.15s;
+}
+
+.store-card:last-child {
+    border-bottom: none; /* 마지막 카드만 밑줄 제거 */
+}
