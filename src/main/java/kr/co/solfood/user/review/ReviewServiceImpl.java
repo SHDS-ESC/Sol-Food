@@ -216,4 +216,49 @@ public class ReviewServiceImpl implements ReviewService {
         
         return result;
     }
+    
+    // ========================= 내 리뷰 관리 =========================
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReviewVO> getMyReviews(Integer usersId, String filter, String sort, int offset, int pageSize) {
+        if (usersId == null) {
+            throw new IllegalArgumentException("사용자 ID는 필수입니다.");
+        }
+        
+        return reviewMapper.selectMyReviews(usersId, filter, sort, offset, pageSize);
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> getMyReviewStats(Integer usersId) {
+        if (usersId == null) {
+            throw new IllegalArgumentException("사용자 ID는 필수입니다.");
+        }
+        
+        Map<String, Object> stats = new HashMap<>();
+        
+        try {
+            // 총 리뷰 수
+            Integer totalReviews = reviewMapper.selectMyReviewCount(usersId);
+            stats.put("totalReviews", totalReviews != null ? totalReviews : 0);
+            
+            // 평균 별점
+            Double avgRating = reviewMapper.selectMyReviewAvgRating(usersId);
+            stats.put("avgRating", avgRating != null ? avgRating : 0.0);
+            
+            // 이번 달 리뷰 수
+            Integer thisMonth = reviewMapper.selectMyReviewCountThisMonth(usersId);
+            stats.put("thisMonth", thisMonth != null ? thisMonth : 0);
+            
+        } catch (Exception e) {
+            log.error("내 리뷰 통계 조회 실패", e);
+            // 기본값 설정
+            stats.put("totalReviews", 0);
+            stats.put("avgRating", 0.0);
+            stats.put("thisMonth", 0);
+        }
+        
+        return stats;
+    }
 }

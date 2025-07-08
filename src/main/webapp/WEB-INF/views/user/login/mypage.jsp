@@ -61,7 +61,7 @@
                 <span><span class="menu-icon">💳</span>결제 내역</span>
                 <span class="menu-arrow">&gt;</span>
             </a>
-            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/review">
+            <a class="menu-card" href="${pageContext.request.contextPath}/user/review/my-review">
                 <span><span class="menu-icon">💬</span>리뷰 관리</span>
                 <span class="menu-arrow">&gt;</span>
             </a>
