@@ -17,24 +17,7 @@
 <body>
 <div class="wrap">
     <!-- 헤더 -->
-    <div class="header flex flex-sb">
-        <div><i class="bi bi-arrow-left"></i></div>
-        <div style="display: flex; gap: 12px; align-items: center">
-            <button
-                    id="darkmode-toggle"
-                    style="
-                  background: none;
-                  border: none;
-                  cursor: pointer;
-                  font-size: 20px;
-                  color: var(--color-black);
-                "
-            >
-                <i class="bi bi-moon"></i>
-            </button>
-            <i class="bi bi-list" style="font-size: 20px"></i>
-        </div>
-    </div>
+    <jsp:include page="../include/backbtn-header.jsp" />
     <div class="content" style="padding:16px; padding-top:72px;">
         <!-- 선택된 친구들 -->
         <div class="selected-friends" style="margin-bottom:16px;">

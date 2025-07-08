@@ -19,7 +19,7 @@
 <body>
     <div class="wrap">
         <!-- 헤더 -->
-        <jsp:include page="../include/header.jsp" />
+        <jsp:include page="../include/backbtn-header.jsp" />
 
         <!-- 컨텐츠 -->
         <div class="content cart">
