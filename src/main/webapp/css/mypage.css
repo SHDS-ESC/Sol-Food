@@ -11,6 +11,9 @@
     flex-direction: column;
     align-items: center;
     position: relative;
+    overflow-y : auto;
+    height : 90vh;
+    max-height: 90vh;
 }
 .mypage-header {
     width: 100%;
@@ -151,4 +154,81 @@
     gap: 20px;
     margin: 20px auto;
     max-width: 600px;
+}
+
+.mypage-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 0 20px 0;
+    background: #fff0f6;
+}
+.profile-img {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+}
+.nickname {
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: 12px;
+}
+.welcome-msg {
+    font-size: 1rem;
+    color: #ff4d6d;
+    margin-top: 6px;
+}
+.point-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff9fa;
+    border-radius: 16px;
+    margin: 20px 16px 24px 16px;
+    padding: 18px 0;
+}
+.point-card {
+    font-size: 1.1rem;
+    color: #ff4d6d;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+.point-value {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-left: 8px;
+    color: #2e2e2e;
+}
+.main-menu-grid {
+    margin: 0 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.menu-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    background: #fff;
+    border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    font-size: 1.07rem;
+    color: #222;
+    text-decoration: none;
+    transition: background 0.14s;
+    cursor: pointer;
+}
+.menu-card:hover { background: #ffebf0; }
+.menu-icon {
+    font-size: 1.3em;
+    margin-right: 10px;
+}
+.menu-arrow {
+    color: #bbb;
+    font-size: 1.2em;
 }
