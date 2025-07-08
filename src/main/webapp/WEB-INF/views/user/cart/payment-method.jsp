@@ -20,17 +20,7 @@
 <body>
     <div class="wrap">
         <!-- 헤더 -->
-        <div class="header flex flex-sb">
-            <div class="flex" style="gap: 12px;">
-                <i class="bi bi-arrow-left back-btn" onclick="history.back()"></i>
-                <strong>결제 방식 선택</strong>
-            </div>
-            <div style="display: flex; gap: 12px; align-items: center">
-                <button id="darkmode-toggle" style="background: none; border: none; cursor: pointer; font-size: 20px; color: var(--color-black);">
-                    <i class="bi bi-moon"></i>
-                </button>
-            </div>
-        </div>
+        <jsp:include page="../include/header.jsp" />
 
         <!-- 컨텐츠 -->
         <div class="content">
@@ -108,12 +98,16 @@
             </div>
         </div>
 
-        <!-- 푸터 -->
-        <div class="footer">
-            <button class="continue-btn" id="continueBtn" disabled>
+        <!-- 결제 버튼: 푸터 위에 고정 -->
+        <div class="footer-btn-bar">
+            <button class="footer-btn" id="continueBtn" disabled>
+                <span class="total-amount"><fmt:formatNumber value="${cart.totalAmount}" pattern="#,###"/>원</span>
                 다음 단계로
             </button>
         </div>
+
+        <!-- 푸터 -->
+        <jsp:include page="../include/footer.jsp" />
     </div>
 
 <!-- JavaScript -->

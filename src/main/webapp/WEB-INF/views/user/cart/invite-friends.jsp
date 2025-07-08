@@ -16,10 +16,7 @@
 </head>
 <body>
 <div class="wrap">
-    <div class="header flex flex-sb" style="height:52px; padding:0 16px;">
-        <button class="btn cancel" onclick="goBack()" style="background:none; border:none; font-size:20px;"><i class="bi bi-arrow-left"></i></button>
-        <button id="darkmode-toggle" style="background:none; border:none; font-size:20px;"><i class="bi bi-moon"></i></button>
-    </div>
+    <jsp:include page="../include/header.jsp" />
     <div class="content" style="padding:16px; padding-top:72px;">
         <!-- 선택된 친구들 -->
         <div class="selected-friends" style="margin-bottom:16px;">
@@ -61,33 +58,7 @@
             <button class="footer-btn" id="inviteBtn" onclick="handleInvite()" disabled>친구를 선택해주세요</button>
         </div>
     </div>
-    <div class="footer flex flex-sa">
-      <div class="bottom-nav">
-        <a href="${pageContext.request.contextPath}/">
-          <i class="bi bi-house"></i>홈
-        </a>
-        <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
-          <i class="bi bi-bag"></i>장바구니
-          <span class="cart-nav-badge">0</span>
-        </a>
-        <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-        <a href="${pageContext.request.contextPath}/user/mypage/like">
-          <i class="bi bi-heart-fill"></i>찜
-        </a>
-        <c:choose>
-          <c:when test="${not empty sessionScope.userLoginSession}">
-            <a href="${pageContext.request.contextPath}/user/mypage">
-              <i class="bi bi-person-circle"></i>마이
-            </a>
-          </c:when>
-          <c:otherwise>
-            <a href="${pageContext.request.contextPath}/user/login">
-              <i class="bi bi-box-arrow-in-right"></i>로그인
-            </a>
-          </c:otherwise>
-        </c:choose>
-      </div>
-    </div>
+    <jsp:include page="../include/footer.jsp" />
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script src="<c:url value='/js/urlConstants.js' />"></script>

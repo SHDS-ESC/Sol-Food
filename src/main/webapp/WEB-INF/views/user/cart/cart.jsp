@@ -19,15 +19,7 @@
 <body>
     <div class="wrap">
         <!-- 헤더 -->
-        <div class="header flex flex-sb">
-            <div><strong>Sol Food</strong></div>
-            <div style="display: flex; gap: 12px; align-items: center">
-                <button id="darkmode-toggle" style="background: none; border: none; cursor: pointer; font-size: 20px; color: var(--color-black);">
-                    <i class="bi bi-moon"></i>
-                </button>
-                <i class="bi bi-list" style="font-size: 20px"></i>
-            </div>
-        </div>
+        <jsp:include page="../include/header.jsp" />
 
         <!-- 컨텐츠 -->
         <div class="content">
@@ -128,26 +120,7 @@
         </c:if>
 
         <!-- 하단 네비게이션 푸터: 항상 고정 -->
-        <div class="footer flex flex-sa">
-            <div class="bottom-nav">
-                <a href="${pageContext.request.contextPath}/">
-                    <i class="bi bi-house"></i>홈
-                </a>
-                <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
-                    <i class="bi bi-bag"></i>장바구니
-                    <span class="cart-nav-badge">0</span>
-                </a>
-                <a href="#">
-                    <i class="bi bi-calendar2-week"></i>캘린더
-                </a>
-                <a href="${pageContext.request.contextPath}/user/mypage/like">
-                    <i class="bi bi-heart-fill"></i>찜
-                </a>
-                <a href="${pageContext.request.contextPath}/user/mypage">
-                    <i class="bi bi-person-circle"></i>마이
-                </a>
-            </div>
-        </div>
+        <jsp:include page="../include/footer.jsp" />
     </div>
 
     <!-- 팝업 -->

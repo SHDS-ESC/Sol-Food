@@ -12,16 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
-    <div class="header">
-        <div class="header-inner">
-            <a href="${pageContext.request.contextPath}/" class="header-logo-link">
-                <img src="${pageContext.request.contextPath}/img/logo.png" alt="SolFood 로고" class="header-logo" />
-            </a>
-            <button id="darkmode-toggle" class="header-darkmode-btn">
-                <i class="bi bi-moon"></i>
-            </button>
-        </div>
-    </div>
+    <jsp:include page="../include/header.jsp" />
     <div class="wrap">
         <div class="content">
             <div class="review-container">
@@ -81,15 +72,7 @@
                 </div>
             </div>
         </div>
-        <div class="bottom-nav">
-            <a href="${pageContext.request.contextPath}/"><i class="bi bi-house" id="nav"></i>홈</a>
-            <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
-                <i class="bi bi-bag" id="nav"></i>장바구니
-                <span class="cart-nav-badge">0</span>
-            </a>
-            <a href="${pageContext.request.contextPath}/user/mypage/like"><i class="bi bi-heart-fill" id="nav"></i>찜</a>
-            <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle" id="nav"></i>마이</a>
-        </div>
+        <jsp:include page="../include/footer.jsp" />
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="${pageContext.request.contextPath}/js/review.js"></script>
