@@ -157,9 +157,34 @@
     <!-- 사용자별 결제 내역 조회 -->
     <select id="selectPaymentsByUserId" resultMap="PaymentMap">
         SELECT * FROM payment 
-        WHERE users_id = #{userId}
+        WHERE users_id = #{usersId}
         ORDER BY payment_created_at DESC
-        LIMIT #{limit} OFFSET #{offset}
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 통합결제ID로 결제 내역 조회 -->
+    <select id="selectPaymentsByIntergratedpaymentId" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        WHERE integratedpayment_id = #{intergratedpaymentId}
+        ORDER BY payment_created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 매장별 결제 내역 조회 -->
+    <select id="selectPaymentsByStoreId" resultMap="PaymentMap">
+        SELECT p.* FROM payment p
+        JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
+        WHERE ip.store_id = #{storeId}
+        ORDER BY p.payment_created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 결제 타입별 조회 -->
+    <select id="selectPaymentsByType" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        WHERE payment_method = #{paymentType}
+        ORDER BY payment_created_at DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
 
@@ -168,14 +193,14 @@
         SELECT * FROM payment 
         WHERE payment_status = #{status}
         ORDER BY payment_created_at DESC
-        LIMIT #{limit} OFFSET #{offset}
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- 최근 결제 내역 조회 -->
     <select id="selectRecentPayments" resultMap="PaymentMap">
         SELECT * FROM payment 
         ORDER BY payment_created_at DESC
-        LIMIT #{limit}
+        LIMIT #{size}
     </select>
 
     <!-- 결제 통계 조회 -->
@@ -210,35 +235,48 @@
     <!-- 조건부 검색 -->
     <select id="searchPayments" resultMap="PaymentMap">
         <![CDATA[
-        SELECT * FROM payment
+        SELECT p.* FROM payment p
         ]]>
         <where>
-            <if test="intergratedpaymentId != null">
-                AND intergratedpayment_id = #{intergratedpaymentId}
+            <if test="storeId != null">
+                AND p.integratedpayment_id IN (
+                    SELECT integratedpayment_id FROM integrated_payment WHERE store_id = #{storeId}
+                )
             </if>
             <if test="usersId != null">
-                AND users_id = #{usersId}
+                AND p.users_id = #{usersId}
+            </if>
+            <if test="paymentType != null and paymentType != ''">
+                AND p.payment_method = #{paymentType}
             </if>
             <if test="status != null and status != ''">
-                AND payment_status = #{status}
+                AND p.payment_status = #{status}
             </if>
             <if test="startDate != null">
-                <![CDATA[AND payment_created_at >= #{startDate}]]>
+                <![CDATA[AND p.payment_created_at >= #{startDate}]]>
             </if>
             <if test="endDate != null">
-                <![CDATA[AND payment_created_at <= #{endDate}]]>
+                <![CDATA[AND p.payment_created_at <= #{endDate}]]>
             </if>
             <if test="minAmount != null">
-                <![CDATA[AND payment_amount >= #{minAmount}]]>
+                <![CDATA[AND p.payment_amount >= #{minAmount}]]>
             </if>
             <if test="maxAmount != null">
-                <![CDATA[AND payment_amount <= #{maxAmount}]]>
+                <![CDATA[AND p.payment_amount <= #{maxAmount}]]>
             </if>
         </where>
         <![CDATA[
-        ORDER BY payment_created_at DESC
-        LIMIT #{limit} OFFSET #{offset}
+        ORDER BY p.payment_created_at DESC
+        LIMIT #{size} OFFSET #{offset}
         ]]>
     </select>
+
+    <!-- 통합결제ID로 모든 결제 상태 업데이트 -->
+    <update id="updatePaymentStatusByIntegratedPaymentId">
+        UPDATE payment SET
+            payment_status = #{status},
+            payment_updated_at = CURRENT_TIMESTAMP
+        WHERE integratedpayment_id = #{integratedPaymentId}
+    </update>
 
 </mapper>
