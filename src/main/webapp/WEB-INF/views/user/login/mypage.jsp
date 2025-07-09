@@ -49,7 +49,7 @@
             </a>
         </section>
         <div class="main-menu-grid">
-            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/info">
+            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/edit">
                 <span><span class="menu-icon">👤</span>내 정보 수정</span>
           <div class="menu-arrow">&gt;</div>
             </a>
