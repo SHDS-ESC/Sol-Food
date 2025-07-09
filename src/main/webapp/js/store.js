@@ -15,10 +15,10 @@ let currentSearchKeyword = '';
 let currentSort = 'star';
 
 // ==================== 초기화 ====================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     currentCategory = '전체';
     loadCategoryConfig();
-    
+
     // 초기 로딩 시 페이징 방식으로 통일
     offset = 0;
     hasNext = true;
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadStoreList();
 
     // 더보기 버튼 이벤트 리스너
-    document.getElementById('loadMoreBtn').addEventListener('click', function() {
+    document.getElementById('loadMoreBtn').addEventListener('click', function () {
         if (hasNext && !loading) {
             loadStoreList();
         }
@@ -36,13 +36,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // 검색창 Enter 키 이벤트
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
+        searchInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 performSearch();
             }
         });
     }
-    
+
     // 장바구니 개수 업데이트
     if (typeof updateCartBadge === 'function') {
         fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
@@ -52,17 +52,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     //정렬 셀렉트 박스 활성화
-      const sortSelect = document.getElementById('sortSelect');
-        if (sortSelect) {
-            sortSelect.value = currentSort; // 초기값 셋팅
-        }
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect) {
+        sortSelect.value = currentSort; // 초기값 셋팅
+    }
 });
 
 // ==================== 장바구니 관련 ====================
 // updateCartBadge 함수는 cart.js에서 제공됨
 
 function loadCategoryConfig() {
-            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.STORE_CATEGORY_CONFIG))
+    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.STORE_CATEGORY_CONFIG))
         .then(response => response.json())
         .then(data => {
             categoryConfig = data.data || data;
@@ -74,11 +74,11 @@ function loadCategoryConfig() {
 
 // ==================== 화면 전환 ====================
 function showMap() {
-    document.getElementById('mapBtn').classList.add('btn-active');
-    document.getElementById('listBtn').classList.remove('btn-active');
+    document.getElementById('mapBtn').classList.add('map-tab', 'active');
+    document.getElementById('listBtn').classList.remove('active');
     document.getElementById('mapContainer').style.display = 'flex';
     document.getElementById('listContainer').style.display = 'none';
-    document.querySelector('.app-container').classList.add('map-view');
+    document.querySelector('.wrap').classList.add('map-view');
 
     if (!map) {
         initializeMap();
@@ -93,11 +93,11 @@ function showMap() {
 }
 
 function showList() {
-    document.getElementById('listBtn').classList.add('btn-active');
-    document.getElementById('mapBtn').classList.remove('btn-active');
+    document.getElementById('listBtn').classList.add('map-tab', 'active');
+    document.getElementById('mapBtn').classList.remove('active');
     document.getElementById('listContainer').style.display = 'block';
     document.getElementById('mapContainer').style.display = 'none';
-    document.querySelector('.app-container').classList.remove('map-view');
+    document.querySelector('.wrap').classList.remove('map-view');
 }
 
 // ==================== 지도 초기화 ====================
@@ -178,7 +178,7 @@ function createMap(position) {
             map.relayout();
             map.setCenter(position);
             searchMapCategory('전체');
-            
+
             document.querySelectorAll('.map-category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -204,7 +204,7 @@ function selectCategory(element, category) {
 
     // 현재 카테고리 업데이트
     currentCategory = category;
-    
+
     // "더보기" 접기/펼치기 등 부가 UI
     const extendedCategories = document.getElementById('extendedCategories');
     const isMoreOpen = extendedCategories && extendedCategories.style.display === 'grid';
@@ -218,11 +218,11 @@ function selectCategory(element, category) {
     const mapContainer = document.getElementById('mapContainer');
     const mapDisplay = window.getComputedStyle(mapContainer).display;
     const isMapView = mapDisplay === 'flex';
-    
+
     if (isMapView) {
         searchMapCategory(category);
     }
-    
+
     // 검색 모드 해제
     clearSearchMode();
 
@@ -237,7 +237,7 @@ function selectMapCategory(element, category) {
     });
     element.classList.add('active');
     currentCategory = category;
-    
+
     if (map && placesService && currentPosition) {
         searchMapCategory(category);
     }
@@ -247,7 +247,7 @@ function toggleMoreCategories() {
     const extendedCategories = document.getElementById('extendedCategories');
     const moreText = document.getElementById('moreText');
     const moreIcon = document.getElementById('moreIcon');
-    
+
     if (extendedCategories.style.display === 'grid') {
         // 펼쳐져 있음 → 접기 실행
         extendedCategories.style.display = 'none';
@@ -294,10 +294,10 @@ function loadStoreList() {
     let apiUrl;
 
     if (isSearchActive) {
-                    apiUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_SEARCH}?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
-        } else {
-            apiUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_LIST}?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
-        }
+        apiUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_SEARCH}?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
+    } else {
+        apiUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_LIST}?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
+    }
 
     fetch(apiUrl)
         .then(res => {
@@ -404,8 +404,8 @@ function createStoreCardElement(store, usersId) {
             : safeAddress;
 
         // 별점 표시 개선 (실시간 계산된 별점, 소수점 한 자리까지)
-        const starDisplay = safeRating > 0 
-            ? `⭐ ${safeRating.toFixed(1)}점` 
+        const starDisplay = safeRating > 0
+            ? `⭐ ${safeRating.toFixed(1)}점`
             : '⭐ 신규매장';
 
         card.innerHTML = `
@@ -439,7 +439,7 @@ function createStoreCardElement(store, usersId) {
 
         // 하트 버튼 클릭(버블링 방지)
         const likeBtn = card.querySelector('.like-btn');
-        likeBtn.addEventListener('click', function(event) {
+        likeBtn.addEventListener('click', function (event) {
             event.stopPropagation();
             toggleLike(this);
         });
@@ -497,9 +497,9 @@ function displayMarker(place) {
 
         markers.push(marker);
 
-        kakao.maps.event.addListener(marker, 'click', function() {
+        kakao.maps.event.addListener(marker, 'click', function () {
             closeAllInfoWindows();
-            
+
             const content = createDetailedInfoWindow(place);
             const infowindow = new kakao.maps.InfoWindow({
                 content: content,
@@ -516,14 +516,14 @@ function displayMarker(place) {
 
 function createDetailedInfoWindow(place) {
     const categoryTag = extractCategoryTag(place.category_name);
-    
+
     let content = '<div class="custom-infowindow">';
     content += '<div class="infowindow-header">';
     content += '<button class="infowindow-close" onclick="closeCurrentInfoWindow()">×</button>';
     content += '<h3 class="store-title">' + place.place_name + '</h3>';
     content += '<span class="store-category-tag">' + categoryTag + '</span>';
     content += '</div>';
-    
+
     content += '<div class="infowindow-body">';
     content += '<div class="menu-image-container">';
     content += '<div class="no-image-placeholder">';
@@ -531,20 +531,20 @@ function createDetailedInfoWindow(place) {
     content += '<span>대표 메뉴 이미지</span>';
     content += '</div>';
     content += '</div>';
-    
+
     content += '<div class="store-info">';
     content += '<div class="store-info-item">';
     content += '<i class="bi bi-geo-alt store-info-icon"></i>';
     content += '<span>' + (place.road_address_name || place.address_name) + '</span>';
     content += '</div>';
-    
+
     if (place.phone) {
         content += '<div class="store-info-item">';
         content += '<i class="bi bi-telephone store-info-icon"></i>';
         content += '<span>' + place.phone + '</span>';
         content += '</div>';
     }
-    
+
     content += '<div class="store-info-item">';
     content += '<i class="bi bi-tag store-info-icon"></i>';
     content += '<span>' + place.category_name + '</span>';
@@ -554,17 +554,17 @@ function createDetailedInfoWindow(place) {
     content += '<button class="info-btn btn-detail" onclick="goToStoreDetailFromMap(\'' + place.place_name + '\', \'' + place.id + '\')">';
     content += '<i class="bi bi-info-circle" style="margin-right: 4px;"></i>상세보기';
     content += '</button>';
-    
+
     if (place.phone) {
         content += '<button class="info-btn btn-call" onclick="callStore(\'' + place.phone + '\')">';
         content += '<i class="bi bi-telephone" style="margin-right: 4px;"></i>전화';
         content += '</button>';
     }
-    
+
     content += '</div>';
     content += '</div>';
     content += '</div>';
-    
+
     return content;
 }
 
@@ -650,7 +650,7 @@ function clearSearch() {
 
     // '전체' 카테고리 선택
     const allCategoryElement = document.querySelector('.category-item[onclick*="전체"]') ||
-                               document.querySelector('.category-item:first-child');
+        document.querySelector('.category-item:first-child');
 
     if (allCategoryElement) {
         selectCategory(allCategoryElement, '전체');
@@ -710,14 +710,14 @@ function closeCurrentInfoWindow() {
 
 function extractCategoryTag(categoryName) {
     if (!categoryName) return '기타';
-    
+
     const parts = categoryName.split(' > ');
     const lastPart = parts[parts.length - 1];
-    
+
     if (lastPart.length > 15) {
         return lastPart.substring(0, 15) + '...';
     }
-    
+
     return lastPart;
 }
 
@@ -753,13 +753,13 @@ function goToStoreDetailFromMap(placeName, placeId) {
 
     // 가게명으로 DB 검색
     const searchUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_SEARCH_BY_NAME}?name=${encodeURIComponent(placeName)}`);
-    
+
     fetch(searchUrl)
         .then(response => response.json())
         .then(data => {
             // 로딩 오버레이 제거
             document.body.removeChild(loadingOverlay);
-            
+
             if (data.success && data.stores && data.stores.length > 0) {
                 // 가게가 존재하는 경우 - 첫 번째 가게의 상세페이지로 이동
                 const store = data.stores[0];
@@ -805,9 +805,9 @@ function showKakaoMapModal(placeName, placeId) {
         align-items: center;
         z-index: 10001;
     `;
-    
+
     // 모달 외부 클릭 시 닫기
-    modal.addEventListener('click', function(e) {
+    modal.addEventListener('click', function (e) {
         if (e.target === modal) {
             closeKakaoMapModal();
         }
@@ -873,9 +873,9 @@ function showKakaoMapModal(placeName, placeId) {
     `;
 
     document.body.appendChild(modal);
-    
+
     // ESC 키 이벤트 리스너 추가
-    kakaoMapModalEscHandler = function(e) {
+    kakaoMapModalEscHandler = function (e) {
         if (e.key === 'Escape') {
             closeKakaoMapModal();
         }
@@ -889,7 +889,7 @@ function closeKakaoMapModal() {
     if (modal) {
         modal.remove();
     }
-    
+
     // ESC 키 이벤트 리스너 정리
     if (kakaoMapModalEscHandler) {
         document.removeEventListener('keydown', kakaoMapModalEscHandler);
@@ -902,10 +902,10 @@ function openKakaoMap(placeName) {
     // 카카오맵 URL 생성 (검색어로 검색)
     const encodedPlaceName = encodeURIComponent(placeName);
     const kakaoMapUrl = `https://map.kakao.com/link/search/${encodedPlaceName}`;
-    
+
     // 새 창에서 카카오맵 열기
     window.open(kakaoMapUrl, '_blank');
-    
+
     // 모달 닫기
     closeKakaoMapModal();
 }
@@ -969,3 +969,22 @@ function changeSort(sortType) {
     loadStoreList();
 }
 
+// ==================== 토글 ====================
+function toggleSortDropdown() {
+    $("#sortDropdownMenu").toggle();
+}
+
+$(document).on("click", ".sort-option", function () {
+    $(".sort-option").removeClass("selected");
+    $(this).addClass("selected");
+    $("#sortSelectedText").text($(this).text().trim());
+    $("#sortDropdownMenu").hide();
+    // TODO: 실제 정렬 파라미터 반영
+    changeSort($(this).data("value"));
+});
+// 바깥 클릭시 닫기
+$(document).on("click", function (e) {
+    if (!$(e.target).closest('.sort-dropdown').length) {
+        $("#sortDropdownMenu").hide();
+    }
+});

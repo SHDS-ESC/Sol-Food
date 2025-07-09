@@ -1,0 +1,40 @@
+body.dark .receipt {
+    background: var(--color-bg) !important;
+    color: var(--color-text) !important;
+    border: 2px solid var(--color-border) !important;
+    box-shadow: none !important;
+}
+body.dark .receipt * {
+    color: var(--color-text) !important;
+}
+
+body.dark .payment-option:hover,
+body.dark .payment-option.selected {
+    border-color: var(--color-main) !important;
+    background: #2d225a !important;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.18) !important;
+    transform: scale(1.03);
+    transition: all 0.15s;
+}
+
+body.dark .receipt .menu-item:not(:last-child) {
+    border-bottom: 1px solid #333 !important;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+}
+body.dark .receipt .total-section {
+    border-top: 2px solid #333 !important;
+    margin-top: 24px;
+    padding-top: 16px;
+}
+body.dark .receipt .total-row.final {
+    border-top: 1px solid #333 !important;
+    margin-top: 12px;
+    padding-top: 12px;
+}
+
+body.dark .final-price {
+    color: #ff5252 !important;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+} 

@@ -12,8 +12,10 @@
     --color-white: #fff;
     --color-black: #000;
     --font-main: 'Pretendard-Regular';
-
-
+    --color-text: #000;
+    --color-text-muted: #666;
+    --color-bg: #fff;
+    --color-bg-light: #f8f8f8;
 }
 
 /* 다크모드 */
@@ -28,9 +30,43 @@ body.dark, .dark {
     --color-white: #18181c;
     --color-black: #fff;
     --color-bg: #18181c;
+    --color-bg-light: #23242a;
     --color-input-bg: #23242a;
     --color-btn-disabled: #222;
     --color-btn-text-disabled: #888;
+    --color-text: #fff;
+    --color-text-muted: #999;
+}
+
+/* 장바구니 네비게이션 스타일 */
+.cart-nav-item {
+    position: relative;
+}
+
+.cart-nav-badge {
+    position: absolute;
+    top: -8px;
+    right: 50%;
+    transform: translateX(50%);
+    background: #ff4d6d;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    min-width: 18px;
+    text-align: center;
+    line-height: 1;
+}
+
+.cart-nav-badge.hidden {
+    display: none;
 }
 
 
@@ -97,7 +133,7 @@ body { font-family:var(--font-main); background-color:#d6eeff; background-image:
 
 .content { padding:16px; padding-top:72px; height:calc(100vh - 52px); overflow:auto; box-sizing:border-box; }
 
-.footer { transition: 1s; padding:16px; position:fixed; bottom:0; width:100%; background-color:var(--color-white);  box-sizing: border-box;}
+.footer {z-index: 999999; transition: 1s; padding:16px; position:fixed; bottom:0; width:100%; background-color:var(--color-white); box-sizing: border-box;}
 .footer .ico { display:block; width:40px; height:40px; cursor:pointer; }
 .footer .ico:nth-child(1) { background-image:url("../img/home-alt.svg"); }
 .footer .ico:nth-child(2) { background-image:url("../img/feed.svg"); }

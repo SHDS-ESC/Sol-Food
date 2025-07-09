@@ -88,7 +88,7 @@ function createStoreCard(store) {
                 📍 ${safeAddress}
             </div>
             <div style="font-size:12px;">
-                ${safeRating > 0 ? `⭐ ${safeRating}점` : '⭐ 신규매장'}
+                ${safeRating > 0 ? `⭐ ${safeRating.toFixed(1)}점` : '⭐ 신규매장'}
             </div>
             ${safeTel && safeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">
                 📞 ${safeTel}

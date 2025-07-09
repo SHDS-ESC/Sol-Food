@@ -98,7 +98,7 @@
                             <td>${owner.storeName}</td>
                             <td>${owner.ownerEmail}</td>
                             <td>${owner.categoryName}</td>
-                            <td>${owner.storeAvgstar}</td>
+                            <td>${owner.storeAvgstar != null ? String.format("%.1f", owner.storeAvgstar) : '0.0'}</td>
                             <td>${owner.ownerTel}</td>
                             <td>${owner.storeTel}</td>
                             <td>${owner.storeAddress}</td>
