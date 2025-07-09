@@ -72,4 +72,7 @@ public interface StoreMapper {
     // 가게의 평균 별점 업데이트
     int updateStoreAvgStar(@Param("storeId") int storeId, @Param("avgStar") double avgStar);
 
+    //인기 순위
+    List<StoreVO> getTop10PopularStores();
+
 }

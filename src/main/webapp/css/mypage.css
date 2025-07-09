@@ -1,6 +1,6 @@
 
 .mypage-app {
-    background: #fff;
+    background: var(--color-white);
     width: 340px;
     min-height: 95vh;
     border-radius: 20px;
@@ -21,6 +21,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 18px 18px 0 18px;
+    background: var(--color-bg-light);
 }
 .mypage-btn {
     border: 1px solid #888;
@@ -38,9 +39,9 @@
 .profile-thumb {
     width: 34px;
     height: 34px;
-    border: 1px solid #aaa;
+    border: 1px solid var(--color-gray);
     border-radius: 50%;
-    background: #fff;
+    background: var(--color-white);
 }
 .profile-section {
     display: flex;
@@ -53,41 +54,42 @@
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #f5d6db;
-    box-shadow: 0 2px 8px #f5d6db;
+    border: 3px solid var(--color-bg-light);
+    box-shadow: 0 2px 8px var(--color-bg-light);
 }
 .nickname {
     margin-top: 6px;
     font-size: 20px;
     font-weight: bold;
-    color: #444;
+    color: var(--color-black);
 }
 .point-box {
     width: 85%;
-    background: #faf3f7;
-    border: 1px solid #ddd;
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-gray-light);
     border-radius: 12px;
     padding: 17px 14px 11px 14px;
     margin: 14px 0;
     cursor: pointer;
     text-align: left;
+    color: var(--color-black);
 }
 .point-title {
     font-size: 17px;
-    color: #444;
+    color: var(--color-black);
     margin-bottom: 3px;
 }
 .point-amount {
     font-size: 28px;
     font-weight: 500;
-    color: #242424;
+    color: var(--color-black);
     display: flex;
     align-items: center;
     gap: 7px;
 }
 .arrow {
     font-size: 24px;
-    color: #c49baf;
+    color: var(--color-main);
     margin-left: 10px;
 }
 .mypage-menu {
@@ -100,8 +102,8 @@
 }
 .menu-item {
     flex: 1;
-    background: #f8f4f7;
-    border: 1px solid #e2d1d1;
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-gray-light);
     border-radius: 10px;
     margin: 6px;
     height: 84px;
@@ -113,6 +115,7 @@
     font-size: 15px;
     font-weight: 500;
     transition: box-shadow 0.2s;
+    color: var(--color-black);
 }
 .menu-item:hover {
     box-shadow: 0 2px 10px #fad4ec55;
@@ -164,7 +167,7 @@
     background: #fff0f6;
 }
 .profile-img {
-    width: 80px; height: 80px;
+    width: 100px; height: 100px;
     border-radius: 50%;
     object-fit: cover;
     box-shadow: 0 2px 8px rgba(0,0,0,0.09);
@@ -176,7 +179,7 @@
 }
 .welcome-msg {
     font-size: 1rem;
-    color: #ff4d6d;
+    color: var(--color-main);
     margin-top: 6px;
 }
 .point-section {
@@ -190,7 +193,7 @@
 }
 .point-card {
     font-size: 1.1rem;
-    color: #ff4d6d;
+    color: var(--color-main);
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -214,21 +217,38 @@
     align-items: center;
     justify-content: space-between;
     padding: 16px 18px;
-    background: #fff;
+    background: var(--color-white);
     border-radius: 13px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     font-size: 1.07rem;
-    color: #222;
+    color: var(--color-black);
     text-decoration: none;
     transition: background 0.14s;
     cursor: pointer;
 }
-.menu-card:hover { background: #ffebf0; }
+.menu-card:hover { background: var(--color-bg-light); }
 .menu-icon {
     font-size: 1.3em;
     margin-right: 10px;
 }
 .menu-arrow {
-    color: #bbb;
+    color: var(--color-gray);
     font-size: 1.2em;
+}
+
+.mypage{
+    padding: 52px 0px 0px 0px;
+}
+
+.btn-primary{
+    display: block;
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 22px;
+    background: var(--color-gray-dark);
+}
+
+.btn-primary:hover{
+    background: var(--color-gray);
+    color: var(--color-white);
 }

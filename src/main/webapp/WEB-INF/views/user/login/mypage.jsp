@@ -12,11 +12,13 @@
     <link href="${pageContext.request.contextPath}/css/reset.css" rel="stylesheet"/>
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet"/>
     <link href="${pageContext.request.contextPath}/css/mypage.css" rel="stylesheet"/>
-     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
 </head>
 <body>
 <div class="wrap">
+    <%@ include file="/WEB-INF/views/user/include/header.jsp" %>
+    <div class="content mypage">
     <div class="mypage-header">
         <c:choose>
             <c:when test="${not empty userLoginSession.usersProfile}">
@@ -51,7 +53,7 @@
         <div class="main-menu-grid">
             <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/edit">
                 <span><span class="menu-icon">👤</span>내 정보 수정</span>
-          <div class="menu-arrow">&gt;</div>
+                <div class="menu-arrow">&gt;</div>
             </a>
             <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/like">
                 <span><span class="menu-icon">❤️</span>내 찜 </span>
@@ -66,44 +68,20 @@
                 <span class="menu-arrow">&gt;</span>
             </a>
         </div>
+
+        <c:choose>
+            <c:when test="${not empty sessionScope.userLoginSession}">
+                <a href="<c:url value="/user/login/logout"/>" class="btn btn-primary">로그아웃</a>
+            </c:when>
+        </c:choose>
     </main>
-<div class="footer flex flex-sa">
-    <div class="bottom-nav">
-      <a href="${pageContext.request.contextPath}/"><i class="bi bi-house"></i>홈</a
-      >
-      <a
-        href="${pageContext.request.contextPath}/user/cart"
-        class="cart-nav-item"
-      >
-        <i class="bi bi-bag"></i>장바구니
-        <span class="cart-nav-badge">0</span>
-      </a>
-      <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-      <a href="${pageContext.request.contextPath}/user/mypage/like"
-        ><i class="bi bi-heart-fill"></i>찜</a
-      >
-      <c:choose>
-
-        <c:when test="${not empty sessionScope.userLoginSession}">
-          <a href="${pageContext.request.contextPath}/user/mypage">
-            <i class="bi bi-person-circle"></i>마이
-          </a>
-        </c:when>
-
-        <c:otherwise>
-          <a href="${pageContext.request.contextPath}/user/login">
-            <i class="bi bi-box-arrow-in-right"></i>로그인
-          </a>
-        </c:otherwise>
-      </c:choose>
-
     </div>
-  </div>
+    <%@ include file="/WEB-INF/views/user/include/footer.jsp" %>
 </div>
 
+<script src="${pageContext.request.contextPath}/js/store.js?v=${pageContext.session.creationTime}"></script>
+<script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
 <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
-<script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
-<script src="<c:url value='/js/darkmode.js' />"></script>
 
 </body>
 </html>
