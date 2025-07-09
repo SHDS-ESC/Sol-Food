@@ -168,4 +168,10 @@ public class StoreServiceImpl implements StoreService {
         }
     }
 
+    // StoreServiceImpl.java
+    @Override
+    public List<StoreVO> getTop10PopularStores() {
+        return mapper.getTop10PopularStores();
+    }
+
 }

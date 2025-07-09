@@ -463,4 +463,19 @@ public class StoreController {
         StoreSearchResponseVO response = StoreSearchResponseVO.error("", "데이터 처리 중 오류가 발생했습니다.");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+    //인기순위
+    // StoreController.java
+    @GetMapping("/api/popular")
+    @ResponseBody
+    public List<StoreVO> getTop10PopularStores() {
+        try {
+            List<StoreVO> popularStores = service.getTop10PopularStores();
+            calculateRealTimeAverageStars(popularStores); // 실시간 별점 계산
+            return popularStores;
+        } catch (Exception e) {
+            log.error("인기 가게 조회 실패", e);
+            return new ArrayList<>(); // 빈 리스트 반환
+        }
+    }
+
 }
