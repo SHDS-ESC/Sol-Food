@@ -9,7 +9,7 @@ let sseStarted = false; // SSE 연결 시작 플래그
 // 페이지 로드 시 선택된 친구들 정보 로드
 async function loadWaitingApprovalData() {
     try {
-        const res = await fetch('/user/cart/waiting-approval-data');
+        const res = await fetch(window.UrlConstants.Builder.fullUrl('/user/cart/waiting-approval-data'));
         const data = await res.json();
         if (data.result === 'success' && data.participants && data.participants.length > 0) {
             selectedFriendsData = data.participants;

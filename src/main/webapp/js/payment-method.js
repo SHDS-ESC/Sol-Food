@@ -143,9 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // payment-method 페이지 진입 시 inviteMap 초기화 (뒤로가기/캐시 복원 포함)
 window.addEventListener('pageshow', function(event) {
-    var contextPath = window.contextPath || '';
-    console.log('contextPath:', contextPath);
-    fetch(contextPath + '/user/cart/invite-reset', { method: 'POST', credentials: 'include' });
+    fetch(window.UrlConstants.Builder.fullUrl('/user/cart/invite-reset'), { method: 'POST', credentials: 'include' });
 });
 // 다음 단계 버튼 클릭 처리
 continueBtn.addEventListener('click', function() {
