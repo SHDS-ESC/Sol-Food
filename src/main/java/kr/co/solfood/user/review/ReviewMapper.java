@@ -1,6 +1,7 @@
 package kr.co.solfood.user.review;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import java.util.List;
 import java.util.Map;
 
@@ -56,4 +57,24 @@ public interface ReviewMapper {
     
     // 특정 가게의 별점별 개수 조회
     Map<String, Object> selectStarCountsByStoreId(Integer storeId);
+    
+    // === 내 리뷰 관리 메서드 ===
+    
+    // 내 리뷰 목록 조회 (필터링, 정렬, 페이징)
+    List<ReviewVO> selectMyReviews(
+        @Param("usersId") Integer usersId, 
+        @Param("filter") String filter, 
+        @Param("sort") String sort, 
+        @Param("offset") int offset, 
+        @Param("pageSize") int pageSize
+    );
+    
+    // 내 리뷰 총 개수 조회
+    Integer selectMyReviewCount(Integer usersId);
+    
+    // 내 리뷰 평균 별점 조회
+    Double selectMyReviewAvgRating(Integer usersId);
+    
+    // 내 리뷰 이번 달 개수 조회
+    Integer selectMyReviewCountThisMonth(Integer usersId);
 }

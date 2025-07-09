@@ -123,7 +123,7 @@ class S3FileUploader {
         }
         
         if (file.size > maxSize) {
-            alert('파일 크기는 5MB 이하여야 합니다.');
+            showWarningPopup('파일 크기는 5MB 이하여야 합니다.');
             return false;
         }
         
@@ -166,7 +166,7 @@ async function handleProfileImageUpload(fileInput) {
         document.getElementById('usersProfile').value = s3Url;
         
     } catch (error) {
-        alert('파일 업로드 실패: ' + error.message);
+        showErrorPopup('파일 업로드 실패: ' + error.message);
     } finally {
         showUploadProgress(false);
     }

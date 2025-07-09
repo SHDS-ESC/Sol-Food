@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +43,7 @@ public class LoginController {
         this.serverProperties = serverProperties;
     }
 
-    // 유저 로그인 페이지
+
     @GetMapping("")
     public String login(Model model) {
         model.addAttribute("apiKey", kakaoProperties.getRestApiKey());
@@ -99,28 +101,36 @@ public class LoginController {
 
     // 아이디 찾기
     @GetMapping("/search-id")
-    public void searchId() {
+    public String searchIdPage(Model model) {
+        model.addAttribute("tabType", "id");
+        return "user/login/search-pwd";
     }
 
-    // 비밀번호 찾기
+    // 비밀번호 찾기 get
     @GetMapping("/search-pwd")
-    public void searchPwd() {}
+    public String searchPwdPage(Model model) {
+        model.addAttribute("tabType", "pw");
+        return "user/login/search-pwd";
+    }
 
     // 비밀번호 찾기 post
-    @Transactional
     @PostMapping("/search-pwd")
-    public String searchPwd(SearchPwdRequest req, Model model) {
-       UserVO userVo  = service.searchPwd(req);
-       if(userVo != null){
-           /* 임시 비밀번호 */
-           String newPwd = makePassword(); // 임시 비밀번호 생성
-           req.setUsersPwd(newPwd); // req vo 에 저장
-           service.setNewPwd(req); // req vo 전달
-           model.addAttribute("newPwd", newPwd);
-       }
-        return "user/login/find-pwd";
+    @ResponseBody
+    public Map<String, Object> searchPwd(SearchPwdRequest req) {
+        Map<String, Object> result = new HashMap<>();
+        UserVO userVo  = service.searchPwd(req);
+        if(userVo != null){
+            String newPwd = makePassword();
+            req.setUsersPwd(newPwd);
+            service.setNewPwd(req);
+            result.put("newPassword", newPwd);
+        } else {
+            result.put("newPassword", null);
+        }
+        return result;
     }
 
+    
 
     // 회원가입
     @GetMapping("/register")
@@ -139,14 +149,16 @@ public class LoginController {
     // 회원가입 post
     @Transactional
     @PostMapping("/register")
-    public String register(UserVO kakaoAddVO, HttpSession sess) {
+    public String register(UserVO kakaoAddVO, HttpSession sess, RedirectAttributes redirectAttributes) {
         service.register(kakaoAddVO);
 
         // 회원가입 완료 후 세션 정리
         sess.removeAttribute("s3InProgress");
         sess.removeAttribute("uploadCount");
 
-        return "redirect:" + UrlConstants.User.LOGIN_PAGE;
+        redirectAttributes.addFlashAttribute("msg","회원가입이 완료되었습니다.");
+
+        return "redirect:/user/login";
     }
 
     // 부서

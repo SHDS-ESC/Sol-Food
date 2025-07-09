@@ -329,7 +329,7 @@ function loadStoreList() {
         })
         .catch(error => {
             console.error('목록 로드 실패:', error);
-            alert('목록을 불러오지 못했습니다: ' + error.message);
+            showErrorPopup('목록을 불러오지 못했습니다: ' + error.message);
         })
         .finally(() => {
             loading = false;
@@ -581,7 +581,7 @@ function performSearch() {
     const keyword = searchInput.value.trim();
 
     if (!keyword) {
-        alert('검색어를 입력해주세요.');
+        showWarningPopup('검색어를 입력해주세요.');
         searchInput.focus();
         return;
     }
@@ -688,11 +688,11 @@ function toggleLike(btn) {
                     btn.querySelector('i').className = 'bi bi-heart-fill';
                 }
             } else {
-                alert('찜 처리 중 오류가 발생했습니다.');
+                showErrorPopup('찜 처리 중 오류가 발생했습니다.');
             }
         })
         .catch(() => {
-            alert('서버와 통신 중 오류가 발생했습니다.');
+            showErrorPopup('서버와 통신 중 오류가 발생했습니다.');
         });
 }
 
@@ -781,7 +781,7 @@ function goToStoreDetailFromMap(placeName, placeId) {
             // 에러 처리
             console.error('가게 검색 중 오류 발생:', error);
             document.body.removeChild(loadingOverlay);
-            alert('가게 정보를 확인하는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+            showErrorPopup('가게 정보를 확인하는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
             closeCurrentInfoWindow();
         });
 }
@@ -921,7 +921,7 @@ function callStore(phoneNumber) {
     if (phoneNumber) {
         window.location.href = 'tel:' + phoneNumber;
     } else {
-        alert('전화번호 정보가 없습니다.');
+        showWarningPopup('전화번호 정보가 없습니다.');
     }
 }
 

@@ -18,6 +18,8 @@ import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/payments/charge")
@@ -27,6 +29,7 @@ public class ChargeController {
     private final String apiKey;
     private final String apiSecret;
     private IamportClient iamportClient;
+    private static final Logger log = LoggerFactory.getLogger(ChargeController.class);
 
     // 생성자 주입
     public ChargeController(
@@ -177,8 +180,10 @@ public class ChargeController {
                     response.put("message", "해당 결제 내역을 찾을 수 없습니다.");
                 }
             } else {
+                // 실패 원인 로그로 남기기
+                log.error("아임포트 결제 취소 실패: " + iamportResponse.getMessage());
                 response.put("success", false);
-                response.put("message", "결제 취소 처리 중 오류가 발생했습니다.");
+                response.put("message", "결제 취소 실패: " + (iamportResponse.getMessage() != null ? iamportResponse.getMessage() : "알 수 없는 오류"));
             }
             
         } catch (Exception e) {

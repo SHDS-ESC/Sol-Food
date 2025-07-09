@@ -92,6 +92,7 @@
     </div>
 
     <!-- 외부 JavaScript 파일 -->
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/js/review.js"></script>
     
     <script>

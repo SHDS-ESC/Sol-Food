@@ -75,6 +75,7 @@
         <jsp:include page="../include/footer.jsp" />
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/js/review.js"></script>
     <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
 </body>
