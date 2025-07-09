@@ -100,7 +100,8 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userLoginInterceptor())
                 .addPathPatterns(UrlConstants.User.BASE + "/**")
-                .excludePathPatterns(UrlConstants.User.LOGIN_BASE + "/**");
+                .excludePathPatterns(UrlConstants.User.LOGIN_BASE + "/**")
+                .excludePathPatterns("/user/store/api/popular");
 
         registry.addInterceptor(adminLoginInterceptor())
                 .addPathPatterns(UrlConstants.Admin.BASE + "/**")
