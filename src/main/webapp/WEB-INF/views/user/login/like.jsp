@@ -24,7 +24,7 @@
     <%@ include file="../include/header.jsp" %>
 
     <div class="content like-list">
-
+        <div class="title">찜 목록</div>
         <div class="store-count">
             <span>총 : <span id="likeCount">${totalCount}개</span></span>
         </div>
@@ -38,10 +38,9 @@
 
 </div>
 
-<script src="<c:url value='/js/urlConstants.js' />"></script>
-<script src="<c:url value='/js/common-utils.js' />"></script>
-<script src="<c:url value='/js/like.js' />"></script>
-<script src="<c:url value='/js/darkmode.js' />"></script>
-
+<script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
+<script src="${pageContext.request.contextPath}/js/common-utils.js"></script>
+<script src="${pageContext.request.contextPath}/js/like.js"></script>
+<script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
 </body>
 </html>
