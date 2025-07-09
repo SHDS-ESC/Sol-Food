@@ -26,8 +26,7 @@
 <div class="wrap">
     <%@ include file="/WEB-INF/views/user/include/header.jsp" %>
 
-    <div class="content">
-        <div class="history-container">
+    <div class="content history-container">
             <h1>결제 내역</h1>
             
             <div id="loading" class="loading">
@@ -51,8 +50,7 @@
                 </button>
             </div>
         </div>
-    </div>
-    
+
     <!-- 가게 ID 입력 모달 -->
     <div id="storeIdModal" class="modal">
         <div class="modal-content">

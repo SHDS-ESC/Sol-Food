@@ -26,8 +26,7 @@
 <div class="wrap">
     <%@ include file="/WEB-INF/views/user/include/header.jsp" %>
 
-    <div class="content">
-        <div class="history-container">
+        <div class="content history-container">
             <h1>충전 내역</h1>
             
             <div id="loading" class="loading">
@@ -54,7 +53,6 @@
                 </button>
             </div>
         </div>
-    </div>
 
     <%@ include file="/WEB-INF/views/user/include/footer.jsp" %>
 </div>

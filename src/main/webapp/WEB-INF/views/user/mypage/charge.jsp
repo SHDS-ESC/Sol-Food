@@ -1,8 +1,8 @@
 <%@ include file="/WEB-INF/views/common/header.jsp" %>
 <%@ include file="/WEB-INF/views/common/payment-header.jsp" %>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8" %>
+<%@ page language="java" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
 <html>
@@ -22,26 +22,10 @@
 </head>
 <body>
 <div class="wrap">
-    <div class="header flex flex-sb">
-        <div><strong>로고</strong></div>
-        <div style="display: flex; gap: 12px; align-items: center">
-            <button
-                    id="darkmode-toggle"
-                    style="
-              background: none;
-              border: none;
-              cursor: pointer;
-              font-size: 20px;
-              color: var(--color-black);
-            "
-            >
-                <i class="bi bi-moon"></i>
-            </button>
-            <i class="bi bi-list" style="font-size: 20px"></i>
-        </div>
-    </div>
 
-    <div class="charge-container">
+    <%@ include file="/WEB-INF/views/user/include/header.jsp" %>
+
+    <div class="content charge-container">
         <!-- 상단: 현재 충전된 금액 -->
         <div class="current-balance">
             <div class="balance-label">현재 잔액</div>
@@ -87,25 +71,7 @@
         </div>
     </div>
 
-    <div class="footer flex flex-sa">
-        <div class="footer flex flex-sa">
-            <div class="bottom-nav">
-                <a href="${pageContext.request.contextPath}/"><i class="bi bi-house"></i>홈</a>
-                <a href="${pageContext.request.contextPath}/user/cart"
-                   class="cart-nav-item">
-                    <i class="bi bi-bag"></i>장바구니
-                    <span class="cart-nav-badge">0</span>
-                </a>
-                <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-                <a href="${pageContext.request.contextPath}/user/mypage/like"
-                ><i class="bi bi-heart-fill"></i>찜</a
-                >
-                <a href="${pageContext.request.contextPath}/user/mypage"
-                ><i class="bi bi-person-circle"></i>마이</a
-                >
-            </div>
-        </div>
-    </div>
+    <%@ include file="/WEB-INF/views/user/include/footer.jsp" %>
 
 </div>
 
