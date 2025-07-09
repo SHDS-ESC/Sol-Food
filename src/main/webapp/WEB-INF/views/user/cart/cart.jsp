@@ -111,7 +111,8 @@
 
         <!-- 결제 버튼: 푸터 위에 고정 -->
     <div class="footer-btn-bar">
-        <button class="footer-btn" onclick="proceedToPayment()">
+        <button class="footer-btn" id="paymentBtn" onclick="proceedToPayment()" 
+                <c:if test="${empty cart || empty cart.items}">disabled</c:if>>
             <span class="total-amount"><fmt:formatNumber value="${cart.totalAmount}" pattern="#,###"/>원</span>
             결제하기
         </button>
@@ -137,6 +138,8 @@
     <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
     <!-- Common Utils (SolFoodUtils) -->
     <script src="<c:url value='/js/common-utils.js' />?v=${pageContext.session.creationTime}"></script>
+    <!-- Popup JavaScript -->
+    <script src="<c:url value='/js/popup.js' />?v=${pageContext.session.creationTime}"></script>
     <!-- Cart JavaScript -->
     <script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
     <script src="<c:url value='/js/darkmode.js' />"></script>
