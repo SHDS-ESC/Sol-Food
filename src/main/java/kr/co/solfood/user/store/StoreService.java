@@ -52,4 +52,7 @@ public interface StoreService {
     // 가게의 평균 별점 업데이트
     boolean updateStoreAvgStar(int storeId, double avgStar);
 
+    //인기 순위
+    List<StoreVO> getTop10PopularStores();
+
 }

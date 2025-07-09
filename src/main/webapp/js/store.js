@@ -77,8 +77,12 @@ function showMap() {
     document.getElementById('mapBtn').classList.add('map-tab', 'active');
     document.getElementById('listBtn').classList.remove('active');
     document.getElementById('mapContainer').style.display = 'flex';
+    document.querySelector('.map-view').style.display = 'block';
+    document.querySelector('.map-category-container').style.display = 'block';
     document.getElementById('listContainer').style.display = 'none';
     document.querySelector('.wrap').classList.add('map-view');
+    document.querySelector('.scroll-list-header').style.display = 'none';
+
 
     if (!map) {
         initializeMap();
@@ -97,7 +101,10 @@ function showList() {
     document.getElementById('mapBtn').classList.remove('active');
     document.getElementById('listContainer').style.display = 'block';
     document.getElementById('mapContainer').style.display = 'none';
+    document.querySelector('.map-category-container').style.display = 'none';
     document.querySelector('.wrap').classList.remove('map-view');
+    document.querySelector('.scroll-list-header').style.display = '';
+
 }
 
 // ==================== 지도 초기화 ====================
@@ -598,7 +605,7 @@ function updateSearchUI(keyword) {
     });
 
     // 검색 상태 표시를 위한 헤더 추가
-    const categoryContainer = document.querySelector('.category-container');
+    const listContainer = document.querySelector('.list-container');
     let searchHeader = document.getElementById('searchHeader');
 
     if (!searchHeader) {
@@ -614,7 +621,7 @@ function updateSearchUI(keyword) {
             justify-content: space-between;
             align-items: center;
         `;
-        categoryContainer.insertBefore(searchHeader, categoryContainer.firstChild);
+        listContainer.prepend(searchHeader);
     }
 
     searchHeader.innerHTML = `
@@ -986,5 +993,25 @@ $(document).on("click", ".sort-option", function () {
 $(document).on("click", function (e) {
     if (!$(e.target).closest('.sort-dropdown').length) {
         $("#sortDropdownMenu").hide();
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var scrollListArea = document.querySelector('.scroll-list-area');
+    var categoryContainer = document.querySelector('.category-container');
+    var lastClass = false;
+
+    if (scrollListArea && categoryContainer) {
+        scrollListArea.addEventListener('scroll', function() {
+            if (scrollListArea.scrollTop > 30 && !lastClass) {
+                categoryContainer.classList.add('one-line');
+                lastClass = true;
+            }
+            else if (scrollListArea.scrollTop <= 30 && lastClass) {
+                categoryContainer.classList.remove('one-line');
+                lastClass = false;
+            }
+        });
     }
 });

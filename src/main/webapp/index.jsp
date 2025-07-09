@@ -1,165 +1,203 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
-
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>Sol-Food</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        var contextPath = '${pageContext.request.contextPath}';
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="<c:url value='/css/reset.css' />" rel="stylesheet">
-    <link href="<c:url value='/css/style.css' />" rel="stylesheet">
-    <link href="<c:url value='/css/index.css' />" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/reset.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/index.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/main-improved.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
 </head>
 <body>
 <div class="wrap">
-     <div class="header flex flex-sb">
-        <div><strong>로고</strong></div>
-         <div class="login-btns">
-               <c:choose>
-                   <c:when test="${not empty sessionScope.userLoginSession}">
-                       <a class="welcome-message">
-                           <i class="fas fa-user-circle"></i>
-                           ${sessionScope.userLoginSession.usersName}님 환영합니다!
-                       </a>
-                       <span>
-                       <a href="<c:url value="/user/login/logout"/>" class="btn btn-primary">로그아웃</a>
-                   </c:when>
-               </c:choose>
+    <%@ include file="/WEB-INF/views/user/include/header.jsp" %>
+    <div class="content main">
+        <div class="main-content">
+
+            <!-- 유저 정보/포인트 카드 -->
+            <c:if test="${not empty sessionScope.userLoginSession}">
+            <div class="user-main-summary-card">
+                <div class="user-main-summary-head">
+                    <div class="user-welcome-section">
+                        <div class="user-main-summary-name">
+                            <span class="user-name">${sessionScope.userLoginSession.usersName}님</span>
+                            <span class="user-main-summary-grade">(일반회원)</span>
+                        </div>
+                        <div class="user-main-summary-slogan">오늘도 든든하게 :)</div>
+                    </div>
+                </div>
+                <div class="point-charge-card">
+                    <div class="point-display-section">
+                        <div class="user-main-summary-point-wrap big">
+                            <span class="user-main-summary-point">
+                                <c:choose>
+                                    <c:when test="${not empty userLoginSession.usersPoint}">
+                                        <fmt:formatNumber value="${userLoginSession.usersPoint}" pattern="#,#00"/>
+                                    </c:when>
+                                    <c:otherwise>0</c:otherwise>
+                                </c:choose>
+                            P
+                            </span>
+                        </div>
+                        <a href="${pageContext.request.contextPath}/user/mypage/charge" class="user-main-summary-mybtn join-btn pink-btn">
+                           MY>
+                        </a>
+                    </div>
+                </div>
             </div>
-        <div style="display: flex; gap: 12px; align-items: center">
-          <button
-            id="darkmode-toggle"
-            style="
-              background: none;
-              border: none;
-              cursor: pointer;
-              font-size: 20px;
-              color: var(--color-black);
-            "
-          >
-            <i class="bi bi-moon"></i>
-          </button>
-          <i class="bi bi-list" style="font-size: 20px"></i>
+            </c:if>
+
+            <!-- 이벤트(배너) 영역 -->
+            <section class="main-banner">
+                <div class="banner-slider">
+                    <div class="banner-item active">
+                        <img src="${pageContext.request.contextPath}/img/event.png" class="banner-img" alt="신규회원 웰컴 이벤트">
+                    </div>
+                    <div class="banner-item">
+                        <img src="${pageContext.request.contextPath}/img/event2.png" class="banner-img" alt="친구초대 이벤트">
+                    </div>
+                </div>
+                <div class="banner-dots">
+                    <span class="dot active" onclick="currentSlide(1)"></span>
+                    <span class="dot" onclick="currentSlide(2)"></span>
+                </div>
+            </section>
+
+            <!-- 인기 식당 Top 10 -->
+            <section class="popular-section">
+                <div class="section-header">
+                    <h2 class="section-title">인기 식당 Top 10</h2>
+                    <button class="popular-more-btn" onclick="location.href='${pageContext.request.contextPath}/user/store/list?sort=like'" style="color:var(--color-black">
+                        <span>더보기</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="popular-slider-wrap">
+                    <button class="slider-btn left" id="prevBtn">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <div class="popular-slider" id="popularSlider">
+                        <%-- JS가 동적으로 인기식당 카드를 추가 --%>
+                    </div>
+                    <button class="slider-btn right" id="nextBtn">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- 메인 메뉴 그리드 -->
+            <section class="main-menu-section">
+                <div class="section-header">
+                    <h2 class="section-title">서비스 메뉴</h2>
+                </div>
+                <div class="main-menu-grid">
+                    <a class="menu-card primary" href="<c:url value='/user/store/list'/>">
+                        <div class="menu-icon">🍽️</div>
+                        <div class="menu-content">
+                            <div class="menu-title">식사하기</div>
+                            <div class="menu-subtitle">맛있는 음식을 주문하세요</div>
+                        </div>
+                    </a>
+                    <a class="menu-card secondary" href="#" onclick="alert('준비중입니다!')">
+                        <div class="menu-icon">💬</div>
+                        <div class="menu-content">
+                            <div class="menu-title">커뮤니티</div>
+                            <div class="menu-subtitle">다양한 이야기를 나눠보세요</div>
+                        </div>
+                    </a>
+                    <a class="menu-card accent" href="#" onclick="alert('제휴 문의는 contact@solfood.com 으로!')">
+                        <div class="menu-icon">🤝</div>
+                        <div class="menu-content">
+                            <div class="menu-title">제휴 문의</div>
+                            <div class="menu-subtitle">비즈니스 파트너십</div>
+                        </div>
+                    </a>
+                    <a class="menu-card support" href="#" onclick="alert('후원 기능은 곧 오픈됩니다!')">
+                        <div class="menu-icon">💝</div>
+                        <div class="menu-content">
+                            <div class="menu-title">후원</div>
+                            <div class="menu-subtitle">따뜻한 마음을 전해보세요</div>
+                        </div>
+                    </a>
+                </div>
+            </section>
         </div>
-  </div>
-
-<div class="content main">
-         <main class="main-content">
-             <section class="main-banner">
-                  <!-- <img src="./img/event.png" alt="배너" class = "main-banner-img" >-->
-             </section>
-
-             <!-- 포인트 카드/코드등록 -->
-             <section class="point-section">
-                 <a class="point-card" onclick="location.href='${pageContext.request.contextPath}/user/mypage/charge'">
-                       마이포인트
-                  <span class="point-value">
-                    <c:choose>
-                       <c:when test="${not empty userLoginSession.usersPoint}">
-                           ${userLoginSession.usersPoint}
-                       </c:when>
-                       <c:otherwise>
-                           100
-                       </c:otherwise>
-                   </c:choose>
-                   원
-                    </span>
-                 <span class="menu-icon">💰</span>
-             </a>
-
-         </section>
-
-             <div class="main-menu-grid">
-                 <a class="menu-card food"  href="<c:url value='/user/store/list'/>">
-                     식사하기
-                     <span class="menu-icon">🥗</span>
-                 </a>
-                  <div class="menu-card">
-                      커뮤니티
-                      <span class="menu-icon">🗨️</span>
-                  </div>
-                 <div class="menu-card exercise">
-                     제휴 문의
-                     <span class="menu-icon">🏋️‍♂️</span>
-                 </div>
-                  <div class="menu-card exercise">
-                     후원
-                     <span class="menu-icon">🥤</span>
-                 </div>
-             </div>
-
-         </main>
-
-</div>
- <div class="footer flex flex-sa">
-    <div class="bottom-nav">
-      <a href="${pageContext.request.contextPath}/"
-        ><i class="bi bi-house"></i>홈</a
-      >
-      <a
-        href="${pageContext.request.contextPath}/user/cart"
-        class="cart-nav-item"
-      >
-        <i class="bi bi-bag"></i>장바구니
-        <span class="cart-nav-badge">0</span>
-      </a>
-      <a href="#"><i class="bi bi-calendar2-week"></i>캘린더</a>
-      <a href="${pageContext.request.contextPath}/user/mypage/like"
-        ><i class="bi bi-heart-fill"></i>찜</a
-      >
-      <c:choose>
-
-        <c:when test="${not empty sessionScope.userLoginSession}">
-          <a href="${pageContext.request.contextPath}/user/mypage">
-            <i class="bi bi-person-circle"></i>마이
-          </a>
-        </c:when>
-
-        <c:otherwise>
-          <a href="${pageContext.request.contextPath}/user/login">
-            <i class="bi bi-box-arrow-in-right"></i>로그인
-          </a>
-        </c:otherwise>
-      </c:choose>
-
+        <%@ include file="/WEB-INF/views/user/include/footer.jsp" %>
     </div>
-  </div>
 </div>
 
-
-<script src="<c:url value='/js/urlConstants.js' />"></script>
-<script src="<c:url value='/js/common-utils.js' />?v=${pageContext.session.creationTime}"></script>
-<script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
-<script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
-<script src="<c:url value='/js/darkmode.js' />"></script>
+<script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
+<script src="${pageContext.request.contextPath}/js/common-utils.js?v=${pageContext.session.creationTime}"></script>
+<script src="${pageContext.request.contextPath}/js/cart.js?v=${pageContext.session.creationTime}"></script>
+<script src="${pageContext.request.contextPath}/js/store.js?v=${pageContext.session.creationTime}"></script>
+<script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
+<script src="${pageContext.request.contextPath}/js/index.js"></script>
 
 <script>
-// 페이지 로드 시 장바구니 개수 조회
-document.addEventListener('DOMContentLoaded', function() {
-    // 로그인된 사용자인 경우에만 장바구니 개수 조회
-    <c:if test="${not empty sessionScope.userLoginSession}">
+    document.addEventListener('DOMContentLoaded', function () {
+        <c:if test="${not empty sessionScope.userLoginSession}">
         fetchCartCount();
-    </c:if>
-});
+        </c:if>
 
-// 장바구니 개수 조회 함수
-function fetchCartCount() {
-    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
-        .then(response => response.json())
-        .then(data => {
-            const count = data.count || 0;
-            SolFoodUtils.updateBadge('.cart-nav-badge', count);
-        })
-        .catch(error => {
-            console.log('장바구니 개수 조회 실패 (로그인하지 않은 경우 등):', error);
+        // 배너 슬라이더 자동 전환
+        initBannerSlider();
+    });
+
+    function fetchCartCount() {
+        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
+            .then(response => response.json())
+            .then(data => {
+                const count = data.count || 0;
+                SolFoodUtils.updateBadge('.cart-nav-badge', count);
+            })
+            .catch(error => {
+                console.log('장바구니 개수 조회 실패 (로그인하지 않은 경우 등):', error);
+            });
+    }
+
+    // 배너 슬라이더 기능
+    let currentSlideIndex = 0;
+
+    function initBannerSlider() {
+        const slides = document.querySelectorAll('.banner-item');
+        const dots = document.querySelectorAll('.dot');
+
+        if (slides.length > 1) {
+            setInterval(() => {
+                currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+                showSlide(currentSlideIndex);
+            }, 5000); // 5초마다 자동 전환
+        }
+    }
+
+    function currentSlide(n) {
+        currentSlideIndex = n - 1;
+        showSlide(currentSlideIndex);
+    }
+
+    function showSlide(index) {
+        const slides = document.querySelectorAll('.banner-item');
+        const dots = document.querySelectorAll('.dot');
+
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
         });
-}
+
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+    }
 </script>
 </body>
 </html>

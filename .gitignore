@@ -171,3 +171,5 @@ buildNumber.properties
 /src/main/resources/application.properties
 /.vscode/settings.json
 /src/main/resources/goyo-415004-a06976a1469f.json
+.idea\webContexts.xml
+material_theme_project_new.xml

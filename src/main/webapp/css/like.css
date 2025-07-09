@@ -14,17 +14,18 @@
     border-radius: 10px;
     margin: 3px 25px 3px 5px;
     flex-shrink: 0;
-    background: #f9f9f9;
-    border: 1px solid #f3f3f3;
+    background: var(--color-bg-light);
+    border: 1px solid var(--color-bg-light);
     display: block;
 }
 
 .store-card {
     display: flex;
     align-items: center;
-    background: #fff;
+    background: var(--color-white);
     border-radius: 14px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid var(--color-gray-light);
     padding: -10px 9px;
     position: relative;
     min-height: 90px;
@@ -46,26 +47,27 @@
     font-size: 1.13rem;
     font-weight: 600;
     margin-bottom: 3px;
+    color: var(--color-black);
 }
 
 .store-category {
     font-size: 0.98rem;
-    color: #888;
+    color: var(--color-gray-dark);
 }
 
 .store-address {
     font-size: 0.98rem;
-    color: #666;
+    color: var(--color-gray-dark);
 }
 
 .store-rating {
     font-size: 0.97rem;
-    color: #ffb300;
+    color: var(--color-main-hover);
 }
 
 .store-tel {
     font-size: 0.97rem;
-    color: #46b48c;
+    color: var(--color-main);
 }
 
 /* 하트 버튼은 기존 스타일 그대로 써도 됩니다 */
@@ -87,19 +89,19 @@
 }
 
 .like-btn .bi-heart {
-    color: #bbb;
+    color: var(--color-gray);
 }
 
 .like-btn .bi-heart-fill {
-    color: #ff4d6d;
+    color: var(--color-main);
 }
 
 .like-btn.liked .bi-heart {
-    color: #ff4d6d;
+    color: var(--color-main);
 }
 
 .like-btn.liked .bi-heart-fill {
-    color: #ff4d6d;
+    color: var(--color-main);
 }
 
 .store-grid {
@@ -128,38 +130,39 @@
 }
 
 .like-btn .bi-heart {
-    color: #bbb;
+    color: var(--color-gray);
 }
 
 .like-btn .bi-heart-fill {
-    color: #ff4d6d;
+    color: var(--color-main);
 }
 
 .like-btn.liked .bi-heart {
-    color: #ff4d6d;
+    color: var(--color-main);
 }
 
 .like-btn.liked .bi-heart-fill {
-    color: #ff4d6d;
+    color: var(--color-main);
 }
 
 .more-btn {
     width: 100%;
+    margin: 20px auto;
     background: var(--color-main);
-    color: #fff;
-    font-size: 17px;
-    font-weight: 700;
     border: none;
-    border-radius: 40px;
-    padding: 15px 0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--color-white);
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.2s;
 }
 
 .like-title {
     font-size: 1.5rem;
     font-weight: 600;
     text-align: center;
+    color: var(--color-black);
 }
 
 .store-grid {
@@ -173,10 +176,10 @@
 .store-card {
     display: flex;
     align-items: center;
-    background: #fff;
+    background: var(--color-white);
     border-radius: 0; /* 라운드 제거 (혹은 위/아래만 라운드 적용) */
     box-shadow: none; /* 그림자 제거로 한 줄처럼 */
-    border-bottom: 1px solid #eee; /* 밑줄만 살짝 */
+    border-bottom: 1px solid var(--color-gray-light); /* 밑줄만 살짝 */
     width: 90%;
     min-height: 90px;
     padding: 14px 16px;
@@ -186,4 +189,11 @@
 
 .store-card:last-child {
     border-bottom: none; /* 마지막 카드만 밑줄 제거 */
+}
+
+.title {
+    font-size: 1.13rem;
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: var(--color-black);
 }
