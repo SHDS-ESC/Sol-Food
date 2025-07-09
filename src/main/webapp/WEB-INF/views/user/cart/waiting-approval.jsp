@@ -97,30 +97,6 @@
          data-current-user-department-name="${currentUser.departmentName}"
          style="display: none;"></div>
     
-    <!-- 선택된 친구들 정보 (서버에서 렌더링) -->
-    <script type="application/json" id="selectedFriendsData">
-    [
-        <c:forEach var="friend" items="${selectedFriends}" varStatus="status">
-        {
-            "usersId": ${friend.usersId},
-            "usersName": "<c:out value='${friend.usersName}' escapeXml='true'/>",
-            "usersProfile": "<c:out value='${friend.usersProfile}' escapeXml='true'/>",
-            "companyName": "<c:out value='${friend.companyName}' escapeXml='true'/>",
-            "departmentName": "<c:out value='${friend.departmentName}' escapeXml='true'/>",
-            "usersEmail": "${friend.usersId == currentUser.usersId ? 'CURRENT_USER' : friend.usersEmail}"
-        }<c:if test="${!status.last}">,</c:if>
-        </c:forEach>
-    ]
-    </script>
-    
-    <!-- 장바구니 정보 -->
-    <script type="application/json" id="cartData">
-    {
-        "totalAmount": ${cart.totalAmount},
-        "itemCount": ${cart.items.size()}
-    }
-    </script>
-    
     <!-- 아임포트 코드 설정 -->
     <script>
         window.impCode = '${impCode}';

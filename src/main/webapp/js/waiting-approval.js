@@ -7,6 +7,25 @@ let eventSource = null; // SSE 연결 객체
 let sseStarted = false; // SSE 연결 시작 플래그
 
 // 페이지 로드 시 선택된 친구들 정보 로드
+async function loadWaitingApprovalData() {
+    try {
+        const res = await fetch('/user/cart/waiting-approval-data');
+        const data = await res.json();
+        if (data.result === 'success' && data.participants && data.participants.length > 0) {
+            selectedFriendsData = data.participants;
+            totalAmount = data.totalAmount;
+            displayFriends();
+            updateTotalAmountDisplay();
+        } else {
+            displayNoFriends();
+        }
+    } catch (error) {
+        console.error('대기 데이터 로드 오류:', error);
+        displayNoFriends();
+    }
+}
+
+// 페이지 로드시 API로 데이터 받아오기
 function initializePage() {
     console.log('💰 결제 대기 페이지 초기화 시작');
     
@@ -19,7 +38,7 @@ function initializePage() {
     }
 
     // 친구 데이터 로드 (JSP에서 렌더링된 데이터 사용)
-    loadSelectedFriends();
+    loadWaitingApprovalData();
     
     // 게임 결과가 있다면 적용
     if (gameResult) {
@@ -88,38 +107,6 @@ function updateTotalAmountDisplay() {
     
     if (totalPeopleElement) {
         totalPeopleElement.textContent = selectedFriendsData.length;
-    }
-}
-
-function loadSelectedFriends() {
-    // JSP에서 렌더링된 데이터를 바로 로드
-    fetchFriendsData();
-}
-
-function fetchFriendsData() {
-    try {
-        const selectedFriendsScript = document.getElementById('selectedFriendsData');
-        const cartScript = document.getElementById('cartData');
-        
-        if (selectedFriendsScript && cartScript) {
-            selectedFriendsData = JSON.parse(selectedFriendsScript.textContent);
-            const cartData = JSON.parse(cartScript.textContent);
-            totalAmount = cartData.totalAmount || 0;
-            
-            // 친구 데이터 로드 완료
-            
-            if (selectedFriendsData.length > 0) {
-                displayFriends();
-            } else {
-                displayNoFriends();
-            }
-        } else {
-            console.error('서버 렌더링 데이터를 찾을 수 없습니다.');
-            displayNoFriends();
-        }
-    } catch (error) {
-        console.error('데이터 파싱 오류:', error);
-        displayNoFriends();
     }
 }
 
