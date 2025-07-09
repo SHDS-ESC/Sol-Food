@@ -77,9 +77,14 @@
         <!-- 하단: 충전하기 버튼 -->
         <button id="chargeBtn" class="charge-btn" disabled>충전하기</button>
 
-        <button class="back-btn" onclick="location.href='${pageContext.request.contextPath}/user/mypage'">
-            마이페이지로 돌아가기
-        </button>
+        <div class="button-group">
+            <button class="back-btn" onclick="location.href='${pageContext.request.contextPath}/user/mypage'">
+                마이페이지로 돌아가기
+            </button>
+            <button class="history-btn" onclick="location.href='${pageContext.request.contextPath}/user/mypage/charge-history'">
+                충전내역 보기
+            </button>
+        </div>
     </div>
 
     <div class="footer flex flex-sa">

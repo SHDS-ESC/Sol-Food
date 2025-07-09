@@ -1,0 +1,308 @@
+/* 결제 내역 페이지 전용 스타일 */
+.history-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: var(--color-white);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+.history-container h1 {
+    color: var(--color-black);
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--color-main);
+    padding-bottom: 10px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.history-table th,
+.history-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-gray);
+}
+
+.history-table th {
+    background-color: var(--color-main);
+    color: var(--color-white);
+    font-weight: bold;
+}
+
+.history-table tr:hover {
+    background-color: var(--color-gray-light);
+}
+
+.amount {
+    font-weight: bold;
+    color: var(--color-main);
+}
+
+.status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status.failed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status.cancelled {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: var(--color-gray-dark);
+    font-style: italic;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--color-gray-dark);
+}
+
+.cancel-btn {
+    padding: 4px 8px;
+    background-color: #dc3545;
+    color: var(--color-white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s;
+}
+
+.cancel-btn:hover {
+    background-color: #c82333;
+}
+
+.cancel-btn:disabled {
+    background-color: var(--color-gray-dark);
+    cursor: not-allowed;
+}
+
+.review-btn {
+    padding: 4px 8px;
+    background-color: #28a745;
+    color: var(--color-white);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: 5px;
+    transition: background-color 0.3s;
+}
+
+.review-btn:hover {
+    background-color: #218838;
+}
+
+.review-btn:disabled {
+    background-color: var(--color-gray-dark);
+    cursor: not-allowed;
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 4px;
+    background-color: var(--color-main);
+    color: var(--color-white);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.pagination a:hover {
+    background-color: var(--color-main-hover);
+}
+
+.pagination .current {
+    background-color: var(--color-gray-dark);
+}
+
+/* 버튼 그룹 */
+.button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.back-btn {
+    padding: 10px 20px;
+    background: var(--color-gray-dark);
+    color: var(--color-white);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 14px;
+    flex: 1;
+    max-width: 160px;
+}
+
+.back-btn:hover {
+    background: var(--color-gray);
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--color-white);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 90%;
+}
+
+.modal-content h3 {
+    margin-bottom: 20px;
+    text-align: center;
+    color: var(--color-black);
+}
+
+.modal-content p {
+    margin-bottom: 15px;
+    color: var(--color-gray-dark);
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-gray);
+    border-radius: 5px;
+    margin-bottom: 20px;
+    background: var(--color-white);
+    color: var(--color-black);
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: var(--color-main);
+}
+
+.modal-buttons {
+    text-align: center;
+}
+
+.modal-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s;
+}
+
+.modal-buttons button:last-child {
+    margin-right: 0;
+}
+
+#confirmStoreId {
+    background-color: #28a745;
+    color: var(--color-white);
+}
+
+#confirmStoreId:hover {
+    background-color: #218838;
+}
+
+#cancelStoreId {
+    background-color: var(--color-gray-dark);
+    color: var(--color-white);
+}
+
+#cancelStoreId:hover {
+    background-color: var(--color-gray);
+}
+
+/* 카드형 리스트 스타일 */
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+}
+.history-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+.history-label {
+  color: #888;
+  font-weight: 500;
+}
+.history-value.amount {
+  color: #e74c3c;
+  font-weight: bold;
+}
+.history-value.status.success {
+  color: #27ae60;
+  font-weight: bold;
+}
+.history-actions {
+  margin-top: 8px;
+  text-align: right;
+}
+@media (max-width: 600px) {
+  .history-card {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+  .history-row {
+    font-size: 13px;
+  }
+} 

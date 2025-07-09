@@ -601,7 +601,7 @@ function proceedToPayment(userId) {
             console.log("응답 키들:", Object.keys(rsp));
             
             let apiPath = UrlConstants.Builder.fullUrl("/payments/payment/verifyPayment/" + rsp.imp_uid);
-            let nextPath = UrlConstants.Builder.fullUrl("/user/cart/payment-complete");
+            let nextPath = UrlConstants.Builder.fullUrl("/user/mypage/payment-history");
             
             if (rsp.success) {
                 console.log("Ajax 요청 시작 - URL:", apiPath);

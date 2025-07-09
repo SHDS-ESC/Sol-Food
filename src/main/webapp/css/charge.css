@@ -201,8 +201,14 @@
     transform: none;
 }
 
-.back-btn {
+.button-group {
+    display: flex;
+    gap: 12px;
     margin-top: 20px;
+    justify-content: center;
+}
+
+.back-btn {
     padding: 10px 20px;
     background: var(--color-gray-dark);
     color: var(--color-white);
@@ -210,10 +216,30 @@
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.3s;
+    font-size: 14px;
+    flex: 1;
+    max-width: 160px;
 }
 
 .back-btn:hover {
     background: var(--color-gray);
+}
+
+.history-btn {
+    padding: 10px 20px;
+    background: var(--color-main);
+    color: var(--color-white);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 14px;
+    flex: 1;
+    max-width: 160px;
+}
+
+.history-btn:hover {
+    background: var(--color-main-hover);
 }
 
 .error-message {
