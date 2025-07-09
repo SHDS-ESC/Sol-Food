@@ -3,6 +3,7 @@ package kr.co.solfood.payments.integrated;
 import kr.co.solfood.payments.payment.PaymentService;
 import kr.co.solfood.user.cart.BillDTO;
 import kr.co.solfood.user.cart.CartConstants;
+import kr.co.solfood.user.cart.CartItemVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,9 +33,25 @@ public class IntegratedPaymentServiceImpl implements IntegratedPaymentService {
         integratedPayment.setIntegratedpaymentStatus("pending");
         
         integratedPaymentMapper.insertIntegratedPayment(integratedPayment);
+
+        // 통합 결제 pk를 기준으로 메뉴 만들기
+        integratedPayment.getIntegratedpaymentId();
+
         return integratedPayment.getIntegratedpaymentId();
     }
-    
+
+    @Override
+    public void createPaymentMenu(List<CartItemVO> cartItems, int integratedPaymentId) {
+        for (CartItemVO cartItem : cartItems) {
+            try {
+                integratedPaymentMapper.insertPaymentMenu(cartItem, integratedPaymentId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                log.error("DB INSERT ERROR: " + e.getMessage(), e);
+            }
+        }
+    }
+
     @Override
     public IntegratedPaymentVO getIntegratedPaymentById(int integratedPaymentId) {
         return integratedPaymentMapper.selectIntegratedPaymentById(integratedPaymentId);
@@ -44,7 +61,12 @@ public class IntegratedPaymentServiceImpl implements IntegratedPaymentService {
     public IntegratedPaymentVO getIntegratedPaymentByLeaderId(long leaderId) {
         return integratedPaymentMapper.selectIntegratedPaymentByLeaderId(leaderId);
     }
-    
+
+    @Override
+    public IntegratedPaymentVO getOnGoingIntegratedPaymentByLeaderId(long leaderId) {
+        return integratedPaymentMapper.selectOnGoingIntegratedPaymentByLeaderId(leaderId);
+    }
+
     @Override
     public void updatePaymentStatus(int integratedPaymentId, String status) {
         integratedPaymentMapper.updatePaymentStatus(integratedPaymentId, status);

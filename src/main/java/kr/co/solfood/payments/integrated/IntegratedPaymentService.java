@@ -1,16 +1,25 @@
 package kr.co.solfood.payments.integrated;
 
 import kr.co.solfood.user.cart.BillDTO;
+import kr.co.solfood.user.cart.CartItemVO;
+
+import java.util.List;
 
 public interface IntegratedPaymentService {
     // 통합 결제 생성
     int createIntegratedPayment(BillDTO billDTO);
-    
+
+    // 결제 메뉴 저장
+    void createPaymentMenu(List<CartItemVO> cartItems, int integratedPaymentId);
+
     // 통합 결제 조회
     IntegratedPaymentVO getIntegratedPaymentById(int integratedPaymentId);
     
     // 발의자별 통합 결제 조회
     IntegratedPaymentVO getIntegratedPaymentByLeaderId(long leaderId);
+
+    // 진행 중인 통합 결제 내역 조회 - 발의자 ID로 검색
+    IntegratedPaymentVO getOnGoingIntegratedPaymentByLeaderId(long leaderId);
     
     // 통합 결제 상태 업데이트 (개별)
     void updatePaymentStatus(int integratedPaymentId, String status);
