@@ -34,25 +34,25 @@ function validateReviewForm() {
     
     // 별점 검사
     if (!starRating) {
-        alert('별점을 선택해주세요.');
+        showWarningPopup('별점을 선택해주세요.');
         return false;
     }
     
     const starValue = parseInt(starRating.value);
     if (starValue < REVIEW_CONFIG.MIN_STAR_RATING || starValue > REVIEW_CONFIG.MAX_STAR_RATING) {
-        alert('올바른 별점을 선택해주세요.');
+        showWarningPopup('올바른 별점을 선택해주세요.');
         return false;
     }
     
     // 내용 검사
     if (!reviewContent || !reviewContent.value.trim()) {
-        alert('리뷰 내용을 입력해주세요.');
+        showWarningPopup('리뷰 내용을 입력해주세요.');
         if (reviewContent) reviewContent.focus();
         return false;
     }
     
     if (reviewContent.value.length > REVIEW_CONFIG.MAX_CONTENT_LENGTH) {
-        alert(`리뷰 내용은 ${REVIEW_CONFIG.MAX_CONTENT_LENGTH}자 이하로 입력해주세요.`);
+        showWarningPopup(`리뷰 내용은 ${REVIEW_CONFIG.MAX_CONTENT_LENGTH}자 이하로 입력해주세요.`);
         reviewContent.focus();
         return false;
     }
@@ -60,7 +60,7 @@ function validateReviewForm() {
     // 제목 검사 (선택사항이지만 길이 제한)
     const reviewTitle = document.getElementById('reviewTitle');
     if (reviewTitle && reviewTitle.value.length > REVIEW_CONFIG.MAX_TITLE_LENGTH) {
-        alert(`리뷰 제목은 ${REVIEW_CONFIG.MAX_TITLE_LENGTH}자 이하로 입력해주세요.`);
+        showWarningPopup(`리뷰 제목은 ${REVIEW_CONFIG.MAX_TITLE_LENGTH}자 이하로 입력해주세요.`);
         reviewTitle.focus();
         return false;
     }

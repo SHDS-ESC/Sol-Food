@@ -176,6 +176,7 @@
     </div>
 
     <!-- 커스텀 JavaScript -->
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/js/owner-review.js"></script>
 </body>
 </html> 

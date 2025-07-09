@@ -45,6 +45,7 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="<c:url value='/js/make-bill.js' />"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
+    <script src="${pageContext.request.contextPath}/js/make-bill.js"></script>
 </body>
 </html>

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('totalAmount').textContent = totalAmount.toLocaleString();
             renderTable();
         } else {
-            alert('참여자 정보를 불러오지 못했습니다.');
+            showErrorPopup('참여자 정보를 불러오지 못했습니다.');
         }
     });
 
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.result === 'success') {
                 window.location.href = '/solfood/user/cart/waiting-approval';
             } else {
-                alert(data.message || '영수증 생성에 실패했습니다.');
+                showErrorPopup(data.message || '영수증 생성에 실패했습니다.');
             }
         });
     });
