@@ -44,7 +44,7 @@ public class UserLoginInterceptor implements HandlerInterceptor {
                 response.setContentType("text/html; charset=UTF-8");
                 PrintWriter out = response.getWriter();
                 out.println("<script>");
-                out.print("alert('");
+                out.print("alert('정지 사유 : ");
                 out.print(user.getUsersRejectedReason());
                 out.print("');");
                 out.println("location.href = '" + contextPath + "/user/login';");
