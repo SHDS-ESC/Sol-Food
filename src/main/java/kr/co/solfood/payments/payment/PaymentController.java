@@ -129,11 +129,6 @@ public class PaymentController {
         return paymentVO;
     }
 
-    @GetMapping("/user/cart/payment-complete")
-    public String paymentCompletePage() {
-        return "user/cart/payment-complete";
-    }
-
     /*
         결제 내역 조회 API
     */
