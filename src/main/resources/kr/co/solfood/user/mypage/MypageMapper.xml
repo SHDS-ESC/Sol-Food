@@ -14,14 +14,15 @@
             users_birth = #{usersBirth},
             users_gender = #{usersGender},
             users_tel = #{usersTel},
-            users_profile = #{usersProfile}
+            users_profile = #{usersProfile},
+            users_pwd = md5(#{usersPwd})
         WHERE users_id = #{usersId}
     </update>
 
     <update id="updateStatusToWithdraw" parameterType="long" >
         UPDATE users
         SET
-            users_status = 'inactive'
+            users_status = 'withdraw'
         WHERE users_id = #{usersId}
     </update>
 

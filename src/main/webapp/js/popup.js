@@ -17,7 +17,7 @@ $(document).ready(function () {
 function showPopup(message, type = 'info', title = '알림') {
   // 기존 팝업이 있다면 제거
   $('.custom-popup').remove();
-  
+
   // 팝업 HTML 생성
   const popupHtml = `
     <div class="popup-overlay custom-popup">
@@ -35,13 +35,13 @@ function showPopup(message, type = 'info', title = '알림') {
       </div>
     </div>
   `;
-  
+
   // 팝업을 body에 추가
   $('body').append(popupHtml);
-  
+
   // 팝업 표시
   $('.custom-popup').addClass('show').fadeIn(200);
-  
+
   // 이벤트 바인딩
   $('.custom-popup .popup-close, .custom-popup .confirm-btn, .custom-popup .popup-overlay').on('click', function() {
     $('.custom-popup').fadeOut(200, function() {
@@ -74,7 +74,7 @@ function showInfoPopup(message, title = '정보') {
 function showConfirmPopup(message, onConfirm, title = '확인') {
   // 기존 팝업이 있다면 제거
   $('.custom-popup').remove();
-  
+
   // 팝업 HTML 생성
   const popupHtml = `
     <div class="popup-overlay custom-popup">
@@ -93,20 +93,20 @@ function showConfirmPopup(message, onConfirm, title = '확인') {
       </div>
     </div>
   `;
-  
+
   // 팝업을 body에 추가
   $('body').append(popupHtml);
-  
+
   // 팝업 표시
   $('.custom-popup').addClass('show').fadeIn(200);
-  
+
   // 이벤트 바인딩
   $('.custom-popup .popup-close, .custom-popup .cancel-btn, .custom-popup .popup-overlay').on('click', function() {
     $('.custom-popup').fadeOut(200, function() {
       $(this).remove();
     });
   });
-  
+
   $('.custom-popup .confirm-btn').on('click', function() {
     $('.custom-popup').fadeOut(200, function() {
       $(this).remove();
