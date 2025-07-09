@@ -220,6 +220,7 @@
             </div>
         </div>
     </div>
+</div>
 
 
     <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
