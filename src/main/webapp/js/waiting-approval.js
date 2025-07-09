@@ -28,7 +28,6 @@ async function loadWaitingApprovalData() {
 // 페이지 로드시 API로 데이터 받아오기
 function initializePage() {
     console.log('💰 결제 대기 페이지 초기화 시작');
-    
     // 게임 결과 확인 및 처리
     const gameResult = getGameResultFromURL();
     if (gameResult) {
@@ -75,8 +74,12 @@ function calculateSplitAmounts() {
     const remainder = totalAmount % totalPeople; // 나머지
     
     // 현재 사용자 ID 찾기
-    const currentUserData = document.getElementById('currentUserData');
-    const currentUserId = currentUserData ? currentUserData.getAttribute('data-current-user-id') : null;
+    const currentUserId = window.currentUserId;
+    const currentUserCompanyName = window.currentUserCompanyName;
+    const currentUserDepartmentName = window.currentUserDepartmentName;
+    const currentUserEmail = window.currentUserEmail;
+    const currentUserNickname = window.currentUserNickname;
+    const currentUserTel = window.currentUserTel;
     
     // 각 사용자에게 기본 금액 배정
     selectedFriendsData.forEach(friend => {
@@ -195,8 +198,7 @@ function createFriendElement(friend, index) {
     const div = document.createElement('div');
     
     // 현재 사용자 ID 가져오기
-    const currentUserData = document.getElementById('currentUserData');
-    const currentUserId = currentUserData ? currentUserData.getAttribute('data-current-user-id') : null;
+    const currentUserId = window.currentUserId;
     const isCurrentUser = friend.usersId == currentUserId;
     
     // 친구 요소 생성
@@ -213,10 +215,11 @@ function createFriendElement(friend, index) {
         // 현재 사용자의 회사-부서 정보가 없는 경우 JSP에서 가져오기
         if (!friend.companyName || !friend.departmentName || 
             friend.companyName === 'null' || friend.departmentName === 'null') {
-            const currentUserData = document.getElementById('currentUserData');
-            if (currentUserData) {
-                friend.companyName = currentUserData.getAttribute('data-current-user-company-name') || friend.companyName;
-                friend.departmentName = currentUserData.getAttribute('data-current-user-department-name') || friend.departmentName;
+            const currentUserCompanyName = window.currentUserCompanyName;
+            const currentUserDepartmentName = window.currentUserDepartmentName;
+            if (currentUserCompanyName && currentUserDepartmentName) {
+                friend.companyName = currentUserCompanyName;
+                friend.departmentName = currentUserDepartmentName;
                 console.log('현재 사용자 회사-부서 정보 JSP에서 로드:', friend.companyName, '-', friend.departmentName);
             }
         }
@@ -499,7 +502,7 @@ function goToMiniGame() {
 // 결제 진행 함수 (현재 사용자만 가능)
 function proceedToPayment(userId) {
     console.log('🚀 proceedToPayment 함수 시작됨, userId:', userId);
-    const currentUserId = document.getElementById('currentUserData').getAttribute('data-current-user-id');
+    const currentUserId = window.currentUserId;
     console.log('🚀 currentUserId:', currentUserId);
     
     // 현재 사용자가 아닌 경우 결제 불가
@@ -533,9 +536,9 @@ function proceedToPayment(userId) {
         console.log('💳 confirm 확인됨, 결제 진행 시작');
         // 결제 요청
         let amount = userAmount;
-        let userEmail = document.getElementById('currentUserData').getAttribute('data-current-user-email') || 'user@example.com';
-        let userNickname = document.getElementById('currentUserData').getAttribute('data-current-user-name') || '사용자';
-        let userTel = document.getElementById('currentUserData').getAttribute('data-current-user-tel') || '010-0000-0000';
+        let userEmail = window.currentUserEmail || 'user@example.com';
+        let userNickname = window.currentUserNickname || '사용자';
+        let userTel = window.currentUserTel || '010-0000-0000';
         
         console.log('💳 결제 요청 시작:', {
             impCode: window.impCode,

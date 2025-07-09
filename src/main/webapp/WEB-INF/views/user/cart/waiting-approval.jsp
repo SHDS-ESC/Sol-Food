@@ -81,6 +81,16 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="<c:url value='/js/urlConstants.js' />"></script>
     
+    <!-- 현재 사용자 정보 (JS 로드 전에 할당) -->
+    <script>
+        window.currentUserId = "${currentUser.usersId}";
+        window.currentUserCompanyName = "${currentUser.companyName}";
+        window.currentUserDepartmentName = "${currentUser.departmentName}";
+        window.currentUserEmail = "${currentUser.usersEmail}";
+        window.currentUserNickname = "${currentUser.usersNickname}";
+        window.currentUserTel = "${currentUser.usersTel}";
+    </script>
+    
     <!-- 안전한 데이터 전달을 위한 hidden input -->
     <input type="hidden" id="miniGameMessageData" value="<c:out value='${miniGameMessage}' escapeXml='true'/>">
     
@@ -95,7 +105,8 @@
          data-current-user-company="${currentUser.companyId}"
          data-current-user-company-name="${currentUser.companyName}"
          data-current-user-department-name="${currentUser.departmentName}"
-         style="display: none;"></div>
+         style="display: none;">
+    </div>
     
     <!-- 아임포트 코드 설정 -->
     <script>

@@ -455,17 +455,4 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('.item-options')) {
         renderOptions();
     }
-    
-    if (document.getElementById('bottomCartBar')) {
-        fetchCartInfo();
-    } else {
-        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
-            .then(response => response.json())
-            .then(data => {
-                SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', data.count || 0);
-            })
-            .catch(error => {
-                // 로그인하지 않은 경우 등은 무시
-            });
-    }
 }); 

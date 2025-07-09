@@ -99,10 +99,14 @@ public class CartController {
     public String cartPage(HttpSession session, Model model) {
         getValidatedUser(session); // 로그인 검증만 필요
 
+        // 만약 장바구니에 결제 중인 결제가 있으면 결제 완료 페이지로 리다이렉트
         CartVO cart = cartService.getCart(session);
+        if (cart.getIntegratedPaymentId() != null) {
+            return UrlConstants.View.USER_CART_WAITING_APPROVAL;
+        }
 
         // 각 메뉴의 옵션 정보 설정
-        if (cart != null && cart.getItems() != null) {
+        if (cart.getItems() != null) {
             for (CartItemVO item : cart.getItems()) {
                 MenuVO menu = menuService.getMenuById(item.getMenuId());
                 if (menu != null) {
@@ -187,8 +191,11 @@ public class CartController {
      */
     @GetMapping("/waiting-approval")
     public String waitingApprovalPage(HttpSession session, Model model, @Value("${imp.code}") String impCode) {
-        getValidatedUser(session); // 로그인 검증만 필요
+        UserVO user = getValidatedUser(session);
+        UserVO fullUser = loginService.getUserById(user.getUsersId());
+
         model.addAttribute("impCode", impCode);
+        model.addAttribute(UrlConstants.Model.CURRENT_USER, fullUser);
         return UrlConstants.View.USER_CART_WAITING_APPROVAL;
     }
 
@@ -211,6 +218,8 @@ public class CartController {
 
     /**
      * 장바구니에 메뉴 추가 API (옵션 자동 계산)
+     * 다른 가게에 장바구니가 존재하는 경우 지운다고 고지
+     * 진행 중인 결제 (발의자) 가 존재하는 경우 예외 처리
      */
     @PostMapping("/add-with-options")
     @ResponseBody
@@ -220,12 +229,34 @@ public class CartController {
             @RequestParam(value = "selectedOptions", required = false) String selectedOptions,
             HttpSession session) {
 
-        getValidatedUser(session); // 로그인 검증만 필요
+        UserVO user = getValidatedUser(session); // 로그인 검증만 필요
 
+        // 다른 가게에 장바구니가 존재하는 경우 지운다고 고지
+        boolean isOtherCart = false;
+        CartVO cart = cartService.getCart(session);
+        int newStoreId = menuService.getMenuById(menuId).getStoreId();
+        if (cart != null && cart.getItems() != null && !cart.getItems().isEmpty()) {
+            int cartMenuId = cart.getItems().get(0).getMenuId();
+            int cartStoreId = menuService.getMenuById(cartMenuId).getStoreId();
+            if (cartStoreId != newStoreId) {
+                isOtherCart = true;
+            }
+        }
+
+        // 진행 중인 결제 (발의자) 가 존재하는 경우 예외 처리
+        IntegratedPaymentVO ongoingPayment = integratedPaymentService.getOnGoingIntegratedPaymentByLeaderId(user.getUsersId());
+        if (ongoingPayment != null) {
+            return ResponseEntity.ok(createCartErrorResponse(CartConstants.RESULT_ONGOING_PAYMENT, CartConstants.MSG_CART_ADD_FAILED_ONGOING_PAYMENT));
+        }
+        
         boolean success = cartService.addToCartWithOptions(session, menuId, quantity, selectedOptions);
-
         if (success) {
-            return ResponseEntity.ok(createCartAddSuccessResponse(session, CartConstants.MSG_CART_ADD_SUCCESS));
+            if (isOtherCart) {
+                return ResponseEntity.ok(createCartAddSuccessResponse(session, CartConstants.MSG_CART_ADD_SUCCESS_OTHER_CART));
+            }
+            else {
+                return ResponseEntity.ok(createCartAddSuccessResponse(session, CartConstants.MSG_CART_ADD_SUCCESS));
+            }
         } else {
             return ResponseEntity.ok(createCartErrorResponse(CartConstants.MSG_CART_ADD_FAILED));
         }
@@ -285,6 +316,46 @@ public class CartController {
         inviteMap.remove(user.getUsersId());
 
         return ResponseEntity.ok(createCartClearSuccessResponse(CartConstants.MSG_CART_CLEAR_SUCCESS));
+    }
+
+    /**
+     * 가게 ID 비교 API
+     */
+    @GetMapping("/compare-store")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> compareStoreId(
+            @RequestParam int storeId,
+            HttpSession session) {
+        
+        getValidatedUser(session); // 로그인 검증만 필요
+        
+        CartVO cart = cartService.getCart(session);
+        Map<String, Object> response = new HashMap<>();
+        
+        if (cart.isEmpty()) {
+            // 장바구니가 비어있으면 다른 가게가 아님
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+            response.put("isDifferentStore", false);
+            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_EMPTY);
+            return ResponseEntity.ok(response);
+        }
+        
+        // 장바구니의 첫 번째 아이템의 storeId와 비교
+        int cartStoreId = cart.getStoreId();
+        boolean isDifferentStore = cartStoreId != storeId;
+        
+        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_SUCCESS);
+        response.put("isDifferentStore", isDifferentStore);
+        response.put("cartStoreId", cartStoreId);
+        response.put("requestedStoreId", storeId);
+        
+        if (isDifferentStore) {
+            response.put("message", "다른 가게의 메뉴가 장바구니에 있습니다.");
+        } else {
+            response.put("message", "같은 가게의 메뉴입니다.");
+        }
+        
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -639,8 +710,8 @@ public class CartController {
                 participants.add(loginService.getUserById(payment.getUsersId()));
             }
 
-            response.put("result", "success");
-            response.put("message", "진행 중인 결제가 존재합니다.");
+            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ONGOING_PAYMENT);
+            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_FAILED_ONGOING_PAYMENT);
 
         }
         else {
@@ -648,7 +719,7 @@ public class CartController {
             CartVO cart = cartService.getCart(session);
             if (cart == null || cart.isEmpty()) {
                 response.put("result", "error");
-                response.put("message", "장바구니가 비어있습니다.");
+                response.put("message", CartConstants.MSG_CART_EMPTY);
                 return ResponseEntity.ok(response);
             }
 
@@ -680,6 +751,8 @@ public class CartController {
             paymentService.createPayment(billDTO, integratedPaymentId);
             // 5-3. 결제 메뉴 저장
             integratedPaymentService.createPaymentMenu(billDTO.getCartItems(), integratedPaymentId);
+            // 5-4. 장바구니 정보 업데이트 (IntegratedPaymentId)
+            cart.setIntegratedPaymentId(integratedPaymentId);
 
             response.put("result", "success");
             response.put("message", "영수증이 생성되었습니다.");
@@ -769,13 +842,20 @@ public class CartController {
     }
 
     /**
-     * 장바구니 실패 응답 생성
+     * 장바구니 에러 응답 생성
      */
-    private Map<String, Object> createCartErrorResponse(String message) {
+    private Map<String, Object> createCartErrorResponse(String result, String message) {
         Map<String, Object> response = new HashMap<>();
-        response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ERROR);
+        response.put(CartConstants.JSON_RESULT, result);
         response.put(CartConstants.JSON_MESSAGE, message);
         return response;
+    }
+
+    /**
+     * 장바구니 에러 응답 생성 (기본 에러 result 사용)
+     */
+    private Map<String, Object> createCartErrorResponse(String message) {
+        return createCartErrorResponse(CartConstants.RESULT_ERROR, message);
     }
 
     /**

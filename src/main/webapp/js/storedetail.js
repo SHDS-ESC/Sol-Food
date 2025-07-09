@@ -355,8 +355,6 @@ function goToCart() {
    탭 및 UI 관련 함수들
    =========================== */
 
-
-
 /**
  * 별점 막대 그래프 초기화
  */
@@ -515,17 +513,35 @@ function initializeStoreDetailPage() {
     setTimeout(() => {
         console.log('🔄 상세페이지 장바구니 초기화 시작');
 
-        if (document.getElementById('bottomCartBar') && typeof fetchCartInfo === 'function') {
-            // 하단 카트 바가 있는 경우 총 금액도 함께 조회
-            console.log('🛒 하단 카트 바 초기화');
-            fetchCartInfo();
-        } else if (typeof updateCartBadge === 'function') {
-            // 하단 카트 바가 없는 경우 개수만 조회
-            console.log('🏷️ 배지만 초기화');
-            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
+        // 다른 가게라면 하단 카트 바를 띄우지 않음
+        if (window.storeId) {
+            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COMPARE_STORE + `?storeId=${window.storeId}`))
                 .then(response => response.json())
-                .then(data => updateCartBadge(data.count || 0))
-                .catch(error => console.error('장바구니 개수 로드 실패:', error));
+                .then(data => {
+                    if (data.result === 'success') {
+                        if (data.isDifferentStore) {
+                            console.log('🔄 다른 가게의 메뉴가 장바구니에 있음 - 하단 카트 바 숨김');
+                            return;
+                        }
+                    }
+                    // 같은 가게이거나 장바구니가 비어있으면 하단 카트 바 표시
+                    console.log('🛒 같은 가게 또는 빈 장바구니 - 하단 카트 바 표시');
+                    if (document.getElementById('bottomCartBar')) {
+                        fetchCartInfo();
+                    }
+                })
+                .catch(error => {
+                    console.error('가게 ID 비교 실패:', error);
+                    // 에러 시 기본적으로 하단 카트 바 표시
+                    if (document.getElementById('bottomCartBar')) {
+                        fetchCartInfo();
+                    }
+                });
+        } else {
+            // storeId가 없으면 기본적으로 하단 카트 바 표시
+            if (document.getElementById('bottomCartBar')) {
+                fetchCartInfo();
+            }
         }
     }, 100); // 모든 요소가 완전히 로드된 후 실행
 }
@@ -742,8 +758,6 @@ function createDynamicOptions(extraData) {
                     handleOptionChange(group, this);
                     calculateTotalPrice();
                 });
-
-
 
                 label.appendChild(input);
                 label.appendChild(optionText);
@@ -978,7 +992,7 @@ function addMenuToCart() {
     formData.append('quantity', currentMenuData.quantity);
     formData.append('selectedOptions', JSON.stringify(selectedOptions));
 
-            fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD_WITH_OPTIONS), {
+    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_ADD_WITH_OPTIONS), {
         method: 'POST',
         body: formData
     })
@@ -986,7 +1000,7 @@ function addMenuToCart() {
     .then(response => {
         if (response.result === 'success') {
             // 성공 피드백
-            showCartAddedFeedback();
+            showCartAddedFeedback(response.message);
 
             // 하단 카트 바 업데이트
             if (document.getElementById('bottomCartBar')) {
@@ -995,7 +1009,15 @@ function addMenuToCart() {
 
             // 모달 닫기
             closeMenuDetail();
+        } else if (response.result === 'ongoing_payment') {
+            // 진행중인 결제가 있는 경우 waiting-approval 페이지로 이동
+            showErrorPopup(response.message || '진행중인 결제가 있습니다.');
+            setTimeout(() => {
+                window.location.href = UrlConstants.Builder.fullUrl('/user/cart/waiting-approval');
+            }, 1500);
         } else {
+            // 진행중인 결제가 존재한다면, 해당 결제 페이지로 이동
+
             showErrorPopup(response.message || '장바구니 추가에 실패했습니다.');
         }
     })
@@ -1032,7 +1054,7 @@ function updateCartInfo(cartCount, totalAmount) {
 /**
  * 장바구니 추가 성공 피드백 표시
  */
-function showCartAddedFeedback() {
+function showCartAddedFeedback(message) {
     // 간단한 토스트 메시지 표시
     const toast = document.createElement('div');
     toast.style.cssText = `
@@ -1049,7 +1071,7 @@ function showCartAddedFeedback() {
         opacity: 0;
         transition: opacity 0.3s ease;
     `;
-    toast.textContent = '🛒 장바구니에 추가되었습니다!';
+    toast.textContent = '🛒 ' + message;
     document.body.appendChild(toast);
 
     // 애니메이션

@@ -60,12 +60,11 @@
     </select>
 
     <!-- 발의자 ID로 통합 결제 조회 -->
+    <!-- 현재 진행 중인 결제는 단 하나만 존재해야 함 -->
     <select id="selectOnGoingIntegratedPaymentByLeaderId" resultMap="IntegratedPaymentMap">
         SELECT * FROM integrated_payment
         WHERE integratedpayment_leader_id = #{leaderId}
           AND integratedpayment_status = 'pending'
---         ORDER BY integratedpayment_created_at DESC
---             LIMIT 1
     </select>
 
     <!-- 통합 결제 상태 업데이트 -->

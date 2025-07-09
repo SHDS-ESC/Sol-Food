@@ -14,11 +14,15 @@ public final class CartConstants {
     // === API 응답 관련 상수 ===
     public static final String RESULT_SUCCESS = "success";
     public static final String RESULT_ERROR = "error";
+    public static final String RESULT_ONGOING_PAYMENT = "ongoing_payment";
     
     // === 메시지 상수 ===
     public static final String MSG_LOGIN_REQUIRED = "로그인이 필요합니다.";
     public static final String MSG_CART_ADD_SUCCESS = "장바구니에 추가되었습니다.";
     public static final String MSG_CART_ADD_FAILED = "장바구니 추가에 실패했습니다.";
+    public static final String MSG_CART_ADD_FAILED_ONGOING_PAYMENT = "진행 중인 결제가 존재합니다.";
+    public static final String MSG_CART_ADD_SUCCESS_OTHER_CART = "다른 가게에 장바구니가 존재합니다. 이전 장바구니를 비웁니다.";
+    public static final String MSG_CART_EMPTY = "장바구니가 비어있습니다.";
     public static final String MSG_QUANTITY_UPDATE_SUCCESS = "수량이 변경되었습니다.";
     public static final String MSG_QUANTITY_UPDATE_FAILED = "수량 변경에 실패했습니다.";
     public static final String MSG_ITEM_REMOVE_SUCCESS = "장바구니에서 삭제되었습니다.";
