@@ -40,9 +40,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     // 통합결제ID별 결제 내역 조회
     @Override
-    public List<PaymentVO> getPaymentHistoryByIntergratedpaymentId(int intergratedpaymentId, int page, int size) {
-        int offset = (page - 1) * size;
-        return paymentMapper.selectPaymentsByIntergratedpaymentId(intergratedpaymentId, size, offset);
+    public List<PaymentVO> getPaymentsByIntegratedPaymentId(int integratedPaymentId) {
+        return paymentMapper.selectPaymentsByIntegratedPaymentId(integratedPaymentId);
     }
 
     // Payment 정보 삽입

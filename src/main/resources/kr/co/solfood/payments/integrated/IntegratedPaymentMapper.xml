@@ -33,6 +33,18 @@
         )
     </insert>
 
+    <insert id="insertPaymentMenu" parameterType="map">
+        INSERT INTO payment_menu (
+            integratedpayment_id,
+            menu_id,
+            paymentmenu_count
+        ) VALUES (
+            #{integratedPaymentId},
+            #{cartItem.menuId},
+            #{cartItem.quantity}
+        )
+    </insert>
+
     <!-- ID로 통합 결제 조회 -->
     <select id="selectIntegratedPaymentById" resultMap="IntegratedPaymentMap">
         SELECT * FROM integrated_payment 
@@ -45,6 +57,15 @@
         WHERE integratedpayment_leader_id = #{leaderId}
         ORDER BY integratedpayment_created_at DESC
         LIMIT 1
+    </select>
+
+    <!-- 발의자 ID로 통합 결제 조회 -->
+    <select id="selectOnGoingIntegratedPaymentByLeaderId" resultMap="IntegratedPaymentMap">
+        SELECT * FROM integrated_payment
+        WHERE integratedpayment_leader_id = #{leaderId}
+          AND integratedpayment_status = 'pending'
+--         ORDER BY integratedpayment_created_at DESC
+--             LIMIT 1
     </select>
 
     <!-- 통합 결제 상태 업데이트 -->

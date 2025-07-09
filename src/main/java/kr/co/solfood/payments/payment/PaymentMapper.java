@@ -71,9 +71,7 @@ public interface PaymentMapper extends CommonPaymentMapper {
     /**
      * 통합결제ID로 결제 내역 조회
      */
-    List<PaymentVO> selectPaymentsByIntergratedpaymentId(@Param("intergratedpaymentId") int intergratedpaymentId, 
-                                                        @Param("size") int size, 
-                                                        @Param("offset") int offset);
+    List<PaymentVO> selectPaymentsByIntegratedPaymentId(@Param("integratedpaymentId") int integratedpaymentId);
     
     /**
      * 매장별 결제 내역 조회

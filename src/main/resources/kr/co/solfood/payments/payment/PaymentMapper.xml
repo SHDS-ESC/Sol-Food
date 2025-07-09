@@ -163,11 +163,9 @@
     </select>
 
     <!-- 통합결제ID로 결제 내역 조회 -->
-    <select id="selectPaymentsByIntergratedpaymentId" resultMap="PaymentMap">
+    <select id="selectPaymentsByIntegratedPaymentId" resultMap="PaymentMap">
         SELECT * FROM payment 
-        WHERE integratedpayment_id = #{intergratedpaymentId}
-        ORDER BY payment_created_at DESC
-        LIMIT #{size} OFFSET #{offset}
+        WHERE integratedpayment_id = #{integratedpaymentId}
     </select>
 
     <!-- 매장별 결제 내역 조회 -->
