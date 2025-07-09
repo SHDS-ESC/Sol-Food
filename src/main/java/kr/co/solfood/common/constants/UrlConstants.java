@@ -112,6 +112,8 @@ public final class UrlConstants {
         public static final String USER_CART_WAITING_APPROVAL = "user/cart/waiting-approval";
         public static final String USER_CART_MAKE_BILL = "user/cart/make-bill";
         public static final String USER_CART_PAYMENT_COMPLETE = "user/cart/payment-complete";
+        public static final String USER_REVIEW_EDIT = "user/review/edit";
+        public static final String USER_REVIEW_MY_REVIEW = "user/review/my-review";
         private View() {}
     }
     

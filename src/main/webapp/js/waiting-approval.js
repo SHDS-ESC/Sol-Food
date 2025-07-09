@@ -462,12 +462,12 @@ function cancelInvitation() {
 
 function goToMiniGame() {
     if (selectedFriendsData.length === 0) {
-        alert('참가자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+        showErrorPopup('참가자 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
         return;
     }
     
     if (totalAmount <= 0) {
-        alert('총 결제 금액 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+        showErrorPopup('총 결제 금액 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
         return;
     }
     
@@ -504,13 +504,13 @@ function proceedToPayment(userId) {
     
     // 현재 사용자가 아닌 경우 결제 불가
     if (userId != currentUserId) {
-        alert('본인만 결제할 수 있습니다.');
+        showWarningPopup('본인만 결제할 수 있습니다.');
         return;
     }
     
     const userAmount = splitAmounts[userId];
     if (!userAmount) {
-        alert('결제 금액을 계산할 수 없습니다.');
+        showErrorPopup('결제 금액을 계산할 수 없습니다.');
         return;
     }
     
@@ -548,14 +548,14 @@ function proceedToPayment(userId) {
         // impCode 확인
         if (!window.impCode || window.impCode === '') {
             console.error('❌ impCode가 설정되지 않았습니다!');
-            alert('결제 설정이 올바르지 않습니다.');
+            showErrorPopup('결제 설정이 올바르지 않습니다.');
             return;
         }
         
         // IMP 객체 확인
         if (!window.IMP) {
             console.error('❌ IMP 객체가 없습니다!');
-            alert('결제 라이브러리가 로드되지 않았습니다.');
+            showErrorPopup('결제 라이브러리가 로드되지 않았습니다.');
             return;
         }
         
@@ -563,7 +563,7 @@ function proceedToPayment(userId) {
         if (typeof window.requestPayment !== 'function') {
             console.error('❌ requestPayment 함수가 정의되지 않았습니다!');
             console.error('window.requestPayment:', typeof window.requestPayment);
-            alert('결제 함수가 로드되지 않았습니다. 페이지를 새로고침해주세요.');
+            showErrorPopup('결제 함수가 로드되지 않았습니다. 페이지를 새로고침해주세요.');
             return;
         }
         
@@ -588,7 +588,7 @@ function proceedToPayment(userId) {
             console.log("응답 키들:", Object.keys(rsp));
             
             let apiPath = UrlConstants.Builder.fullUrl("/payments/payment/verifyPayment/" + rsp.imp_uid);
-            let nextPath = UrlConstants.Builder.fullUrl("/user/cart/payment-complete");
+            let nextPath = UrlConstants.Builder.fullUrl("/user/mypage/payment-history");
             
             if (rsp.success) {
                 console.log("Ajax 요청 시작 - URL:", apiPath);
@@ -839,7 +839,7 @@ function showGameResultNotification(gameResult) {
     if (message) {
         // 모달이나 토스트 알림 대신 간단한 alert 사용
         setTimeout(() => {
-            alert(message);
+            showErrorPopup(message);
         }, 100);
         
         // 콘솔에도 로그

@@ -33,6 +33,7 @@ public class ReviewVO {
     private String userNickname;
     private String userProfile;
     private String reviewDateStr;
+    private String storeName;
 
     /**
      * 활성 상태인지 확인

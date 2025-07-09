@@ -216,4 +216,82 @@
           AND review_status = 'Y'
     </select>
 
+    <!-- === 내 리뷰 관리 쿼리 === -->
+    
+    <!-- 내 리뷰 목록 조회 (필터링, 정렬, 페이징) -->
+    <select id="selectMyReviews" resultType="kr.co.solfood.user.review.ReviewVO">
+        SELECT 
+            r.review_id,
+            r.users_id,
+            r.store_id,
+            r.userspayment_id,
+            r.reviewcomment_id,
+            r.review_star,
+            r.review_image,
+            r.review_date,
+            r.review_status,
+            r.review_title,
+            r.review_content,
+            r.review_response,
+            s.store_name AS storeName
+        FROM review r
+        JOIN store s ON r.store_id = s.store_id
+        WHERE r.users_id = #{usersId}
+          AND r.review_status = 'Y'
+        <choose>
+            <when test="filter == 'recent'">
+                AND r.review_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            </when>
+            <when test="filter == 'high-rating'">
+                AND r.review_star >= 4
+            </when>
+            <when test="filter == 'low-rating'">
+                AND r.review_star &lt;= 2
+            </when>
+        </choose>
+        <choose>
+            <when test="sort == 'latest'">
+                ORDER BY r.review_date DESC
+            </when>
+            <when test="sort == 'oldest'">
+                ORDER BY r.review_date ASC
+            </when>
+            <when test="sort == 'rating-high'">
+                ORDER BY r.review_star DESC, r.review_date DESC
+            </when>
+            <when test="sort == 'rating-low'">
+                ORDER BY r.review_star ASC, r.review_date DESC
+            </when>
+            <otherwise>
+                ORDER BY r.review_date DESC
+            </otherwise>
+        </choose>
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+    
+    <!-- 내 리뷰 총 개수 조회 -->
+    <select id="selectMyReviewCount" parameterType="int" resultType="int">
+        SELECT COUNT(*)
+        FROM review
+        WHERE users_id = #{usersId}
+          AND review_status = 'Y'
+    </select>
+    
+    <!-- 내 리뷰 평균 별점 조회 -->
+    <select id="selectMyReviewAvgRating" parameterType="int" resultType="double">
+        SELECT COALESCE(ROUND(AVG(review_star), 1), 0.0)
+        FROM review
+        WHERE users_id = #{usersId}
+          AND review_status = 'Y'
+    </select>
+    
+    <!-- 내 리뷰 이번 달 개수 조회 -->
+    <select id="selectMyReviewCountThisMonth" parameterType="int" resultType="int">
+        SELECT COUNT(*)
+        FROM review
+        WHERE users_id = #{usersId}
+          AND review_status = 'Y'
+          AND review_date >= DATE_FORMAT(NOW(), '%Y-%m-01')
+    </select>
+
 </mapper> 

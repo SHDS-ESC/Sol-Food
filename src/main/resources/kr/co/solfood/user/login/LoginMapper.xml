@@ -10,6 +10,7 @@
         SELECT *
         FROM users
         WHERE users_kakao_id = #{usersKakaoId}
+        AND users_status = 'active'
     </select>
 
     <!-- 유저 회원 가입 (공용) -->
@@ -57,6 +58,7 @@
         LEFT JOIN department d ON u.department_id = d.department_id
         WHERE u.users_email = #{usersEmail}
           AND u.users_pwd = md5(#{usersPwd})
+          AND u.users_status = 'active'
     </select>
 
     <!--비밀번호 찾기-->

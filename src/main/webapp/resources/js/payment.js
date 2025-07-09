@@ -19,7 +19,7 @@
  */
 function requestPayment(options, callback) {
     if (!window.IMP) {
-        alert("아임포트 라이브러리가 로드되지 않았습니다.");
+        showErrorPopup("아임포트 라이브러리가 로드되지 않았습니다.");
         return;
     }
     var IMP = window.IMP;
@@ -72,15 +72,15 @@ function cancelPayment(impUid, cancelAmount, cancelReason) {
         data: JSON.stringify(requestData),
         success: function(response) {
             if (response.success) {
-                alert('결제가 성공적으로 취소되었습니다.');
+                showSuccessPopup('결제가 성공적으로 취소되었습니다.');
                 // 페이지 새로고침 또는 내역 업데이트
                 location.reload();
             } else {
-                alert('결제 취소 실패: ' + response.message);
+                showErrorPopup('결제 취소 실패: ' + response.message);
             }
         },
         error: function(xhr, status, error) {
-            alert('결제 취소 처리 중 오류가 발생했습니다: ' + error);
+            showErrorPopup('결제 취소 처리 중 오류가 발생했습니다: ' + error);
         }
     });
 }
@@ -101,14 +101,14 @@ function checkCancelable(impUid, callback) {
                         callback(response.charge_info, response.cancelable_amount);
                     }
                 } else {
-                    alert('이미 취소되었거나 취소할 수 없는 결제입니다.');
+                    showWarningPopup('이미 취소되었거나 취소할 수 없는 결제입니다.');
                 }
             } else {
-                alert('취소 가능 여부 확인 실패: ' + response.message);
+                showErrorPopup('취소 가능 여부 확인 실패: ' + response.message);
             }
         },
         error: function(xhr, status, error) {
-            alert('취소 가능 여부 확인 중 오류가 발생했습니다: ' + error);
+            showErrorPopup('취소 가능 여부 확인 중 오류가 발생했습니다: ' + error);
         }
     });
 }
@@ -127,12 +127,12 @@ function partialRefund(impUid, maxAmount) {
     
     const amount = parseInt(refundAmount);
     if (isNaN(amount) || amount <= 0) {
-        alert('올바른 금액을 입력해주세요.');
+        showWarningPopup('올바른 금액을 입력해주세요.');
         return;
     }
     
     if (amount > maxAmount) {
-        alert('환불 가능 금액을 초과했습니다.');
+        showWarningPopup('환불 가능 금액을 초과했습니다.');
         return;
     }
     
@@ -177,7 +177,7 @@ function showPaymentSuccessAlert(title, text, nextPath) {
             }
         });
     } else {
-        alert(title || "결제가 완료되었습니다!");
+        showSuccessPopup(title || "결제가 완료되었습니다!");
         if (nextPath) {
             window.location.replace(nextPath);
         }
@@ -198,6 +198,6 @@ function showPaymentErrorAlert(title, text) {
             confirmButtonText: "확인"
         });
     } else {
-        alert(title || "결제 실패: " + (text || "결제 처리 중 오류가 발생했습니다."));
+        showErrorPopup(title || "결제 실패: " + (text || "결제 처리 중 오류가 발생했습니다."));
     }
 } 

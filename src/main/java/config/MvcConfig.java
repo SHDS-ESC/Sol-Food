@@ -102,7 +102,9 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userLoginInterceptor())
                 .addPathPatterns(UrlConstants.User.BASE + "/**")
-                .excludePathPatterns(UrlConstants.User.LOGIN_BASE + "/**");
+                .excludePathPatterns(UrlConstants.User.LOGIN_BASE + "/**")
+                .excludePathPatterns(UrlConstants.User.MYPAGE_BASE )  // 비회원 마이페이지
+                .excludePathPatterns(UrlConstants.User.MYPAGE_BASE + "/non-user-mypage");  // 비회원 마이페이지
 
         registry.addInterceptor(adminLoginInterceptor())
                 .addPathPatterns(UrlConstants.Admin.BASE + "/**")

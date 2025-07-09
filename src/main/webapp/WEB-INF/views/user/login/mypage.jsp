@@ -49,7 +49,7 @@
             </a>
         </section>
         <div class="main-menu-grid">
-            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/info">
+            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/edit">
                 <span><span class="menu-icon">👤</span>내 정보 수정</span>
           <div class="menu-arrow">&gt;</div>
             </a>
@@ -61,7 +61,7 @@
                 <span><span class="menu-icon">💳</span>결제 내역</span>
                 <span class="menu-arrow">&gt;</span>
             </a>
-            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/review">
+            <a class="menu-card" href="${pageContext.request.contextPath}/user/review/my-review">
                 <span><span class="menu-icon">💬</span>리뷰 관리</span>
                 <span class="menu-arrow">&gt;</span>
             </a>
@@ -101,6 +101,7 @@
   </div>
 </div>
 
+<script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/darkmode.js' />"></script>
 
