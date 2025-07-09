@@ -104,7 +104,7 @@ public class MvcConfig implements WebMvcConfigurer, InitializingBean {
                 .excludePathPatterns(UrlConstants.User.MYPAGE_BASE )  // 비회원 마이페이지
                 .excludePathPatterns(UrlConstants.User.MYPAGE_BASE + "/non-user-mypage")  // 비회원 마이페이지
                 .excludePathPatterns(UrlConstants.User.LOGIN_BASE + "/**")
-                .excludePathPatterns("/user/store/api/popular");
+                .excludePathPatterns(UrlConstants.User.STORE_BASE + "/api/popular");
 
         registry.addInterceptor(adminLoginInterceptor())
                 .addPathPatterns(UrlConstants.Admin.BASE + "/**")
