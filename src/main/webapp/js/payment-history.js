@@ -9,8 +9,19 @@ const pageSize = 10;
 document.addEventListener('DOMContentLoaded', function() {
     loadPaymentHistory(currentPage);
     
-    // 모달 이벤트 리스너
-    setupModalEvents();
+    // URL 파라미터에서 리뷰 작성 완료 플래그 확인
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reviewCompleted') === 'true') {
+        // 리뷰 작성 완료 후 돌아온 경우, 즉시 내역 새로고침
+        loadPaymentHistory(currentPage);
+        
+        // 성공 메시지 표시
+        SolFoodUtils.showToast('리뷰가 성공적으로 작성되었습니다!', 'success');
+        
+        // URL에서 파라미터 제거 (브라우저 히스토리 정리)
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
 });
 
 function loadPaymentHistory(page) {
@@ -89,10 +100,36 @@ function displayHistory(history) {
         actions.append(cancelBtn);
         // 리뷰 작성 버튼
         const reviewBtn = $('<button class="review-btn">').text('리뷰작성');
-        reviewBtn.click(function() {
-            showStoreIdModal();
-        });
+        
+        // 결제 완료 상태이고 리뷰를 작성하지 않은 경우에만 리뷰 작성 가능
+        if (charge.status === 'paid' && !charge.hasReview) {
+            reviewBtn.click(function() {
+                // 통합결제ID로 가게ID 조회 후 리뷰 작성 페이지로 이동
+                if (charge.integratedpaymentId) {
+                    getStoreIdAndRedirect(charge.integratedpaymentId, charge.paymentId);
+                } else {
+                    SolFoodUtils.showToast('결제 정보에 가게 정보가 없습니다.', 'error');
+                }
+            });
+        } else if (charge.hasReview) {
+            // 이미 리뷰를 작성한 경우
+            reviewBtn.text('리뷰 완료').prop('disabled', true).addClass('review-completed');
+        } else if (charge.status !== 'paid') {
+            // 결제가 완료되지 않은 경우
+            reviewBtn.text('결제 완료 후 가능').prop('disabled', true).addClass('review-disabled');
+        }
+        
         actions.append(reviewBtn);
+        
+        // 가게 상세 페이지 버튼 (결제 완료된 경우에만)
+        if (charge.status === 'paid' && charge.integratedpaymentId) {
+            const storeBtn = $('<button class="store-btn">').text('가게 보기');
+            storeBtn.click(function() {
+                // 통합결제ID로 가게ID 조회 후 가게 상세 페이지로 이동
+                getStoreIdAndGoToStore(charge.integratedpaymentId);
+            });
+            actions.append(storeBtn);
+        }
         card.append(actions);
         list.append(card);
     });
@@ -118,45 +155,48 @@ function getStatusClass(status) {
     }
 }
 
-// 가게 ID 입력 모달 관련 함수들
-function showStoreIdModal() {
-    $('#storeIdModal').show();
-    $('#storeIdInput').focus();
-}
 
-function hideStoreIdModal() {
-    $('#storeIdModal').hide();
-    $('#storeIdInput').val('');
-}
 
-function setupModalEvents() {
-    // 모달 이벤트 리스너
-    $('#confirmStoreId').click(function() {
-        const storeId = $('#storeIdInput').val().trim();
-        if (!storeId) {
-            SolFoodUtils.showToast('가게 ID를 입력해주세요.', 'error');
-            return;
-        }
-        
-        // 리뷰 작성 페이지로 이동
-        window.location.href = UrlConstants.Builder.fullUrl('/user/review/write?storeId=' + storeId);
-    });
-    
-    $('#cancelStoreId').click(function() {
-        hideStoreIdModal();
-    });
-    
-    // 모달 외부 클릭 시 닫기
-    $(window).click(function(event) {
-        if (event.target == document.getElementById('storeIdModal')) {
-            hideStoreIdModal();
+// 통합결제ID로 가게ID 조회 후 리뷰 작성 페이지로 이동
+function getStoreIdAndRedirect(integratedPaymentId, paymentId) {
+    $.ajax({
+        url: UrlConstants.Builder.fullUrl('/payments/payment/storeId'),
+        type: 'GET',
+        data: {
+            integratedPaymentId: integratedPaymentId
+        },
+        success: function(response) {
+            if (response.success && response.data) {
+                // 가게ID와 paymentId로 리뷰 작성 페이지로 이동
+                window.location.href = UrlConstants.Builder.fullUrl('/user/review/write?storeId=' + response.data + '&paymentId=' + paymentId);
+            } else {
+                SolFoodUtils.showToast('가게 정보를 찾을 수 없습니다.', 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            SolFoodUtils.showToast('가게 정보 조회 중 오류가 발생했습니다: ' + error, 'error');
         }
     });
-    
-    // Enter 키로 확인
-    $('#storeIdInput').keypress(function(e) {
-        if (e.which == 13) { // Enter key
-            $('#confirmStoreId').click();
+}
+
+// 통합결제ID로 가게ID 조회 후 가게 상세 페이지로 이동
+function getStoreIdAndGoToStore(integratedPaymentId) {
+    $.ajax({
+        url: UrlConstants.Builder.fullUrl('/payments/payment/storeId'),
+        type: 'GET',
+        data: {
+            integratedPaymentId: integratedPaymentId
+        },
+        success: function(response) {
+            if (response.success && response.data) {
+                // 가게ID로 가게 상세 페이지로 이동
+                window.location.href = UrlConstants.Builder.fullUrl('/user/store/detail?storeId=' + response.data);
+            } else {
+                SolFoodUtils.showToast('가게 정보를 찾을 수 없습니다.', 'error');
+            }
+        },
+        error: function(xhr, status, error) {
+            SolFoodUtils.showToast('가게 정보 조회 중 오류가 발생했습니다: ' + error, 'error');
         }
     });
 }
