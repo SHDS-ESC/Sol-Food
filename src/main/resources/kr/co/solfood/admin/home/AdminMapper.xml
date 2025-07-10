@@ -3,17 +3,17 @@
 <mapper namespace="kr.co.solfood.admin.home.AdminMapper">
     <select id="getUsers" parameterType="String" resultType="kr.co.solfood.admin.dto.UserSearchResponseDTO">
         SELECT
-            U.users_id,
-            users_profile,
-            users_name,
-            users_nickname,
-            users_login_type,
-            users_email,
-            department_name,
-            YEAR(CURDATE()) - YEAR(users_birth) AS usersAge,
-            users_gender,
-            users_status,
-            users_rejected_reason
+        U.users_id,
+        users_profile,
+        users_name,
+        users_nickname,
+        users_login_type,
+        users_email,
+        department_name,
+        YEAR(CURDATE()) - YEAR(users_birth) AS usersAge,
+        users_gender,
+        users_status,
+        users_rejected_reason
         FROM users U
         JOIN department D ON U.department_id = D.department_id
         <where>
@@ -43,7 +43,8 @@
         GROUP BY DAY (users_created_at);
     </select>
 
-    <select id="getOwners" parameterType="kr.co.solfood.admin.dto.OwnerSearchRequestDTO" resultType="kr.co.solfood.admin.dto.OwnerSearchResponseDTO">
+    <select id="getOwners" parameterType="kr.co.solfood.admin.dto.OwnerSearchRequestDTO"
+            resultType="kr.co.solfood.admin.dto.OwnerSearchResponseDTO">
         SELECT O.owner_id AS ownerId,
         store_mainimage,
         store_name,
@@ -135,4 +136,76 @@
         </set>
         WHERE users_id = #{usersId}
     </update>
+
+    <select id="getCommunityResponsesCount" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM board B
+        JOIN users U ON B.users_id = U.users_id
+        <where>
+            <if test="query != null and query != ''">
+                users_nickname LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="communityResponses" parameterType="kr.co.solfood.admin.dto.CommunityRequestDto"
+            resultType="kr.co.solfood.admin.dto.CommunityResponseDto">
+        SELECT B.board_id,
+        U.users_id,
+        U.users_nickname,
+        B.board_title,
+        B.board_status,
+        B.board_date,
+        B.board_viewcount
+        FROM board B
+        JOIN users U ON B.users_id = U.users_id
+        <where>
+            <if test="query != null and query != ''">
+                U.users_nickname LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
+        ORDER BY B.board_id
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="getOwnerReviewsCount" parameterType="String" resultType="int">
+        SELECT COUNT(*)
+        FROM review R
+        JOIN users U ON R.users_id = U.users_id
+        JOIN store S ON R.store_id = S.store_id
+        <where>
+            review_status = 'Y'
+            <if test="query != null and query != ''">
+                AND review_content LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getOwnerReviews" parameterType="kr.co.solfood.admin.dto.OwnerReviewRequestDto"
+            resultType="kr.co.solfood.admin.dto.OwnerReviewResponseDto">
+        SELECT R.review_id,
+        U.users_id,
+        S.store_id,
+        R.review_star,
+        R.review_content,
+        R.review_date
+        FROM review R
+        JOIN users U ON R.users_id = U.users_id
+        JOIN store S ON R.store_id = S.store_id
+        <where>
+            review_status = 'Y'
+            <if test="query != null and query != ''">
+                AND review_content LIKE CONCAT('%', #{query}, '%')
+            </if>
+        </where>
+        ORDER BY R.review_id
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <update id="deleteOwnerReview" parameterType="long">
+        UPDATE review
+        SET review_status = 'N'
+        WHERE review_id = #{reviewId}
+    </update>
+
 </mapper>

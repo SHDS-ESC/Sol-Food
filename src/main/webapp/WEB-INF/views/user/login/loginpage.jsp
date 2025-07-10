@@ -34,6 +34,7 @@ uri="http://www.springframework.org/tags/form" %>
       <script>
         $(function () {
           showWarningPopup("${msg}");
+          window.location.href = "${pageContext.request.contextPath}/user/login";
         });
       </script>
     </c:if>
@@ -136,11 +137,8 @@ uri="http://www.springframework.org/tags/form" %>
           <div class="footer flex flex-sa" style="left: 0">
             <button class="footer-btn" type="submit">로그인</button>
           </div>
-          <a href="https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}${pageContext.request.contextPath}/user/login/kakao-login&response_type=code"
-             class="kakao-login">
-            <span style="margin: 0">💬</span>
-            카카오로 간편 로그인
-          </a>
+          <img src="${pageContext.request.contextPath}/img/kakao_login_medium_wide.png" onclick="location.href=`https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}${pageContext.request.contextPath}/user/login/kakao-login&response_type=code`">
+
         </form>
 
 

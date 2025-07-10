@@ -26,4 +26,14 @@ public interface AdminMapper {
     OwnerSearchResponseDTO detailStoreInfo(String ownerId);
 
     int updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO);
+
+    List<OwnerReviewResponseDto> getOwnerReviews(OwnerReviewRequestDto ownerReviewRequestDto);
+
+    List<CommunityResponseDto> communityResponses(CommunityRequestDto communityRequestDto);
+
+    int getOwnerReviewsCount(OwnerReviewRequestDto ownerReviewRequestDto);
+
+    int getCommunityResponsesCount(CommunityRequestDto communityRequestDto);
+
+    void deleteOwnerReview(long reviewId);
 }

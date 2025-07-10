@@ -8,6 +8,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'GmarketSansMedium';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --color-main: #ff4d6d;
   --color-main-hover: #eb183f;
@@ -17,7 +24,7 @@
   --color-border: #757575;
   --color-white: #fff;
   --color-black: #000;
-  --font-main: "Pretendard-Regular";
+  --font-main: "GmarketSansMedium";
   --color-text: #000;
   --color-text-muted: #666;
   --color-bg: #fff;
@@ -269,6 +276,7 @@ body {
 .header .bi-moon,
 .header .bi-brightness-high,
 .header .bi-envelope,
+.bi-three-dots,
 .header .bi-list {
   padding: 7px;
   border-radius: 10px;
@@ -280,6 +288,7 @@ body {
 .header .bi-moon:hover,
 .header .bi-brightness-high:hover,
 .header .bi-envelope:hover,
+.bi-three-dots:hover,
 .header .bi-list:hover {
   padding: 7px;
   border-radius: 10px;

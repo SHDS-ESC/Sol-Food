@@ -17,4 +17,10 @@ public interface AdminHomeService {
     OwnerSearchResponseDTO detailStoreInfo(String ownerId);
 
     void updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO);
+
+    PageMaker<OwnerReviewResponseDto> getOwnerReviews(OwnerReviewRequestDto ownerReviewRequestDto);
+
+    PageMaker<CommunityResponseDto> getCommunityResponses(CommunityRequestDto communityRequestDto);
+
+    void deleteOwnerReview(long reviewId);
 }
