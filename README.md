@@ -1,4 +1,4 @@
-# 🍽️ Sol-Food - 홍대 맛집 리뷰 플랫폼
+# 🍽️ Sol-Food - 홍대 주변 맛집 리뷰 플랫폼
 
 <div align="center">
 
@@ -38,7 +38,7 @@
 
 ## 📖 프로젝트 개요
 
-**Sol-Food**는 홍대입구역 주변의 다양한 맛집 정보를 제공하고, 사용자들이 직접 리뷰를 작성하고 공유할 수 있는 웹 플랫폼입니다. 카카오 Local API를 활용한 자동 데이터 수집과 사용자 참여형 리뷰 시스템을 통해 신뢰할 수 있는 맛집 정보를 제공합니다.
+Sol-Food는 홍대입구역 **주변**의 다양한 맛집 정보를 제공하고, 사용자들이 직접 리뷰를 작성하고 공유할 수 있는 웹 플랫폼입니다. 카카오 Local API를 활용한 자동 데이터 수집, 사용자 참여형 리뷰 시스템, 강력한 관리자/점주/사용자 권한 분리, 결제 관리 등 실전 서비스 수준의 기능을 제공합니다.
 
 ### 🎯 주요 특징
 
@@ -119,162 +119,160 @@
 - **사용자 관리**: 회원 정보 조회 및 관리
 - **가게 크롤링**: 카카오 API를 통한 자동 가게 정보 수집
 - **통계 대시보드**: 사용자 활동 및 가게 통계 확인
+- **결제 관리**: 통합결제 내역 조회 및 상세 페이지
 
 ---
 
-## 🏗️ 아키텍처
+## 📁 폴더/모듈 구조 및 역할
 
 ```
-Sol-Food/
-├── 📁 src/main/java/kr/co/solfood/
-│   ├── 👤 user/           # 일반 사용자 기능
-│   │   ├── login/         # 로그인/회원가입
-│   │   ├── store/         # 맛집 정보
-│   │   ├── review/        # 리뷰 시스템
-│   │   ├── menu/          # 메뉴 관리
-│   │   └── mypage/        # 마이페이지
-│   ├── 🏪 owner/          # 점주 기능
-│   │   └── login/         # 점주 로그인
-│   ├── 👨‍💼 admin/         # 관리자 기능
-│   │   ├── home/          # 관리자 홈
-│   │   ├── crawler/       # 웹 크롤링
-│   │   └── dto/           # 데이터 전송 객체
-│   └── ⚙️ configuration/  # 설정 클래스
-├── 📁 src/main/resources/
-│   ├── 📄 kr/co/solfood/  # MyBatis 매퍼 XML
-│   └── 📄 webapp/         # JSP 뷰 파일
-└── 📁 src/test/           # 테스트 코드
-```
+src/main/java/kr/co/solfood/
+├── user/      # 일반 사용자(로그인, 게시판, 마이페이지, 리뷰, 카트, 가게, 메뉴, 좋아요, 게임, 카테고리 등)
+├── owner/     # 점주(로그인, 가게, 리뷰, 메뉴)
+├── admin/     # 관리자(홈, 로그인, 크롤러, DTO, 결제관리 등)
+├── payments/  # 결제(통합결제, 단일결제, 공통, 충전 등)
+├── common/    # 공통 상수, S3 등
+├── util/      # 예외, 페이징, 에러코드 등 유틸리티
 
-### 🔄 데이터 흐름
+src/main/resources/kr/co/solfood/
+├── user/      # 사용자 매퍼(Board, Login, Store, Review, Mypage 등)
+├── owner/     # 점주 매퍼
+├── admin/     # 관리자 매퍼(Home, Login)
+├── payments/  # 결제 매퍼(Payment, Integrated, Charge)
 
-```
-사용자 요청 → Controller → Service → Mapper → Database
-                ↓
-            View(JSP) ← Model ← Service ← Mapper
-```
+src/main/webapp/WEB-INF/views/
+├── user/      # 사용자 JSP(로그인, 게시판, 가게, 마이페이지, 리뷰, 카트, 게임 등)
+├── owner/     # 점주 JSP(가게, 메뉴, 리뷰, 매출 등)
+├── admin/     # 관리자 JSP(홈, 사용자/점주/결제/리뷰 관리, 로그인 등)
+│   └── payment-management/ (home.jsp, detail.jsp)
+├── common/    # 공통 헤더 등
 
----
+src/main/webapp/js/admin/
+├── payment-management.js  # 결제관리 JS
+├── user-management.js     # 사용자관리 JS
+├── owner-management.js    # 점주관리 JS
 
-## 🛠️ 기술 스택
+src/main/webapp/css/admin/
+├── payment-management.css  # 결제관리 CSS
+├── user-management.css     # 사용자관리 CSS
+├── owner-management.css    # 점주관리 CSS
 
-### 🎯 Backend
-- **Java 11**: 메인 프로그래밍 언어
-- **Spring Framework 5.2.25**: 웹 애플리케이션 프레임워크
-- **Spring MVC**: 웹 MVC 패턴 구현
-- **MyBatis 3.5.19**: ORM 프레임워크
-- **HikariCP 6.3.0**: 데이터베이스 커넥션 풀
-
-### 🗄️ Database
-- **Oracle Database 19c**: 메인 데이터베이스
-- **MariaDB 3.5.3**: 대체 데이터베이스 지원
-- **log4jdbc**: SQL 로깅
-
-### 🌐 Frontend
-- **JSP**: 서버 사이드 뷰 템플릿
-- **JSTL**: JSP 표준 태그 라이브러리
-- **Kakao Maps API**: 지도 및 위치 서비스
-- **Bootstrap**: 반응형 UI 프레임워크
-
-### 🔧 개발 도구
-- **Maven**: 빌드 및 의존성 관리
-- **Lombok**: 보일러플레이트 코드 제거
-- **JUnit 5**: 단위 테스트
-- **Mockito**: 모킹 프레임워크
-
-### 📡 외부 API
-- **Kakao Local API**: 맛집 정보 수집
-- **Kakao Maps JavaScript API**: 지도 서비스
-
----
-
-## 📊 주요 기능 상세
-
-### 🗺️ 맛집 검색 시스템
-```java
-@GetMapping("/user/store")
-public String getStoreList(@RequestParam String category, Model model) {
-   List<StoreVO> storeList = service.getCategoryStore(category);
-   model.addAttribute("store", storeList);
-   return "user/store";
-}
-```
-
-### ⭐ 리뷰 시스템
-- **별점 평가**: 1~5점 별점 시스템
-- **리뷰 작성**: 제목, 내용, 별점, 사진 업로드
-- **통계 제공**: 평균 별점, 별점별 개수 통계
-
-### 🤖 자동 크롤링
-```java
-@Component
-public class StoreWebCrawler {
-   public List<StoreVO> crawlHongdaeRestaurants() {
-      // 카카오 Local API를 통한 홍대 맛집 정보 수집
-   }
-}
 ```
 
 ---
 
-## 🧪 테스트
+## 🏗️ 아키텍처 및 데이터 흐름
 
-### 단위 테스트 실행
-```bash
-mvn test
+```
+사용자/관리자 요청
+  ↓
+Controller (ex: AdminHomeController)
+  ↓
+Service (ex: AdminHomeService)
+  ↓
+Mapper (MyBatis, ex: AdminMapper.xml, PaymentMapper.xml 등)
+  ↓
+DB
+  ↑
+Model(DTO) → JSP View (ex: payment-management/detail.jsp)
 ```
 
-### 주요 테스트 케이스
-- `LoginServiceImplTest`: 로그인 서비스 테스트
-- `ExceptionTest`: 예외 처리 테스트
-- `AdminTest`: 관리자 기능 테스트
+- **결제 상세**: PageMaker<PaymentDistinctResponseDto>로 여러 결제 정보 리스트 전달
+- JSP에서 forEach로 반복, 각 인원별 상세를 아코디언+카드로 출력
+- DTO의 날짜 필드는 LocalDateTime → JSP에서 문자열로 출력
+- 매퍼 XML은 src/main/resources/kr/co/solfood/ 하위에 기능별로 분리
 
 ---
 
-## 📈 성능 최적화
+## 🌟 결제관리 상세 페이지 (관리자)
 
-### 🚀 성능 개선 사항
-- **HikariCP**: 고성능 커넥션 풀 사용
-- **MyBatis**: 효율적인 SQL 매핑
-- **캐싱**: 자주 조회되는 데이터 캐싱
-- **인덱싱**: 데이터베이스 인덱스 최적화
+- **경로**: `/admin/payment-management/detail?integratedpaymentId=...`
+- **기능**:
+  - 통합결제ID로 여러 인원의 결제 내역을 한 번에 조회
+  - 각 인원의 결제 상세를 아코디언(토글)으로 펼쳐서 확인
+  - 결제 정보(금액, 상태, 수단 등), 결제자 정보, 사용자 정보(프로필 포함) 등 섹션별 카드로 구분
+  - Bootstrap 5 적용, 반응형/컬러/아이콘/뱃지 등 시각적 강조
+  - 영수증 바로가기, 결제 취소 등 액션 버튼
+  - 에러 발생 시 사용자 친화적 안내
+
+#### 📄 JSP 구조 예시
+```jsp
+<div class="accordion" id="paymentAccordion">
+  <c:forEach var="detail" items="${paymentDetail.list}" varStatus="status">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="heading${status.index}">
+        <button class="accordion-button collapsed" ...>
+          <span class="me-2">💳</span> <b>${detail.usersName}</b> <span class="text-muted">/ 결제ID: ${detail.paymentId}</span>
+        </button>
+      </h2>
+      <div id="collapse${status.index}" ...>
+        <div class="accordion-body">
+          <div class="row g-4">
+            <div class="col-md-6"> ...결제 정보 카드... </div>
+            <div class="col-md-6"> ...결제자 정보 카드... </div>
+          </div>
+          <hr/>
+          <div class="row g-4">
+            <div class="col-md-12"> ...사용자 정보 카드... </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </c:forEach>
+</div>
+```
+
+#### 🛠️ 기술 포인트
+- Bootstrap 5 CDN 적용 (CSS/JS)
+- JSTL forEach, 조건문, 뱃지/아이콘/컬러 등 적극 활용
+- DTO의 LocalDateTime은 JSP에서 문자열로 출력 (formatDate 사용 X)
+- 컨트롤러에서 PageMaker로 리스트 전달, JSP에서 반복문으로 출력
+- 에러 발생 시 500 에러 안내 및 원인(날짜 타입 등) 명확히 처리
 
 ---
 
-## 🔒 보안
+## 🛠️ 사용 기술/라이브러리
 
-### 🔐 보안 기능
-- **인터셉터**: 로그인 상태 검증
-- **세션 관리**: 안전한 세션 처리
-- **SQL 인젝션 방지**: MyBatis 파라미터 바인딩
-- **XSS 방지**: 입력 데이터 검증
+### Backend
+- Java 11, Spring Framework 5.2.25, Spring MVC, MyBatis 3.5.19, HikariCP 6.3.0
+- Lombok, JUnit5, Mockito, log4jdbc
 
----
+### Database
+- Oracle 19c, MariaDB 3.5.3
 
-## 🤝 기여하기
+### Frontend
+- JSP, JSTL, Bootstrap 5, Kakao Maps API, jQuery(일부), CSS/JS 분리
 
-1. **Fork** the Project
-2. **Create** your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the Branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
+### 외부 API
+- Kakao Local API, Kakao Maps JavaScript API
 
----
-
-## 📝 라이선스
-
-이 프로젝트는 **MIT 라이선스** 하에 배포됩니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+### 기타
+- S3 파일 업로드, 페이징 유틸, 커스텀 예외/에러코드, 세션/인터셉터 보안 등
 
 ---
 
-## 📞 문의
-
-- **이메일**: contact@sol-food.com
-- **이슈 트래커**: [GitHub Issues](https://github.com/your-username/sol-food/issues)
-- **문서**: [Wiki](https://github.com/your-username/sol-food/wiki)
+## 🧩 DTO/매퍼/컨트롤러/뷰 연동
+- DTO는 기능별로 src/main/java/kr/co/solfood/*/dto/에 위치
+- 매퍼 XML은 src/main/resources/kr/co/solfood/*/에 위치, 기능별로 분리
+- 컨트롤러는 각 도메인별로 분리, Model에 DTO/리스트/페이징 객체 전달
+- JSP는 forEach, 조건문, Bootstrap 카드/아코디언 등으로 데이터 시각화
+- JS/CSS는 기능별로 분리, 관리자 결제관리 전용 payment-management.js/css 존재
 
 ---
 
-**🍽️ Sol-Food와 함께 맛있는 홍대 맛집을 발견하세요!**
+## 🛡️ 에러 처리/보안
+- LocalDateTime 등 날짜 타입은 JSP에서 문자열로 출력, formatDate 사용 시 500에러 주의
+- CustomException, ErrorCode, ErrorResponseEntity 등으로 예외/에러 일관 처리
+- 세션/인터셉터로 관리자/점주/사용자 권한 분리 및 인증
+- SQL 인젝션 방지, XSS 방지, 입력 검증 등 보안 적용
 
-[⬆️ 맨 위로](#-sol-food---홍대-맛집-리뷰-플랫폼)
+---
+
+## 🧪 테스트/기여/문의
+- JUnit5, Mockito 기반 단위/통합 테스트
+- 테스트 코드 src/test/java/kr/co/solfood/ 하위에 위치
+- 기여: Fork & PR, 이슈/문의는 GitHub Issues 또는 contact@sol-food.com
+
+---
+
+**🍽️ Sol-Food와 함께 홍대 주변 맛집을 발견하고, 강력한 관리자 결제 관리 기능으로 운영 효율을 높이세요!**
