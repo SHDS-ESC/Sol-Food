@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.co.solfood.user.board.BoardMapper">
+
+    <!--게시판 등록-->
+    <insert id="saveBoard" parameterType="kr.co.solfood.user.board.BoardVO" >
+        INSERT INTO board (
+            users_id,
+            board_title,
+            board_content,
+            board_image,
+            board_date,
+            board_viewcount
+        )
+        VALUES (
+            #{usersId},
+            #{boardTitle},
+            #{boardContent},
+            #{boardImage},
+            CURDATE(),
+            0
+           )
+    </insert>
+
+    <!--게시판 목록-->
+    <select id="getBoardList" resultType="kr.co.solfood.user.board.BoardVO">
+        SELECT
+            b.board_id,
+            b.users_id,
+            b.board_title,
+            b.board_content,
+            b.board_viewcount,
+            b.board_image,
+            b.board_date,
+            b.board_status,
+            (SELECT COUNT(*) FROM comment c WHERE c.board_id = b.board_id) AS comment_count,
+
+            u.users_nickname AS board_wirter,      -- 작성자 닉네임
+            u.users_profile AS board_writer_image  -- 작성자 프로필
+        FROM board b
+                 JOIN users u ON b.users_id = u.users_id
+        ORDER BY b.board_id DESC
+            LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+
+    <!--게시판 단건 조회-->
+    <select id="getBoardDetail" parameterType="int" resultType="kr.co.solfood.user.board.BoardVO">
+        SELECT
+            b.board_id,
+            b.users_id,
+            b.board_title,
+            b.board_content,
+            b.board_image,
+            b.board_date,
+            b.board_viewcount,
+            (SELECT COUNT(*) FROM comment c WHERE c.board_id = b.board_id) AS comment_count, -- ← 쉼표 추가
+            u.users_nickname AS board_wirter,        -- 작성자 닉네임
+            u.users_profile AS board_writer_image    -- 작성자 프로필
+        FROM board b
+                 JOIN users u ON b.users_id = u.users_id
+        WHERE b.board_id = #{boardId}
+    </select>
+
+
+    <!-- 조회수 증가 -->
+    <update id="updateViewCount" parameterType="int">
+        UPDATE board
+        SET board_viewcount = board_viewcount + 1
+        WHERE board_id = #{boardId}
+    </update>
+
+    <!--게시판 수정-->
+    <update id="updateBoard" parameterType="kr.co.solfood.user.board.BoardVO">
+        UPDATE board
+        SET
+        board_title = #{boardTitle},
+        board_content = #{boardContent},
+        board_image = #{boardImage},
+        board_date = CURDATE()
+        WHERE board_id = #{boardId}
+        AND users_id = #{usersId} <!-- 🔐 작성자 본인만 수정 가능 -->
+    </update>
+
+    <!--게시글 삭제-->
+    <delete id="deleteBoard" parameterType="int">
+        DELETE
+        FROM board
+        WHERE board_id = #{boardId}
+    </delete>
+
+
+</mapper>
