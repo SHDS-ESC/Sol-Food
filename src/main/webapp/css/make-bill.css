@@ -1,0 +1,201 @@
+/* 금액 조정 페이지 스타일 */
+.make-bill {
+    padding: 20px;
+    background: var(--color-background);
+    min-height: calc(100vh - 120px);
+}
+
+.make-bill-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: var(--color-white);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.status-section {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--color-main) 0%, var(--color-main-hover) 100%);
+    color: var(--color-white);
+    border-radius: 12px;
+}
+
+.status-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.status-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.status-desc {
+    font-size: 14px;
+    opacity: 0.9;
+    line-height: 1.4;
+}
+
+.progress-section {
+    background: var(--color-white);
+    border-radius: 12px;
+}
+
+.progress-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--color-gray-light);
+}
+
+.progress-header h5 {
+    color: var(--color-black);
+    font-weight: bold;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.progress-header i {
+    color: var(--color-main);
+}
+
+/* 테이블 스타일 */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background: var(--color-white);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background: var(--color-gray-light);
+    color: var(--color-black);
+    font-weight: bold;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid var(--color-gray);
+}
+
+.table td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid var(--color-gray);
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background: var(--color-gray-light);
+}
+
+/* 입력 필드 스타일 */
+.amount-input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid var(--color-gray);
+    border-radius: 6px;
+    text-align: center;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.amount-input:focus {
+    outline: none;
+    border-color: var(--color-main);
+}
+
+.amount-input.error {
+    border-color: var(--color-error);
+}
+
+/* 금액 요약 */
+.amount-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: var(--color-gray-light);
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.error-message {
+    color: var(--color-error);
+    font-size: 14px;
+    font-weight: normal;
+}
+
+/* 버튼 스타일 */
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--color-main) 0%, var(--color-main-hover) 100%);
+    color: var(--color-white);
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+    background: var(--color-gray);
+    color: var(--color-gray-dark);
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 참여자 이름 스타일 */
+.participant-name {
+    font-weight: bold;
+    color: var(--color-black);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .make-bill {
+        padding: 15px;
+    }
+    
+    .make-bill-container {
+        padding: 20px;
+    }
+    
+    .status-section {
+        padding: 15px;
+    }
+    
+    .status-icon {
+        font-size: 36px;
+    }
+    
+    .status-title {
+        font-size: 18px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 10px;
+        font-size: 14px;
+    }
+    
+    .amount-summary {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+} 

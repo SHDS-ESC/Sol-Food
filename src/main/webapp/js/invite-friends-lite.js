@@ -43,27 +43,33 @@ document.addEventListener('DOMContentLoaded', function() {
  * 현재 사용자 정보 로드
  */
 function loadCurrentUserInfo() {
-    const userDataElement = document.getElementById('currentUserData');
-    if (userDataElement) {
-        InviteFriendsState.currentUser = {
-            usersId: parseInt(userDataElement.dataset.currentUserId),
-            usersName: userDataElement.dataset.currentUserName,
-            usersProfile: userDataElement.dataset.currentUserProfile,
-            companyName: userDataElement.dataset.currentUserCompanyName,
-            departmentName: userDataElement.dataset.currentUserDepartmentName
-        };
-        
-        // 현재 사용자는 항상 선택된 상태
-        InviteFriendsState.selectedFriends.add(InviteFriendsState.currentUser.usersId);
-        
-        // 현재 사용자 정보를 Map에도 저장
-        InviteFriendsState.selectedFriendsData.set(InviteFriendsState.currentUser.usersId, {
-            usersId: InviteFriendsState.currentUser.usersId,
-            usersName: InviteFriendsState.currentUser.usersName,
-            usersProfile: InviteFriendsState.currentUser.usersProfile,
-            companyInfo: `${InviteFriendsState.currentUser.companyName} - ${InviteFriendsState.currentUser.departmentName}`
-        });
-    }
+    const currentUserId = window.currentUserId;
+    const currentUserCompanyName = window.currentUserCompanyName;
+    const currentUserDepartmentName = window.currentUserDepartmentName;
+    const currentUserEmail = window.currentUserEmail;
+    const currentUserNickname = window.currentUserNickname;
+    const currentUserTel = window.currentUserTel;
+    const currentUserProfile = window.currentUserProfile;
+    
+    InviteFriendsState.currentUser = {
+        usersId: parseInt(currentUserId),
+        usersName: currentUserNickname,
+        usersProfile: currentUserProfile || '',
+        companyName: currentUserCompanyName,
+        departmentName: currentUserDepartmentName
+    };
+    
+    // 현재 사용자는 항상 선택된 상태
+    InviteFriendsState.selectedFriends.add(InviteFriendsState.currentUser.usersId);
+    
+    // 현재 사용자 정보를 Map에도 저장
+    InviteFriendsState.selectedFriendsData.set(InviteFriendsState.currentUser.usersId, {
+        usersId: InviteFriendsState.currentUser.usersId,
+        usersName: InviteFriendsState.currentUser.usersName,
+        usersProfile: InviteFriendsState.currentUser.usersProfile,
+        companyName: InviteFriendsState.currentUser.companyName,
+        departmentName: InviteFriendsState.currentUser.departmentName
+    });
 }
 
 /**
@@ -164,7 +170,8 @@ function displayFriendsList(friends) {
                 usersId: Number(user.usersId),
                 usersName: user.usersName,
                 usersProfile: user.usersProfile,
-                companyInfo: `${user.companyName} - ${user.departmentName}`
+                companyName: user.companyName,
+                departmentName: user.departmentName
             });
         }
         return `
@@ -172,7 +179,8 @@ function displayFriendsList(friends) {
                  data-friend-id="${user.usersId}" 
                  data-user-name="${user.usersName}"
                  data-user-profile="${user.usersProfile || ''}"
-                 data-company-info="${user.companyName} - ${user.departmentName}"
+                 data-company-name="${user.companyName}"
+                 data-department-name="${user.departmentName}"
                  onclick="toggleFriend(this)">
                 <div class="friend-avatar" 
                      ${user.usersProfile ? `style=\"background-image: url('${user.usersProfile}');\"` : ''}>
@@ -336,7 +344,8 @@ function toggleFriend(element) {
     const friendId = Number(element.dataset.friendId);
     const friendName = element.dataset.userName;
     const friendProfile = element.dataset.userProfile;
-    const companyInfo = element.dataset.companyInfo;
+    const companyName = element.dataset.companyName;
+    const departmentName = element.dataset.departmentName;
     // 이미 선택된 친구라면 아무 동작도 하지 않음 (X버튼으로만 제거)
     if (InviteFriendsState.selectedFriends.has(friendId)) {
         return;
@@ -347,7 +356,8 @@ function toggleFriend(element) {
             usersId: friendId,
             usersName: friendName,
             usersProfile: friendProfile,
-            companyInfo: companyInfo
+            companyName: companyName,
+            departmentName: departmentName
         });
     }
     syncToServerDebounced();

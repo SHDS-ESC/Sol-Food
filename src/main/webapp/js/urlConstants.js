@@ -89,6 +89,7 @@ window.UrlConstants = {
         CART_REMOVE: '/user/cart/remove',
         CART_CLEAR: '/user/cart/clear',
         CART_TOTAL: '/user/cart/total',
+        CART_COMPARE_STORE: '/user/cart/compare-store',
         CART_SELECTED_FRIENDS: '/user/cart/selected-friends',
         CART_FRIENDS_API: '/user/cart/friends-api',
         CART_FRIENDS_SYNC: '/user/cart/friends/sync',

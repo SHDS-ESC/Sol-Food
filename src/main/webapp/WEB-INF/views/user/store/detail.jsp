@@ -39,6 +39,7 @@
         window.storeLongitude = parseFloat('${store.storeLongitude}');
         window.storeName = '${store.storeName}';
         window.storeAddress = '${store.storeAddress}';
+        window.storeId = parseInt('${store.storeId}');
         
         // 카카오맵 SDK 동적 로딩
         function loadKakaoMapSDK() {

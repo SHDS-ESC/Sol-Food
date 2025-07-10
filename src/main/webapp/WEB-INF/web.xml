@@ -2,6 +2,11 @@
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee https://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+    <!-- 세션 리스너 -->
+    <listener>
+        <listener-class>kr.co.solfood.user.cart.CartSessionListener</listener-class>
+    </listener>
+    
     <error-page>
         <error-code>404</error-code>
         <location>/error/404.jsp</location>

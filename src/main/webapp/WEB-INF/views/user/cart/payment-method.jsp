@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>결제 방식 선택 - Sol Food</title>
-    
+
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Common CSS -->
@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/payment-method-dark.css?v=${pageContext.session.creationTime}" />
 </head>
 <body>
-    <div class="wrap">  
+    <div class="wrap">
         <jsp:include page="../include/backbtn-header.jsp" />
 
         <!-- 컨텐츠 -->
@@ -85,7 +85,7 @@
                             바로 결제를 진행합니다.
                         </div>
                     </button>
-                    
+
                     <button class="payment-option" data-method="group">
                         <div class="emoji">👥</div>
                         <div class="payment-title">함께 결제하기</div>
@@ -95,8 +95,6 @@
                         </div>
                     </button>
                 </div>
-
-
             </div>
         </div>
 
@@ -114,15 +112,15 @@
 <!-- JavaScript -->
 <script>
     var contextPath = '${pageContext.request.contextPath}';
-    
+
     // 옵션 정보 렌더링
     document.addEventListener('DOMContentLoaded', function() {
         const menuOptions = document.querySelectorAll('.menu-options');
-        
+
         menuOptions.forEach(function(menuOption) {
             const optionsData = menuOption.querySelector('.options-data');
             const menuExtraData = menuOption.querySelector('.menu-extra-data');
-            
+
             if (optionsData && menuExtraData) {
                 try {
                     const selectedOptions = JSON.parse(optionsData.textContent.trim());
@@ -131,18 +129,18 @@
 
                     Object.entries(selectedOptions).forEach(([category, selected]) => {
                         const group = optionGroups.find(g => g.groupName === category);
-                        
+
                         if (group && Array.isArray(selected)) {
                             optionsHtml += '<div class="option-title">추가옵션</div>';
-                            
+
                             selected.forEach((optionName) => {
                                 const optionInfo = group.options.find(opt => opt.name === optionName);
-                                
+
                                 if (optionInfo) {
                                     // 옵션 이름에서 모든 + 기호와 앞뒤 공백 제거
                                     const cleanOptionName = optionName.replace(/^\+\s*/, '').replace(/^\+/, '').trim();
-                                    
-                                    optionsHtml += 
+
+                                    optionsHtml +=
                                         '<div class="option-row">' +
                                             '<span class="option-plus">+</span>' +
                                             '<span class="option-name">' + cleanOptionName + '</span>' +
@@ -152,7 +150,7 @@
                             });
                         }
                     });
-                    
+
                     menuOption.innerHTML = optionsHtml;
                 } catch (e) {
                     console.error('옵션 파싱 에러:', e);

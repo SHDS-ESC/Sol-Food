@@ -64,42 +64,40 @@ public interface PaymentMapper extends CommonPaymentMapper {
     /**
      * 사용자별 결제 내역 조회
      */
-    List<PaymentVO> selectPaymentsByUserId(@Param("usersId") int usersId, 
-                                          @Param("limit") int limit, 
+    List<PaymentVO> selectPaymentsByUserId(@Param("usersId") long usersId, 
+                                          @Param("size") int size, 
                                           @Param("offset") int offset);
     
     /**
      * 통합결제ID로 결제 내역 조회
      */
-    List<PaymentVO> selectPaymentsByIntergratedpaymentId(@Param("intergratedpaymentId") int intergratedpaymentId, 
-                                                        @Param("limit") int limit, 
-                                                        @Param("offset") int offset);
+    List<PaymentVO> selectPaymentsByIntegratedPaymentId(@Param("integratedpaymentId") int integratedpaymentId);
     
     /**
      * 매장별 결제 내역 조회
      */
     List<PaymentVO> selectPaymentsByStoreId(@Param("storeId") int storeId, 
-                                           @Param("limit") int limit, 
+                                           @Param("size") int size, 
                                            @Param("offset") int offset);
     
     /**
      * 결제 상태별 조회
      */
     List<PaymentVO> selectPaymentsByStatus(@Param("status") String status, 
-                                          @Param("limit") int limit, 
+                                          @Param("size") int size, 
                                           @Param("offset") int offset);
     
     /**
      * 결제 타입별 조회
      */
     List<PaymentVO> selectPaymentsByType(@Param("paymentType") String paymentType, 
-                                        @Param("limit") int limit, 
+                                        @Param("size") int size, 
                                         @Param("offset") int offset);
     
     /**
      * 최근 결제 내역 조회
      */
-    List<PaymentVO> selectRecentPayments(int limit);
+    List<PaymentVO> selectRecentPayments(int size);
     
     /**
      * 결제 통계 조회
@@ -118,14 +116,14 @@ public interface PaymentMapper extends CommonPaymentMapper {
      * 조건부 검색
      */
     List<PaymentVO> searchPayments(@Param("storeId") Integer storeId,
-                                  @Param("usersId") Integer usersId,
+                                  @Param("usersId") Long usersId,
                                   @Param("paymentType") String paymentType,
                                   @Param("status") String status,
                                   @Param("startDate") String startDate,
                                   @Param("endDate") String endDate,
                                   @Param("minAmount") Integer minAmount,
                                   @Param("maxAmount") Integer maxAmount,
-                                  @Param("limit") int limit,
+                                  @Param("size") int size,
                                   @Param("offset") int offset);
     
     /**
@@ -139,4 +137,22 @@ public interface PaymentMapper extends CommonPaymentMapper {
     List<PaymentVO> getPaymentHistory(@Param("usersId") long usersId,
                                      @Param("offset") int offset,
                                      @Param("size") int size);
+    
+    // 통합결제ID로 모든 결제 상태 업데이트
+    int updatePaymentStatusByIntegratedPaymentId(@Param("integratedPaymentId") int integratedPaymentId, @Param("status") String status);
+    
+    /**
+     * 사용자별 진행중인 결제 조회 (pending 상태)
+     */
+    List<PaymentVO> selectOngoingPaymentByUserId(@Param("userId") long userId);
+    
+    /**
+     * 간단한 결제 상태 업데이트 (응답용)
+     */
+    int updatePaymentStatusSimple(@Param("paymentId") int paymentId, @Param("status") String status);
+    
+    /**
+     * 사용자ID로 발의자 결제 조회 (진행중인 것만)
+     */
+    PaymentVO selectLeaderPaymentByUserId(@Param("userId") long userId);
 }
