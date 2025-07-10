@@ -548,12 +548,17 @@
 
     <!-- 인기식당 10위 -->
     <select id="getTop10PopularStores" resultType="kr.co.solfood.user.store.StoreVO">
-        SELECT s.*, COUNT(l.store_id) AS likeCount
+        SELECT
+            s.*,
+            COALESCE(c.category_name, '전체') AS storeCategory,
+            COUNT(l.store_id) AS likeCount
         FROM store s
+                 LEFT JOIN category c ON s.category_id = c.category_id
                  LEFT JOIN user_likes l ON s.store_id = l.store_id
         GROUP BY s.store_id
         ORDER BY likeCount DESC, s.store_id DESC
             LIMIT 10
     </select>
+
 
 </mapper>
