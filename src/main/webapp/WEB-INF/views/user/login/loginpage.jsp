@@ -33,8 +33,9 @@ uri="http://www.springframework.org/tags/form" %>
     <c:if test="${not empty msg}">
       <script>
         $(function () {
-          showWarningPopup("${msg}");
-          window.location.href = "${pageContext.request.contextPath}/user/login";
+          showWarningPopup("${msg}", "알림", function() {
+            window.location.href = "${pageContext.request.contextPath}/user/login";
+          });
         });
       </script>
     </c:if>
