@@ -25,47 +25,48 @@
     <div class="content main">
         <div class="main-content">
 
-            <!-- 유저 정보/포인트 카드 -->
             <c:if test="${not empty sessionScope.userLoginSession}">
-            <div class="user-main-summary-card">
-                <div class="user-main-summary-head">
-                    <div class="user-welcome-section">
-                        <div class="user-main-summary-name">
-                            <span class="user-name">${sessionScope.userLoginSession.usersName}님</span>
-                            <span class="user-main-summary-grade">(일반회원)</span>
+                <!-- 유저 정보/포인트 카드 -->
+                <div class="user-main-summary-card">
+                    <div class="user-main-summary-head">
+                        <div class="user-welcome-section">
+                            <div class="user-main-summary-name" style="display:flex">
+                                <span class="user-name"style="font-size:20px">${sessionScope.userLoginSession.usersNickname} </span>
+                                    <span>님</span>
+                            </div>
+                            <div class="user-main-summary-slogan">오늘도 든든하게 :)</div>
                         </div>
-                        <div class="user-main-summary-slogan">오늘도 든든하게 :)</div>
+                    </div>
+                    <div class="point-charge-card">
+                        <div class="point-display-section">
+                            <div class="user-main-summary-point-wrap big">
+                                <span class="user-main-summary-point">
+                                    <c:choose>
+                                        <c:when test="${not empty sessionScope.userLoginSession.usersPoint}">
+                                            <fmt:formatNumber value="${sessionScope.userLoginSession.usersPoint}" pattern="#,#00"/>
+                                        </c:when>
+                                        <c:otherwise>0</c:otherwise>
+                                    </c:choose>
+                                P
+                                </span>
+
+                            </div>
+                            <a href="${pageContext.request.contextPath}/user/mypage/charge" class="user-main-summary-mybtn join-btn pink-btn">
+                               MY>
+                            </a>
+                        </div>
                     </div>
                 </div>
-                <div class="point-charge-card">
-                    <div class="point-display-section">
-                        <div class="user-main-summary-point-wrap big">
-                            <span class="user-main-summary-point">
-                                <c:choose>
-                                    <c:when test="${not empty userLoginSession.usersPoint}">
-                                        <fmt:formatNumber value="${userLoginSession.usersPoint}" pattern="#,#00"/>
-                                    </c:when>
-                                    <c:otherwise>0</c:otherwise>
-                                </c:choose>
-                            P
-                            </span>
-                        </div>
-                        <a href="${pageContext.request.contextPath}/user/mypage/charge" class="user-main-summary-mybtn join-btn pink-btn">
-                           MY>
-                        </a>
-                    </div>
-                </div>
-            </div>
             </c:if>
 
             <!-- 이벤트(배너) 영역 -->
             <section class="main-banner">
                 <div class="banner-slider">
                     <div class="banner-item active">
-                        <img src="${pageContext.request.contextPath}/img/event.png" class="banner-img" alt="신규회원 웰컴 이벤트">
+                        <img src="${pageContext.request.contextPath}/img/event1.jpg" class="banner-img" alt="신규회원 웰컴 이벤트">
                     </div>
                     <div class="banner-item">
-                        <img src="${pageContext.request.contextPath}/img/event2.png" class="banner-img" alt="친구초대 이벤트">
+                        <img src="${pageContext.request.contextPath}/img/event2.jpg" class="banner-img" alt="친구초대 이벤트">
                     </div>
                 </div>
                 <div class="banner-dots">
@@ -116,20 +117,20 @@
                             <div class="menu-subtitle">다양한 이야기를 나눠보세요</div>
                         </div>
                     </a>
-                    <a class="menu-card accent" href="#" onclick="alert('제휴 문의는 contact@solfood.com 으로!')">
-                        <div class="menu-icon">🤝</div>
-                        <div class="menu-content">
-                            <div class="menu-title">제휴 문의</div>
-                            <div class="menu-subtitle">비즈니스 파트너십</div>
-                        </div>
-                    </a>
-                    <a class="menu-card support" href="#" onclick="alert('후원 기능은 곧 오픈됩니다!')">
-                        <div class="menu-icon">💝</div>
-                        <div class="menu-content">
-                            <div class="menu-title">후원</div>
-                            <div class="menu-subtitle">따뜻한 마음을 전해보세요</div>
-                        </div>
-                    </a>
+<%--                    <a class="menu-card accent" href="#" onclick="alert('제휴 문의는 contact@solfood.com 으로!')">--%>
+<%--                        <div class="menu-icon">🤝</div>--%>
+<%--                        <div class="menu-content">--%>
+<%--                            <div class="menu-title">제휴 문의</div>--%>
+<%--                            <div class="menu-subtitle">비즈니스 파트너십</div>--%>
+<%--                        </div>--%>
+<%--                    </a>--%>
+<%--                    <a class="menu-card support" href="#" onclick="alert('후원 기능은 곧 오픈됩니다!')">--%>
+<%--                        <div class="menu-icon">💝</div>--%>
+<%--                        <div class="menu-content">--%>
+<%--                            <div class="menu-title">후원</div>--%>
+<%--                            <div class="menu-subtitle">따뜻한 마음을 전해보세요</div>--%>
+<%--                        </div>--%>
+<%--                    </a>--%>
                 </div>
             </section>
         </div>
@@ -137,13 +138,13 @@
     </div>
 </div>
 
-<script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
-<script src="${pageContext.request.contextPath}/js/common-utils.js?v=${pageContext.session.creationTime}"></script>
-<script src="${pageContext.request.contextPath}/js/cart.js?v=${pageContext.session.creationTime}"></script>
-<script src="${pageContext.request.contextPath}/js/store.js?v=${pageContext.session.creationTime}"></script>
-<script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
-<script src="${pageContext.request.contextPath}/js/index.js"></script>
-
+<!-- JS 리소스는 마지막에 한 번에 정리 -->
+<script src="<c:url value='/js/urlConstants.js' />"></script>
+<script src="<c:url value='/js/common-utils.js' />?v=${pageContext.session.creationTime}"></script>
+<script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
+<script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
+<script src="<c:url value='/js/darkmode.js' />"></script>
+<script src="<c:url value='/js/index.js' />"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         <c:if test="${not empty sessionScope.userLoginSession}">
