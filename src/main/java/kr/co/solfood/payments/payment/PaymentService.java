@@ -30,6 +30,12 @@ public interface PaymentService extends CommonPaymentService {
     // ID로 결제 정보 조회
     PaymentVO getPaymentById(int paymentId);
 
-    // 사용자ID로 발의자 결제 조회 (진행중인 것만)
-    PaymentVO getLeaderPaymentByUserId(long userId);
-}
+         // 사용자ID로 발의자 결제 조회 (진행중인 것만)
+     PaymentVO getLeaderPaymentByUserId(long userId);
+     
+     // 통합결제ID로 가게ID 조회
+     Integer getStoreIdByIntegratedPaymentId(int integratedPaymentId);
+     
+     // 결제별 리뷰 작성 여부 확인
+     boolean hasReviewForPayment(int paymentId, long userId);
+ }

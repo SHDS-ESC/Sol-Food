@@ -34,6 +34,7 @@ public final class UrlConstants {
         // 마이페이지 관련
         public static final String MYPAGE_BASE = BASE + "/mypage";
         public static final String MYPAGE_INFO = MYPAGE_BASE + "/info";
+        public static final String PAYMENT_HISTORY = MYPAGE_BASE + "/payment-history";
         
         // 가게 관련
         public static final String STORE_BASE = BASE + "/store";
