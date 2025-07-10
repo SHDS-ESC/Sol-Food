@@ -7,9 +7,27 @@ let eventSource = null; // SSE 연결 객체
 let sseStarted = false; // SSE 연결 시작 플래그
 
 // 페이지 로드 시 선택된 친구들 정보 로드
+async function loadWaitingApprovalData() {
+    try {
+        const res = await fetch(window.UrlConstants.Builder.fullUrl('/user/cart/waiting-approval-data'));
+        const data = await res.json();
+        if (data.result === 'success' && data.participants && data.participants.length > 0) {
+            selectedFriendsData = data.participants;
+            totalAmount = data.totalAmount;
+            displayFriends();
+            updateTotalAmountDisplay();
+        } else {
+            displayNoFriends();
+        }
+    } catch (error) {
+        console.error('대기 데이터 로드 오류:', error);
+        displayNoFriends();
+    }
+}
+
+// 페이지 로드시 API로 데이터 받아오기
 function initializePage() {
     console.log('💰 결제 대기 페이지 초기화 시작');
-    
     // 게임 결과 확인 및 처리
     const gameResult = getGameResultFromURL();
     if (gameResult) {
@@ -18,8 +36,7 @@ function initializePage() {
         removeGameResultFromURL();
     }
 
-    // 친구 데이터 로드 (JSP에서 렌더링된 데이터 사용)
-    loadSelectedFriends();
+    loadWaitingApprovalData();
     
     // 게임 결과가 있다면 적용
     if (gameResult) {
@@ -56,8 +73,12 @@ function calculateSplitAmounts() {
     const remainder = totalAmount % totalPeople; // 나머지
     
     // 현재 사용자 ID 찾기
-    const currentUserData = document.getElementById('currentUserData');
-    const currentUserId = currentUserData ? currentUserData.getAttribute('data-current-user-id') : null;
+    const currentUserId = window.currentUserId;
+    const currentUserCompanyName = window.currentUserCompanyName;
+    const currentUserDepartmentName = window.currentUserDepartmentName;
+    const currentUserEmail = window.currentUserEmail;
+    const currentUserNickname = window.currentUserNickname;
+    const currentUserTel = window.currentUserTel;
     
     // 각 사용자에게 기본 금액 배정
     selectedFriendsData.forEach(friend => {
@@ -88,38 +109,6 @@ function updateTotalAmountDisplay() {
     
     if (totalPeopleElement) {
         totalPeopleElement.textContent = selectedFriendsData.length;
-    }
-}
-
-function loadSelectedFriends() {
-    // JSP에서 렌더링된 데이터를 바로 로드
-    fetchFriendsData();
-}
-
-function fetchFriendsData() {
-    try {
-        const selectedFriendsScript = document.getElementById('selectedFriendsData');
-        const cartScript = document.getElementById('cartData');
-        
-        if (selectedFriendsScript && cartScript) {
-            selectedFriendsData = JSON.parse(selectedFriendsScript.textContent);
-            const cartData = JSON.parse(cartScript.textContent);
-            totalAmount = cartData.totalAmount || 0;
-            
-            // 친구 데이터 로드 완료
-            
-            if (selectedFriendsData.length > 0) {
-                displayFriends();
-            } else {
-                displayNoFriends();
-            }
-        } else {
-            console.error('서버 렌더링 데이터를 찾을 수 없습니다.');
-            displayNoFriends();
-        }
-    } catch (error) {
-        console.error('데이터 파싱 오류:', error);
-        displayNoFriends();
     }
 }
 
@@ -208,8 +197,7 @@ function createFriendElement(friend, index) {
     const div = document.createElement('div');
     
     // 현재 사용자 ID 가져오기
-    const currentUserData = document.getElementById('currentUserData');
-    const currentUserId = currentUserData ? currentUserData.getAttribute('data-current-user-id') : null;
+    const currentUserId = window.currentUserId;
     const isCurrentUser = friend.usersId == currentUserId;
     
     // 친구 요소 생성
@@ -226,10 +214,11 @@ function createFriendElement(friend, index) {
         // 현재 사용자의 회사-부서 정보가 없는 경우 JSP에서 가져오기
         if (!friend.companyName || !friend.departmentName || 
             friend.companyName === 'null' || friend.departmentName === 'null') {
-            const currentUserData = document.getElementById('currentUserData');
-            if (currentUserData) {
-                friend.companyName = currentUserData.getAttribute('data-current-user-company-name') || friend.companyName;
-                friend.departmentName = currentUserData.getAttribute('data-current-user-department-name') || friend.departmentName;
+            const currentUserCompanyName = window.currentUserCompanyName;
+            const currentUserDepartmentName = window.currentUserDepartmentName;
+            if (currentUserCompanyName && currentUserDepartmentName) {
+                friend.companyName = currentUserCompanyName;
+                friend.departmentName = currentUserDepartmentName;
                 console.log('현재 사용자 회사-부서 정보 JSP에서 로드:', friend.companyName, '-', friend.departmentName);
             }
         }
@@ -512,7 +501,7 @@ function goToMiniGame() {
 // 결제 진행 함수 (현재 사용자만 가능)
 function proceedToPayment(userId) {
     console.log('🚀 proceedToPayment 함수 시작됨, userId:', userId);
-    const currentUserId = document.getElementById('currentUserData').getAttribute('data-current-user-id');
+    const currentUserId = window.currentUserId;
     console.log('🚀 currentUserId:', currentUserId);
     
     // 현재 사용자가 아닌 경우 결제 불가
@@ -546,9 +535,9 @@ function proceedToPayment(userId) {
         console.log('💳 confirm 확인됨, 결제 진행 시작');
         // 결제 요청
         let amount = userAmount;
-        let userEmail = document.getElementById('currentUserData').getAttribute('data-current-user-email') || 'user@example.com';
-        let userNickname = document.getElementById('currentUserData').getAttribute('data-current-user-name') || '사용자';
-        let userTel = document.getElementById('currentUserData').getAttribute('data-current-user-tel') || '010-0000-0000';
+        let userEmail = window.currentUserEmail || 'user@example.com';
+        let userNickname = window.currentUserNickname || '사용자';
+        let userTel = window.currentUserTel || '010-0000-0000';
         
         console.log('💳 결제 요청 시작:', {
             impCode: window.impCode,
@@ -600,7 +589,7 @@ function proceedToPayment(userId) {
             console.log("응답 타입:", typeof rsp);
             console.log("응답 키들:", Object.keys(rsp));
             
-            let apiPath = UrlConstants.Builder.fullUrl("/payments/payment/verifyPayment/" + rsp.imp_uid);
+            let apiPath = UrlConstants.Builder.fullUrl("/payments/payment/leader-payment/verify");
             let nextPath = UrlConstants.Builder.fullUrl("/user/mypage/payment-history");
             
             if (rsp.success) {
@@ -611,6 +600,7 @@ function proceedToPayment(userId) {
                     url: apiPath,
                     contentType: "application/x-www-form-urlencoded; charset=UTF-8",
                     data: {
+                        imp_uid : rsp.imp_uid,
                         amount: amount,
                         merchant_uid: rsp.merchant_uid
                     },

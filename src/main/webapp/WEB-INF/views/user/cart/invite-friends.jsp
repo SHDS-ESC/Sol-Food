@@ -68,13 +68,14 @@
 <script src="<c:url value='/js/common-utils.js' />"></script>
 <script src="<c:url value='/js/invite-friends-lite.js' />"></script>
 <script src="<c:url value='/js/darkmode.js' />"></script>
-<!-- 현재 사용자 정보 (숨김) -->
-<div id="currentUserData" 
-     data-current-user-id="${currentUser.usersId}"
-     data-current-user-name="${currentUser.usersName}"
-     data-current-user-profile="${currentUser.usersProfile}"
-     data-current-user-company-name="${currentUser.companyName}"
-     data-current-user-department-name="${currentUser.departmentName}"
-     style="display: none;"></div>
+<script>
+    window.currentUserId = "${currentUser.usersId}";
+    window.currentUserCompanyName = "${currentUser.companyName}";
+    window.currentUserDepartmentName = "${currentUser.departmentName}";
+    window.currentUserEmail = "${currentUser.usersEmail}";
+    window.currentUserNickname = "${currentUser.usersNickname}";
+    window.currentUserTel = "${currentUser.usersTel}";
+    window.currentUserProfile = "${currentUser.usersProfile}";
+</script>
 </body>
 </html> 

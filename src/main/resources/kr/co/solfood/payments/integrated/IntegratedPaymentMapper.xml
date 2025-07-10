@@ -33,6 +33,18 @@
         )
     </insert>
 
+    <insert id="insertPaymentMenu" parameterType="map">
+        INSERT INTO payment_menu (
+            integratedpayment_id,
+            menu_id,
+            paymentmenu_count
+        ) VALUES (
+            #{integratedPaymentId},
+            #{cartItem.menuId},
+            #{cartItem.quantity}
+        )
+    </insert>
+
     <!-- ID로 통합 결제 조회 -->
     <select id="selectIntegratedPaymentById" resultMap="IntegratedPaymentMap">
         SELECT * FROM integrated_payment 
@@ -45,6 +57,53 @@
         WHERE integratedpayment_leader_id = #{leaderId}
         ORDER BY integratedpayment_created_at DESC
         LIMIT 1
+    </select>
+
+    <!-- 발의자 ID로 통합 결제 조회 -->
+    <!-- 현재 진행 중인 결제는 단 하나만 존재해야 함 -->
+    <select id="selectOnGoingIntegratedPaymentByLeaderId" resultMap="IntegratedPaymentMap">
+        SELECT * FROM integrated_payment
+        WHERE integratedpayment_leader_id = #{leaderId}
+          AND integratedpayment_status = 'pending'
+    </select>
+
+    <!-- 통합 결제 상태 업데이트 -->
+    <update id="updatePaymentStatus">
+        UPDATE integrated_payment SET
+            integratedpayment_status = #{status},
+            integratedpayment_updated_at = CURRENT_TIMESTAMP
+        WHERE integratedpayment_id = #{integratedPaymentId}
+    </update>
+
+    <!-- 만료된 pending 결제 정리 (30분 이상) -->
+    <update id="cleanupExpiredPendingPayments">
+        <![CDATA[
+        UPDATE integrated_payment SET
+            integratedpayment_status = 'cancelled',
+            integratedpayment_updated_at = CURRENT_TIMESTAMP
+        WHERE integratedpayment_status = 'pending'
+        AND integratedpayment_created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)
+        ]]>
+    </update>
+
+    <!-- 만료된 pending 결제들 조회 (30분 이상) -->
+    <select id="selectExpiredPendingPayments" resultMap="IntegratedPaymentMap">
+        <![CDATA[
+        SELECT * FROM integrated_payment 
+        WHERE integratedpayment_status = 'pending'
+        AND integratedpayment_created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)
+        ORDER BY integratedpayment_created_at ASC
+        ]]>
+    </select>
+
+    <!-- 타임아웃된 결제들 조회 (지정된 시간 이상) -->
+    <select id="selectTimeoutPayments" resultMap="IntegratedPaymentMap">
+        <![CDATA[
+        SELECT * FROM integrated_payment 
+        WHERE integratedpayment_status = 'pending'
+        AND integratedpayment_created_at < DATE_SUB(NOW(), INTERVAL #{timeoutMinutes} MINUTE)
+        ORDER BY integratedpayment_created_at ASC
+        ]]>
     </select>
 
 </mapper> 

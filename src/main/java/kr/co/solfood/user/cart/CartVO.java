@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class CartVO {
+    private Integer integratedPaymentId;
     private int storeId;
     private String storeName;
     private List<CartItemVO> items;
