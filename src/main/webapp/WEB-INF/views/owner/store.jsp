@@ -608,6 +608,7 @@
 </div>
 
 <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
+<script src="${pageContext.request.contextPath}/js/popup.js"></script>
 <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
@@ -710,30 +711,35 @@
   async function previewStoreMainimage(event){
 
     let files = event.target.files; // 파일 선택 input 에서 선택된 파일 리스트 가져오기
-    let reader = new FileReader(); // 파일을 읽기 위한 fileReader 객체 생성
-    reader.onload = function (e){ // 파일 읽기가 완료 됐을 때 실행할 함수 정의
-      let img = document.getElementById("storeImagePreview"); // 미리보기 태그
-      img.setAttribute('src',e.target.result); // src 속성 설정
-
-      document.getElementById("preview").style.display = "block";
-      document.getElementById("deleteImageBtn").style.display = "block"; // 삭제버튼 표시
-    }
-
+    if (!files || !files[0]) return;
+    
     const file = files[0]; // ✅ 이 줄이 꼭 필요합니다!
 
-    reader.readAsDataURL(files[0]); // 첫번째 파일을 인코딩으로 읽기
+    try {
+      // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
+      const s3Url = await s3Uploader.uploadProfileImage(file, function(progress) {
+        updateUploadProgress(progress);
+      });
 
-    // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
-    const s3Url = await s3Uploader.uploadProfileImage(file, function(progress) {
-      updateUploadProgress(progress);
-    });
+      // 업로드 성공 후 미리보기 업데이트
+      let reader = new FileReader(); // 파일을 읽기 위한 fileReader 객체 생성
+      reader.onload = function (e){ // 파일 읽기가 완료 됐을 때 실행할 함수 정의
+        let img = document.getElementById("storeImagePreview"); // 미리보기 태그
+        img.setAttribute('src',e.target.result); // src 속성 설정
 
-    // 업로드 성공 - hidden input에 S3 URL 저장
-    document.getElementById('storeMainimageId').value = s3Url;
+        document.getElementById("preview").style.display = "block";
+        document.getElementById("deleteImageBtn").style.display = "block"; // 삭제버튼 표시
+      }
+      reader.readAsDataURL(files[0]); // 첫번째 파일을 인코딩으로 읽기
 
-    console.log('프로필 이미지 업로드 완료:', s3Url);
+      // 업로드 성공 - hidden input에 S3 URL 저장
+      document.getElementById('storeMainimageId').value = s3Url;
 
-
+      console.log('프로필 이미지 업로드 완료:', s3Url);
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
+      showWarningPopup('이미지 업로드에 실패했습니다: ' + error.message);
+    }
   }
 
   // -----------------------------대표이미지 삭제----------------------------------

@@ -211,29 +211,33 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
         // 프로필 이미지 미리보기 함수 (상단에 선언)
         async function previewProfileImage(event){
             let files = event.target.files;
-            let reader = new FileReader();
-            reader.onload = function (e){
-                let img = document.getElementById("profilePreview");
-                img.setAttribute('src',e.target.result );
-            }
-    
+            if (!files || !files[0]) return;
+            
             const file = files[0];
-            reader.readAsDataURL(files[0]);
-    
+            
             try {
                 // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
                 const s3Url = await s3Uploader.uploadProfileImage(file);
     
+                // 업로드 성공 후 미리보기 업데이트
+                let reader = new FileReader();
+                reader.onload = function (e){
+                    let img = document.getElementById("profilePreview");
+                    img.setAttribute('src',e.target.result );
+                }
+                reader.readAsDataURL(files[0]);
+    
                 // 업로드 성공 - hidden input에 S3 URL 저장
                 document.getElementById('usersProfile').value = s3Url;
             } catch (error) {
-                alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+                showWarningPopup('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
             }
         }
     </script>
     <script src="${pageContext.request.contextPath}/js/validateInput.js"></script>
     <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
     <script>
         // jsp 에서 서버로부터 받은 사용자 프로필 값
@@ -265,7 +269,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
                 });
             })
             .catch(error => {
-                alert("부서 목록을 불러오지 못했습니다.");
+                showWarningPopup("부서 목록을 불러오지 못했습니다.");
             });
     }
     

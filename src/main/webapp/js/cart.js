@@ -18,9 +18,9 @@ function changeQuantity(menuId, change) {
     const newQuantity = currentQuantity + change;
     
     if (newQuantity < 1) {
-        if (confirm('수량이 0이 되면 상품이 삭제됩니다. 계속하시겠습니까?')) {
+        showConfirmPopup('수량이 0이 되면 상품이 삭제됩니다. 계속하시겠습니까?', () => {
             removeItem(numMenuId);
-        }
+        });
         return;
     }
     
@@ -63,9 +63,12 @@ function updateQuantity(menuId, quantity) {
 
 // 장바구니 아이템 삭제
 function removeItem(menuId) {
-    if (!confirm('이 상품을 장바구니에서 삭제하시겠습니까?')) {
-        return;
-    }
+    showConfirmPopup('이 상품을 장바구니에서 삭제하시겠습니까?', () => {
+        performRemoveItem(menuId);
+    });
+}
+
+function performRemoveItem(menuId) {
     
     const numMenuId = parseInt(menuId);
     
@@ -82,6 +85,8 @@ function removeItem(menuId) {
             
             if (data.cartCount === 0) {
                 showEmptyCart();
+            } else {
+                updatePaymentButtonState(data.cartCount);
             }
         } else {
             SolFoodUtils.showToast(data.message || '삭제에 실패했습니다.', 'error');
@@ -94,9 +99,12 @@ function removeItem(menuId) {
 
 // 장바구니 전체 비우기
 function clearCart() {
-    if (!confirm('장바구니를 모두 비우시겠습니까?')) {
-        return;
-    }
+    showConfirmPopup('장바구니를 모두 비우시겠습니까?', () => {
+        performClearCart();
+    });
+}
+
+function performClearCart() {
     
             fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_CLEAR), {
         method: 'POST',
@@ -107,6 +115,7 @@ function clearCart() {
         if (data.result === 'success') {
             showEmptyCart();
             SolFoodUtils.updateBadge('.cart-badge, .cart-nav-badge', 0);
+            updatePaymentButtonState(0);
         } else {
             SolFoodUtils.showToast(data.message || '장바구니 비우기에 실패했습니다.', 'error');
         }
@@ -447,6 +456,36 @@ function showEmptyCart() {
             </a>
         </div>
     `;
+    
+    // 결제 버튼 비활성화
+    disablePaymentButton();
+}
+
+// 결제 버튼 활성화
+function enablePaymentButton() {
+    const paymentBtn = document.getElementById('paymentBtn');
+    if (paymentBtn) {
+        paymentBtn.disabled = false;
+        paymentBtn.classList.remove('disabled');
+    }
+}
+
+// 결제 버튼 비활성화
+function disablePaymentButton() {
+    const paymentBtn = document.getElementById('paymentBtn');
+    if (paymentBtn) {
+        paymentBtn.disabled = true;
+        paymentBtn.classList.add('disabled');
+    }
+}
+
+// 장바구니 상태에 따라 결제 버튼 상태 업데이트
+function updatePaymentButtonState(cartCount) {
+    if (cartCount > 0) {
+        enablePaymentButton();
+    } else {
+        disablePaymentButton();
+    }
 }
 
 // 페이지 로드 시 장바구니 정보 조회

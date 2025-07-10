@@ -74,59 +74,16 @@
 
         <div class="sticky-top-group">
             <div class="category-container">
-                <div class="category-grid" id="mainCategoryGrid">
-                    <!-- 전체 카테고리 버튼 (항상 첫 번째) -->
-                    <button class="category-item active" onclick="selectCategory(this, '전체')">
-                        <div class="category-icon">
-                            <i class="bi bi-grid-3x3-gap" style="font-size: 24px; color: #666;"></i>
-                        </div>
-                        <span class="category-name">전체</span>
-                    </button>
-
-                    <!-- 실제 카테고리들 (4개까지) -->
-                    <c:forEach items="${categories}" var="category" varStatus="status" begin="0" end="2">
-                        <button class="category-item" onclick="selectCategory(this, '${category.categoryName}')">
-                            <div class="category-icon">
-                                <c:if test="${not empty category.categoryImage}">
-                                    <img src="${category.categoryImage}" alt="${category.categoryName}"
-                                         onerror="this.style.display='none';">
-                                </c:if>
-                            </div>
-                            <span class="category-name">${category.categoryName}</span>
-                        </button>
-                    </c:forEach>
-                    <button class="category-item" onclick="toggleMoreCategories()">
-                        <div class="category-icon">
-                            <i id="moreIcon" class="bi bi-chevron-down" style="font-size: 24px; color: #666;"></i>
-                        </div>
-                        <span class="category-name" id="moreText">더보기</span>
-                    </button>
-                </div>
-
-
-                <c:if test="${fn:length(categories) > 3}">
-                    <div class="category-grid category-grid-extended" id="extendedCategories">
-                        <!-- 나머지 카테고리들 (8번째부터) -->
-                        <c:forEach items="${categories}" var="category" varStatus="status" begin="8">
-                            <button class="category-item" onclick="selectCategory(this, '${category.categoryName}')">
-                                <div class="category-icon">
-                                    <c:if test="${not empty category.categoryImage}">
-                                        <img src="${category.categoryImage}" alt="${category.categoryName}"
-                                             onerror="this.style.display='none';">
-                                    </c:if>
-                                </div>
-                                <span class="category-name">${category.categoryName}</span>
-                            </button>
-                        </c:forEach>
-                    </div>
-                </c:if>
+                <!-- 카테고리 그리드 영역은 id만 남기고 forEach 제거 -->
+                <div class="category-grid" id="mainCategoryGrid"></div>
+                <div class="category-grid category-grid-extended" id="extendedCategories"></div>
             </div>
         </div>
         <div class="scroll-list-area">
             <div class="scroll-list-header">
                 <div class="sort-dropdown">
                     <button class="sort-selected" onclick="toggleSortDropdown()">
-                        <i class="bi-sort-down-alt"></i>
+
                         <span id="sortSelectedText">별점순</span>
                         <i class="bi bi-chevron-down"></i>
                     </button>
@@ -194,6 +151,13 @@
                 console.log('장바구니 개수 조회 실패 (로그인하지 않은 경우 등):', error);
             });
     }
+    </script>
+    <script>
+        window.allCategories = [
+            <c:forEach items="${categories}" var="category" varStatus="status">
+                {categoryName: "${category.categoryName}", categoryImage: "${category.categoryImage}"}<c:if test="${!status.last}">,</c:if>
+            </c:forEach>
+        ];
     </script>
 </body>
 </html>

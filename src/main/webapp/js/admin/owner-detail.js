@@ -2,6 +2,7 @@ const ctx = window.APP_CTX;
 const urlParams = new URLSearchParams(window.location.search);
 const ownerId = urlParams.get('ownerId');
 
+
 document.addEventListener('DOMContentLoaded', function () {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
@@ -138,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Modal control functions
-function closeModal() {
+function closeModal(){
     const modal = document.getElementById('rejectionModal');
     modal.style.animation = 'fadeOut 0.3s ease-out';
 

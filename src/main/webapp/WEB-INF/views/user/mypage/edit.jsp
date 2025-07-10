@@ -43,12 +43,6 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
                 <i class="bi bi-chevron-right"></i>
               </a>
           </li>
-          <li onclick="confirmAction('로그아웃 하시겠습니까?','logout')">
-            <a class="flex flex-sb">
-              <p>로그아웃</p>
-              <i class="bi bi-chevron-right"></i>
-            </a>
-          </li>
             <li >
                 <a class="flex flex-sb" href="${pageContext.request.contextPath}/user/mypage/prev-withdraw">
                     <p>회원탈퇴</p>
@@ -62,13 +56,13 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
     </div>
     <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script>
       function confirmAction(text,type){
         if(type == 'logout'){
-          if(confirm(text)){
+          showConfirmPopup(text, function() {
             location.href = `${pageContext.request.contextPath}/user/login/logout`
-          }
-          else return;
+          });
         }
       }
     </script>

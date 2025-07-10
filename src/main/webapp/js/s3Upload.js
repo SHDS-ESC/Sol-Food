@@ -16,9 +16,7 @@ class S3FileUploader {
     async uploadProfileImage(file, onProgress = null) {
         try {
             // 1. 파일 검증
-            if (!this.validateImageFile(file)) {
-                throw new Error('지원하지 않는 파일 형식입니다. (jpg, jpeg, png, gif만 가능)');
-            }
+            this.validateImageFile(file);
             
             // 2. 파일 확장자 추출
             const fileExtension = this.getFileExtension(file.name);
@@ -119,12 +117,11 @@ class S3FileUploader {
         const maxSize = 5 * 1024 * 1024; // 5MB
         
         if (!allowedTypes.includes(file.type)) {
-            return false;
+            throw new Error('지원하지 않는 파일 형식입니다. (jpg, jpeg, png, gif, webp만 가능)');
         }
         
         if (file.size > maxSize) {
-            showWarningPopup('파일 크기는 5MB 이하여야 합니다.');
-            return false;
+            throw new Error('파일 크기는 5MB 이하여야 합니다.');
         }
         
         return true;

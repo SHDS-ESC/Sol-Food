@@ -12,8 +12,6 @@ public class PageDTO {
     int offset = 0;
 
     public PageDTO() {
-        this.currentPage = 1;
-        this.pageSize = DEFAULT_PAGE_SIZE;
     }
 
     public void setCurrentPage(int currentPage) {

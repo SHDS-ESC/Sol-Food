@@ -1,53 +1,5 @@
-// document.addEventListener('DOMContentLoaded', function() {
-//     const slides = document.querySelectorAll('.banner-slide');
-//     const dotsContainer = document.querySelector('.banner-dots');
-//     const prevBtn = document.querySelector('.banner-arrow.prev');
-//     const nextBtn = document.querySelector('.banner-arrow.next');
-//     let currentIdx = 0;
-//     let timer;
-//
-//     // Dot 생성
-//     slides.forEach((_, i) => {
-//         const dot = document.createElement('span');
-//         if (i === 0) dot.classList.add('active');
-//         dotsContainer.appendChild(dot);
-//         dot.addEventListener('click', () => showSlide(i));
-//     });
-//     const dots = dotsContainer.querySelectorAll('span');
-//
-//     function showSlide(idx) {
-//         slides[currentIdx].classList.remove('active');
-//         dots[currentIdx].classList.remove('active');
-//         currentIdx = idx;
-//         slides[currentIdx].classList.add('active');
-//         dots[currentIdx].classList.add('active');
-//     }
-//
-//     function nextSlide() {
-//         let nextIdx = (currentIdx + 1) % slides.length;
-//         showSlide(nextIdx);
-//     }
-//     function prevSlide() {
-//         let prevIdx = (currentIdx - 1 + slides.length) % slides.length;
-//         showSlide(prevIdx);
-//     }
-//     function autoSlide() {
-//         timer = setInterval(nextSlide, 4000);
-//     }
-//     function stopAuto() {
-//         clearInterval(timer);
-//     }
-//
-//     nextBtn.addEventListener('click', () => { stopAuto(); nextSlide(); autoSlide(); });
-//     prevBtn.addEventListener('click', () => { stopAuto(); prevSlide(); autoSlide(); });
-//
-//     // 슬라이더 위에서 마우스 멈추면 자동 멈춤
-//     document.querySelector('.banner-slider').addEventListener('mouseenter', stopAuto);
-//     document.querySelector('.banner-slider').addEventListener('mouseleave', autoSlide);
-//
-//     autoSlide();
-// });
 
+/*
 // 슬라이더 자동 전환 (예: 3초마다)
 document.addEventListener('DOMContentLoaded', function() {
     const slider = document.querySelector('.banner-slider');
@@ -75,6 +27,50 @@ document.addEventListener('DOMContentLoaded', function() {
     // 반응형 리셋
     window.addEventListener('resize', () => showBanner(current));
 });
+*/
+
+document.addEventListener('DOMContentLoaded', function() {
+    const banners = document.querySelectorAll('.banner-item');
+    const dots = document.querySelectorAll('.banner-dots .dot');
+    let current = 0;
+    let intervalId;
+
+    function showBanner(idx) {
+        banners.forEach((b, i) => {
+            b.classList.toggle('active', i === idx);
+            dots[i].classList.toggle('active', i === idx);
+        });
+        current = idx;
+    }
+
+    function nextBanner() {
+        let next = (current + 1) % banners.length;
+        showBanner(next);
+    }
+
+    function startAuto() {
+        intervalId = setInterval(nextBanner, 3000);
+    }
+    function stopAuto() {
+        clearInterval(intervalId);
+    }
+
+    // dot 클릭 시 이동
+    dots.forEach((dot, i) => {
+        dot.onclick = () => {
+            showBanner(i);
+            stopAuto();
+            startAuto();
+        };
+    });
+
+    // 자동 시작/멈춤
+    document.querySelector('.banner-slider').addEventListener('mouseenter', stopAuto);
+    document.querySelector('.banner-slider').addEventListener('mouseleave', startAuto);
+
+    startAuto();
+});
+
 
 // 인기순위(Top 10) 동적 카드 렌더링 및 슬라이더 버튼
 
@@ -105,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     </div>
                     <div class="popular-card-content">
                         <div class="popular-card-name">${store.storeName}</div>
-                        <div class="popular-card-category">${store.categoryName || ''}</div>
+                        <div class="popular-card-category">${store.storeCategory || ''}</div>
                         <div class="popular-card-stats">
                             <div class="popular-card-rating"><span class="star">★</span> ${store.storeAvgstar ?? 0}</div>
                             <div class="popular-card-likes">${store.likeCount}</div>
