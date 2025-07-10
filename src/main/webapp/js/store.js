@@ -56,6 +56,20 @@ document.addEventListener('DOMContentLoaded', function () {
     if (sortSelect) {
         sortSelect.value = currentSort; // 초기값 셋팅
     }
+
+    // 카테고리 렌더링 및 선택
+    if (window.allCategories) {
+        setCategories(window.allCategories);
+    } else {
+        // fallback: DOM에서 읽기 (예시)
+        const cats = [];
+        document.querySelectorAll('.category-item').forEach(btn => {
+            const name = btn.querySelector('.category-name')?.textContent;
+            const img = btn.querySelector('img')?.src;
+            if (name && name !== '전체' && name !== '더보기') cats.push({categoryName: name, categoryImage: img});
+        });
+        setCategories(cats);
+    }
 });
 
 // ==================== 장바구니 관련 ====================
@@ -201,38 +215,29 @@ function createMap(position) {
 
 // ==================== 카테고리 선택 ====================
 function selectCategory(element, category) {
-    // 모든 카테고리 버튼에서 active 클래스 제거
+    // 카테고리 순서 조정 및 재렌더링
+    renderCategoryGrids(category);
+    // 모든 카테고리 버튼에서 active/selected 클래스 제거 후 현재만 추가
     document.querySelectorAll('.category-item').forEach(item => {
-        item.classList.remove('active');
+        item.classList.remove('active', 'selected');
     });
-
-    // 선택된 카테고리에 active 클래스 추가
-    element.classList.add('active');
-
+    element.classList.add('active', 'selected');
     // 현재 카테고리 업데이트
     currentCategory = category;
-
-    // "더보기" 접기/펼치기 등 부가 UI
+    // 확장 카테고리 펼쳐져 있으면 접기
     const extendedCategories = document.getElementById('extendedCategories');
-    const isMoreOpen = extendedCategories && extendedCategories.style.display === 'grid';
-    if (isMoreOpen) {
-        setTimeout(() => {
-            toggleMoreCategories();
-        }, 300);
+    if (extendedCategories && extendedCategories.style.display === 'grid') {
+        setTimeout(() => { toggleMoreCategories(); }, 200);
     }
-
     // 지도/목록 동기화
     const mapContainer = document.getElementById('mapContainer');
     const mapDisplay = window.getComputedStyle(mapContainer).display;
     const isMapView = mapDisplay === 'flex';
-
     if (isMapView) {
         searchMapCategory(category);
     }
-
     // 검색 모드 해제
     clearSearchMode();
-
     // 페이지네이션 초기화 및 목록 로드
     resetPagination();
     loadStoreList();
@@ -1015,3 +1020,61 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ==================== 카테고리 렌더링 및 선택 ====================
+let allCategories = [];
+let mainCategoriesCount = 3; // 첫 줄에 표시할 카테고리 수
+
+function setCategories(categories) {
+    allCategories = categories.slice();
+    renderCategoryGrids();
+}
+
+function renderCategoryGrids(selectedCategoryName) {
+    const mainGrid = document.getElementById('mainCategoryGrid');
+    const extendedGrid = document.getElementById('extendedCategories');
+    if (!mainGrid || !extendedGrid) return;
+
+    // 첫 줄: 전체 + 앞 mainCategoriesCount개
+    let mainCats = allCategories.slice(0, mainCategoriesCount);
+    let extendedCats = allCategories.slice(mainCategoriesCount);
+
+    // 선택된 카테고리가 extended에 있으면 첫 줄로 올림
+    if (selectedCategoryName && selectedCategoryName !== '전체') {
+        const idx = allCategories.findIndex(cat => cat.categoryName === selectedCategoryName);
+        if (idx >= mainCategoriesCount) {
+            // 해당 카테고리 객체를 첫 줄로 이동
+            const [catObj] = allCategories.splice(idx, 1);
+            allCategories.splice(0, 0, catObj); // 첫 번째(전체 다음)에 삽입
+            mainCats = allCategories.slice(0, mainCategoriesCount);
+            extendedCats = allCategories.slice(mainCategoriesCount);
+        }
+    }
+
+    // 메인 그리드 렌더링
+    let html = `<button class="category-item${selectedCategoryName==='전체'?' selected':''}" onclick="selectCategory(this, '전체')">
+        <div class="category-icon${selectedCategoryName==='전체'?' selected':''}"><i class="bi bi-grid-3x3-gap" style="font-size: 24px; color: #666;"></i></div>
+        <span class="category-name">전체</span>
+    </button>`;
+    mainCats.forEach(cat => {
+        html += `<button class="category-item${selectedCategoryName===cat.categoryName?' selected':''}" onclick="selectCategory(this, '${cat.categoryName}')">
+            <div class="category-icon${selectedCategoryName===cat.categoryName?' selected':''}">${cat.categoryImage ? `<img src="${cat.categoryImage}" alt="${cat.categoryName}" onerror="this.style.display='none';">` : ''}</div>
+            <span class="category-name">${cat.categoryName}</span>
+        </button>`;
+    });
+    html += `<button class="category-item" onclick="toggleMoreCategories()">
+        <div class="category-icon"><i id="moreIcon" class="bi bi-chevron-down" style="font-size: 24px; color: #666;"></i></div>
+        <span class="category-name" id="moreText">더보기</span>
+    </button>`;
+    mainGrid.innerHTML = html;
+
+    // 확장 그리드 렌더링
+    let extHtml = '';
+    extendedCats.forEach(cat => {
+        extHtml += `<button class="category-item${selectedCategoryName===cat.categoryName?' selected':''}" onclick="selectCategory(this, '${cat.categoryName}')">
+            <div class="category-icon${selectedCategoryName===cat.categoryName?' selected':''}">${cat.categoryImage ? `<img src="${cat.categoryImage}" alt="${cat.categoryName}" onerror="this.style.display='none';">` : ''}</div>
+            <span class="category-name">${cat.categoryName}</span>
+        </button>`;
+    });
+    extendedGrid.innerHTML = extHtml;
+}
