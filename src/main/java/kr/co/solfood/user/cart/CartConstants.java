@@ -14,11 +14,15 @@ public final class CartConstants {
     // === API 응답 관련 상수 ===
     public static final String RESULT_SUCCESS = "success";
     public static final String RESULT_ERROR = "error";
+    public static final String RESULT_ONGOING_PAYMENT = "ongoing_payment";
     
     // === 메시지 상수 ===
     public static final String MSG_LOGIN_REQUIRED = "로그인이 필요합니다.";
     public static final String MSG_CART_ADD_SUCCESS = "장바구니에 추가되었습니다.";
     public static final String MSG_CART_ADD_FAILED = "장바구니 추가에 실패했습니다.";
+    public static final String MSG_CART_ADD_FAILED_ONGOING_PAYMENT = "진행 중인 결제가 존재합니다.";
+    public static final String MSG_CART_ADD_SUCCESS_OTHER_CART = "다른 가게에 장바구니가 존재합니다. 이전 장바구니를 비웁니다.";
+    public static final String MSG_CART_EMPTY = "장바구니가 비어있습니다.";
     public static final String MSG_QUANTITY_UPDATE_SUCCESS = "수량이 변경되었습니다.";
     public static final String MSG_QUANTITY_UPDATE_FAILED = "수량 변경에 실패했습니다.";
     public static final String MSG_ITEM_REMOVE_SUCCESS = "장바구니에서 삭제되었습니다.";
@@ -49,4 +53,19 @@ public final class CartConstants {
     public static final String JSON_TOTAL_AMOUNT = "totalAmount";
     public static final String JSON_COUNT = "count";
     public static final String JSON_USERS = "users";
+    
+    // === 결제 상태 상수 ===
+    public static final String PAYMENT_STATUS_PENDING = "pending";
+    public static final String PAYMENT_STATUS_COMPLETED = "completed";
+    public static final String PAYMENT_STATUS_FAILED = "failed";
+    public static final String PAYMENT_STATUS_CANCELLED = "cancelled";
+    
+    // === 결제 정리 관련 메시지 ===
+    public static final String MSG_PAYMENT_COMPLETE_CLEANUP = "결제 완료 후 정리가 완료되었습니다.";
+    public static final String MSG_PAYMENT_CANCEL_CLEANUP = "결제 취소 후 정리가 완료되었습니다.";
+    public static final String MSG_EXPIRED_PAYMENT_CLEANUP = "만료된 결제가 정리되었습니다.";
+    
+    // === 스케줄러 관련 상수 ===
+    public static final int PAYMENT_EXPIRY_MINUTES = 30; // 30분 후 만료
+    public static final int CLEANUP_SCHEDULE_INTERVAL = 600000; // 10분 (밀리초)
 } 

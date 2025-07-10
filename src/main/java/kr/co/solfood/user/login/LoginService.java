@@ -35,4 +35,6 @@ public interface LoginService {
 
     // 사용자 ID로 단일 사용자 정보 조회
     UserVO getUserById(long userId);
+
+    List<UserVO> getUsersByIds(List<Long> userIds);
 }

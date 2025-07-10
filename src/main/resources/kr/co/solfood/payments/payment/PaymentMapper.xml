@@ -108,10 +108,23 @@
     <!-- 결제 정보 수정 -->
     <update id="updatePayment" parameterType="kr.co.solfood.payments.payment.PaymentVO">
         UPDATE payment SET
-            payment_cancel_amount = #{cancelAmount},
-            payment_cancel_reason = #{cancelReason},
-            payment_cancelled_at = #{cancelledAt},
+            payment_impuid = #{impUid},
+            payment_merchant_uid = #{merchantUid},
+            payment_method = #{payMethod},
+            payment_pg_provider = #{pgProvider},
+            payment_pg_tid = #{pgTid},
+            payment_receipt_url = #{receiptUrl},
             payment_status = #{status},
+            payment_status_detail = #{statusDetail},
+            payment_amount = #{amount},
+            payment_cancel_amount = #{cancelAmount},
+            payment_buyer_name = #{buyerName},
+            payment_buyer_email = #{buyerEmail},
+            payment_buyer_tel = #{buyerTel},
+            payment_fail_reason = #{failReason},
+            payment_cancel_reason = #{cancelReason},
+            payment_paid_at = #{paidAt},
+            payment_cancelled_at = #{cancelledAt},
             payment_used_point = #{paymentUsedPoint},
             payment_paid_amount = #{paymentPaidAmount},
             payment_updated_at = CURRENT_TIMESTAMP
@@ -157,9 +170,32 @@
     <!-- 사용자별 결제 내역 조회 -->
     <select id="selectPaymentsByUserId" resultMap="PaymentMap">
         SELECT * FROM payment 
-        WHERE users_id = #{userId}
+        WHERE users_id = #{usersId}
         ORDER BY payment_created_at DESC
-        LIMIT #{limit} OFFSET #{offset}
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 통합결제ID로 결제 내역 조회 -->
+    <select id="selectPaymentsByIntegratedPaymentId" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        WHERE integratedpayment_id = #{integratedpaymentId}
+    </select>
+
+    <!-- 매장별 결제 내역 조회 -->
+    <select id="selectPaymentsByStoreId" resultMap="PaymentMap">
+        SELECT p.* FROM payment p
+        JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
+        WHERE ip.store_id = #{storeId}
+        ORDER BY p.payment_created_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <!-- 결제 타입별 조회 -->
+    <select id="selectPaymentsByType" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        WHERE payment_method = #{paymentType}
+        ORDER BY payment_created_at DESC
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
 
@@ -168,14 +204,14 @@
         SELECT * FROM payment 
         WHERE payment_status = #{status}
         ORDER BY payment_created_at DESC
-        LIMIT #{limit} OFFSET #{offset}
+        LIMIT #{size} OFFSET #{offset}
     </select>
 
     <!-- 최근 결제 내역 조회 -->
     <select id="selectRecentPayments" resultMap="PaymentMap">
         SELECT * FROM payment 
         ORDER BY payment_created_at DESC
-        LIMIT #{limit}
+        LIMIT #{size}
     </select>
 
     <!-- 결제 통계 조회 -->
@@ -210,35 +246,75 @@
     <!-- 조건부 검색 -->
     <select id="searchPayments" resultMap="PaymentMap">
         <![CDATA[
-        SELECT * FROM payment
+        SELECT p.* FROM payment p
         ]]>
         <where>
-            <if test="intergratedpaymentId != null">
-                AND intergratedpayment_id = #{intergratedpaymentId}
+            <if test="storeId != null">
+                AND p.integratedpayment_id IN (
+                    SELECT integratedpayment_id FROM integrated_payment WHERE store_id = #{storeId}
+                )
             </if>
             <if test="usersId != null">
-                AND users_id = #{usersId}
+                AND p.users_id = #{usersId}
+            </if>
+            <if test="paymentType != null and paymentType != ''">
+                AND p.payment_method = #{paymentType}
             </if>
             <if test="status != null and status != ''">
-                AND payment_status = #{status}
+                AND p.payment_status = #{status}
             </if>
             <if test="startDate != null">
-                <![CDATA[AND payment_created_at >= #{startDate}]]>
+                <![CDATA[AND p.payment_created_at >= #{startDate}]]>
             </if>
             <if test="endDate != null">
-                <![CDATA[AND payment_created_at <= #{endDate}]]>
+                <![CDATA[AND p.payment_created_at <= #{endDate}]]>
             </if>
             <if test="minAmount != null">
-                <![CDATA[AND payment_amount >= #{minAmount}]]>
+                <![CDATA[AND p.payment_amount >= #{minAmount}]]>
             </if>
             <if test="maxAmount != null">
-                <![CDATA[AND payment_amount <= #{maxAmount}]]>
+                <![CDATA[AND p.payment_amount <= #{maxAmount}]]>
             </if>
         </where>
         <![CDATA[
-        ORDER BY payment_created_at DESC
-        LIMIT #{limit} OFFSET #{offset}
+        ORDER BY p.payment_created_at DESC
+        LIMIT #{size} OFFSET #{offset}
         ]]>
+    </select>
+
+    <!-- 통합결제ID로 모든 결제 상태 업데이트 -->
+    <update id="updatePaymentStatusByIntegratedPaymentId">
+        UPDATE payment SET
+            payment_status = #{status},
+            payment_updated_at = CURRENT_TIMESTAMP
+        WHERE integratedpayment_id = #{integratedPaymentId}
+    </update>
+
+    <!-- 사용자별 진행중인 결제 조회 (pending 상태) -->
+    <select id="selectOngoingPaymentByUserId" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        WHERE users_id = #{userId} 
+        AND payment_status = 'pending'
+        ORDER BY payment_created_at DESC
+    </select>
+
+    <!-- 간단한 결제 상태 업데이트 (응답용) -->
+    <update id="updatePaymentStatusSimple">
+        UPDATE payment SET
+            payment_status = #{status},
+            payment_updated_at = CURRENT_TIMESTAMP
+        WHERE payment_id = #{paymentId}
+    </update>
+
+    <!-- 사용자ID로 발의자 결제 조회 (진행중인 것만) -->
+    <select id="selectLeaderPaymentByUserId" resultMap="PaymentMap">
+        SELECT p.* FROM payment p
+        JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
+        WHERE ip.integratedpayment_leader_id = #{userId}
+        AND p.users_id = #{userId}
+        AND p.payment_status = 'pending'
+        ORDER BY p.payment_created_at DESC
+        LIMIT 1
     </select>
 
 </mapper>

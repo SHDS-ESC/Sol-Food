@@ -36,4 +36,6 @@ public interface LoginMapper {
 
     // 사용자 ID로 단일 사용자 정보 조회
     UserVO getUserById(long userId);
+
+    List<UserVO> getUsersByIds(@Param("userIds") List<Long> userIds);
 }

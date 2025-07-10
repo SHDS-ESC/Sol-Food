@@ -1,7 +1,9 @@
 package kr.co.solfood.admin.home;
 
+import com.google.api.Page;
 import kr.co.solfood.admin.dto.*;
 import kr.co.solfood.util.CustomException;
+import kr.co.solfood.util.PageDTO;
 import kr.co.solfood.util.PageMaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -221,24 +223,46 @@ public class AdminHomeController {
     @GetMapping("/daily-users")
     @ResponseBody
     public List<DailyUsersDto> dailyUsers(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
-            /*
-            * fetch('/admin/daily-users?from=2025-06-01&to=2025-07-01')
-                .then(r => r.json())
-                .then(data => {
-                    const labels = data.map(d => d.date);         // x축
-                    const daily   = data.map(d => d.daily);
-                    const cumu    = data.map(d => d.cumulative);
-
-     // Chart.js 2개의 라인: daily·cumulative
-  });
-            * */
-        if (to == null) to = LocalDate.now();             // 오늘
-        if (from == null) from = LocalDate.of(2025, 1, 1);    // 임의 시작일
+            @RequestParam(required = false) String date) {
+        LocalDate to = LocalDate.now();             // 오늘
+        LocalDate from = LocalDate.of(2025, 1, 1);    // 기본값
 
         return analyticsService.getDailyTotalUsers(from, to);
     }
+
+    @GetMapping("/home/boards")
+    @ResponseBody
+    public PageMaker<CommunityResponseDto> getCommunityResponseDtos(CommunityRequestDto communityRequestDto, Model model) {
+        try {
+            return adminHomeService.getCommunityResponses(communityRequestDto);
+        } catch (CustomException e) {
+            model.addAttribute("error", e.getMessage());
+            return new PageMaker<>();
+        }
+    }
+
+    @GetMapping("/home/reviews")
+    @ResponseBody
+    public PageMaker<OwnerReviewResponseDto> getOwnerReviewDtos(OwnerReviewRequestDto ownerReviewRequestDto, Model model) {
+        try {
+            return adminHomeService.getOwnerReviews(ownerReviewRequestDto);
+        } catch (CustomException e) {
+            model.addAttribute("error", e.getMessage());
+            return new PageMaker<>();
+        }
+    }
+
+    @GetMapping("/home/reviews/delete")
+    @ResponseBody
+    public void deleteOwnerReview(@RequestParam("reviewId") long reviewId, Model model) {
+        try {
+            adminHomeService.deleteOwnerReview(reviewId);
+        } catch (CustomException e) {
+            log.info("Owner review deletion failed: {}", e.getMessage());
+            model.addAttribute("error", e.getMessage());
+        }
+    }
+
 
     @GetMapping("/payment-management/search")
     @ResponseBody

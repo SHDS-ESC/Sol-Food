@@ -19,4 +19,10 @@ public interface AdminHomeService {
     void updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO);
 
     PageMaker<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto);
+
+    PageMaker<OwnerReviewResponseDto> getOwnerReviews(OwnerReviewRequestDto ownerReviewRequestDto);
+
+    PageMaker<CommunityResponseDto> getCommunityResponses(CommunityRequestDto communityRequestDto);
+
+    void deleteOwnerReview(long reviewId);
 }

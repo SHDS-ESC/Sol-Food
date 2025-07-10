@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let totalAmount = 0;
 
     // 1. 더치페이 API로 참여자/금액 데이터 받아오기
-    fetch('/solfood/user/cart/calculate-dutch-pay', {
+    fetch(window.UrlConstants.Builder.fullUrl('/user/cart/calculate-dutch-pay'), {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
     })
@@ -63,15 +63,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const idx = input.dataset.idx;
             participants[idx].amount = parseInt(input.value) || 0;
         });
-        fetch('/solfood/user/cart/submit-bill', {
+        fetch(window.UrlConstants.Builder.fullUrl('/user/cart/submit-bill'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ bill: participants })
         })
-        .then(res => res.json())
+        .then(response => response.json())
         .then(data => {
             if (data.result === 'success') {
-                window.location.href = '/solfood/user/cart/waiting-approval';
+                window.location.href = window.UrlConstants.Builder.fullUrl('/user/cart/waiting-approval');
+            } else if (data.result === 'ongoing_payment') {
+                // 진행중인 결제가 있는 경우 waiting-approval 페이지로 이동
+                showErrorPopup(data.message || '진행중인 결제가 있습니다.');
+                setTimeout(() => {
+                    window.location.href = UrlConstants.Builder.fullUrl('/user/cart/waiting-approval');
+                }, 1500);
             } else {
                 showErrorPopup(data.message || '영수증 생성에 실패했습니다.');
             }

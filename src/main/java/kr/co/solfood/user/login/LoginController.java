@@ -54,11 +54,46 @@ public class LoginController {
         return "user/login/loginpage";
     }
 
+    // 자체 로그인
+    @PostMapping("/native-login")
+    public String nativeLogin(LoginRequest req, HttpSession sess, Model model) {
+        UserVO userVo = service.nativeLogin(req);
+        if(userVo !=null){
+
+            // 비활성화일때
+            if("inactive".equals(userVo.getUsersStatus())){
+                sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, userVo);
+                return "redirect:" + UrlConstants.Common.ROOT;
+            } else if ("withdraw".equals(userVo.getUsersStatus())) {
+                model.addAttribute("msg", "탈퇴한 회원입니다.");
+                return "user/login/loginpage"; // 로그인 페이지로 다시 이동
+            }
+
+            sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, userVo);
+            return "redirect:" + UrlConstants.Common.ROOT;
+        } else {
+            model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
+            return "user/login/loginpage"; // 로그인 페이지로 다시 이동
+        }
+    }
+
+
     // 카카오 로그인
     @Transactional
     @GetMapping("/kakao-login")
-    public String kakaoLogin(@RequestParam String code, HttpSession sess) {
+    public String kakaoLogin(@RequestParam String code, HttpSession sess, Model model) {
+        System.out.println("code:" + code);
         UserVO kakaoLogin = service.confirmAccessToken(code);
+
+        // 비활성화일때
+        if("inactive".equals(kakaoLogin.getUsersStatus())){
+            sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, kakaoLogin);
+            return "redirect:" + UrlConstants.Common.ROOT;
+        } else if ("withdraw".equals(kakaoLogin.getUsersStatus())) {
+            model.addAttribute("msg", "탈퇴한 회원입니다.");
+            return "user/login/loginpage"; // 로그인 페이지로 다시 이동
+        }
+
         sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, kakaoLogin);
         return service.confirmKakaoLoginWithFirst(kakaoLogin) ? "redirect:" + UrlConstants.User.LOGIN_EXTRA : "redirect:" + UrlConstants.Common.ROOT;
     }
@@ -86,18 +121,6 @@ public class LoginController {
         return "redirect:" + UrlConstants.Common.ROOT;
     }
 
-    // 자체 로그인
-    @PostMapping("/native-login")
-    public String nativeLogin(LoginRequest req, HttpSession sess, Model model) {
-        UserVO userVo = service.nativeLogin(req);
-        if(userVo !=null){
-            sess.setAttribute(UrlConstants.Session.USER_LOGIN_SESSION, userVo);
-            return "redirect:" + UrlConstants.Common.ROOT;
-        } else {
-            model.addAttribute("msg", "아이디 또는 비밀번호가 일치하지 않습니다.");
-            return "user/login/loginpage"; // 로그인 페이지로 다시 이동
-        }
-    }
 
     // 아이디 찾기
     @GetMapping("/search-id")

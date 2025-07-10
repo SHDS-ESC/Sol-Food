@@ -118,29 +118,39 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
+
     // 모든 결제 옵션에 클릭 이벤트 추가
     paymentOptions.forEach(option => {
         option.addEventListener('click', function() {
             // 이전 선택 제거
             paymentOptions.forEach(opt => opt.classList.remove('selected'));
-            
+
             // 현재 선택 추가
             this.classList.add('selected');
             selectedMethod = this.dataset.method;
-            
+
             // 다음 단계 버튼 활성화
             continueBtn.removeAttribute('disabled');
         });
     });
     
-    // 다음 단계 버튼 클릭 처리
-    continueBtn.addEventListener('click', function() {
-        if (!selectedMethod) return;
-        if (selectedMethod === 'group') {
-            window.location.href = UrlConstants.Builder.fullUrl('/user/cart/invite-friends');
-        } else {
-            window.location.href = UrlConstants.Builder.fullUrl('/user/cart/make-bill');
-        }
-    });
-}); 
+    // 계속하기 버튼 클릭 이벤트
+    const continueBtn = document.getElementById('continueBtn');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', proceedToNext);
+    }
+});
+
+// payment-method 페이지 진입 시 inviteMap 초기화 (뒤로가기/캐시 복원 포함)
+window.addEventListener('pageshow', function(event) {
+    fetch(window.UrlConstants.Builder.fullUrl('/user/cart/invite-reset'), { method: 'POST', credentials: 'include' });
+});
+// 다음 단계 버튼 클릭 처리
+continueBtn.addEventListener('click', function() {
+    if (!selectedMethod) return;
+    if (selectedMethod === 'group') {
+        window.location.href = UrlConstants.Builder.fullUrl('/user/cart/invite-friends');
+    } else {
+        window.location.href = UrlConstants.Builder.fullUrl('/user/cart/make-bill');
+    }
+});

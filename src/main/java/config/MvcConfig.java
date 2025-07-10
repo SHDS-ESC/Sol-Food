@@ -14,6 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
@@ -39,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 @MapperScan(basePackages = "kr.co.solfood", annotationClass = Mapper.class) // @Mapper 어노테이션이 있는 인터페이스만 Proxy개체로 생성
 @EnableTransactionManagement // 트랜잭션 활성화
 @EnableAspectJAutoProxy // AOP 활성화
+@EnableScheduling // 스케줄러 활성화
 @PropertySource("classpath:application.properties")
 public class MvcConfig implements WebMvcConfigurer, InitializingBean {
     @Autowired

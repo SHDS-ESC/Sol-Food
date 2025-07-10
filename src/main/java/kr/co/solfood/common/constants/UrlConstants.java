@@ -57,6 +57,7 @@ public final class UrlConstants {
         public static final String CART_REMOVE = CART_BASE + "/remove";
         public static final String CART_CLEAR = CART_BASE + "/clear";
         public static final String CART_COUNT = CART_BASE + "/count";
+        public static final String CART_COMPARE_STORE = CART_BASE + "/compare-store";
         public static final String CART_PAYMENT_METHOD = CART_BASE + "/payment-method";
         public static final String CART_INVITE_FRIENDS = CART_BASE + "/invite-friends";
         public static final String CART_WAITING_APPROVAL = CART_BASE + "/waiting-approval";

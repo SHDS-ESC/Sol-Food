@@ -151,6 +151,7 @@ uri="http://www.springframework.org/tags/form" %>
       </div>
     </div>
     <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script>
       var tabType = "${tabType}";
 
@@ -236,12 +237,12 @@ uri="http://www.springframework.org/tags/form" %>
                 $("#new-password").val(newPw);
                 $(".pw-result").fadeIn(); // 비밀번호 결과 보여주기
               } else {
-                alert("입력하신 정보와 일치하는 계정이 없습니다.");
+                showWarningPopup("입력하신 정보와 일치하는 계정이 없습니다.");
                 $(".pw-result").fadeOut();
               }
             },
             error: function () {
-              alert("비밀번호 찾기 요청 중 오류가 발생했습니다.");
+              showWarningPopup("비밀번호 찾기 요청 중 오류가 발생했습니다.");
               $(".pw-result").fadeOut();
             },
             complete: function () {
