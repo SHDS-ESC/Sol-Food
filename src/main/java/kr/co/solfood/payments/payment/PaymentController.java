@@ -2,6 +2,7 @@ package kr.co.solfood.payments.payment;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +20,19 @@ import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
+import kr.co.solfood.payments.integrated.IntegratedPaymentVO;
+import kr.co.solfood.payments.integrated.IntegratedPaymentService;
+import kr.co.solfood.user.login.LoginService;
+import kr.co.solfood.user.cart.GroupPaymentManager;
 
 @RestController
 @RequestMapping("/payments/payment")
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final IntegratedPaymentService integratedPaymentService;
+    private final LoginService loginService;
+    private final GroupPaymentManager groupPaymentManager;
     private final String apiKey;
     private final String apiSecret;
     private IamportClient iamportClient;
@@ -32,10 +40,16 @@ public class PaymentController {
     // 생성자 주입
     public PaymentController(
         PaymentService paymentService,
+        IntegratedPaymentService integratedPaymentService,
+        LoginService loginService,
+        GroupPaymentManager groupPaymentManager,
         @Value("${imp.api.key}") String apiKey,
         @Value("${imp.api.secretkey}") String apiSecret
     ) {
         this.paymentService = paymentService;
+        this.integratedPaymentService = integratedPaymentService;
+        this.loginService = loginService;
+        this.groupPaymentManager = groupPaymentManager;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
     }
@@ -74,6 +88,11 @@ public class PaymentController {
         if (paymentService.isAlreadyProcessed(imp_uid)) {
             throw new IllegalStateException("이미 처리된 결제입니다.");
         }
+        
+        // 3-1. merchant_uid 중복 체크
+        if (paymentService.isMerchantUidAlreadyUsed(merchantUid)) {
+            throw new IllegalStateException("이미 사용된 주문번호입니다: " + merchantUid);
+        }
     
         // 4. 사용자 검증
         UserVO user = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
@@ -95,12 +114,15 @@ public class PaymentController {
         // 6. 결제 정보 업데이트
         updatePaymentWithIamportData(leaderPayment, payment, imp_uid, merchantUid);
         paymentService.updatePayment(leaderPayment);
+        
+        // 7. 그룹 결제 상태 업데이트 (SSE 알림용)
+        groupPaymentManager.updatePaymentStatus(leaderPayment.getIntegratedpaymentId(), user.getUsersId(), "paid");
     
         return paymentResponse;
     }
 
     /**
-     * 통합 결제 검증 API (발의자, 수신자 공통)
+     * 통합 결제 검증 API
      * Payment ID로 직접 결제 처리
      */
     @PostMapping("/verify/{paymentId}")
@@ -129,6 +151,11 @@ public class PaymentController {
         if (paymentService.isAlreadyProcessed(imp_uid)) {
             throw new IllegalStateException("이미 처리된 결제입니다.");
         }
+        
+        // 3-1. merchant_uid 중복 체크
+        if (paymentService.isMerchantUidAlreadyUsed(merchantUid)) {
+            throw new IllegalStateException("이미 사용된 주문번호입니다: " + merchantUid);
+        }
     
         // 4. 사용자 검증
         UserVO user = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
@@ -155,6 +182,9 @@ public class PaymentController {
         // 6. 결제 정보 업데이트
         updatePaymentWithIamportData(targetPayment, payment, imp_uid, merchantUid);
         paymentService.updatePayment(targetPayment);
+        
+        // 7. 그룹 결제 상태 업데이트 (SSE 알림용)
+        groupPaymentManager.updatePaymentStatus(targetPayment.getIntegratedpaymentId(), user.getUsersId(), "paid");
     
         return paymentResponse;
     }
@@ -173,10 +203,6 @@ public class PaymentController {
         // Iamport에서 받은 금액은 실제 PG사 결제 금액
         int actualPaidAmount = payment.getAmount().intValue();
         paymentVO.setPaymentPaidAmount(actualPaidAmount);
-        
-        // amount는 총 결제 금액으로 유지 (이미 설정되어 있음)
-        // amount = paymentUsedPoint + paymentPaidAmount
-        
         paymentVO.setCancelAmount(payment.getCancelAmount() != null ? payment.getCancelAmount().intValue() : null);
         paymentVO.setBuyerName(payment.getBuyerName());
         paymentVO.setBuyerEmail(payment.getBuyerEmail());
@@ -289,7 +315,7 @@ public class PaymentController {
             }
 
             Integer storeId = paymentService.getStoreIdByIntegratedPaymentId(integratedPaymentId);
-            
+
             if (storeId != null) {
                 response.put("success", true);
                 response.put("data", storeId);
@@ -301,6 +327,76 @@ public class PaymentController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "가게 정보 조회 중 오류가 발생했습니다: " + e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * Payment ID로 결제 정보 조회 API (참여자용 - 같은 integratedPaymentId의 모든 payment 조회)
+     */
+    @GetMapping("/{paymentId}")
+    @ResponseBody
+    public Map<String, Object> getPaymentById(
+            @PathVariable int paymentId,
+            HttpSession session) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            UserVO user = (UserVO) session.getAttribute("userLoginSession");
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            PaymentVO payment = paymentService.getPaymentById(paymentId);
+            if (payment == null) {
+                response.put("success", false);
+                response.put("message", "결제 정보를 찾을 수 없습니다.");
+                return response;
+            }
+
+            // 본인의 결제인지 확인
+            if (payment.getUsersId() != user.getUsersId()) {
+                response.put("success", false);
+                response.put("message", "본인의 결제가 아닙니다.");
+                return response;
+            }
+
+            // 같은 integratedPaymentId를 가진 모든 payment 조회
+            List<PaymentVO> allPayments = paymentService.getPaymentsByIntegratedPaymentId(payment.getIntegratedpaymentId());
+            
+            // 각 payment에 대한 사용자 정보 조회
+            List<Map<String, Object>> participants = new ArrayList<>();
+            for (PaymentVO participantPayment : allPayments) {
+                UserVO participant = loginService.getUserById(participantPayment.getUsersId());
+                if (participant != null) {
+                    Map<String, Object> participantInfo = new HashMap<>();
+                    participantInfo.put("usersId", participant.getUsersId());
+                    participantInfo.put("usersName", participant.getUsersName());
+                    participantInfo.put("usersProfile", participant.getUsersProfile());
+                    participantInfo.put("companyName", participant.getCompanyName());
+                    participantInfo.put("departmentName", participant.getDepartmentName());
+                    participantInfo.put("paymentAmount", participantPayment.getAmount());
+                    participantInfo.put("paymentStatus", participantPayment.getStatus());
+                    participantInfo.put("paymentId", participantPayment.getPaymentId());
+                    participants.add(participantInfo);
+                }
+            }
+
+            // 통합결제 정보 조회
+            IntegratedPaymentVO integratedPayment = integratedPaymentService.getIntegratedPaymentById(payment.getIntegratedpaymentId());
+
+            response.put("success", true);
+            response.put("payment", payment);
+            response.put("participants", participants);
+            response.put("totalAmount", integratedPayment != null ? integratedPayment.getIntegratedpaymentAmount() : 0);
+            response.put("integratedPaymentId", payment.getIntegratedpaymentId());
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "결제 정보 조회에 실패했습니다: " + e.getMessage());
         }
         return response;
     }

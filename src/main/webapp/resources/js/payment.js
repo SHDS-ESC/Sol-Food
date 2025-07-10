@@ -10,6 +10,8 @@
  * @param {string} [options.buyer_email=''] - 구매자 이메일 (기본값: 빈 문자열)
  * @param {string} [options.buyer_name=''] - 구매자 이름 (기본값: 빈 문자열)
  * @param {string} [options.buyer_tel=''] - 구매자 전화번호 (기본값: 빈 문자열)
+ * @param {string} [options.role='leader'] - 사용자 역할 (leader 또는 participant)
+ * @param {number} [options.paymentId] - Payment ID (participant 역할에서 사용)
  * @param {Function} callback - 결제 완료 후 실행될 콜백 함수
  * @param {Object} callback.response - 결제 응답 객체
  * @param {string} callback.response.imp_uid - 아임포트 결제 고유번호
@@ -26,6 +28,25 @@ function requestPayment(options, callback) {
     IMP.init(options.impCode);
 
     console.log("impCode:", options.impCode);
+    console.log("Payment options:", options);
+
+    // 결제 완료 후 처리 함수
+    function handlePaymentResponse(response) {
+        console.log("결제 응답:", response);
+        
+        if (response.success) {
+            // 결제 성공 시 서버 검증
+            verifyPayment(response, options);
+        } else {
+            // 결제 실패
+            showPaymentErrorAlert("결제 실패", response.error_msg || "결제 처리 중 오류가 발생했습니다.");
+        }
+        
+        // 원본 콜백이 있다면 실행
+        if (callback) {
+            callback(response);
+        }
+    }
 
     IMP.request_pay({
         pg: options.pg || 'html5_inicis',
@@ -37,7 +58,55 @@ function requestPayment(options, callback) {
         buyer_name: options.buyer_name || '',
         buyer_tel: options.buyer_tel || '',
         // 필요시 추가 옵션
-    }, callback);
+    }, handlePaymentResponse);
+}
+
+/**
+ * 결제 검증 및 서버 처리
+ * @param {Object} response - 아임포트 결제 응답
+ * @param {Object} options - 원본 결제 옵션
+ */
+function verifyPayment(response, options) {
+    const verifyData = {
+        imp_uid: response.imp_uid,
+        amount: response.paid_amount,
+        merchant_uid: response.merchant_uid
+    };
+    
+    // 역할에 따라 다른 API 호출
+    let apiUrl;
+    if (options.role === 'participant' && options.paymentId) {
+        // 참여자: Payment ID로 검증
+        apiUrl = getContextPath() + `/payments/payment/verify/${options.paymentId}`;
+    } else {
+        // 발의자: 사용자 세션으로 검증
+        apiUrl = getContextPath() + '/payments/payment/leader-payment/verify';
+    }
+    
+    console.log("결제 검증 API 호출:", apiUrl);
+    
+    $.ajax({
+        url: apiUrl,
+        type: 'POST',
+        data: verifyData,
+        success: function(verifyResponse) {
+            console.log("결제 검증 응답:", verifyResponse);
+            
+            if (verifyResponse.success) {
+                showPaymentSuccessAlert(
+                    "결제가 완료되었습니다!",
+                    "그룹 결제에 성공적으로 참여했습니다.",
+                    getContextPath() + "/user/cart/payment-complete"
+                );
+            } else {
+                showPaymentErrorAlert("결제 검증 실패", verifyResponse.message || "결제 검증 중 오류가 발생했습니다.");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("결제 검증 오류:", error);
+            showPaymentErrorAlert("결제 검증 실패", "서버와의 통신 중 오류가 발생했습니다.");
+        }
+    });
 }
 
 /**

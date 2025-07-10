@@ -151,18 +151,28 @@ public interface PaymentMapper extends CommonPaymentMapper {
      */
     int updatePaymentStatusSimple(@Param("paymentId") int paymentId, @Param("status") String status);
     
-         /**
-      * 사용자ID로 발의자 결제 조회 (진행중인 것만)
-      */
-     PaymentVO selectLeaderPaymentByUserId(@Param("userId") long userId);
-     
+    /**
+     * 사용자ID로 발의자 결제 조회 (진행중인 것만)
+     */
+    PaymentVO selectLeaderPaymentByUserId(@Param("userId") long userId);
+
+    /**
+     * 사용자별 진행중인 결제 조회 (만료 여부 포함)
+     */
+    List<Map<String, Object>> selectOngoingPaymentByUserIdWithExpiration(@Param("userId") long userId);
+
      /**
       * 통합결제ID로 가게ID 조회
       */
      Integer selectStoreIdByIntegratedPaymentId(@Param("integratedPaymentId") int integratedPaymentId);
-     
+
      /**
       * 결제별 리뷰 작성 여부 확인
       */
      boolean hasReviewForPayment(@Param("paymentId") int paymentId, @Param("userId") long userId);
+     
+     /**
+      * merchant_uid 중복 체크
+      */
+     boolean isMerchantUidAlreadyUsed(@Param("merchantUid") String merchantUid);
  }
