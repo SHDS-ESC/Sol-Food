@@ -441,15 +441,9 @@
         </a>
       </li>
       <li>
-        <a href="#" data-tab="testimonials">
+        <a href="${pageContext.request.contextPath}/owner/review">
           <span class="icon">💬</span>
           <span>리뷰 관리</span>
-        </a>
-      </li>
-      <li>
-        <a href="#" data-tab="faq">
-          <span class="icon">❓</span>
-          <span>FAQ</span>
         </a>
       </li>
     </ul>
@@ -613,6 +607,7 @@
   </div>
 </div>
 
+<script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
 <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>

@@ -25,7 +25,7 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
-        WHERE s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL
+        WHERE s.store_status = <![CDATA['승인완료']]>
         ORDER BY COALESCE(like_counts.like_count, 0) DESC, s.store_id DESC
     </select>
 
@@ -48,7 +48,7 @@
         FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
         WHERE s.store_id = #{storeId}
-        AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+        AND s.store_status = <![CDATA['승인완료']]>
     </select>
 
     <!-- 카테고리별 조회 (성능 개선: 인덱스 활용하도록 수정) -->
@@ -71,7 +71,7 @@
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
@@ -99,8 +99,13 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
+        LEFT JOIN (
+        SELECT store_id, AVG(review_star) as real_avg_star
+        FROM review
+        GROUP BY store_id
+        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="keyword != null and keyword != ''">
                 AND (
                 s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -143,7 +148,7 @@
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="storeName != null and storeName != ''">
                 AND s.store_name LIKE CONCAT('%', #{storeName}, '%')
             </if>
@@ -179,7 +184,7 @@
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="address != null and address != ''">
                 AND s.store_address LIKE CONCAT('%', #{address}, '%')
             </if>
@@ -252,8 +257,13 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
+        LEFT JOIN (
+        SELECT store_id, AVG(review_star) as real_avg_star
+        FROM review
+        GROUP BY store_id
+        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
@@ -264,14 +274,14 @@
 
     <select id="countAllStores" resultType="long">
         SELECT COUNT(*) FROM store
-        WHERE store_status = <![CDATA['승인완료']]> OR store_status IS NULL
+        WHERE store_status = <![CDATA['승인완료']]>
     </select>
 
     <select id="countStoresByCategory" resultType="long">
         SELECT COUNT(*) FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
@@ -302,8 +312,13 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
+        LEFT JOIN (
+        SELECT store_id, AVG(review_star) as real_avg_star
+        FROM review
+        GROUP BY store_id
+        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="keyword != null and keyword != ''">
                 AND (
                 s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -330,7 +345,7 @@
         SELECT COUNT(*) FROM store s
         LEFT JOIN category c ON s.category_id = c.category_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="keyword != null and keyword != ''">
                 AND (
                 s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -365,13 +380,7 @@
         LEFT JOIN category c ON s.category_id = c.category_id
         LEFT JOIN user_likes ul ON s.store_id = ul.store_id AND ul.users_id = #{usersId}
         WHERE s.store_id = #{storeId}
-        AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
-        <where>
-            AND (s.store_status = 'approved' OR s.store_status IS NULL)
-            <if test="category != null and category != '' and category != '전체'">
-                AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
-            </if>
-        </where>
+        AND s.store_status = <![CDATA['승인완료']]>
         <choose>
             <when test="sort == 'like'">
                 ORDER BY COALESCE(like_counts.like_count, 0) DESC, s.store_id DESC
@@ -412,8 +421,13 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
+        LEFT JOIN (
+        SELECT store_id, AVG(review_star) as real_avg_star
+        FROM review
+        GROUP BY store_id
+        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="category != null and category != '' and category != '전체'">
                 AND COALESCE(c.category_name, '전체') LIKE CONCAT(#{category}, '%')
             </if>
@@ -423,7 +437,10 @@
                 ORDER BY COALESCE(like_counts.like_count, 0) DESC, s.store_id DESC
             </when>
             <when test="sort == 'star'">
-                ORDER BY s.store_avgstar DESC, s.store_id DESC
+                ORDER BY 
+                CASE WHEN COALESCE(avg_stars.real_avg_star, 0) > 0 THEN 1 ELSE 0 END DESC,
+                COALESCE(avg_stars.real_avg_star, 0) DESC,
+                s.store_id DESC
             </when>
             <otherwise>
                 ORDER BY s.store_id DESC
@@ -458,8 +475,13 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
+        LEFT JOIN (
+        SELECT store_id, AVG(review_star) as real_avg_star
+        FROM review
+        GROUP BY store_id
+        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
-            AND (s.store_status = <![CDATA['승인완료']]> OR s.store_status IS NULL)
+            AND s.store_status = <![CDATA['승인완료']]>
             <if test="keyword != null and keyword != ''">
                 AND (
                 s.store_name LIKE CONCAT('%', #{keyword}, '%')
@@ -470,18 +492,6 @@
             </if>
         </where>
         <choose>
-            <when test="sort == 'star'">
-                ORDER BY
-                s.store_avgstar DESC,
-                CASE
-                WHEN s.store_name LIKE CONCAT(#{keyword}, '%') THEN 1
-                WHEN s.store_name LIKE CONCAT('%', #{keyword}, '%') THEN 2
-                WHEN COALESCE(c.category_name, '전체') LIKE CONCAT('%', #{keyword}, '%') THEN 3
-                WHEN s.store_address LIKE CONCAT('%', #{keyword}, '%') THEN 4
-                ELSE 5
-                END,
-                s.store_id DESC
-            </when>
             <when test="sort == 'like'">
                 ORDER BY
                 COALESCE(like_counts.like_count, 0) DESC,
@@ -506,6 +516,12 @@
                 END,
                 s.store_id DESC
             </when>
+            <when test="sort == 'star'">
+                ORDER BY 
+                CASE WHEN COALESCE(avg_stars.real_avg_star, 0) > 0 THEN 1 ELSE 0 END DESC,
+                COALESCE(avg_stars.real_avg_star, 0) DESC,
+                s.store_id DESC
+            </when>
             <otherwise>
                 ORDER BY
                 s.store_id DESC,
@@ -519,6 +535,25 @@
             </otherwise>
         </choose>
         LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- ========================= 별점 평균 업데이트 쿼리 ========================= -->
+    
+    <!-- 가게의 평균 별점 업데이트 -->
+    <update id="updateStoreAvgStar">
+        UPDATE store 
+        SET store_avgstar = #{avgStar}
+        WHERE store_id = #{storeId}
+    </update>
+
+    <!-- 인기식당 10위 -->
+    <select id="getTop10PopularStores" resultType="kr.co.solfood.user.store.StoreVO">
+        SELECT s.*, COUNT(l.store_id) AS likeCount
+        FROM store s
+                 LEFT JOIN user_likes l ON s.store_id = l.store_id
+        GROUP BY s.store_id
+        ORDER BY likeCount DESC, s.store_id DESC
+            LIMIT 10
     </select>
 
 </mapper>

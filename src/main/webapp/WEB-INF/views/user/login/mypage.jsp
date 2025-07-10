@@ -1,79 +1,87 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-         pageEncoding="UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<script src="https://code.jquery.com/jquery-3.7.1.js"
-        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-        crossorigin="anonymous"></script>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>마이페이지</title>
-    <link href="<c:url value='/css/mypage.css' />" rel="stylesheet">
+    <title>Sol-Food</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/reset.css" rel="stylesheet"/>
+    <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet"/>
+    <link href="${pageContext.request.contextPath}/css/mypage.css" rel="stylesheet"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
 </head>
 <body>
-<div class="mypage-app">
-    <script>
-        // Context Path를 JavaScript에서 사용할 수 있도록 설정
-        var contextPath = '${pageContext.request.contextPath}';
-    </script>
+<div class="wrap">
+    <%@ include file="/WEB-INF/views/user/include/header.jsp" %>
+    <div class="content mypage">
     <div class="mypage-header">
-        <button class="mypage-btn" onclick="location.href='${pageContext.request.contextPath}/user/login/logout'">로그아웃</button>
-        <span class="menu-text">전체메뉴</span>
-        <div class="profile-thumb"></div>
+        <c:choose>
+            <c:when test="${not empty userLoginSession.usersProfile}">
+                <img class="profile-img"
+                     src="${userLoginSession.usersProfile}"
+                     alt="프로필 이미지">
+            </c:when>
+            <c:otherwise>
+                <img class="profile-img"
+                     src="/img/main-character.png"
+                     alt="프로필 이미지">
+            </c:otherwise>
+        </c:choose>
+        <div class="nickname">${userLoginSession.usersNickname} 님</div>
+        <div class="welcome-msg">오늘도 SolFood와 함께 맛있는 하루!</div>
     </div>
-    <div class="profile-section">
-        <img class="profile-img" src='${not empty userLoginSession.usersProfile ? userLoginSession.usersProfile :
-        "https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800"}' alt='프로필 이미지'>
-        <div class="nickname">${userLoginSession.usersNickname } 님</div>
-    </div>
-    <div class="point-box" onclick="showComingSoonAlert('point')">
-        <div class="point-title">포인트 충전</div>
-        <div class="point-amount">10000p <span class="arrow">&gt;</span></div>
-    </div>
-    <div class="mypage-menu">
-        <div class="menu-row">
-            <div class="menu-item" onclick="location.href='${pageContext.request.contextPath}/user/mypage/info'">
-                <div class="icon user"></div>
-                <div>내 정보</div>
-            </div>
-            <div class="menu-item" onclick="location.href='${pageContext.request.contextPath}/user/mypage/like'">
-                <div class="icon heart"></div>
-                <div>찜</div>
-            </div>
+
+    <main>
+        <section class="point-section">
+            <a class="point-card" href="${pageContext.request.contextPath}/user/mypage/charge">
+                💰 마이포인트
+                <span class="point-value">
+                <c:choose>
+                    <c:when test="${not empty userLoginSession.usersPoint}">
+                        ${userLoginSession.usersPoint}
+                    </c:when>
+                    <c:otherwise>100</c:otherwise>
+                </c:choose> 원
+                </span>
+            </a>
+        </section>
+        <div class="main-menu-grid">
+            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/edit">
+                <span><span class="menu-icon">👤</span>내 정보 수정</span>
+                <div class="menu-arrow">&gt;</div>
+            </a>
+            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/like">
+                <span><span class="menu-icon">❤️</span>내 찜 </span>
+                <div class="menu-arrow">&gt;</div>
+            </a>
+            <a class="menu-card" href="${pageContext.request.contextPath}/user/mypage/payment-history">
+                <span><span class="menu-icon">💳</span>결제 내역</span>
+                <span class="menu-arrow">&gt;</span>
+            </a>
+            <a class="menu-card" href="${pageContext.request.contextPath}/user/review/my-review">
+                <span><span class="menu-icon">💬</span>리뷰 관리</span>
+                <span class="menu-arrow">&gt;</span>
+            </a>
         </div>
 
-        <div class="menu-row">
-            <div class="menu-item" onclick="showComingSoonAlert('reservation')">
-                <div class="icon doc"></div>
-                <div>예약 내역</div>
-            </div>
-            <div class="menu-item" onclick="showComingSoonAlert('payment')">
-                <div class="icon pay"></div>
-                <div>결제 내역</div>
-            </div>
-        </div>
+        <c:choose>
+            <c:when test="${not empty sessionScope.userLoginSession}">
+                <a href="<c:url value="/user/login/logout"/>" class="btn btn-primary">로그아웃</a>
+            </c:when>
+        </c:choose>
+    </main>
     </div>
-    <div class="nav">
-        <button class="nav-btn"><span class="icon home"></span></button>
-        <button class="nav-btn"><span class="icon doc"></span></button>
-        <button class="nav-btn"><span class="icon user"></span></button>
-        <button class="nav-btn active"><span class="icon profile"></span></button>
-    </div>
+    <%@ include file="/WEB-INF/views/user/include/footer.jsp" %>
 </div>
-<script src="<c:url value='/js/urlConstants.js' />"></script>
-<script>
-// 준비 중인 기능 알림
-function showComingSoonAlert(type) {
-    const messages = {
-        point: '포인트 충전 기능 구현 예정!',
-        reservation: '예약 내역 페이지로 이동!',
-        payment: '결제 내역 페이지로 이동!'
-    };
-    alert(messages[type] || '준비 중인 기능입니다.');
-}
-</script>
-<script src="<c:url value='/js/mypage.js' />"></script>
+
+<script src="${pageContext.request.contextPath}/js/store.js?v=${pageContext.session.creationTime}"></script>
+<script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
+<script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
+
 </body>
 </html>

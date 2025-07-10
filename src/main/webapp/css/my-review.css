@@ -1,0 +1,669 @@
+/* 내 리뷰 관리 페이지 스타일 */
+
+.my-review {
+    padding: 20px;
+    padding-top: 80px;
+    min-height: 100vh;
+    background: #f8f9fa;
+}
+
+.review-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* 페이지 헤더 */
+.page-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.page-header h1 i {
+    margin-right: 8px;
+    color: #ff6b35;
+}
+
+.page-description {
+    color: #666;
+    font-size: 14px;
+}
+
+/* 리뷰 통계 */
+.review-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-item {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff6b35;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+}
+
+/* 필터 섹션 */
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.filter-tab {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: white;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-tab.active {
+    background: #ff6b35;
+    color: white;
+    border-color: #ff6b35;
+}
+
+.sort-dropdown select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+}
+
+/* 리뷰 목록 */
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.review-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-2px);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.review-store-info {
+    flex: 1;
+}
+
+.review-store-name {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.review-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.review-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.edit-btn {
+    background: #007bff;
+    color: white;
+}
+
+.edit-btn:hover {
+    background: #0056b3;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #c82333;
+}
+
+.review-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.review-content {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.review-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.stars {
+    color: #ffc107;
+}
+
+.rating-text {
+    font-size: 14px;
+    color: #666;
+}
+
+.review-image {
+    margin-top: 15px;
+}
+
+.review-image img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* 로딩 상태 */
+.loading-state {
+    text-align: center;
+    padding: 40px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #ff6b35;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 빈 상태 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: #ddd;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #999;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #e55a2b;
+    color: white;
+    text-decoration: none;
+}
+
+/* 더보기 버튼 */
+.load-more-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.load-more-btn {
+    padding: 12px 24px;
+    background: white;
+    border: 2px solid #ff6b35;
+    color: #ff6b35;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.load-more-btn:hover {
+    background: #ff6b35;
+    color: white;
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 20px;
+    border-top: 1px solid #eee;
+}
+
+/* 폼 스타일 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* 별점 스타일 */
+.star-rating {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.star-rating i {
+    font-size: 20px;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.star-rating i.filled {
+    color: #ffc107;
+}
+
+/* 현재 이미지 섹션 */
+.current-image {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.current-image img {
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.current-image button {
+    padding: 8px 16px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* 버튼 스타일 */
+.btn-secondary {
+    padding: 10px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-danger {
+    padding: 10px 20px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .my-review {
+        padding: 15px;
+        padding-top: 70px;
+    }
+    
+    .review-stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-tabs {
+        justify-content: center;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+}
+
+/* 다크모드 지원 - 수동 토글 */
+body.dark .my-review {
+    background: #1a1a1a;
+}
+
+body.dark .review-container {
+    color: #fff;
+}
+
+body.dark .page-header h1 {
+    color: #fff;
+}
+
+body.dark .page-description {
+    color: #ccc;
+}
+
+body.dark .stat-item {
+    background: #2d2d2d;
+    color: #fff;
+}
+
+body.dark .stat-label {
+    color: #ccc;
+}
+
+body.dark .review-card {
+    background: #2d2d2d;
+    color: #fff;
+}
+
+body.dark .review-title,
+body.dark .review-store-name {
+    color: #fff;
+}
+
+body.dark .review-content,
+body.dark .review-date,
+body.dark .rating-text {
+    color: #ccc;
+}
+
+body.dark .filter-tab {
+    background: #2d2d2d;
+    color: #ccc;
+    border-color: #444;
+}
+
+body.dark .filter-tab.active {
+    background: #ff6b35;
+    color: white;
+}
+
+body.dark .sort-dropdown select {
+    background: #2d2d2d;
+    color: #fff;
+    border-color: #444;
+}
+
+body.dark .modal-content {
+    background: #2d2d2d;
+    color: #fff;
+}
+
+body.dark .modal-header {
+    border-bottom-color: #444;
+}
+
+body.dark .modal-header h3 {
+    color: #fff;
+}
+
+body.dark .modal-footer {
+    border-top-color: #444;
+}
+
+body.dark .form-group input,
+body.dark .form-group textarea {
+    background: #2d2d2d;
+    color: #fff;
+    border-color: #444;
+}
+
+body.dark .form-group input:focus,
+body.dark .form-group textarea:focus {
+    border-color: #ff6b35;
+}
+
+body.dark .form-group label {
+    color: #fff;
+}
+
+body.dark .empty-state {
+    color: #ccc;
+}
+
+body.dark .empty-state h3 {
+    color: #fff;
+}
+
+body.dark .btn-primary {
+    background: #ff6b35;
+    color: #fff;
+}
+
+body.dark .btn-secondary {
+    background: #444;
+    color: #fff;
+}
+
+body.dark .btn-danger {
+    background: #dc3545;
+    color: #fff;
+}
+
+body.dark .action-btn {
+    color: #fff;
+}
+
+body.dark .edit-btn {
+    background: #007bff;
+}
+
+body.dark .delete-btn {
+    background: #dc3545;
+}
+
+body.dark .loading-state {
+    color: #ccc;
+}
+
+body.dark .current-image button {
+    background: #dc3545;
+    color: #fff;
+}
+
+/* 시스템 다크모드 지원 */
+@media (prefers-color-scheme: dark) {
+    .my-review {
+        background: #1a1a1a;
+    }
+    
+    .review-card,
+    .stat-item,
+    .modal-content {
+        background: #2d2d2d;
+        color: #fff;
+    }
+    
+    .review-title,
+    .review-store-name {
+        color: #fff;
+    }
+    
+    .review-content,
+    .review-date,
+    .rating-text {
+        color: #ccc;
+    }
+    
+    .filter-tab {
+        background: #2d2d2d;
+        color: #ccc;
+        border-color: #444;
+    }
+    
+    .filter-tab.active {
+        background: #ff6b35;
+        color: white;
+    }
+    
+    .sort-dropdown select {
+        background: #2d2d2d;
+        color: #fff;
+        border-color: #444;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        background: #2d2d2d;
+        color: #fff;
+        border-color: #444;
+    }
+} 

@@ -10,6 +10,7 @@
         SELECT *
         FROM users
         WHERE users_kakao_id = #{usersKakaoId}
+        AND users_status = 'active'
     </select>
 
     <!-- 유저 회원 가입 (공용) -->
@@ -57,6 +58,7 @@
         LEFT JOIN department d ON u.department_id = d.department_id
         WHERE u.users_email = #{usersEmail}
           AND u.users_pwd = md5(#{usersPwd})
+          AND u.users_status = 'active'
     </select>
 
     <!--비밀번호 찾기-->
@@ -102,6 +104,14 @@
           CASE WHEN u.users_profile IS NOT NULL AND u.users_profile != '' THEN 0 ELSE 1 END,
           u.users_name
         LIMIT 20
+    </select>
+
+    <select id="getUserById" parameterType="long" resultType="kr.co.solfood.user.login.UserVO">
+        SELECT u.*, c.company_name, d.department_name
+        FROM users u
+        LEFT JOIN company c ON u.company_id = c.company_id
+        LEFT JOIN department d ON u.department_id = d.department_id
+        WHERE u.users_id = #{userId}
     </select>
 
 </mapper>
