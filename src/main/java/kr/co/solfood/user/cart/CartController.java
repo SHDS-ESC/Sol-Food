@@ -699,18 +699,9 @@ public class CartController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> submitBill(@RequestBody Map<String, Object> request, HttpSession session) {
         UserVO user = getValidatedUser(session);
-        List<UserVO> participants;
-        BillDTO billDTO = new BillDTO();
         Map<String, Object> response = new HashMap<>();
 
-        // 0. 진행중인 결제 존재 여부 체크 -> 중복 결제 및 다중 결제 생성을 막기 위함
-        // DB의 값을 기준으로 새로운 결제 페이지를 열도록 함.
-        IntegratedPaymentVO ongoingPayment = integratedPaymentService.getOnGoingIntegratedPaymentByLeaderId(user.getUsersId());
-        if (ongoingPayment != null) {
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ONGOING_PAYMENT);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_FAILED_ONGOING_PAYMENT);
-        }
-        else {
+        try {
             // 1. session에서 cart 가져오기
             CartVO cart = cartService.getCart(session);
             if (cart == null || cart.isEmpty()) {
@@ -720,12 +711,13 @@ public class CartController {
             }
 
             // 2. controller의 inviteMap에서 참여자 목록 가져오기
-            participants = getParticipantDetails(user);
+            List<UserVO> participants = getParticipantDetails(user);
             int totalAmount = cart.getTotalAmount();
             int participantCount = participants.size();
             int amountPerPerson = participantCount > 0 ? totalAmount / participantCount : 0;
 
             // 3. BillDTO 생성
+            BillDTO billDTO = new BillDTO();
             billDTO.setLeaderId(user.getUsersId());
             billDTO.setTotalAmount(totalAmount);
             billDTO.setStoreId(cart.getStoreId());
@@ -740,19 +732,30 @@ public class CartController {
             // 4. billMap에 저장
             billMap.put(user.getUsersId(), billDTO);
 
-            // 5. DB 저장
-            // 5-1. 통합 결제 내역
-            int integratedPaymentId = integratedPaymentService.createIntegratedPayment(billDTO);
-            // 5-2. 개별 결제 내역 저장
+            // 5. DB 저장 (Race Condition 방지를 위한 중복 체크 포함)
+            Integer integratedPaymentId = integratedPaymentService.createIntegratedPaymentWithDuplicateCheck(billDTO);
+            
+            if (integratedPaymentId == null) {
+                // 중복 결제가 이미 존재하는 경우
+                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ONGOING_PAYMENT);
+                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_FAILED_ONGOING_PAYMENT);
+                return ResponseEntity.ok(response);
+            }
+
+            // 6. 개별 결제 내역 저장
             paymentService.createPayment(billDTO, integratedPaymentId);
-            // 5-3. 결제 메뉴 저장
+            // 7. 결제 메뉴 저장
             integratedPaymentService.createPaymentMenu(billDTO.getCartItems(), integratedPaymentId);
-            // 5-4. 장바구니 정보 업데이트 (IntegratedPaymentId)
+            // 8. 장바구니 정보 업데이트 (IntegratedPaymentId)
             cart.setIntegratedPaymentId(integratedPaymentId);
 
             response.put("result", "success");
             response.put("message", "영수증이 생성되었습니다.");
 
+        } catch (Exception e) {
+            log.error("submit-bill 처리 중 오류 발생: {}", e.getMessage(), e);
+            response.put("result", "error");
+            response.put("message", "영수증 생성 중 오류가 발생했습니다.");
         }
 
         return ResponseEntity.ok(response);
