@@ -642,6 +642,15 @@ ner
                 alert('리뷰 ID가 없습니다.');
             }
         });
+
+        $('#community-table').on('click', 'tr', function () {
+            const boardId = $(this).find('td').eq(0).text().trim(); // boardId는 첫 번째 열
+            if (boardId) {
+                window.location.href = ctx + '/user/board/detail?boardId=' + boardId;
+            }
+        });
+
+
     });
 
 </script>
