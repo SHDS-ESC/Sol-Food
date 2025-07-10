@@ -3,13 +3,67 @@ let acceptedFriends = 0;
 let selectedFriendsData = [];
 let totalAmount = 0;
 let splitAmounts = {};
-let eventSource = null; // SSE 연결 객체
-let sseStarted = false; // SSE 연결 시작 플래그
+let sseStarted = false; // 폴링 시작 플래그
+
+// 참여자 화면인지 확인하는 함수
+function isParticipantView() {
+    return window.userRole === 'participant';
+}
+
+// 여러 방법으로 페이지 로드 감지
+document.addEventListener('DOMContentLoaded', initializePage);
+window.addEventListener('load', initializePage);
+
+// 즉시 실행도 시도
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializePage);
+} else {
+    initializePage();
+}
+
+// 페이지 로드시 API로 데이터 받아오기
+function initializePage() {
+    console.log('💰 결제 대기 페이지 초기화 시작');
+    // 게임 결과 확인 및 처리
+    const gameResult = getGameResultFromURL();
+    if (gameResult) {
+        console.log('🎮 게임 결과 감지됨:', gameResult);
+        // URL에서 gameResult 파라미터 제거
+        removeGameResultFromURL();
+    }
+
+    loadWaitingApprovalData();
+
+    // 게임 결과가 있다면 적용
+    if (gameResult) {
+        setTimeout(() => {
+            applyGameResult(gameResult);
+        }, 500); // 데이터 로드 후 적용
+    }
+
+    // 결제 상태 폴링 시작
+    startPaymentStatusMonitoring();
+
+    updateProgress();
+}
 
 // 페이지 로드 시 선택된 친구들 정보 로드
 async function loadWaitingApprovalData() {
     try {
-        const res = await fetch(window.UrlConstants.Builder.fullUrl('/user/cart/waiting-approval-data'));
+        // 사용자 역할에 따라 다른 API 호출
+        let apiUrl;
+        if (isParticipantView()) {
+            // 참여자 역할: 특정 paymentId로 결제 정보 조회
+            apiUrl = window.UrlConstants.Builder.fullUrl(`/payments/payment/${window.paymentId}`)
+            // 참여자는 결제 정보만 조회하고, 전체 목록은 조회하지 않음
+            await loadParticipantPaymentData(apiUrl);
+            return;
+        } else {
+            // 발의자 역할: 기존 API 사용
+            apiUrl = window.UrlConstants.Builder.fullUrl('/user/cart/waiting-approval-data');
+        }
+        
+        const res = await fetch(apiUrl);
         const data = await res.json();
         if (data.result === 'success' && data.participants && data.participants.length > 0) {
             selectedFriendsData = data.participants;
@@ -25,41 +79,55 @@ async function loadWaitingApprovalData() {
     }
 }
 
-// 페이지 로드시 API로 데이터 받아오기
-function initializePage() {
-    console.log('💰 결제 대기 페이지 초기화 시작');
-    // 게임 결과 확인 및 처리
-    const gameResult = getGameResultFromURL();
-    if (gameResult) {
-        console.log('🎮 게임 결과 감지됨:', gameResult);
-        // URL에서 gameResult 파라미터 제거
-        removeGameResultFromURL();
+// 참여자용 결제 데이터 로드
+async function loadParticipantPaymentData(apiUrl) {
+    try {
+        // Payment ID로 결제 정보 조회 (이제 모든 참여자 정보도 함께 받아옴)
+        const paymentResponse = await fetch(apiUrl);
+        const paymentData = await paymentResponse.json();
+        console.log('참여자용 결제 데이터:', paymentData);
+        
+        if (paymentData.success && paymentData.payment) {
+            const payment = paymentData.payment;
+            const participants = paymentData.participants || [];
+            const totalAmount = paymentData.totalAmount || 0;
+            
+            // 참여자 데이터를 selectedFriendsData 형식으로 변환
+            selectedFriendsData = participants.map(participant => ({
+                usersId: participant.usersId,
+                usersName: participant.usersName,
+                usersProfile: participant.usersProfile,
+                companyName: participant.companyName,
+                departmentName: participant.departmentName,
+                paymentAmount: participant.paymentAmount,
+                paymentStatus: participant.paymentStatus,
+                paymentId: participant.paymentId
+            }));
+            
+            // 총 금액 설정
+            // totalAmount = totalAmount;
+            
+            // 발의자 화면과 동일한 방식으로 표시
+            displayFriends();
+            updateTotalAmountDisplay();
+            
+            // 제목과 설명 변경
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDesc = document.getElementById('statusDesc');
+            
+            if (statusTitle) {
+                statusTitle.textContent = '참여자 결제';
+            }
+            if (statusDesc) {
+                statusDesc.innerHTML = '초대받은 그룹 결제에<br>참여하여 결제를 진행해주세요';
+            }
+        } else {
+            displayNoFriends();
+        }
+    } catch (error) {
+        console.error('참여자 결제 데이터 로드 오류:', error);
+        displayNoFriends();
     }
-
-    loadWaitingApprovalData();
-    
-    // 게임 결과가 있다면 적용
-    if (gameResult) {
-        setTimeout(() => {
-            applyGameResult(gameResult);
-        }, 500); // 데이터 로드 후 적용
-    }
-    
-    // SSE 연결 시작
-    startPaymentStatusMonitoring();
-    
-    updateProgress();
-}
-
-// 여러 방법으로 페이지 로드 감지
-document.addEventListener('DOMContentLoaded', initializePage);
-window.addEventListener('load', initializePage);
-
-// 즉시 실행도 시도
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializePage);
-} else {
-    initializePage();
 }
 
 // 가격 분할 계산
@@ -121,12 +189,18 @@ function displayFriends() {
         friendsContainer.appendChild(friendElement);
     });
     
-    // 모든 사용자 초기 상태 설정 (0에서 시작)
+    // 모든 사용자 초기 상태 설정
     initializeUserStatus();
     
-    // 가격 분할 계산
-    if (totalAmount > 0) {
+    // 참여자 화면인지 확인
+    const isParticipant = isParticipantView();
+    
+    // 가격 분할 계산 (발의자 화면에서만)
+    if (!isParticipant && totalAmount > 0) {
         calculateSplitAmounts();
+    } else if (isParticipant) {
+        // 참여자 화면: paymentAmount 기반으로 UI 업데이트
+        updateFriendDisplayWithAmounts();
     }
     
     // 친구 표시 완료
@@ -135,36 +209,42 @@ function displayFriends() {
 function updateFriendDisplayWithAmounts() {
     selectedFriendsData.forEach(friend => {
         const friendElement = document.getElementById('friend-' + friend.usersId);
-        const amount = splitAmounts[friend.usersId] || 0;
         
-        if (friendElement) {
-            const amountElement = friendElement.querySelector('.friend-amount');
-            const payBtn = document.getElementById('pay-btn-' + friend.usersId);
-            const statusBadge = document.getElementById('badge-' + friend.usersId);
+        // 참여자 화면인지 확인
+        const isParticipant = isParticipantView();
+        
+        if (isParticipant) {
+            // 참여자 화면: paymentAmount와 paymentStatus 사용
+            const amount = friend.paymentAmount || 0;
+            const paymentStatus = friend.paymentStatus || 'pending';
             
-            if (amountElement) {
-                if (amount === 0) {
-                    amountElement.textContent = '무료 🎉';
-                    amountElement.style.color = '#28a745';
-                } else {
-                    amountElement.textContent = `₩${amount.toLocaleString()}`;
-                    amountElement.style.color = '#ff6b35';
-                }
-            }
-            
-            // 0원인 경우 결제 버튼 숨기고 무료 표시
-            if (amount === 0) {
-                if (payBtn) {
-                    payBtn.style.display = 'none';
-                }
-                if (statusBadge) {
-                    statusBadge.className = 'status-badge status-accepted';
-                    statusBadge.textContent = '무료';
-                    statusBadge.style.background = '#28a745';
+            if (friendElement) {
+                const amountElement = friendElement.querySelector('.friend-amount');
+                const payBtn = document.getElementById('pay-btn-' + friend.usersId);
+                const statusBadge = document.getElementById('badge-' + friend.usersId);
+                
+                if (amountElement) {
+                    if (amount === 0) {
+                        amountElement.textContent = '무료 🎉';
+                        amountElement.style.color = '#28a745';
+                    } else {
+                        amountElement.textContent = `₩${amount.toLocaleString()}`;
+                        amountElement.style.color = '#ff6b35';
+                    }
                 }
                 
-                // 무료 사용자는 자동으로 결제 완료 처리
-                setTimeout(() => {
+                // 결제 상태에 따른 UI 업데이트
+                if (paymentStatus === 'paid' || amount === 0) {
+                    if (payBtn) {
+                        payBtn.style.display = 'none';
+                    }
+                    if (statusBadge) {
+                        statusBadge.className = 'status-badge status-accepted';
+                        statusBadge.textContent = amount === 0 ? '무료' : '결제 완료';
+                        statusBadge.style.background = '#28a745';
+                    }
+                    
+                    // 결제 완료된 사용자는 자동으로 완료 처리
                     if (!friendElement.classList.contains('payment-completed')) {
                         friendElement.classList.add('payment-completed');
                         friendElement.style.background = '#d4edda';
@@ -177,16 +257,80 @@ function updateFriendDisplayWithAmounts() {
                             addCheckIcon(statusBadge);
                         }
                     }
-                }, 500);
-            } else {
-                // 0원이 아닌 경우 결제 버튼 표시
-                if (payBtn) {
-                    payBtn.style.display = 'inline-block';
+                } else {
+                    // 결제 대기 중인 경우
+                    if (payBtn) {
+                        payBtn.style.display = 'inline-block';
+                    }
+                    if (statusBadge && !friendElement.classList.contains('payment-completed')) {
+                        const isCurrentUser = friend.usersId == window.currentUserId;
+                        if (isCurrentUser) {
+                            statusBadge.className = 'status-badge status-ready';
+                            statusBadge.textContent = '결제 대기';
+                            statusBadge.style.background = '#17a2b8';
+                        } else {
+                            statusBadge.className = 'status-badge status-waiting';
+                            statusBadge.textContent = '결제 대기중';
+                            statusBadge.style.background = '#6c757d';
+                        }
+                    }
                 }
-                if (statusBadge && !friendElement.classList.contains('payment-completed')) {
-                    statusBadge.className = 'status-badge status-ready';
-                    statusBadge.textContent = '결제 대기';
-                    statusBadge.style.background = '#17a2b8';
+            }
+        } else {
+            // 발의자 화면: 기존 로직 유지
+            const amount = splitAmounts[friend.usersId] || 0;
+            
+            if (friendElement) {
+                const amountElement = friendElement.querySelector('.friend-amount');
+                const payBtn = document.getElementById('pay-btn-' + friend.usersId);
+                const statusBadge = document.getElementById('badge-' + friend.usersId);
+                
+                if (amountElement) {
+                    if (amount === 0) {
+                        amountElement.textContent = '무료 🎉';
+                        amountElement.style.color = '#28a745';
+                    } else {
+                        amountElement.textContent = `₩${amount.toLocaleString()}`;
+                        amountElement.style.color = '#ff6b35';
+                    }
+                }
+                
+                // 0원인 경우 결제 버튼 숨기고 무료 표시
+                if (amount === 0) {
+                    if (payBtn) {
+                        payBtn.style.display = 'none';
+                    }
+                    if (statusBadge) {
+                        statusBadge.className = 'status-badge status-accepted';
+                        statusBadge.textContent = '무료';
+                        statusBadge.style.background = '#28a745';
+                    }
+                    
+                    // 무료 사용자는 자동으로 결제 완료 처리
+                    setTimeout(() => {
+                        if (!friendElement.classList.contains('payment-completed')) {
+                            friendElement.classList.add('payment-completed');
+                            friendElement.style.background = '#d4edda';
+                            friendElement.style.borderLeft = '4px solid #28a745';
+                            
+                            acceptedFriends++;
+                            updateProgress();
+                            
+                            if (statusBadge) {
+                                addCheckIcon(statusBadge);
+                            }
+                        }
+                    }, 500);
+                } else {
+                    // 0원이 아닌 경우 결제 버튼 표시
+                    if (payBtn) {
+                        payBtn.style.display = 'inline-block';
+                    }
+                    if (statusBadge && !friendElement.classList.contains('payment-completed')) {
+                        statusBadge.className = 'status-badge status-ready';
+                        statusBadge.textContent = '결제 대기';
+                        statusBadge.style.background = '#17a2b8';
+                    }
                 }
             }
         }
@@ -200,8 +344,10 @@ function createFriendElement(friend, index) {
     const currentUserId = window.currentUserId;
     const isCurrentUser = friend.usersId == currentUserId;
     
-    // 친구 요소 생성
+    // 참여자 화면인지 확인
+    const isParticipant = isParticipantView();
     
+    // 친구 요소 생성
     div.className = isCurrentUser ? 'friend-status accepted' : 'friend-status pending';
     div.setAttribute('data-friend-id', friend.usersId);
     div.id = 'friend-' + friend.usersId;
@@ -278,7 +424,20 @@ function createFriendElement(friend, index) {
     amountDiv.style.fontWeight = 'bold';
     amountDiv.style.color = '#ff6b35';
     amountDiv.style.marginTop = '4px';
-    amountDiv.textContent = '계산 중...';
+    
+    // 참여자 화면에서는 paymentAmount 사용, 발의자 화면에서는 계산된 금액 사용
+    if (isParticipant) {
+        const amount = friend.paymentAmount || 0;
+        if (amount === 0) {
+            amountDiv.textContent = '무료 🎉';
+            amountDiv.style.color = '#28a745';
+        } else {
+            amountDiv.textContent = `₩${amount.toLocaleString()}`;
+            amountDiv.style.color = '#ff6b35';
+        }
+    } else {
+        amountDiv.textContent = '계산 중...';
+    }
     
     infoDiv.appendChild(nameDiv);
     infoDiv.appendChild(companyDiv);
@@ -316,16 +475,59 @@ function createFriendElement(friend, index) {
         console.log('❌ 현재 사용자가 아님, 결제 버튼 생성 안함:', friend.usersId);
     }
     
-    // 현재 사용자인 경우 "결제 대기", 다른 사용자는 "결제 대기중" 상태로 시작
-    if (isCurrentUser) {
-        statusBadge.className = 'status-badge status-ready';
-        statusBadge.textContent = '결제 대기';
-        statusBadge.style.background = '#17a2b8';
-        statusBadge.innerHTML = '결제 대기 <i class="bi bi-person" style="margin-left: 5px; font-size: 10px;"></i>';
+    // 결제 상태 표시
+    if (isParticipant) {
+        // 참여자 화면: paymentStatus 기반으로 상태 표시
+        const paymentStatus = friend.paymentStatus || 'pending';
+        if (paymentStatus === 'paid') {
+            statusBadge.className = 'status-badge status-accepted';
+            statusBadge.textContent = '결제 완료';
+            statusBadge.style.background = '#28a745';
+            
+            // 결제 완료된 사용자는 자동으로 완료 처리
+            div.classList.add('payment-completed');
+            div.style.background = '#d4edda';
+            div.style.borderLeft = '4px solid #28a745';
+            
+            if (payBtn) {
+                payBtn.style.display = 'none';
+            }
+            
+            addCheckIcon(statusBadge);
+        } else if (friend.paymentAmount === 0) {
+            statusBadge.className = 'status-badge status-accepted';
+            statusBadge.textContent = '무료';
+            statusBadge.style.background = '#28a745';
+            
+            if (payBtn) {
+                payBtn.style.display = 'none';
+            }
+            
+            addCheckIcon(statusBadge);
+        } else {
+            if (isCurrentUser) {
+                statusBadge.className = 'status-badge status-ready';
+                statusBadge.textContent = '결제 대기';
+                statusBadge.style.background = '#17a2b8';
+                statusBadge.innerHTML = '결제 대기 <i class="bi bi-person" style="margin-left: 5px; font-size: 10px;"></i>';
+            } else {
+                statusBadge.className = 'status-badge status-waiting';
+                statusBadge.textContent = '결제 대기중';
+                statusBadge.style.background = '#6c757d';
+            }
+        }
     } else {
-        statusBadge.className = 'status-badge status-waiting';
-        statusBadge.textContent = '결제 대기중';
-        statusBadge.style.background = '#6c757d';
+        // 발의자 화면: 기존 로직 유지
+        if (isCurrentUser) {
+            statusBadge.className = 'status-badge status-ready';
+            statusBadge.textContent = '결제 대기';
+            statusBadge.style.background = '#17a2b8';
+            statusBadge.innerHTML = '결제 대기 <i class="bi bi-person" style="margin-left: 5px; font-size: 10px;"></i>';
+        } else {
+            statusBadge.className = 'status-badge status-waiting';
+            statusBadge.textContent = '결제 대기중';
+            statusBadge.style.background = '#6c757d';
+        }
     }
     
     actionsDiv.appendChild(statusBadge);
@@ -344,7 +546,18 @@ function initializeUserStatus() {
     const hasGameResult = new URLSearchParams(window.location.search).has('gameResult');
     
     if (!hasGameResult) {
-        acceptedFriends = 0;
+        // 참여자 화면인지 확인
+        const isParticipant = isParticipantView();
+        
+        if (isParticipant) {
+            // 참여자 화면: paymentStatus 기반으로 acceptedFriends 계산
+            acceptedFriends = selectedFriendsData.filter(friend => 
+                friend.paymentStatus === 'paid' || friend.paymentAmount === 0
+            ).length;
+        } else {
+            // 발의자 화면: 기존 로직 유지
+            acceptedFriends = 0;
+        }
     }
     
     updateProgress();
@@ -498,20 +711,25 @@ function goToMiniGame() {
     window.location.href = gameUrl;
 }
 
-// 결제 진행 함수 (현재 사용자만 가능)
 function proceedToPayment(userId) {
     console.log('🚀 proceedToPayment 함수 시작됨, userId:', userId);
     const currentUserId = window.currentUserId;
     console.log('🚀 currentUserId:', currentUserId);
+
+    // 참여자 화면인지 확인
+    const currentUser = selectedFriendsData.find(friend => friend.usersId == userId);
+    const isParticipant = isParticipantView();
     
-    // 현재 사용자가 아닌 경우 결제 불가
-    if (userId != currentUserId) {
-        showWarningPopup('본인만 결제할 수 있습니다.');
-        return;
+    let userAmount;
+    if (isParticipant) {
+        // 참여자 화면: paymentAmount 사용
+        userAmount = currentUser.paymentAmount || 0;
+    } else {
+        // 발의자 화면: splitAmounts 사용
+        userAmount = splitAmounts[userId];
     }
     
-    const userAmount = splitAmounts[userId];
-    if (!userAmount) {
+    if (!userAmount && userAmount !== 0) {
         showErrorPopup('결제 금액을 계산할 수 없습니다.');
         return;
     }
@@ -521,9 +739,25 @@ function proceedToPayment(userId) {
     // 결제 버튼 비활성화 및 로딩 상태로 변경
     const payBtn = document.getElementById('pay-btn-' + userId);
     if (payBtn) {
+        // 이미 처리 중인지 확인
+        if (payBtn.disabled) {
+            console.log('⚠️ 이미 결제 처리 중입니다.');
+            return;
+        }
+        
         payBtn.textContent = '결제 중...';
         payBtn.disabled = true;
         payBtn.style.background = '#6c757d';
+        
+        // 30초 후 자동 복원 (안전장치)
+        setTimeout(() => {
+            if (payBtn.disabled) {
+                payBtn.textContent = '결제하기';
+                payBtn.disabled = false;
+                payBtn.style.background = '#28a745';
+                console.log('⚠️ 결제 버튼 자동 복원 (30초 타임아웃)');
+            }
+        }, 30000);
     }
     
     // 결제 진행 확인 알림
@@ -573,11 +807,14 @@ function proceedToPayment(userId) {
         console.log('impCode 확인:', window.impCode);
         console.log('IMP 객체 확인:', typeof window.IMP);
         
+        // 고유한 merchant_uid 생성 (사용자 ID + 타임스탬프 + 랜덤값)
+        const uniqueMerchantUid = 'dutchpay_' + window.currentUserId + '_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2, 9);
+        
         window.requestPayment({
             impCode: window.impCode || 'imp00000000',
             pg: 'html5_inicis',
             pay_method: 'card',
-            merchant_uid: 'dutchpay_' + new Date().getTime(),
+            merchant_uid: uniqueMerchantUid,
             name: '더치페이 결제',
             amount: amount,
             buyer_email: userEmail,
@@ -589,8 +826,17 @@ function proceedToPayment(userId) {
             console.log("응답 타입:", typeof rsp);
             console.log("응답 키들:", Object.keys(rsp));
             
-            let apiPath = UrlConstants.Builder.fullUrl("/payments/payment/leader-payment/verify");
+            // 역할에 따라 다른 API 사용
+            let apiPath;
             let nextPath = UrlConstants.Builder.fullUrl("/user/mypage/payment-history");
+            
+            if (isParticipantView()) {
+                // 참여자: verify/{paymentId} API 사용
+                apiPath = UrlConstants.Builder.fullUrl(`/payments/payment/verify/${currentUser.paymentId}`);
+            } else {
+                // 발의자: leader-payment/verify API 사용
+                apiPath = UrlConstants.Builder.fullUrl("/payments/payment/leader-payment/verify");
+            }
             
             if (rsp.success) {
                 console.log("Ajax 요청 시작 - URL:", apiPath);
@@ -850,110 +1096,130 @@ function showGameResultNotification(gameResult) {
     }
 }
 
-// ======== SSE 결제 상태 모니터링 함수들 ========
+// ======== 결제 상태 폴링 함수들 ========
 
-// SSE 연결 시작
+// 결제 상태 폴링 시작
 function startPaymentStatusMonitoring() {
-    // 이미 SSE가 시작되었으면 중복 실행 방지
+    // 이미 폴링이 시작되었으면 중복 실행 방지
     if (sseStarted) {
-        console.log('🔗 SSE 이미 시작됨, 중복 실행 방지');
+        console.log('🔗 폴링 이미 시작됨, 중복 실행 방지');
         return;
     }
     
-    console.log('🔗 SSE 결제 상태 모니터링 시작');
+    console.log('🔗 결제 상태 폴링 시작');
+    console.log('🔗 폴링 간격: 3초');
     sseStarted = true;
     
-    // 기존 연결이 있으면 닫기
-    if (eventSource) {
-        eventSource.close();
-        eventSource = null;
-    }
+    // 3초마다 결제 상태 확인
+    const pollInterval = setInterval(() => {
+        if (!sseStarted) {
+            console.log('🔗 폴링 중지됨');
+            clearInterval(pollInterval);
+            return;
+        }
+        
+        console.log('🔗 폴링 실행 중...');
+        checkPaymentStatus();
+    }, 3000); // 3초마다
     
-    const sseUrl = UrlConstants.Builder.fullUrl('/user/cart/payment-status-stream');
-    console.log('🔗 SSE URL:', sseUrl);
-    
+    // 페이지 언로드 시 폴링 중지
+    window.addEventListener('beforeunload', () => {
+        console.log('🔗 페이지 언로드, 폴링 중지');
+        sseStarted = false;
+        clearInterval(pollInterval);
+    });
+}
+
+// 결제 상태 확인 API 호출
+async function checkPaymentStatus() {
     try {
-        eventSource = new EventSource(sseUrl);
+        let apiUrl;
+        if (isParticipantView()) {
+            // 참여자: 특정 paymentId로 결제 정보 조회
+            apiUrl = window.UrlConstants.Builder.fullUrl(`/payments/payment/${window.paymentId}`);
+        } else {
+            // 발의자: 기존 API 사용
+            apiUrl = window.UrlConstants.Builder.fullUrl('/user/cart/waiting-approval-data');
+        }
         
-        eventSource.onopen = function(event) {
-            console.log('✅ SSE 연결 성공');
-        };
+        console.log('🔍 폴링 API 호출:', apiUrl);
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        console.log('🔍 폴링 응답 데이터:', data);
         
-        eventSource.onmessage = function(event) {
-            try {
-                console.log('📡 SSE 원본 데이터:', event.data);
-                const data = JSON.parse(event.data);
-                console.log('📡 SSE 메시지 수신:', data);
-                handlePaymentStatusUpdate(data);
-                
-                // 메시지를 받은 후 연결 종료 (일회성 응답이므로)
-                if (eventSource) {
-                    console.log('🔌 메시지 수신 완료, SSE 연결 종료');
-                    eventSource.close();
-                    eventSource = null;
-                    sseStarted = false; // 플래그 리셋
-                }
-            } catch (error) {
-                console.error('SSE 메시지 파싱 오류:', error);
-                console.error('파싱 실패한 데이터:', event.data);
-            }
-        };
-        
-        eventSource.onerror = function(event) {
-            // 연결이 정상적으로 닫힌 경우는 오류로 처리하지 않음
-            if (eventSource && eventSource.readyState === EventSource.CLOSED) {
-                console.log('🔌 SSE 연결이 정상적으로 닫힘 (일회성 응답 완료)');
-                eventSource = null;
-                sseStarted = false; // 플래그 리셋
-                return;
-            }
-            
-            // 연결이 닫혀있지 않은 경우에만 오류 로그 출력
-            if (eventSource && eventSource.readyState !== EventSource.CLOSED) {
-                console.error('❌ SSE 연결 오류:', event);
-                console.error('❌ SSE 오류 상세:', {
-                    readyState: eventSource.readyState,
-                    url: eventSource.url,
-                    withCredentials: eventSource.withCredentials
-                });
-                
-                // 오류 발생 시 연결 종료
-                eventSource.close();
-                eventSource = null;
-                sseStarted = false; // 플래그 리셋
-            }
-        };
-        
+        if (data.result === 'success' && data.participants) {
+            console.log('🔍 폴링 성공, 참여자 수:', data.participants.length);
+            // 결제 상태 변경 감지 및 UI 업데이트
+            updatePaymentStatusFromResponse(data);
+        } else {
+            console.log('🔍 폴링 실패 또는 데이터 없음:', data);
+        }
     } catch (error) {
-        console.error('SSE 연결 실패:', error);
+        console.error('결제 상태 확인 오류:', error);
     }
 }
 
-// SSE 메시지 처리
-function handlePaymentStatusUpdate(data) {
-    if (data.error) {
-        console.error('SSE 오류:', data.error);
-        return;
-    }
+// 응답 데이터로부터 결제 상태 업데이트
+function updatePaymentStatusFromResponse(data) {
+    const participants = data.participants || [];
+    let hasChanges = false;
     
-    if (data.type === 'connected') {
-        console.log('SSE 연결 확인됨, 사용자 ID:', data.userId);
-        return;
-    }
+    console.log('🔍 현재 selectedFriendsData 상태:', selectedFriendsData.map(f => ({
+        id: f.usersId,
+        name: f.usersName,
+        status: f.paymentStatus,
+        amount: f.paymentAmount
+    })));
     
-    if (data.type === 'payment_status_update') {
-        const userId = data.userId;
-        const status = data.status;
+    console.log('🔍 폴링으로 받은 participants 상태:', participants.map(p => ({
+        id: p.usersId,
+        name: p.usersName,
+        status: p.paymentStatus,
+        amount: p.paymentAmount
+    })));
+    
+    participants.forEach(participant => {
+        const existingFriend = selectedFriendsData.find(friend => friend.usersId == participant.usersId);
         
-        console.log(`💰 결제 상태 업데이트: 사용자 ${userId} → ${status}`);
-        
-        if (status === 'paid') {
-            markPaymentComplete(userId);
-        } else if (status === 'failed') {
-            markPaymentFailed(userId);
+        if (existingFriend) {
+            // 결제 상태가 변경되었는지 확인
+            if (existingFriend.paymentStatus !== participant.paymentStatus) {
+                console.log(`💰 결제 상태 변경 감지: ${existingFriend.usersName} ${existingFriend.paymentStatus} → ${participant.paymentStatus}`);
+                existingFriend.paymentStatus = participant.paymentStatus;
+                existingFriend.paymentAmount = participant.paymentAmount;
+                hasChanges = true;
+            } else {
+                console.log(`🔍 상태 변경 없음: ${existingFriend.usersName} (${existingFriend.paymentStatus})`);
+            }
+        } else {
+            console.log(`⚠️ 매칭되지 않은 참여자: ${participant.usersName} (ID: ${participant.usersId})`);
         }
+    });
+    
+    console.log('🔍 변경사항 있음:', hasChanges);
+    
+    // 변경사항이 있으면 UI 업데이트
+    if (hasChanges) {
+        console.log('🔄 UI 업데이트 시작');
+        updateFriendDisplayWithAmounts();
+        updateProgress();
+        
+        // 모든 결제가 완료되었는지 확인
+        const allCompleted = participants.every(p => 
+            p.paymentStatus === 'paid' || p.paymentAmount === 0
+        );
+        
+        console.log('🔍 모든 결제 완료 여부:', allCompleted);
+        
+        if (allCompleted) {
+            handleGroupPaymentCompleted();
+        }
+    } else {
+        console.log('🔍 변경사항 없음, UI 업데이트 건너뜀');
     }
 }
+
+
 
 // 결제 실패 처리
 function markPaymentFailed(userId) {
@@ -978,12 +1244,64 @@ function markPaymentFailed(userId) {
     }
 }
 
-// 페이지 언로드 시 SSE 연결 종료
-window.addEventListener('beforeunload', function() {
-    if (eventSource) {
-        console.log('🔌 SSE 연결 종료');
-        eventSource.close();
-        eventSource = null;
-        sseStarted = false; // 플래그 리셋
+// 그룹 결제 완료 처리
+function handleGroupPaymentCompleted() {
+    console.log('🎉 그룹 결제 완료!');
+    
+    // 모든 결제가 완료된 상태로 UI 업데이트
+    completeAllPayments();
+    
+    // 성공 알림 표시
+    showPaymentSuccessAlert("모든 결제가 완료되었습니다!", "결제 완료 페이지로 이동합니다.", 
+        UrlConstants.Builder.fullUrl("/user/mypage/payment-history"));
+}
+
+// 그룹 결제 취소 처리
+function handleGroupPaymentCancelled(cancelledByUserId) {
+    console.log('❌ 그룹 결제 취소됨, 취소한 사용자:', cancelledByUserId);
+    
+    // 취소 알림 표시
+    const cancelledByUser = selectedFriendsData.find(friend => friend.usersId == cancelledByUserId);
+    const cancelledByName = cancelledByUser ? cancelledByUser.usersName : '알 수 없는 사용자';
+    
+    showPaymentErrorAlert("그룹 결제 취소", 
+        `${cancelledByName}님이 그룹 결제를 취소했습니다.\n결제했던 금액은 자동으로 환불됩니다.`);
+    
+    // 3초 후 이전 페이지로 이동
+    setTimeout(() => {
+        history.back();
+    }, 3000);
+}
+
+// 그룹 결제 취소 요청
+function cancelGroupPayment() {
+    if (!confirm('정말로 그룹 결제를 취소하시겠습니까?\n다른 참여자들의 결제도 함께 취소됩니다.')) {
+        return;
     }
-}); 
+    
+    console.log('🚫 그룹 결제 취소 요청');
+    
+    fetch(UrlConstants.Builder.fullUrl('/user/cart/cancel-group-payment'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.result === 'success') {
+            showPaymentSuccessAlert("그룹 결제 취소", "그룹 결제가 취소되었습니다.");
+            setTimeout(() => {
+                history.back();
+            }, 2000);
+        } else {
+            showPaymentErrorAlert("취소 실패", data.message || "그룹 결제 취소에 실패했습니다.");
+        }
+    })
+    .catch(error => {
+        console.error('그룹 결제 취소 오류:', error);
+        showPaymentErrorAlert("취소 실패", "그룹 결제 취소 중 오류가 발생했습니다.");
+    });
+}
+
+ 
