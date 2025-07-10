@@ -64,7 +64,7 @@ public class AdminHomeServiceImpl implements AdminHomeService {
         }
     }
 
-    private void confirmList(List<ChartRequestDTO> list){
+    private void confirmList(List<ChartRequestDTO> list) {
         if (list == null) {
             throw new CustomException(ErrorCode.INCORRECT_DATE_FORMAT);
         }
@@ -101,5 +101,33 @@ public class AdminHomeServiceImpl implements AdminHomeService {
         if (updated == 0) {
             throw new IllegalArgumentException("유효하지 않은 userStatusUpdateDTO 입니다.");
         }
+    }
+
+    @Override
+    public PageMaker<OwnerReviewResponseDto> getOwnerReviews(OwnerReviewRequestDto ownerReviewRequestDto) {
+        List<OwnerReviewResponseDto> ownerSearchResponseDTO = adminMapper.getOwnerReviews(ownerReviewRequestDto);
+        int size = adminMapper.getOwnerReviewsCount(ownerReviewRequestDto);
+
+        if (ownerReviewRequestDto == null) {
+            throw new CustomException(ErrorCode.UNDEFINED_SEARCH);
+        }
+        return new PageMaker<>(ownerSearchResponseDTO, size, ownerReviewRequestDto.getPageSize(), ownerReviewRequestDto.getCurrentPage());
+    }
+
+    @Override
+    public PageMaker<CommunityResponseDto> getCommunityResponses(CommunityRequestDto communityRequestDto) {
+        List<CommunityResponseDto> communityResponseDto = adminMapper.communityResponses(communityRequestDto);
+        int size = adminMapper.getCommunityResponsesCount(communityRequestDto);
+
+        if (communityRequestDto == null) {
+            throw new CustomException(ErrorCode.UNDEFINED_SEARCH);
+        }
+        return new PageMaker<>(communityResponseDto, size, communityRequestDto.getPageSize(), communityRequestDto.getCurrentPage());
+    }
+
+    @Transactional
+    @Override
+    public void deleteOwnerReview(long reviewId) {
+        adminMapper.deleteOwnerReview(reviewId);
     }
 }
