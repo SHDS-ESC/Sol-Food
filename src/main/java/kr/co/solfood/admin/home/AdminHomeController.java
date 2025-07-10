@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-
 @Controller
 @RequestMapping("/admin")
 @Slf4j
@@ -140,7 +139,17 @@ public class AdminHomeController {
      * 어드민 페이지 < 결제 관리 대시보드
      */
     @GetMapping("/payment-management")
-    public String paymentManagement() {
+    public String paymentManagement(Model model) {
+        try {
+            PaymentSearchRequestDto paymentSearchRequestDto = new PaymentSearchRequestDto();
+            paymentSearchRequestDto.setCurrentPage(START_PAGE);
+            paymentSearchRequestDto.setPageSize(PAGE_GROUP_AMOUNT);
+            PageMaker<PaymentSearchResponseDto> paymentList = adminHomeService.getPayments(paymentSearchRequestDto);
+            model.addAttribute("paymentList", paymentList);
+        } catch (CustomException e) {
+            log.info("Payment management initialization failed: {}", e.getMessage());
+            model.addAttribute("error", e.getMessage());
+        }
         return "admin/payment-management/home";
     }
 
@@ -254,4 +263,17 @@ public class AdminHomeController {
         }
     }
 
+
+    @GetMapping("/payment-management/search")
+    @ResponseBody
+    public PageMaker<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto, Model model) {
+        try {
+            System.out.println("데이트" + paymentSearchRequestDto);
+            return adminHomeService.getPayments(paymentSearchRequestDto);
+        } catch (CustomException e) {
+            log.info("Payment search failed: {}", e.getMessage());
+            model.addAttribute("error", e.getMessage());
+            return new PageMaker<>();
+        }
+    }
 }
