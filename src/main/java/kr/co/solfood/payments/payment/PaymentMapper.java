@@ -140,4 +140,19 @@ public interface PaymentMapper extends CommonPaymentMapper {
     
     // 통합결제ID로 모든 결제 상태 업데이트
     int updatePaymentStatusByIntegratedPaymentId(@Param("integratedPaymentId") int integratedPaymentId, @Param("status") String status);
+    
+    /**
+     * 사용자별 진행중인 결제 조회 (pending 상태)
+     */
+    List<PaymentVO> selectOngoingPaymentByUserId(@Param("userId") long userId);
+    
+    /**
+     * 간단한 결제 상태 업데이트 (응답용)
+     */
+    int updatePaymentStatusSimple(@Param("paymentId") int paymentId, @Param("status") String status);
+    
+    /**
+     * 사용자ID로 발의자 결제 조회 (진행중인 것만)
+     */
+    PaymentVO selectLeaderPaymentByUserId(@Param("userId") long userId);
 }

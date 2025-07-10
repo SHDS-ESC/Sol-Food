@@ -16,11 +16,20 @@ public interface PaymentService extends CommonPaymentService {
     // Payment 정보 수정
     void updatePayment(PaymentVO paymentVO);
     // 미완료 결제 내역 조회
-    PaymentVO getOngoingPaymentByUserId(long userId);
+    List<PaymentVO> getOngoingPaymentByUserId(long userId);
     // 통합결제ID별 결제 내역 조회
     List<PaymentVO> getPaymentsByIntegratedPaymentId(int integratedpaymentId);
     // BillDTO를 기반으로 각 사용자별 결제 데이터 생성
     void createPayment(BillDTO billDTO, int integratedPaymentId);
     // 통합결제ID로 모든 결제 상태 업데이트
     void updatePaymentStatusByIntegratedPaymentId(int integratedPaymentId, String status);
+    
+    // 개별 결제 상태 업데이트 (응답용)
+    void updatePaymentStatusSimple(int paymentId, String status);
+    
+    // ID로 결제 정보 조회
+    PaymentVO getPaymentById(int paymentId);
+
+    // 사용자ID로 발의자 결제 조회 (진행중인 것만)
+    PaymentVO getLeaderPaymentByUserId(long userId);
 }

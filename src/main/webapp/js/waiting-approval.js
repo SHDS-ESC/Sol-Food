@@ -36,7 +36,6 @@ function initializePage() {
         removeGameResultFromURL();
     }
 
-    // 친구 데이터 로드 (JSP에서 렌더링된 데이터 사용)
     loadWaitingApprovalData();
     
     // 게임 결과가 있다면 적용
@@ -590,7 +589,7 @@ function proceedToPayment(userId) {
             console.log("응답 타입:", typeof rsp);
             console.log("응답 키들:", Object.keys(rsp));
             
-            let apiPath = UrlConstants.Builder.fullUrl("/payments/payment/verifyPayment/" + rsp.imp_uid);
+            let apiPath = UrlConstants.Builder.fullUrl("/payments/payment/leader-payment/verify");
             let nextPath = UrlConstants.Builder.fullUrl("/user/mypage/payment-history");
             
             if (rsp.success) {
@@ -601,6 +600,7 @@ function proceedToPayment(userId) {
                     url: apiPath,
                     contentType: "application/x-www-form-urlencoded; charset=UTF-8",
                     data: {
+                        imp_uid : rsp.imp_uid,
                         amount: amount,
                         merchant_uid: rsp.merchant_uid
                     },

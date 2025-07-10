@@ -108,10 +108,23 @@
     <!-- 결제 정보 수정 -->
     <update id="updatePayment" parameterType="kr.co.solfood.payments.payment.PaymentVO">
         UPDATE payment SET
-            payment_cancel_amount = #{cancelAmount},
-            payment_cancel_reason = #{cancelReason},
-            payment_cancelled_at = #{cancelledAt},
+            payment_impuid = #{impUid},
+            payment_merchant_uid = #{merchantUid},
+            payment_method = #{payMethod},
+            payment_pg_provider = #{pgProvider},
+            payment_pg_tid = #{pgTid},
+            payment_receipt_url = #{receiptUrl},
             payment_status = #{status},
+            payment_status_detail = #{statusDetail},
+            payment_amount = #{amount},
+            payment_cancel_amount = #{cancelAmount},
+            payment_buyer_name = #{buyerName},
+            payment_buyer_email = #{buyerEmail},
+            payment_buyer_tel = #{buyerTel},
+            payment_fail_reason = #{failReason},
+            payment_cancel_reason = #{cancelReason},
+            payment_paid_at = #{paidAt},
+            payment_cancelled_at = #{cancelledAt},
             payment_used_point = #{paymentUsedPoint},
             payment_paid_amount = #{paymentPaidAmount},
             payment_updated_at = CURRENT_TIMESTAMP
@@ -276,5 +289,32 @@
             payment_updated_at = CURRENT_TIMESTAMP
         WHERE integratedpayment_id = #{integratedPaymentId}
     </update>
+
+    <!-- 사용자별 진행중인 결제 조회 (pending 상태) -->
+    <select id="selectOngoingPaymentByUserId" resultMap="PaymentMap">
+        SELECT * FROM payment 
+        WHERE users_id = #{userId} 
+        AND payment_status = 'pending'
+        ORDER BY payment_created_at DESC
+    </select>
+
+    <!-- 간단한 결제 상태 업데이트 (응답용) -->
+    <update id="updatePaymentStatusSimple">
+        UPDATE payment SET
+            payment_status = #{status},
+            payment_updated_at = CURRENT_TIMESTAMP
+        WHERE payment_id = #{paymentId}
+    </update>
+
+    <!-- 사용자ID로 발의자 결제 조회 (진행중인 것만) -->
+    <select id="selectLeaderPaymentByUserId" resultMap="PaymentMap">
+        SELECT p.* FROM payment p
+        JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
+        WHERE ip.integratedpayment_leader_id = #{userId}
+        AND p.users_id = #{userId}
+        AND p.payment_status = 'pending'
+        ORDER BY p.payment_created_at DESC
+        LIMIT 1
+    </select>
 
 </mapper>

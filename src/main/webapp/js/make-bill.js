@@ -68,10 +68,16 @@ document.addEventListener('DOMContentLoaded', function() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ bill: participants })
         })
-        .then(res => res.json())
+        .then(response => response.json())
         .then(data => {
             if (data.result === 'success') {
                 window.location.href = window.UrlConstants.Builder.fullUrl('/user/cart/waiting-approval');
+            } else if (data.result === 'ongoing_payment') {
+                // 진행중인 결제가 있는 경우 waiting-approval 페이지로 이동
+                showErrorPopup(data.message || '진행중인 결제가 있습니다.');
+                setTimeout(() => {
+                    window.location.href = UrlConstants.Builder.fullUrl('/user/cart/waiting-approval');
+                }, 1500);
             } else {
                 showErrorPopup(data.message || '영수증 생성에 실패했습니다.');
             }

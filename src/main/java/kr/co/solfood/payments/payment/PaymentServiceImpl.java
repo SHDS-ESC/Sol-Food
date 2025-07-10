@@ -55,7 +55,12 @@ public class PaymentServiceImpl implements PaymentService {
     public void updatePayment(PaymentVO paymentVO) {
         paymentMapper.updatePayment(paymentVO);
     }
-    
+
+    @Override
+    public List<PaymentVO> getOngoingPaymentByUserId(long userId) {
+        return paymentMapper.selectOngoingPaymentByUserId(userId);
+    }
+
     // BillDTO를 기반으로 각 사용자별 결제 데이터 생성
     @Override
     public void createPayment(BillDTO billDTO, int integratedPaymentId) {
@@ -79,6 +84,24 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void updatePaymentStatusByIntegratedPaymentId(int integratedPaymentId, String status) {
         paymentMapper.updatePaymentStatusByIntegratedPaymentId(integratedPaymentId, status);
+    }
+    
+    // 개별 결제 상태 업데이트 (응답용)
+    @Override
+    public void updatePaymentStatusSimple(int paymentId, String status) {
+        paymentMapper.updatePaymentStatusSimple(paymentId, status);
+    }
+    
+    // ID로 결제 정보 조회
+    @Override
+    public PaymentVO getPaymentById(int paymentId) {
+        return paymentMapper.selectPaymentById(paymentId);
+    }
+    
+    // 사용자ID로 발의자 결제 조회 (진행중인 것만)
+    @Override
+    public PaymentVO getLeaderPaymentByUserId(long userId) {
+        return paymentMapper.selectLeaderPaymentByUserId(userId);
     }
     
 }
