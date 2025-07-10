@@ -24,7 +24,7 @@
     <%@ include file="../include/header.jsp" %>
 
     <div class="content like-list">
-        <div class="title">찜 목록</div>
+        <div class="title">찜</div>
         <div class="store-count">
             <span>총 : <span id="likeCount">${totalCount}개</span></span>
         </div>
