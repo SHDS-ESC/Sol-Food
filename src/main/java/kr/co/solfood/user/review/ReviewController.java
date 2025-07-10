@@ -2,6 +2,7 @@ package kr.co.solfood.user.review;
 
 import kr.co.solfood.common.constants.UrlConstants;
 import kr.co.solfood.user.login.UserVO;
+import kr.co.solfood.user.store.StoreService;
 import kr.co.solfood.user.store.StoreVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,12 +41,40 @@ public class ReviewController {
     @Autowired
     private S3ServiceV2 s3ServiceV2;
     
+    @Autowired
+    private StoreService storeService;
+    
     // 리뷰 작성 페이지
     @GetMapping("/write")
-    public String reviewWriteForm(@RequestParam(required = false) Integer storeId, Model model) {
-        if (storeId != null) {
-            model.addAttribute(UrlConstants.Param.STORE_ID, storeId);
+    public String reviewWriteForm(@RequestParam(value = "storeId", required = false) Integer storeId, 
+                                 @RequestParam(value = "paymentId", required = false) Integer paymentId, 
+                                 Model model, RedirectAttributes redirectAttributes) {
+        // storeId가 없으면 리뷰 작성 페이지에 접근할 수 없음
+        if (storeId == null) {
+            redirectAttributes.addFlashAttribute(UrlConstants.Model.ERROR, "가게 정보가 없습니다.");
+            return "redirect:" + UrlConstants.User.STORE_LIST;
         }
+        
+        model.addAttribute(UrlConstants.Param.STORE_ID, storeId);
+        
+        // 가게 정보 조회
+        try {
+            StoreVO store = storeService.getStoreById(storeId);
+            if (store != null) {
+                model.addAttribute("store", store);
+            } else {
+                redirectAttributes.addFlashAttribute(UrlConstants.Model.ERROR, "존재하지 않는 가게입니다.");
+                return "redirect:" + UrlConstants.User.STORE_LIST;
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute(UrlConstants.Model.ERROR, "가게 정보를 불러올 수 없습니다.");
+            return "redirect:" + UrlConstants.User.STORE_LIST;
+        }
+        
+        if (paymentId != null) {
+            model.addAttribute("paymentId", paymentId);
+        }
+        
         model.addAttribute(UrlConstants.Model.KAKAO_JS_KEY, kakaoProperties.getJsApiKey());
         return UrlConstants.View.USER_REVIEW_WRITE;
     }
@@ -53,11 +82,12 @@ public class ReviewController {
     // 리뷰 작성 처리
     @PostMapping("/write")
     public String reviewWrite(
-            @RequestParam(required = false) Integer storeId,
-            @RequestParam(required = false) Integer reviewStar,
-            @RequestParam(required = false) String reviewTitle,
-            @RequestParam(required = false) String reviewContent,
-            @RequestParam(required = false) MultipartFile reviewImage,
+            @RequestParam(value = "storeId", required = false) Integer storeId,
+            @RequestParam(value = "paymentId", required = false) Integer paymentId,
+            @RequestParam(value = "reviewStar", required = false) Integer reviewStar,
+            @RequestParam(value = "reviewTitle", required = false) String reviewTitle,
+            @RequestParam(value = "reviewContent", required = false) String reviewContent,
+            @RequestParam(value = "reviewImage", required = false) MultipartFile reviewImage,
             RedirectAttributes redirectAttributes, 
             HttpSession session) {
         try {
@@ -75,7 +105,7 @@ public class ReviewController {
             review.setReviewStar(reviewStar);
             review.setReviewTitle(reviewTitle);
             review.setReviewContent(reviewContent);
-            review.setUsersPaymentId(DEFAULT_USERS_PAYMENT_ID); // 기본값 설정
+            review.setUsersPaymentId(paymentId != null ? paymentId : DEFAULT_USERS_PAYMENT_ID); // paymentId 설정
             review.setReviewCommentId(DEFAULT_REVIEW_COMMENT_ID); // 기본값 설정
             
             // 가게 ID 검증
@@ -111,8 +141,13 @@ public class ReviewController {
             reviewService.registerReview(review);
             redirectAttributes.addFlashAttribute(UrlConstants.Model.SUCCESS, MSG_REVIEW_REGISTER_SUCCESS);
             
-            // 해당 가게의 상세페이지로 리다이렉트
-            return "redirect:" + UrlConstants.User.STORE_DETAIL + "?storeId=" + review.getStoreId();
+            // 결제 내역 페이지로 리다이렉트 (paymentId가 있는 경우)
+            if (paymentId != null) {
+                return "redirect:" + UrlConstants.User.PAYMENT_HISTORY + "?reviewCompleted=true";
+            } else {
+                // 해당 가게의 상세페이지로 리다이렉트
+                return "redirect:" + UrlConstants.User.STORE_DETAIL + "?storeId=" + review.getStoreId();
+            }
             
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute(UrlConstants.Model.ERROR, e.getMessage());
