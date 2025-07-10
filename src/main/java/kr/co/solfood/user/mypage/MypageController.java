@@ -22,10 +22,20 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
+import properties.KakaoProperties;
+import properties.ServerProperties;
 
 @Controller
 @RequestMapping(UrlConstants.User.MYPAGE_BASE)
 public class MypageController {
+    private final KakaoProperties kakaoProperties;
+    private final ServerProperties serverProperties;
+
+    @Autowired
+    public MypageController(KakaoProperties kakaoProperties, ServerProperties serverProperties) {
+        this.kakaoProperties = kakaoProperties;
+        this.serverProperties = serverProperties;
+    }
     @Autowired
     private LoginService loginService;
 
@@ -38,7 +48,13 @@ public class MypageController {
     @GetMapping("")
     public String myPage(Model model, HttpSession sess) {
         UserVO userVO = (UserVO) sess.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
-        if(userVO == null){ // 로그인 안되어있으면 
+        model.addAttribute("apiKey", kakaoProperties.getRestApiKey());
+        Map<String, String> serverMap = new HashMap<>();
+        serverMap.put("ip", serverProperties.getIp());
+        serverMap.put("port", serverProperties.getPort());
+        model.addAttribute("serverMap", serverMap);
+
+        if(userVO == null){ // 로그인 안되어있으면
             return "/user/mypage/non-user-mypage"; // 여기로 바로 포워딩 (리다이렉트x)
         }
         model.addAttribute("currentUser", userVO);
