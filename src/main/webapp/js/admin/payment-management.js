@@ -15,18 +15,25 @@ function renderPaymentRow(paymentList) {
     }
 
     paymentList.forEach(payment => {
-        console.log(payment)
-
         const $row = $('<tr>');
         $row.append($('<td>').text(payment.paymentId || ''));
-        $row.append($('<td>').text(payment.paymentPaidAmount || ''));
-        $row.append($('<td>').text(payment.paymentUsedPoint || ''));
-        $row.append($('<td>').text(payment.paymentMethod || ''));
-        $row.append($('<td>').text(payment.paymentPgProvider || ''));
+        $row.append($('<td>').text(payment.usersName || ''));
+        $row.append($('<td>').text(payment.paymentPaidAmount || '0'));
+        $row.append($('<td>').text(payment.paymentUsedPoint || '0'));
+        $row.append($('<td>').text(payment.paymentMethod || '앱 내 결제'));
+        $row.append($('<td>').text(payment.paymentPgProvider || 'pg'));
         $row.append($('<td>').text(payment.paymentCreatedAt || ''));
-        $row.append($('<td>').text(payment.paymentReceiptUrl || ''));
+
+        $row.append(
+            $('<td>').append(
+                $('<a>')
+                    .attr('href', payment.paymentReceiptUrl || '#')
+                    .attr('target', '_blank')
+                    .text('영수증 보기')
+            )
+        );
+
         $row.append($('<td>').text(payment.paymentStatus || ''));
-        $row.append($('</tr>'));
         $tbody.append($row);
     });
 }
@@ -45,11 +52,15 @@ function renderPagination(firstPage, lastPage, currentPage) {
 }
 
 // 2) AJAX 호출 함수
-function searchPayment(query, page, size) {
+function searchPayment(query, page, size, paymentStatus = '') {
+    const toDate = $('#toDate').val();
+    const fromDate = $('#fromDate').val();
+    console.log(toDate)
+
     $.ajax({
         url: ctx + '/admin/payment-management/search',
         type: 'GET',
-        data: {query, currentPage: page, pageSize: size},
+        data: {query, currentPage: page, pageSize: size, toDate: toDate, fromDate: fromDate, paymentStatus: paymentStatus},
         success: function (response) {
             renderPaymentRow(response.list);
             console.log(response)
@@ -86,14 +97,16 @@ function updatePaginationUI($clicked) {
 }
 
 $(document).ready(function () {
+    const query = $('#searchPaymentForm').find('input[name="query"]').val();
     const $pageSize = $('.form-select-count');
+    const $status = $('.form-select-status');
     const $pagination = $('.pagination')
     // 검색 폼 제출
     $('#searchPaymentForm').on('submit', function (e) {
         e.preventDefault();
         currentPage = 1;
         const query = $(this).find('input[name="query"]').val();
-        searchPayment(query, currentPage, $pageSize.val());
+        searchPayment(query, currentPage, $pageSize.val(),$status.val());
     });
 
     // 페이지 번호 클릭
@@ -102,26 +115,42 @@ $(document).ready(function () {
         const query = $('#searchPaymentForm').find('input[name="query"]').val();
         currentPage = parseInt($(this).text(), 10);
         updatePaginationUI($(this));
-        searchPayment(query, currentPage, $pageSize.val());
+        searchPayment(query, currentPage, $pageSize.val(),$status.val());
     });
 
     // Previous 클릭
     $pagination.on('click', '.previous .page-link', function (e) {
         e.preventDefault();
         const query = $('#searchPaymentForm').find('input[name="query"]').val();
-        searchPayment(query, firstPage - $pageSize.val(), $pageSize.val());
+        searchPayment(query, firstPage - $pageSize.val(), $pageSize.val(),$status.val());
     });
 
     // Next 클릭
     $pagination.on('click', '.next .page-link', function (e) {
         e.preventDefault();
         const query = $('#searchPaymentForm').find('input[name="query"]').val();
-        searchPayment(query, lastPage + 1, $pageSize.val());
+        searchPayment(query, lastPage + 1, $pageSize.val(),$status.val());
     });
 
     // 페이지 크기 변경
     $pageSize.on('change', function () {
+        const query = $('#searchPaymentForm').find('input[name="query"]').val();
         currentPage = 1;
-        searchPayment('', currentPage, $pageSize.val());
+        searchPayment(query, currentPage, $pageSize.val(),$status.val());
     });
+
+    // 페이지 크기 변경
+    $pageSize.on('change', function () {
+        const query = $('#searchPaymentForm').find('input[name="query"]').val();
+        currentPage = 1;
+        searchPayment(query, currentPage, $pageSize.val(),$status.val());
+    });
+
+    $status.on('change', function () {
+        const query = $('#searchPaymentForm').find('input[name="query"]').val();
+        currentPage = 1;
+        searchPayment(query, currentPage, $pageSize.val(), $(this).val());
+        console.log($status.val())
+    });
+    searchPayment(query, currentPage, $pageSize.val(),$status.val());
 });

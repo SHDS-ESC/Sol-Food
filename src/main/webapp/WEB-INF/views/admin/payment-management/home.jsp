@@ -44,18 +44,23 @@
             <h4 class="section-title">👥 결제 내역 관리</h4>
             <form id="searchPaymentForm" class="search-bar">
                 <div class="form-row">
-                    <input type="date" name="toDate" class="form-control"/>
-                    <input type="date" name="fromDate" class="form-control"/>
-                    <select name="method" class="form-select">
+                    <input type="datetime-local" name="fromDate" class="form-control" id="fromDate" />
+                    <input type="datetime-local" name="toDate" class="form-control" id="toDate" />
+                    <select name="paymentMethod" class="form-select">
                         <option value="">결제 수단</option>
-                        <option>카카오페이</option>
+                        <option va>카카오페이</option>
                         <option>토스페이</option>
                         <option>신용카드</option>
                     </select>
-                    <select name="status" class="form-select">
-                        <option value="">상태</option>
-                        <option>승인</option>
-                        <option>취소</option>
+                    <select name="status" class="form-select form-select-status">
+                        <option value="">결제 상태</option>
+                        <option value="paid">승인</option>
+                        <option value="pending">대기</option>
+                        <option value="cancelled">취소</option>
+                    </select>
+                    <select name="tableType" class="payment-type-select form-select-sm" style="width: 100px;">
+                        <option value="charge">충전</option>
+                        <option value="payment">결제</option>
                     </select>
                 </div>
                 <div class="search-input-row">
@@ -82,6 +87,7 @@
                     <thead>
                     <tr>
                         <th>결제 아이디</th>
+                        <th>사용자명</th>
                         <th>금액</th>
                         <th>사용 포인트</th>
                         <th>결제 수단</th>
@@ -92,27 +98,6 @@
                     </tr>
                     </thead>
                     <tbody id="paymentListBody">
-                    <c:forEach var="p" items="${paymentList.list}">
-                        <tr>
-                            <td>${p.paymentId}</td>
-                            <td>${p.paymentPaidAmount}</td>
-                            <td>${p.paymentUsedPoint}</td>
-                            <td>${p.paymentMethod}</td>
-                            <td>${p.paymentPgProvider}</td>
-                            <td>${p.paymentCreatedAt}</td>
-                            <td>
-                                <c:if test="${not empty p.paymentReceiptUrl}">
-                                    <a href="${p.paymentReceiptUrl}" target="_blank">영수증 보기</a>
-                                </c:if>
-                            </td>
-                            <td>${p.paymentStatus}</td>
-                        </tr>
-                    </c:forEach>
-                    <c:if test="${empty paymentList.list}">
-                        <tr>
-                            <td colspan="9" class="text-center">검색 결과가 없습니다.</td>
-                        </tr>
-                    </c:if>
                     </tbody>
                 </table>
 

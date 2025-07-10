@@ -268,6 +268,7 @@ public class AdminHomeController {
     @ResponseBody
     public PageMaker<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto, Model model) {
         try {
+            System.out.println("데이트" + paymentSearchRequestDto);
             return adminHomeService.getPayments(paymentSearchRequestDto);
         } catch (CustomException e) {
             log.info("Payment search failed: {}", e.getMessage());

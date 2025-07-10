@@ -222,16 +222,19 @@
         P.payment_status,
         P.payment_created_at
         FROM payment P
-        JOIN users U ON P.users_id = U.users_id
+        LEFT JOIN users U ON P.users_id = U.users_id
         <where>
             <if test="query != null and query != ''">
                 U.users_name LIKE CONCAT('%', #{query}, '%')
             </if>
-            <if test="fromDate != null and fromDate != '' and toDate != null and toDate != ''">
-                P.payment_created_at BETWEEN #{fromDate} AND #{toDate}
+            <if test="fromDate != null and toDate != null">
+                AND P.payment_created_at BETWEEN #{fromDate} AND #{toDate}
+            </if>
+            <if test="paymentStatus != null and paymentStatus != ''">
+                AND P.payment_status = #{paymentStatus}
             </if>
         </where>
-        ORDER BY P.payment_id
+        ORDER BY P.payment_created_at DESC
         LIMIT #{offset}, #{pageSize}
     </select>
 
@@ -241,10 +244,13 @@
         JOIN users U ON P.users_id = U.users_id
         <where>
             <if test="query != null and query != ''">
-                O.store_name LIKE CONCAT('%', #{query}, '%')
+                U.users_name LIKE CONCAT('%', #{query}, '%')
             </if>
-            <if test="fromDate != null and fromDate != '' and toDate != null and toDate != ''">
-                P.payment_created_at BETWEEN #{fromDate} AND #{toDate}
+            <if test="fromDate != null and toDate != null">
+                AND P.payment_created_at BETWEEN #{fromDate} AND #{toDate}
+            </if>
+            <if test="paymentStatus != null and paymentStatus != ''">
+                AND P.payment_status = #{paymentStatus}
             </if>
         </where>
     </select>
