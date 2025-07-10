@@ -677,12 +677,12 @@ body {
 }
 
 .popup-btn.confirm-btn {
-  background: #007bff;
+  background: var(--color-main);
   color: white;
 }
 
 .popup-btn.confirm-btn:hover {
-  background: #0056b3;
+  background: var(--color-main);
 }
 
 .popup-btn.cancel-btn {
@@ -722,7 +722,7 @@ body.dark .popup-close:hover {
 }
 
 body.dark .popup-btn.confirm-btn {
-  background: #007bff;
+  background: var(--color-main);
   color: #fff;
 }
 

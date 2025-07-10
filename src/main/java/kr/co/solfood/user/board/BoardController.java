@@ -1,5 +1,6 @@
 package kr.co.solfood.user.board;
 
+import kr.co.solfood.admin.login.AdminVO;
 import kr.co.solfood.common.constants.UrlConstants;
 import kr.co.solfood.user.board.response.BoardListResponseVO;
 import kr.co.solfood.user.login.UserVO;
@@ -181,6 +182,7 @@ public class BoardController {
     ) {
         /*작성자*/
         UserVO loginUser = (UserVO) sess.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+        AdminVO adminUser = (AdminVO) sess.getAttribute(UrlConstants.Session.ADMIN_LOGIN_SESSION);
 
         /* 서비스 : 조회수 */
         boardService.updateViewCount(boardId);
@@ -190,7 +192,7 @@ public class BoardController {
 //        vo.setBoardWirter(loginUser.getUsersNickname());
 
 //      /* 로그인 사용자와 작성자 비교 */
-        boolean isAuthor = loginUser != null &&  loginUser.getUsersId() == vo.getUsersId();
+        boolean isAuthor = (loginUser != null &&  loginUser.getUsersId() == vo.getUsersId()) || adminUser != null;
         mv.addObject("isAuthor", isAuthor);
         mv.addObject("board", vo);
         log.info("boardboardboardboardboardboard vo:{}",vo);
