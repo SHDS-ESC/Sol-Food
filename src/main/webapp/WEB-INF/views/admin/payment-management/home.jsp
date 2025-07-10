@@ -86,7 +86,7 @@
                 <table class="table align-middle table-hover">
                     <thead>
                     <tr>
-                        <th>결제 아이디</th>
+                        <th>통합 결제 아이디</th>
                         <th>사용자명</th>
                         <th>금액</th>
                         <th>사용 포인트</th>
@@ -95,6 +95,7 @@
                         <th>결제 생성일</th>
                         <th>영수증 URL</th>
                         <th>결제 상태</th>
+                        <th>자세히 보기</th>
                     </tr>
                     </thead>
                     <tbody id="paymentListBody">
