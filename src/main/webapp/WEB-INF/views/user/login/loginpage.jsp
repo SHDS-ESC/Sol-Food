@@ -33,7 +33,7 @@ uri="http://www.springframework.org/tags/form" %>
     <c:if test="${not empty msg}">
       <script>
         $(function () {
-          alert("${msg}");
+          showWarningPopup("${msg}");
           window.location.href = "${pageContext.request.contextPath}/user/login";
         });
       </script>
@@ -145,6 +145,7 @@ uri="http://www.springframework.org/tags/form" %>
       </div>
     </div>
     <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script>
       $(function () {
         // 눈 감은 아이콘 클릭 시

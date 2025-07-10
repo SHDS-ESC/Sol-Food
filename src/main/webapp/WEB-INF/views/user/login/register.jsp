@@ -241,6 +241,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
       var contextPath = "${pageContext.request.contextPath}"; // 예: /solfood
     </script>
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
     <script>
       /**
@@ -255,13 +256,6 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
           // 로딩 UI 표시
           showUploadProgress(true);
 
-          // 파일 미리보기
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            updateProfilePreview(e.target.result);
-          };
-          reader.readAsDataURL(file);
-
           // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
           const s3Url = await s3Uploader.uploadProfileImage(
             file,
@@ -270,11 +264,18 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
             }
           );
 
+          // 업로드 성공 후 미리보기 업데이트
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            updateProfilePreview(e.target.result);
+          };
+          reader.readAsDataURL(file);
+
           // 업로드 성공 - hidden input에 S3 URL 저장
           document.getElementById("usersProfile").value = s3Url;
         } catch (error) {
           console.error("프로필 이미지 업로드 실패:", error);
-          alert("프로필 이미지 업로드에 실패했습니다: " + error.message);
+          showWarningPopup("프로필 이미지 업로드에 실패했습니다: " + error.message);
 
           // 원래 이미지로 복원
           updateProfilePreview(
@@ -306,7 +307,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
             });
           })
           .catch((error) => {
-            alert("부서 목록을 불러오지 못했습니다.");
+            showWarningPopup("부서 목록을 불러오지 못했습니다.");
           });
       }
 

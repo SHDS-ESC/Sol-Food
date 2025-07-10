@@ -574,11 +574,12 @@ body {
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  max-width: 400px;
+  max-width: 320px;
   width: 90%;
   max-height: 80vh;
   overflow-y: auto;
   animation: popupSlideIn 0.3s ease-out;
+  padding: 0;
 }
 
 @keyframes popupSlideIn {
@@ -593,12 +594,12 @@ body {
 }
 
 .popup-header {
-  padding: 20px 20px 0 20px;
+  padding: 16px 16px 0 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #eee;
-  padding-bottom: 15px;
+  padding-bottom: 12px;
 }
 
 .popup-header h3 {
@@ -645,7 +646,7 @@ body {
 }
 
 .popup-body {
-  padding: 20px;
+  padding: 16px;
 }
 
 .popup-body p {
@@ -655,20 +656,24 @@ body {
 }
 
 .popup-footer {
-  padding: 0 20px 20px 20px;
+  padding: 0 16px 16px 16px;
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: flex-end;
+  flex-direction: row !important;
 }
 
 .popup-btn {
-  padding: 10px 20px;
+  padding: 8px 0;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 38px;
 }
 
 .popup-btn.confirm-btn {
@@ -729,23 +734,22 @@ body.dark .popup-btn.cancel-btn {
 /* 반응형 디자인 */
 @media (max-width: 480px) {
   .popup-content {
-    width: 95%;
-    margin: 20px;
+    width: 98%;
+    margin: 8px;
+    max-width: 98vw;
   }
-
   .popup-header,
   .popup-body,
   .popup-footer {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
-
   .popup-footer {
-    flex-direction: column;
+    gap: 6px;
   }
-
   .popup-btn {
-    width: 100%;
+    font-size: 12px;
+    height: 34px;
   }
 }
 

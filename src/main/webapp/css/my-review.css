@@ -131,17 +131,36 @@
 
 .review-store-info {
     flex: 1;
+    border-left: 3px solid #ff6b35;
+    padding-left: 15px;
+    margin-left: 5px;
 }
 
 .review-store-name {
     font-weight: bold;
     color: #333;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-size: 16px;
+    position: relative;
+}
+
+.review-store-name::before {
+    content: "🏪";
+    margin-right: 8px;
+    font-size: 14px;
 }
 
 .review-date {
     font-size: 12px;
     color: #999;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.review-date::before {
+    content: "📅";
+    font-size: 10px;
 }
 
 .review-actions {
@@ -187,6 +206,10 @@
     color: #666;
     line-height: 1.6;
     margin-bottom: 15px;
+    padding: 12px;
+    background: #fafafa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
 }
 
 .review-rating {
@@ -194,6 +217,10 @@
     align-items: center;
     gap: 5px;
     margin-bottom: 10px;
+    padding: 8px 12px;
+    background: #fff3cd;
+    border-radius: 6px;
+    border: 1px solid #ffeaa7;
 }
 
 .stars {
@@ -519,6 +546,22 @@ body.dark .review-store-name {
     color: #fff;
 }
 
+body.dark .review-store-info {
+    border-left-color: #ff6b35;
+}
+
+
+
+body.dark .review-content {
+    background: #2a2a2a;
+    border-color: #444;
+}
+
+body.dark .review-rating {
+    background: #3d2f1f;
+    border-color: #5d4e3f;
+}
+
 body.dark .review-content,
 body.dark .review-date,
 body.dark .rating-text {
@@ -635,6 +678,22 @@ body.dark .current-image button {
     .review-title,
     .review-store-name {
         color: #fff;
+    }
+    
+    .review-store-info {
+        border-left-color: #ff6b35;
+    }
+    
+
+    
+    .review-content {
+        background: #2a2a2a;
+        border-color: #444;
+    }
+    
+    .review-rating {
+        background: #3d2f1f;
+        border-color: #5d4e3f;
     }
     
     .review-content,
