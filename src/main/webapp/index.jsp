@@ -16,7 +16,6 @@
     <link href="${pageContext.request.contextPath}/css/reset.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/index.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/main-improved.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
@@ -79,7 +78,7 @@
             <section class="popular-section">
                 <div class="section-header">
                     <h2 class="section-title">인기 식당 Top 10</h2>
-                    <button class="popular-more-btn" onclick="location.href='${pageContext.request.contextPath}/user/store/list?sort=like'" style="color:var(--color-black">
+                    <button class="popular-more-btn" onclick="location.href='${pageContext.request.contextPath}/user/store/list?sort=like'" style="color:var(--color-black)">
                         <span>더보기</span>
                         <i class="bi bi-chevron-right"></i>
                     </button>
