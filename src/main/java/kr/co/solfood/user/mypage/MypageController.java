@@ -57,6 +57,13 @@ public class MypageController {
         if(userVO == null){ // 로그인 안되어있으면
             return "/user/mypage/non-user-mypage"; // 여기로 바로 포워딩 (리다이렉트x)
         }
+        if(loginService.getUserStatusById(userVO.getUsersId()).equals("inactive")){
+            // 비활성화된 계정인 경우
+            model.addAttribute("msg", "비활성화된 계정입니다. 관리자에게 문의해주세요.");
+            System.out.println(userVO);
+            System.out.println("비활성화된 계정으로 마이페이지 접근 시도: " + UrlConstants.User.LOGIN_PAGE);
+            return UrlConstants.User.LOGIN_PAGE;
+        }
         model.addAttribute("currentUser", userVO);
         return UrlConstants.View.USER_MYPAGE;
     }

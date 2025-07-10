@@ -1,7 +1,5 @@
 package kr.co.solfood.user.login;
 
-import properties.KakaoProperties;
-import properties.ServerProperties;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,8 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import properties.KakaoProperties;
+import properties.ServerProperties;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -184,6 +183,11 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public List<UserVO> getUsersByIds(List<Long> userIds) {
         return mapper.getUsersByIds(userIds);
+    }
+
+    @Override
+    public String getUserStatusById(long userId) {
+        return mapper.getUserStatusById(userId);
     }
 
 }
