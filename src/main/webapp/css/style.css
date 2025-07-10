@@ -276,6 +276,7 @@ body {
 .header .bi-moon,
 .header .bi-brightness-high,
 .header .bi-envelope,
+.bi-three-dots,
 .header .bi-list {
   padding: 7px;
   border-radius: 10px;
@@ -287,6 +288,7 @@ body {
 .header .bi-moon:hover,
 .header .bi-brightness-high:hover,
 .header .bi-envelope:hover,
+.bi-three-dots:hover,
 .header .bi-list:hover {
   padding: 7px;
   border-radius: 10px;
