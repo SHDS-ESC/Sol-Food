@@ -244,7 +244,7 @@
                             <i class="fas fa-star ${i <= owner.storeAvgstar ? '' : 'text-muted'}"></i>
                         </c:forEach>
                     </div>
-                    <div class="rating-number">${owner.storeAvgstar}</div>
+                    <div class="rating-number">${owner.storeAvgstar != null ? String.format("%.1f", owner.storeAvgstar) : '0.0'}</div>
                 </div>
             </div>
 
@@ -301,6 +301,7 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="${pageContext.request.contextPath}/js/popup.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
         crossorigin="anonymous"></script>

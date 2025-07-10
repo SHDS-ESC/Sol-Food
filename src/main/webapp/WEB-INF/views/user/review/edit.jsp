@@ -92,6 +92,7 @@
     </div>
 
     <!-- 외부 JavaScript 파일 -->
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/js/review.js"></script>
     
     <script>
@@ -99,20 +100,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             const checkedStar = document.querySelector('input[name="reviewStar"]:checked');
             if (checkedStar) {
-                const starText = document.getElementById('starText');
-                const ratings = ['', '⭐ 별로예요', '⭐⭐ 그저 그래요', '⭐⭐⭐ 좋아요', '⭐⭐⭐⭐ 맛있어요', '⭐⭐⭐⭐⭐ 최고예요!'];
-                starText.textContent = ratings[checkedStar.value];
-                starText.style.color = checkedStar.value >= 4 ? '#ffc107' : checkedStar.value >= 3 ? '#17a2b8' : '#dc3545';
+                updateStarText(checkedStar.value);
             }
         });
 
         // 별점 텍스트 업데이트
         document.querySelectorAll('input[name="reviewStar"]').forEach(input => {
             input.addEventListener('change', function() {
-                const starText = document.getElementById('starText');
-                const ratings = ['', '⭐ 별로예요', '⭐⭐ 그저 그래요', '⭐⭐⭐ 좋아요', '⭐⭐⭐⭐ 맛있어요', '⭐⭐⭐⭐⭐ 최고예요!'];
-                starText.textContent = ratings[this.value];
-                starText.style.color = this.value >= 4 ? '#ffc107' : this.value >= 3 ? '#17a2b8' : '#dc3545';
+                updateStarText(this.value);
             });
         });
     </script>

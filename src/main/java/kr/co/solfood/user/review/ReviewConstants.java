@@ -51,4 +51,24 @@ public final class ReviewConstants {
     public static final String MSG_REVIEW_UPDATE_ERROR = "리뷰 수정 중 오류가 발생했습니다.";
     public static final String MSG_REVIEW_DELETE_SUCCESS = "리뷰가 성공적으로 삭제되었습니다.";
     public static final String MSG_REVIEW_DELETE_ERROR = "리뷰 삭제 중 오류가 발생했습니다.";
+    
+    // === API 응답 메시지 상수 ===
+    public static final String MSG_LOGIN_REQUIRED = "로그인이 필요합니다.";
+    public static final String MSG_REVIEW_NOT_FOUND_API = "리뷰를 찾을 수 없습니다.";
+    public static final String MSG_NO_PERMISSION = "권한이 없습니다.";
+    public static final String MSG_REVIEW_LOAD_FAILED = "리뷰 목록을 불러오는데 실패했습니다.";
+    public static final String MSG_REVIEW_INFO_LOAD_FAILED = "리뷰 정보를 불러오는데 실패했습니다.";
+    public static final String MSG_REVIEW_UPDATE_FAILED = "리뷰 수정에 실패했습니다.";
+    public static final String MSG_REVIEW_DELETE_FAILED = "리뷰 삭제에 실패했습니다.";
+    public static final String MSG_REVIEW_UPDATED = "리뷰가 수정되었습니다.";
+    public static final String MSG_REVIEW_DELETED = "리뷰가 삭제되었습니다.";
+    
+    // === 기본값 상수 ===
+    public static final int DEFAULT_USERS_PAYMENT_ID = 0;
+    public static final int DEFAULT_REVIEW_COMMENT_ID = 0;
+    
+    // === 검증 메시지 상수 ===
+    public static final String MSG_STORE_ID_REQUIRED = "가게 ID를 입력해주세요.";
+    public static final String MSG_STAR_RATING_REQUIRED = "별점을 선택해주세요.";
+    public static final String MSG_REVIEW_CONTENT_REQUIRED = "리뷰 내용을 입력해주세요.";
 } 

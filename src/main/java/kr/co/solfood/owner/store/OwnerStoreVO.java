@@ -18,7 +18,7 @@ public class OwnerStoreVO {
     private String storeAddress; // 상점 위치 o
     private Double storeLatitude; // 위도 o
     private Double storeLongitude; // 경도 o
-    private int storeAvgstar; // 별점
+    private double storeAvgstar; // 별점
     private String storeIntro; // 상점 소개 o
     private String storeMainimage; // 상점 대표 이미지 o
     private String storeTel; // 상점 번호 o

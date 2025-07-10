@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,10 +21,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Controller
 @RequestMapping(UrlConstants.User.MYPAGE_BASE)
 public class MypageController {
-
     @Autowired
     private LoginService loginService;
 
@@ -38,15 +38,23 @@ public class MypageController {
     @GetMapping("")
     public String myPage(Model model, HttpSession sess) {
         UserVO userVO = (UserVO) sess.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
-        if(userVO == null){
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        if(userVO == null){ // 로그인 안되어있으면 
+            return "/user/mypage/non-user-mypage"; // 여기로 바로 포워딩 (리다이렉트x)
         }
-
-
-
         model.addAttribute("currentUser", userVO);
         return UrlConstants.View.USER_MYPAGE;
     }
+
+    // 마이페이지 > 내 정보 수정
+    @GetMapping("/edit")
+    public void edit(){}
+
+
+    // 마이페이지 > 내 정보 수정 > 탈퇴하기
+    @GetMapping("/prev-withdraw")
+    public void prevWithdraw(){}
+
+
 
     // 마이페이지 > 내정보 get
     @GetMapping("/info")
@@ -60,7 +68,7 @@ public class MypageController {
         sess.setAttribute("s3InProgress", true);
         sess.setAttribute("uploadCount", 0);
         sess.setMaxInactiveInterval(30 * 60); // 30분 후 만료
-        return UrlConstants.View.USER_LOGIN_INFO;
+        return "/user/mypage/info";
     }
 
     // 마이페이지 > 내정보 post
@@ -77,6 +85,12 @@ public class MypageController {
         // 2. userId 설정
         userVO.setUsersId(loginUser.getUsersId());
 
+
+        // 비밀번호를 입력하지 않았다면 기존 비밀번호 유지
+        if(userVO.getUsersPwd() == null || userVO.getUsersPwd().isBlank()){
+            userVO.setUsersPwd(loginUser.getUsersPwd());
+        }
+
         // 3. service update
         mypageService.updateUserInfo(userVO);
 
@@ -91,6 +105,7 @@ public class MypageController {
         if(userVO.getUsersProfile() != null && !userVO.getUsersProfile().trim().isEmpty()) {
             loginUser.setUsersProfile(userVO.getUsersProfile());
         }
+
         loginUser.setCompanyId(userVO.getCompanyId());
         loginUser.setDepartmentId(userVO.getDepartmentId());
         loginUser.setUsersEmail(userVO.getUsersEmail());
@@ -122,7 +137,7 @@ public class MypageController {
             return "redirect:" + UrlConstants.User.LOGIN_PAGE;
         } else {
             redirectAttributes.addFlashAttribute("msg", "탈퇴 실패");
-            return "redirect:" + UrlConstants.User.MYPAGE_INFO;
+            return "redirect:" + UrlConstants.User.MYPAGE_BASE;
         }
 
 
@@ -182,6 +197,26 @@ public class MypageController {
         result.put("hasNext", hasNext);
 
         return result;
+    }
+
+
+
+    // 결제 페이지에는 impCode를 전달해야함.
+    @GetMapping("/charge")
+    public void charge(Model model, @Value("${imp.code}") String impCode) {
+        model.addAttribute("impCode", impCode);
+    }
+
+    @GetMapping("/charge-history")
+    public String chargeHistoryPage() {
+        // 페이지 렌더링만 담당, 데이터는 JavaScript로 API 호출
+        return "user/mypage/charge-history";
+    }
+
+    @GetMapping("/payment-history")
+    public String paymentHistoryPage() {
+        // 페이지 렌더링만 담당, 데이터는 JavaScript로 API 호출
+        return "user/mypage/payment-history";
     }
 
 }

@@ -15,10 +15,10 @@ let currentSearchKeyword = '';
 let currentSort = 'star';
 
 // ==================== 초기화 ====================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     currentCategory = '전체';
     loadCategoryConfig();
-    
+
     // 초기 로딩 시 페이징 방식으로 통일
     offset = 0;
     hasNext = true;
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadStoreList();
 
     // 더보기 버튼 이벤트 리스너
-    document.getElementById('loadMoreBtn').addEventListener('click', function() {
+    document.getElementById('loadMoreBtn').addEventListener('click', function () {
         if (hasNext && !loading) {
             loadStoreList();
         }
@@ -36,33 +36,33 @@ document.addEventListener('DOMContentLoaded', function() {
     // 검색창 Enter 키 이벤트
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
+        searchInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 performSearch();
             }
         });
     }
-    
+
     // 장바구니 개수 업데이트
     if (typeof updateCartBadge === 'function') {
-        fetch(UrlConstants.Builder.fullUrl('/user/cart/count'))
+        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
             .then(response => response.json())
             .then(data => updateCartBadge(data.count || 0))
             .catch(error => console.error('장바구니 개수 로드 실패:', error));
     }
 
     //정렬 셀렉트 박스 활성화
-      const sortSelect = document.getElementById('sortSelect');
-        if (sortSelect) {
-            sortSelect.value = currentSort; // 초기값 셋팅
-        }
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect) {
+        sortSelect.value = currentSort; // 초기값 셋팅
+    }
 });
 
 // ==================== 장바구니 관련 ====================
 // updateCartBadge 함수는 cart.js에서 제공됨
 
 function loadCategoryConfig() {
-    fetch(UrlConstants.Builder.fullUrl('/user/store/api/category/config'))
+    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.STORE_CATEGORY_CONFIG))
         .then(response => response.json())
         .then(data => {
             categoryConfig = data.data || data;
@@ -74,11 +74,15 @@ function loadCategoryConfig() {
 
 // ==================== 화면 전환 ====================
 function showMap() {
-    document.getElementById('mapBtn').classList.add('btn-active');
-    document.getElementById('listBtn').classList.remove('btn-active');
+    document.getElementById('mapBtn').classList.add('map-tab', 'active');
+    document.getElementById('listBtn').classList.remove('active');
     document.getElementById('mapContainer').style.display = 'flex';
+    document.querySelector('.map-view').style.display = 'block';
+    document.querySelector('.map-category-container').style.display = 'block';
     document.getElementById('listContainer').style.display = 'none';
-    document.querySelector('.app-container').classList.add('map-view');
+    document.querySelector('.wrap').classList.add('map-view');
+    document.querySelector('.scroll-list-header').style.display = 'none';
+
 
     if (!map) {
         initializeMap();
@@ -93,11 +97,14 @@ function showMap() {
 }
 
 function showList() {
-    document.getElementById('listBtn').classList.add('btn-active');
-    document.getElementById('mapBtn').classList.remove('btn-active');
+    document.getElementById('listBtn').classList.add('map-tab', 'active');
+    document.getElementById('mapBtn').classList.remove('active');
     document.getElementById('listContainer').style.display = 'block';
     document.getElementById('mapContainer').style.display = 'none';
-    document.querySelector('.app-container').classList.remove('map-view');
+    document.querySelector('.map-category-container').style.display = 'none';
+    document.querySelector('.wrap').classList.remove('map-view');
+    document.querySelector('.scroll-list-header').style.display = '';
+
 }
 
 // ==================== 지도 초기화 ====================
@@ -178,7 +185,7 @@ function createMap(position) {
             map.relayout();
             map.setCenter(position);
             searchMapCategory('전체');
-            
+
             document.querySelectorAll('.map-category-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -204,7 +211,7 @@ function selectCategory(element, category) {
 
     // 현재 카테고리 업데이트
     currentCategory = category;
-    
+
     // "더보기" 접기/펼치기 등 부가 UI
     const extendedCategories = document.getElementById('extendedCategories');
     const isMoreOpen = extendedCategories && extendedCategories.style.display === 'grid';
@@ -218,11 +225,11 @@ function selectCategory(element, category) {
     const mapContainer = document.getElementById('mapContainer');
     const mapDisplay = window.getComputedStyle(mapContainer).display;
     const isMapView = mapDisplay === 'flex';
-    
+
     if (isMapView) {
         searchMapCategory(category);
     }
-    
+
     // 검색 모드 해제
     clearSearchMode();
 
@@ -237,7 +244,7 @@ function selectMapCategory(element, category) {
     });
     element.classList.add('active');
     currentCategory = category;
-    
+
     if (map && placesService && currentPosition) {
         searchMapCategory(category);
     }
@@ -247,7 +254,7 @@ function toggleMoreCategories() {
     const extendedCategories = document.getElementById('extendedCategories');
     const moreText = document.getElementById('moreText');
     const moreIcon = document.getElementById('moreIcon');
-    
+
     if (extendedCategories.style.display === 'grid') {
         // 펼쳐져 있음 → 접기 실행
         extendedCategories.style.display = 'none';
@@ -294,9 +301,9 @@ function loadStoreList() {
     let apiUrl;
 
     if (isSearchActive) {
-        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/search?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
+        apiUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_SEARCH}?keyword=${encodeURIComponent(currentSearchKeyword)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
     } else {
-        apiUrl = UrlConstants.Builder.fullUrl(`/user/store/api/list?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
+        apiUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_LIST}?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
     }
 
     fetch(apiUrl)
@@ -322,7 +329,7 @@ function loadStoreList() {
         })
         .catch(error => {
             console.error('목록 로드 실패:', error);
-            alert('목록을 불러오지 못했습니다: ' + error.message);
+            showErrorPopup('목록을 불러오지 못했습니다: ' + error.message);
         })
         .finally(() => {
             loading = false;
@@ -403,6 +410,11 @@ function createStoreCardElement(store, usersId) {
             ? safeAddress.substring(0, 15) + '...'
             : safeAddress;
 
+        // 별점 표시 개선 (실시간 계산된 별점, 소수점 한 자리까지)
+        const starDisplay = safeRating > 0
+            ? `⭐ ${safeRating.toFixed(1)}점`
+            : '⭐ 신규매장';
+
         card.innerHTML = `
             <img src="${safeImage}" alt="${safeName}" class="store-img" 
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -412,13 +424,13 @@ function createStoreCardElement(store, usersId) {
             <div class="store-body">
                 <div class="store-name">${safeName}</div>
                 <div class="store-category">${safeCategory}</div>
-                <div style="font-size:11px; color:#666; margin-bottom:3px;">
+                <div style="font-size:11px; color:#666; margin-bottom:5px;">
                     📍 ${displayAddress}
                 </div>
                 <div style="font-size:12px;">
-                    ${safeRating > 0 ? `⭐ ${safeRating}점` : '⭐ 신규매장'}
+                    ${starDisplay}
                 </div>
-                ${safeTel && safeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:2px;">📞 ${safeTel}</div>` : ''}
+                ${safeTel && safeTel !== '정보없음' ? `<div style="font-size:10px; color:#28a745; margin-top:4px;">📞 ${safeTel}</div>` : ''}
                 <button
                     class="like-btn ${likedClass}"
                     data-store-id="${store.storeId}"
@@ -434,7 +446,7 @@ function createStoreCardElement(store, usersId) {
 
         // 하트 버튼 클릭(버블링 방지)
         const likeBtn = card.querySelector('.like-btn');
-        likeBtn.addEventListener('click', function(event) {
+        likeBtn.addEventListener('click', function (event) {
             event.stopPropagation();
             toggleLike(this);
         });
@@ -492,9 +504,9 @@ function displayMarker(place) {
 
         markers.push(marker);
 
-        kakao.maps.event.addListener(marker, 'click', function() {
+        kakao.maps.event.addListener(marker, 'click', function () {
             closeAllInfoWindows();
-            
+
             const content = createDetailedInfoWindow(place);
             const infowindow = new kakao.maps.InfoWindow({
                 content: content,
@@ -511,14 +523,14 @@ function displayMarker(place) {
 
 function createDetailedInfoWindow(place) {
     const categoryTag = extractCategoryTag(place.category_name);
-    
+
     let content = '<div class="custom-infowindow">';
     content += '<div class="infowindow-header">';
     content += '<button class="infowindow-close" onclick="closeCurrentInfoWindow()">×</button>';
     content += '<h3 class="store-title">' + place.place_name + '</h3>';
     content += '<span class="store-category-tag">' + categoryTag + '</span>';
     content += '</div>';
-    
+
     content += '<div class="infowindow-body">';
     content += '<div class="menu-image-container">';
     content += '<div class="no-image-placeholder">';
@@ -526,20 +538,20 @@ function createDetailedInfoWindow(place) {
     content += '<span>대표 메뉴 이미지</span>';
     content += '</div>';
     content += '</div>';
-    
+
     content += '<div class="store-info">';
     content += '<div class="store-info-item">';
     content += '<i class="bi bi-geo-alt store-info-icon"></i>';
     content += '<span>' + (place.road_address_name || place.address_name) + '</span>';
     content += '</div>';
-    
+
     if (place.phone) {
         content += '<div class="store-info-item">';
         content += '<i class="bi bi-telephone store-info-icon"></i>';
         content += '<span>' + place.phone + '</span>';
         content += '</div>';
     }
-    
+
     content += '<div class="store-info-item">';
     content += '<i class="bi bi-tag store-info-icon"></i>';
     content += '<span>' + place.category_name + '</span>';
@@ -549,17 +561,17 @@ function createDetailedInfoWindow(place) {
     content += '<button class="info-btn btn-detail" onclick="goToStoreDetailFromMap(\'' + place.place_name + '\', \'' + place.id + '\')">';
     content += '<i class="bi bi-info-circle" style="margin-right: 4px;"></i>상세보기';
     content += '</button>';
-    
+
     if (place.phone) {
         content += '<button class="info-btn btn-call" onclick="callStore(\'' + place.phone + '\')">';
         content += '<i class="bi bi-telephone" style="margin-right: 4px;"></i>전화';
         content += '</button>';
     }
-    
+
     content += '</div>';
     content += '</div>';
     content += '</div>';
-    
+
     return content;
 }
 
@@ -569,7 +581,7 @@ function performSearch() {
     const keyword = searchInput.value.trim();
 
     if (!keyword) {
-        alert('검색어를 입력해주세요.');
+        showWarningPopup('검색어를 입력해주세요.');
         searchInput.focus();
         return;
     }
@@ -593,7 +605,7 @@ function updateSearchUI(keyword) {
     });
 
     // 검색 상태 표시를 위한 헤더 추가
-    const categoryContainer = document.querySelector('.category-container');
+    const listContainer = document.querySelector('.list-container');
     let searchHeader = document.getElementById('searchHeader');
 
     if (!searchHeader) {
@@ -609,7 +621,7 @@ function updateSearchUI(keyword) {
             justify-content: space-between;
             align-items: center;
         `;
-        categoryContainer.insertBefore(searchHeader, categoryContainer.firstChild);
+        listContainer.prepend(searchHeader);
     }
 
     searchHeader.innerHTML = `
@@ -645,7 +657,7 @@ function clearSearch() {
 
     // '전체' 카테고리 선택
     const allCategoryElement = document.querySelector('.category-item[onclick*="전체"]') ||
-                               document.querySelector('.category-item:first-child');
+        document.querySelector('.category-item:first-child');
 
     if (allCategoryElement) {
         selectCategory(allCategoryElement, '전체');
@@ -676,11 +688,11 @@ function toggleLike(btn) {
                     btn.querySelector('i').className = 'bi bi-heart-fill';
                 }
             } else {
-                alert('찜 처리 중 오류가 발생했습니다.');
+                showErrorPopup('찜 처리 중 오류가 발생했습니다.');
             }
         })
         .catch(() => {
-            alert('서버와 통신 중 오류가 발생했습니다.');
+            showErrorPopup('서버와 통신 중 오류가 발생했습니다.');
         });
 }
 
@@ -705,14 +717,14 @@ function closeCurrentInfoWindow() {
 
 function extractCategoryTag(categoryName) {
     if (!categoryName) return '기타';
-    
+
     const parts = categoryName.split(' > ');
     const lastPart = parts[parts.length - 1];
-    
+
     if (lastPart.length > 15) {
         return lastPart.substring(0, 15) + '...';
     }
-    
+
     return lastPart;
 }
 
@@ -747,21 +759,21 @@ function goToStoreDetailFromMap(placeName, placeId) {
     document.body.appendChild(loadingOverlay);
 
     // 가게명으로 DB 검색
-    const searchUrl = UrlConstants.Builder.fullUrl(`/user/store/search/name?name=${encodeURIComponent(placeName)}`);
-    
+    const searchUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_SEARCH_BY_NAME}?name=${encodeURIComponent(placeName)}`);
+
     fetch(searchUrl)
         .then(response => response.json())
         .then(data => {
             // 로딩 오버레이 제거
             document.body.removeChild(loadingOverlay);
-            
+
             if (data.success && data.stores && data.stores.length > 0) {
                 // 가게가 존재하는 경우 - 첫 번째 가게의 상세페이지로 이동
                 const store = data.stores[0];
                 window.location.href = UrlConstants.Builder.storeDetail(store.storeId);
             } else {
-                // 가게가 없는 경우 - 알람 표시 후 인포윈도우 닫기
-                alert(`'${placeName}' 가게를 찾을 수 없습니다.\n현재 Sol Food에 등록되지 않은 가게입니다.`);
+                // 가게가 없는 경우 - 모달 표시
+                showKakaoMapModal(placeName, placeId);
                 closeCurrentInfoWindow();
             }
         })
@@ -769,16 +781,147 @@ function goToStoreDetailFromMap(placeName, placeId) {
             // 에러 처리
             console.error('가게 검색 중 오류 발생:', error);
             document.body.removeChild(loadingOverlay);
-            alert('가게 정보를 확인하는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
+            showErrorPopup('가게 정보를 확인하는 중 오류가 발생했습니다.\n잠시 후 다시 시도해주세요.');
             closeCurrentInfoWindow();
         });
+}
+
+// ESC 키 이벤트 핸들러 (전역 변수)
+let kakaoMapModalEscHandler = null;
+
+// 카카오맵 모달 표시 함수
+function showKakaoMapModal(placeName, placeId) {
+    // 기존 모달이 있다면 제거
+    const existingModal = document.getElementById('kakaoMapModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // 모달 생성
+    const modal = document.createElement('div');
+    modal.id = 'kakaoMapModal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10001;
+    `;
+
+    // 모달 외부 클릭 시 닫기
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) {
+            closeKakaoMapModal();
+        }
+    });
+
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        ">
+            <div style="margin-bottom: 20px;">
+                <div style="
+                    width: 60px;
+                    height: 60px;
+                    background: #fee500;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 16px;
+                ">
+                    <span style="font-size: 24px;">🗺️</span>
+                </div>
+                <h3 style="margin: 0 0 8px 0; color: #333; font-size: 18px;">카카오맵으로 이동</h3>
+                <p style="margin: 0; color: #666; font-size: 14px; line-height: 1.4;">
+                    '${placeName}' 가게는 현재 Sol Food에 등록되지 않았습니다.<br>
+                    카카오맵에서 자세한 정보를 확인하시겠습니까?
+                </p>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button onclick="closeKakaoMapModal()" style="
+                    padding: 12px 24px;
+                    border: 1px solid #ddd;
+                    background: white;
+                    color: #666;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                " onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                    취소
+                </button>
+                <button onclick="openKakaoMap('${placeName}')" style="
+                    padding: 12px 24px;
+                    border: none;
+                    background: #fee500;
+                    color: #000;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                " onmouseover="this.style.background='#f4d800'" onmouseout="this.style.background='#fee500'">
+                    카카오맵 열기
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // ESC 키 이벤트 리스너 추가
+    kakaoMapModalEscHandler = function (e) {
+        if (e.key === 'Escape') {
+            closeKakaoMapModal();
+        }
+    };
+    document.addEventListener('keydown', kakaoMapModalEscHandler);
+}
+
+// 카카오맵 모달 닫기 함수
+function closeKakaoMapModal() {
+    const modal = document.getElementById('kakaoMapModal');
+    if (modal) {
+        modal.remove();
+    }
+
+    // ESC 키 이벤트 리스너 정리
+    if (kakaoMapModalEscHandler) {
+        document.removeEventListener('keydown', kakaoMapModalEscHandler);
+        kakaoMapModalEscHandler = null;
+    }
+}
+
+// 카카오맵 열기 함수
+function openKakaoMap(placeName) {
+    // 카카오맵 URL 생성 (검색어로 검색)
+    const encodedPlaceName = encodeURIComponent(placeName);
+    const kakaoMapUrl = `https://map.kakao.com/link/search/${encodedPlaceName}`;
+
+    // 새 창에서 카카오맵 열기
+    window.open(kakaoMapUrl, '_blank');
+
+    // 모달 닫기
+    closeKakaoMapModal();
 }
 
 function callStore(phoneNumber) {
     if (phoneNumber) {
         window.location.href = 'tel:' + phoneNumber;
     } else {
-        alert('전화번호 정보가 없습니다.');
+        showWarningPopup('전화번호 정보가 없습니다.');
     }
 }
 
@@ -833,3 +976,42 @@ function changeSort(sortType) {
     loadStoreList();
 }
 
+// ==================== 토글 ====================
+function toggleSortDropdown() {
+    $("#sortDropdownMenu").toggle();
+}
+
+$(document).on("click", ".sort-option", function () {
+    $(".sort-option").removeClass("selected");
+    $(this).addClass("selected");
+    $("#sortSelectedText").text($(this).text().trim());
+    $("#sortDropdownMenu").hide();
+    // TODO: 실제 정렬 파라미터 반영
+    changeSort($(this).data("value"));
+});
+// 바깥 클릭시 닫기
+$(document).on("click", function (e) {
+    if (!$(e.target).closest('.sort-dropdown').length) {
+        $("#sortDropdownMenu").hide();
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    var scrollListArea = document.querySelector('.scroll-list-area');
+    var categoryContainer = document.querySelector('.category-container');
+    var lastClass = false;
+
+    if (scrollListArea && categoryContainer) {
+        scrollListArea.addEventListener('scroll', function() {
+            if (scrollListArea.scrollTop > 30 && !lastClass) {
+                categoryContainer.classList.add('one-line');
+                lastClass = true;
+            }
+            else if (scrollListArea.scrollTop <= 30 && lastClass) {
+                categoryContainer.classList.remove('one-line');
+                lastClass = false;
+            }
+        });
+    }
+});

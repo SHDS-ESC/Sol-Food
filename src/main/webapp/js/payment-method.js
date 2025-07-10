@@ -1,15 +1,17 @@
 // 결제 방법 선택 페이지 JavaScript
-let selectedPaymentMethod = null;
+let selectedMethod = null;
+const continueBtn = document.getElementById('continueBtn');
+const paymentOptions = document.querySelectorAll('.payment-option');
 
 function goBack() {
-    window.location.href = UrlConstants.Builder.fullUrl('/user/cart');
+    history.back();
 }
 
 function selectPaymentMethod(method) {
     console.log('선택된 방식:', method);
     
     // 모든 옵션의 selected 클래스 제거
-    document.querySelectorAll('.payment-option').forEach(option => {
+    paymentOptions.forEach(option => {
         option.classList.remove('selected');
     });
     
@@ -31,28 +33,27 @@ function selectPaymentMethod(method) {
     
     if (selectedOption) {
         selectedOption.classList.add('selected');
-        selectedPaymentMethod = method;
-        console.log('selectedPaymentMethod 설정됨:', selectedPaymentMethod);
+        selectedMethod = method;
+        console.log('selectedPaymentMethod 설정됨:', selectedMethod);
         updateContinueButton();
     } else {
         console.error('selectedOption을 찾을 수 없음. method:', method);
         // 그래도 강제로 설정
-        selectedPaymentMethod = method;
+        selectedMethod = method;
         updateContinueButton();
     }
 }
 
 function updateContinueButton() {
-    console.log('updateContinueButton 호출됨. selectedPaymentMethod:', selectedPaymentMethod);
-    const continueBtn = document.getElementById('continueBtn');
+    console.log('updateContinueButton 호출됨. selectedPaymentMethod:', selectedMethod);
     
-    if (selectedPaymentMethod) {
+    if (selectedMethod) {
         continueBtn.classList.add('active');
         continueBtn.disabled = false;
         continueBtn.style.opacity = '1';
         continueBtn.style.cursor = 'pointer';
         
-        if (selectedPaymentMethod === 'group') {
+        if (selectedMethod === 'group') {
             continueBtn.textContent = '친구 초대하기';
         } else {
             continueBtn.textContent = '결제하기';
@@ -69,34 +70,77 @@ function updateContinueButton() {
 }
 
 function proceedToNext() {
-    if (!selectedPaymentMethod) return;
+    if (!selectedMethod) return;
     
-    if (selectedPaymentMethod === 'group') {
+    if (selectedMethod === 'group') {
         // 함께 결제 - 친구 초대 페이지로 이동
         window.location.href = UrlConstants.Builder.fullUrl('/user/cart/invite-friends');
     } else {
-        // 개인 결제 - 결제 페이지로 이동 (추후 구현)
-        alert('개인 결제 기능은 추후 구현 예정입니다.');
+        // 개인 결제
+        window.location.href = UrlConstants.Builder.fullUrl('/user/cart/make-bill');
     }
 }
 
 // DOM이 로드된 후 이벤트 리스너 등록
 document.addEventListener('DOMContentLoaded', function() {
-    // 모든 결제 옵션에 클릭 이벤트 추가
-    const paymentOptions = document.querySelectorAll('.payment-option');
+    // 옵션 정보 렌더링
+    const menuOptions = document.querySelectorAll('.menu-options');
+    menuOptions.forEach(function(menuOption) {
+        const optionsData = menuOption.querySelector('.options-data');
+        const menuExtraData = menuOption.querySelector('.menu-extra-data');
+        if (optionsData && menuExtraData) {
+            try {
+                const selectedOptions = JSON.parse(optionsData.textContent.trim());
+                const optionGroups = JSON.parse(menuExtraData.textContent.trim());
+                let optionsHtml = '';
+                Object.entries(selectedOptions).forEach(([category, selected]) => {
+                    const group = optionGroups.find(g => g.groupName === category);
+                    if (group && Array.isArray(selected)) {
+                        optionsHtml += '<div class="option-title">추가옵션</div>';
+                        selected.forEach((optionName) => {
+                            const optionInfo = group.options.find(opt => opt.name === optionName);
+                            if (optionInfo) {
+                                const cleanOptionName = optionName.replace(/^\+\s*/, '').replace(/^\+/, '').trim();
+                                optionsHtml +=
+                                    '<div class="option-row">' +
+                                        '<span class="option-plus">+</span>' +
+                                        '<span class="option-name">' + cleanOptionName + '</span>' +
+                                        '<span class="option-price">(' + (optionInfo.price > 0 ? '+' + optionInfo.price.toLocaleString() : '0') + '원)</span>' +
+                                    '</div>';
+                            }
+                        });
+                    }
+                });
+                menuOption.innerHTML = optionsHtml;
+            } catch (e) {
+                console.error('옵션 파싱 에러:', e);
+                menuOption.innerHTML = '옵션 정보를 불러올 수 없습니다.';
+            }
+        }
+    });
     
+    // 모든 결제 옵션에 클릭 이벤트 추가
     paymentOptions.forEach(option => {
         option.addEventListener('click', function() {
-            const method = this.getAttribute('data-method');
-            if (method) {
-                selectPaymentMethod(method);
-            }
+            // 이전 선택 제거
+            paymentOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // 현재 선택 추가
+            this.classList.add('selected');
+            selectedMethod = this.dataset.method;
+            
+            // 다음 단계 버튼 활성화
+            continueBtn.removeAttribute('disabled');
         });
     });
     
-    // 계속하기 버튼 클릭 이벤트
-    const continueBtn = document.getElementById('continueBtn');
-    if (continueBtn) {
-        continueBtn.addEventListener('click', proceedToNext);
-    }
+    // 다음 단계 버튼 클릭 처리
+    continueBtn.addEventListener('click', function() {
+        if (!selectedMethod) return;
+        if (selectedMethod === 'group') {
+            window.location.href = UrlConstants.Builder.fullUrl('/user/cart/invite-friends');
+        } else {
+            window.location.href = UrlConstants.Builder.fullUrl('/user/cart/make-bill');
+        }
+    });
 }); 

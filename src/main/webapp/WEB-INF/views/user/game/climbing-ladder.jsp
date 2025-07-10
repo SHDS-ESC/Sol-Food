@@ -54,6 +54,7 @@
             <button class="btn btn-reset" onclick="resetLadder()">🔄 초기화</button>
         </div>
     </div>
+<script src="${pageContext.request.contextPath}/js/popup.js"></script>
 <script src="${pageContext.request.contextPath}/js/game/climbing-ladder.js"
         type="text/javascript"
         charset="UTF-8"></script>

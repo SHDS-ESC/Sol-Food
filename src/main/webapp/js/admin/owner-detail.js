@@ -46,7 +46,7 @@ function sendUpdateState(status, storeRejectReason = '') {
             storeRejectReason: storeRejectReason
         },
         error: function () {
-            alert('업데이트에 실패하였습니다.');
+            showErrorPopup('업데이트에 실패하였습니다.');
         }
     });
 }
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const detailedReason = textarea.value.trim();
 
         if (!selectedReason || detailedReason.length < 10) {
-            alert('거절 사유를 선택하고 상세 내용을 10자 이상 입력해주세요.');
+            showWarningPopup('거절 사유를 선택하고 상세 내용을 10자 이상 입력해주세요.');
             return;
         }
 
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Simulate API call
         setTimeout(() => {
-            alert('거절 사유가 성공적으로 등록되었습니다.');
+            showSuccessPopup('거절 사유가 성공적으로 등록되었습니다.');
             sendUpdateState("승인거절",$('.custom-textarea').val())
             closeModal();
         }, 2000);
