@@ -102,4 +102,15 @@ public class AdminHomeServiceImpl implements AdminHomeService {
             throw new IllegalArgumentException("유효하지 않은 userStatusUpdateDTO 입니다.");
         }
     }
+
+    @Override
+    public PageMaker<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto) {
+        List<PaymentSearchResponseDto> paymentSearchResponseDto = adminMapper.getPayments(paymentSearchRequestDto);
+        int size = adminMapper.getPaymentsCount(paymentSearchRequestDto);
+
+        if (paymentSearchResponseDto == null) {
+            throw new CustomException(ErrorCode.UNDEFINED_SEARCH);
+        }
+        return new PageMaker<>(paymentSearchResponseDto, size, paymentSearchRequestDto.getPageSize(), paymentSearchRequestDto.getCurrentPage());
+    }
 }

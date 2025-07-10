@@ -17,4 +17,6 @@ public interface AdminHomeService {
     OwnerSearchResponseDTO detailStoreInfo(String ownerId);
 
     void updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO);
+
+    PageMaker<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto);
 }

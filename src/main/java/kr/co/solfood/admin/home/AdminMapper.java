@@ -26,4 +26,8 @@ public interface AdminMapper {
     OwnerSearchResponseDTO detailStoreInfo(String ownerId);
 
     int updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO);
+
+    List<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto);
+
+    int getPaymentsCount(PaymentSearchRequestDto paymentSearchRequestDto);
 }

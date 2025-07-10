@@ -3,17 +3,17 @@
 <mapper namespace="kr.co.solfood.admin.home.AdminMapper">
     <select id="getUsers" parameterType="String" resultType="kr.co.solfood.admin.dto.UserSearchResponseDTO">
         SELECT
-            U.users_id,
-            users_profile,
-            users_name,
-            users_nickname,
-            users_login_type,
-            users_email,
-            department_name,
-            YEAR(CURDATE()) - YEAR(users_birth) AS usersAge,
-            users_gender,
-            users_status,
-            users_rejected_reason
+        U.users_id,
+        users_profile,
+        users_name,
+        users_nickname,
+        users_login_type,
+        users_email,
+        department_name,
+        YEAR(CURDATE()) - YEAR(users_birth) AS usersAge,
+        users_gender,
+        users_status,
+        users_rejected_reason
         FROM users U
         JOIN department D ON U.department_id = D.department_id
         <where>
@@ -43,7 +43,8 @@
         GROUP BY DAY (users_created_at);
     </select>
 
-    <select id="getOwners" parameterType="kr.co.solfood.admin.dto.OwnerSearchRequestDTO" resultType="kr.co.solfood.admin.dto.OwnerSearchResponseDTO">
+    <select id="getOwners" parameterType="kr.co.solfood.admin.dto.OwnerSearchRequestDTO"
+            resultType="kr.co.solfood.admin.dto.OwnerSearchResponseDTO">
         SELECT O.owner_id AS ownerId,
         store_mainimage,
         store_name,
@@ -135,4 +136,44 @@
         </set>
         WHERE users_id = #{usersId}
     </update>
+
+    <select id="getPayments" parameterType="kr.co.solfood.admin.dto.PaymentSearchRequestDto"
+            resultType="kr.co.solfood.admin.dto.PaymentSearchResponseDto">
+        SELECT
+        P.payment_id,
+        U.users_name,
+        P.payment_paid_amount,
+        P.payment_used_point,
+        P.payment_method,
+        P.payment_pg_provider,
+        P.payment_receipt_url,
+        P.payment_status,
+        P.payment_created_at
+        FROM payment P
+        JOIN users U ON P.users_id = U.users_id
+        <where>
+            <if test="query != null and query != ''">
+                U.users_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+            <if test="fromDate != null and fromDate != '' and toDate != null and toDate != ''">
+                P.payment_created_at BETWEEN #{fromDate} AND #{toDate}
+            </if>
+        </where>
+        ORDER BY P.payment_id
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="getPaymentsCount" parameterType="kr.co.solfood.admin.dto.PaymentSearchRequestDto" resultType="int">
+        SELECT COUNT(*)
+        FROM payment P
+        JOIN users U ON P.users_id = U.users_id
+        <where>
+            <if test="query != null and query != ''">
+                O.store_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+            <if test="fromDate != null and fromDate != '' and toDate != null and toDate != ''">
+                P.payment_created_at BETWEEN #{fromDate} AND #{toDate}
+            </if>
+        </where>
+    </select>
 </mapper>
