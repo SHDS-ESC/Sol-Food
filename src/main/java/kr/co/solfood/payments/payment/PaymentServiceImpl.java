@@ -98,10 +98,22 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentMapper.selectPaymentById(paymentId);
     }
     
-    // 사용자ID로 발의자 결제 조회 (진행중인 것만)
-    @Override
-    public PaymentVO getLeaderPaymentByUserId(long userId) {
-        return paymentMapper.selectLeaderPaymentByUserId(userId);
-    }
-    
-}
+         // 사용자ID로 발의자 결제 조회 (진행중인 것만)
+     @Override
+     public PaymentVO getLeaderPaymentByUserId(long userId) {
+         return paymentMapper.selectLeaderPaymentByUserId(userId);
+     }
+     
+     // 통합결제ID로 가게ID 조회
+     @Override
+     public Integer getStoreIdByIntegratedPaymentId(int integratedPaymentId) {
+         return paymentMapper.selectStoreIdByIntegratedPaymentId(integratedPaymentId);
+     }
+     
+     // 결제별 리뷰 작성 여부 확인
+     @Override
+     public boolean hasReviewForPayment(int paymentId, long userId) {
+         return paymentMapper.hasReviewForPayment(paymentId, userId);
+     }
+     
+ }
