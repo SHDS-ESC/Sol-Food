@@ -166,7 +166,7 @@ $(document).ready(function () {
     $(document).on('click', '.detail-button', function () {
         const $row = $(this).closest('tr');
         const paymentId = $row.find('td:first').text();
-        const url = ctx + '/admin/payment-management/detail?integratedp aymentId=' + paymentId;
+        const url = ctx + '/admin/payment-management/detail?integratedpaymentId=' + paymentId;
         window.location.href = url;
     });
 

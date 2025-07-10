@@ -221,8 +221,9 @@
         P.payment_receipt_url,
         P.payment_status,
         P.payment_created_at
-        FROM payment P, users U, integrated_payment I
-        WHERE I.integratedpayment_id = P.integratedpayment_id AND P.users_id = U.users_id
+        FROM payment P
+        JOIN users U ON P.users_id = U.users_id
+        JOIN integrated_payment I ON I.integratedpayment_id = P.integratedpayment_id
         <where>
             <if test="query != null and query != ''">
                 AND U.users_name LIKE CONCAT('%', #{query}, '%')
@@ -240,9 +241,10 @@
 
     <select id="getPaymentsCount" parameterType="kr.co.solfood.admin.dto.PaymentSearchRequestDto" resultType="int">
         SELECT COUNT(*)
-        FROM payment P, users U, integrated_payment I
-        WHERE I.integratedpayment_id = P.integratedpayment_id AND P.users_id = U.users_id
-        <where>
+        FROM payment P
+        JOIN users U ON P.users_id = U.users_id
+        JOIN integrated_payment I ON I.integratedpayment_id = P.integratedpayment_id
+            <where>
             <if test="query != null and query != ''">
                 AND U.users_name LIKE CONCAT('%', #{query}, '%')
             </if>
