@@ -269,7 +269,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
                 });
             })
             .catch(error => {
-                alert("부서 목록을 불러오지 못했습니다.");
+                showWarningPopup("부서 목록을 불러오지 못했습니다.");
             });
     }
     

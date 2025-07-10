@@ -71,7 +71,7 @@
 
         <c:choose>
             <c:when test="${not empty sessionScope.userLoginSession}">
-                <a href="<c:url value="/user/login/logout"/>" class="btn btn-primary">로그아웃</a>
+                <button id="logout-btn" class="btn btn-primary" type="button">로그아웃</button>
             </c:when>
         </c:choose>
     </main>
@@ -82,6 +82,14 @@
 <script src="${pageContext.request.contextPath}/js/store.js?v=${pageContext.session.creationTime}"></script>
 <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
 <script src="<c:url value='/js/urlConstants.js' />?v=${pageContext.session.creationTime}"></script>
+<script src="${pageContext.request.contextPath}/js/popup.js"></script>
+<script>
+  $(document).on('click', '#logout-btn', function() {
+    showConfirmPopup('로그아웃 하시겠습니까?', function() {
+      location.href = "${pageContext.request.contextPath}/user/login/logout";
+    });
+  });
+</script>
 
 </body>
 </html>
