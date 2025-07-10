@@ -27,6 +27,10 @@ public interface AdminMapper {
 
     int updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO);
 
+    List<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto);
+
+    int getPaymentsCount(PaymentSearchRequestDto paymentSearchRequestDto);
+
     List<OwnerReviewResponseDto> getOwnerReviews(OwnerReviewRequestDto ownerReviewRequestDto);
 
     List<CommunityResponseDto> communityResponses(CommunityRequestDto communityRequestDto);
