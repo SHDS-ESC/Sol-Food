@@ -124,7 +124,7 @@
 <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
 <script src="${pageContext.request.contextPath}/js/popup.js"></script>
 <script>
-    const contextPath = '${pageContext.request.contextPath}'; // 예: /solfood
+    const contextPath = '${pageContext.request.contextPath}'; // context path
     // ajax 로 회사 선택 후 부서 리스트 조회
     function loadDepts(companyId){
         const deptSelect = document.getElementById("departmentId");

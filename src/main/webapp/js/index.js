@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function() {
         slider.scrollBy({ left: 220, behavior: 'smooth' });
     });
 
-    fetch("/solfood/user/store/api/popular")
+    fetch(UrlConstants.Builder.fullUrl("/user/store/api/popular"))
         .then(response => response.json())
         .then(data => {
             slider.innerHTML = "";
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             <div class="popular-card-likes">${store.likeCount}</div>
                         </div>
                         <div class="popular-card-actions">
-                            <a class="popular-card-btn secondary" href="/solfood/user/store/detail?storeId=${store.storeId}&order=1"><i class="bi bi-bag"></i>주문하기</a>
+                            <a class="popular-card-btn secondary" href="${UrlConstants.Builder.storeDetail(store.storeId)}&order=1"><i class="bi bi-bag"></i>주문하기</a>
                         </div>
                     </div>
                 `;
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const storeId = this.getAttribute('data-id');
-                    location.href = "/solfood/user/store/detail?storeId=" + storeId;
+                    location.href = UrlConstants.Builder.storeDetail(storeId);
                 });
             });
         })

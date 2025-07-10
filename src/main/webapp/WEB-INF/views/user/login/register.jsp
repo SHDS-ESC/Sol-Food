@@ -238,7 +238,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
     <script>
       // Context Path를 JavaScript에서 사용할 수 있도록 설정
-      var contextPath = "${pageContext.request.contextPath}"; // 예: /solfood
+      var contextPath = "${pageContext.request.contextPath}"; // context path
     </script>
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
     <script src="${pageContext.request.contextPath}/js/popup.js"></script>
