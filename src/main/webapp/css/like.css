@@ -1,3 +1,6 @@
+.content .like-list{
+    padding: 0px;
+}
 .store-grid {
     display: flex;
     flex-direction: column;
@@ -26,10 +29,11 @@
     border-radius: 14px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     border-bottom: 1px solid var(--color-gray-light);
-    padding: -10px 9px;
+    padding: 9px 0px 5px 0px;
     position: relative;
     min-height: 90px;
     transition: box-shadow 0.15s;
+    width : 100%;
 }
 
 .store-card:hover {
@@ -151,12 +155,13 @@
     background: var(--color-main);
     border: none;
     padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 12px;
+    border-radius: 7px;
+    font-size: 18px;
     color: var(--color-white);
     cursor: pointer;
     transition: all 0.2s;
 }
+.more-btn:hover { background: var(--color-main-hover); }
 
 .like-title {
     font-size: 1.5rem;
@@ -180,20 +185,31 @@
     border-radius: 0; /* 라운드 제거 (혹은 위/아래만 라운드 적용) */
     box-shadow: none; /* 그림자 제거로 한 줄처럼 */
     border-bottom: 1px solid var(--color-gray-light); /* 밑줄만 살짝 */
-    width: 90%;
+    width: 100%;
     min-height: 90px;
-    padding: 14px 16px;
+    padding: 9px 0px 5px 0px;
     margin: 0; /* 카드 간 마진 없음 */
     transition: background 0.15s;
 }
+
+
 
 .store-card:last-child {
     border-bottom: none; /* 마지막 카드만 밑줄 제거 */
 }
 
 .title {
-    font-size: 1.13rem;
+    margin-left: 5px;
+    font-size: 27px;
     font-weight: 600;
-    margin-bottom: 3px;
+    margin-bottom: 14px;
+    margin-top: -12px;
     color: var(--color-black);
+}
+
+.store-count{
+    font-size: 13px;
+    color: var(--color-gray-dark);
+    margin-left: 5px;
+    margin-bottom: -1px;
 }
