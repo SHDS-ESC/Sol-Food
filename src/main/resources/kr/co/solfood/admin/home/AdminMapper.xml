@@ -208,4 +208,64 @@
         WHERE review_id = #{reviewId}
     </update>
 
+
+    <select id="getPayments" parameterType="kr.co.solfood.admin.dto.PaymentSearchRequestDto"
+            resultType="kr.co.solfood.admin.dto.PaymentSearchResponseDto">
+        SELECT
+        I.integratedpayment_id,
+        U.users_name,
+        P.payment_paid_amount,
+        P.payment_used_point,
+        P.payment_method,
+        P.payment_pg_provider,
+        P.payment_receipt_url,
+        P.payment_status,
+        P.payment_created_at
+        FROM payment P
+        JOIN users U ON P.users_id = U.users_id
+        JOIN integrated_payment I ON I.integratedpayment_id = P.integratedpayment_id
+        <where>
+            <if test="query != null and query != ''">
+                AND U.users_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+            <if test="fromDate != null and toDate != null">
+                AND P.payment_created_at BETWEEN #{fromDate} AND #{toDate}
+            </if>
+            <if test="paymentStatus != null and paymentStatus != ''">
+                AND P.payment_status = #{paymentStatus}
+            </if>
+        </where>
+        ORDER BY P.payment_created_at DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <select id="getPaymentsCount" parameterType="kr.co.solfood.admin.dto.PaymentSearchRequestDto" resultType="int">
+        SELECT COUNT(*)
+        FROM payment P
+        JOIN users U ON P.users_id = U.users_id
+        JOIN integrated_payment I ON I.integratedpayment_id = P.integratedpayment_id
+            <where>
+            <if test="query != null and query != ''">
+                AND U.users_name LIKE CONCAT('%', #{query}, '%')
+            </if>
+            <if test="fromDate != null and toDate != null">
+                AND P.payment_created_at BETWEEN #{fromDate} AND #{toDate}
+            </if>
+            <if test="paymentStatus != null and paymentStatus != ''">
+                AND P.payment_status = #{paymentStatus}
+            </if>
+        </where>
+    </select>
+    
+    <select id="getDistinctPayments" parameterType="kr.co.solfood.admin.dto.PaymentDistinctRequestDto" resultType="kr.co.solfood.admin.dto.PaymentDistinctResponseDto">
+       SELECT *
+        FROM payment P, users U, integrated_payment I
+        WHERE I.integratedpayment_id = P.integratedpayment_id AND P.users_id = U.users_id AND  I.integratedpayment_id = #{integratedpaymentId}
+    </select>
+
+    <select id="getDistinctPaymentsCount" parameterType="kr.co.solfood.admin.dto.PaymentDistinctRequestDto" resultType="int">
+        SELECT COUNT(*)
+        FROM payment P, users U, integrated_payment I
+        WHERE I.integratedpayment_id = P.integratedpayment_id AND P.users_id = U.users_id AND  I.integratedpayment_id = #{integratedpaymentId}
+    </select>
 </mapper>

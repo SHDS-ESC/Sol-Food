@@ -130,4 +130,26 @@ public class AdminHomeServiceImpl implements AdminHomeService {
     public void deleteOwnerReview(long reviewId) {
         adminMapper.deleteOwnerReview(reviewId);
     }
+
+    @Override
+    public PageMaker<PaymentDistinctResponseDto> getDistinctPayments(PaymentDistinctRequestDto paymentDistinctRequestDto) {
+        List<PaymentDistinctResponseDto> paymentDistinctResponseDto = adminMapper.getDistinctPayments(paymentDistinctRequestDto);
+        int size = adminMapper.getDistinctPaymentsCount(paymentDistinctRequestDto);
+
+        if (paymentDistinctResponseDto == null) {
+            throw new CustomException(ErrorCode.UNDEFINED_SEARCH);
+        }
+        return new PageMaker<>(paymentDistinctResponseDto, size, paymentDistinctRequestDto.getPageSize(), paymentDistinctRequestDto.getCurrentPage());
+    }
+
+    @Override
+    public PageMaker<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto) {
+        List<PaymentSearchResponseDto> paymentSearchResponseDto = adminMapper.getPayments(paymentSearchRequestDto);
+        int size = adminMapper.getPaymentsCount(paymentSearchRequestDto);
+
+        if (paymentSearchResponseDto == null) {
+            throw new CustomException(ErrorCode.UNDEFINED_SEARCH);
+        }
+        return new PageMaker<>(paymentSearchResponseDto, size, paymentSearchRequestDto.getPageSize(), paymentSearchRequestDto.getCurrentPage());
+    }
 }

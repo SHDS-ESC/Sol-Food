@@ -5,9 +5,9 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-        /> -->
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+      /> -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
       rel="stylesheet"
@@ -36,6 +36,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
           class="register-form"
           action="${pageContext.request.contextPath}/user/login/register"
           method="post"
+          onsubmit="return validateRegisterForm()"
         >
           <div>
             <div class="profile-upload-container">
@@ -81,130 +82,159 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
               <span id="uploadProgressText" class="progress-text">0%</span>
             </div>
           </div>
-          <!-- <div class="form-group">
-            <label for="company">회사</label>
-            <select class="custom-select" onchange="loadDepts(this.value)">
-              <option>선택하세요</option>
+
+          <div class="form-group">
+            <label for="companySelect">회사 *</label>
+            <select
+              id="companySelect"
+              name="companyId"
+              required
+              onchange="loadDepts(this.value); validateCompany(this)"
+              class="custom-select"
+            >
+              <option value="">-- 회사 선택 --</option>
               <c:forEach var="c" items="${companyList}">
                 <option value="${c.companyId}">${c.companyName}</option>
               </c:forEach>
             </select>
+            <div class="border-error" id="companyError" style="display: none">
+              회사를 선택해주세요
+            </div>
           </div>
+
           <div class="form-group">
-            <label for="departmentId">부서</label>
-            <select class="custom-select" id="departmentId">
-              <option>선택하세요</option>
+            <label for="departmentId">부서 *</label>
+            <select
+              class="custom-select"
+              name="departmentId"
+              id="departmentId"
+              required
+              onchange="validateDepartment(this)"
+            >
+              <option value="">-- 부서 선택 --</option>
             </select>
-          </div> -->
+            <div
+              class="border-error"
+              id="departmentError"
+              style="display: none"
+            >
+              부서를 선택해주세요
+            </div>
+          </div>
 
-          <label for="companySelect">회사 *</label>
-          <select
-            id="companySelect"
-            name="companyId"
-            required
-            onchange="loadDepts(this.value)"
-            class="custom-select"
-          >
-            <option value="">-- 회사 선택 --</option>
-            <c:forEach var="c" items="${companyList}">
-              <option value="${c.companyId}">${c.companyName}</option>
-            </c:forEach>
-          </select>
-
-          <label for="departmentId">부서 *</label>
-          <select
-            class="custom-select"
-            name="departmentId"
-            id="departmentId"
-            required
-          >
-            <option value="">-- 부서 선택 --</option>
-          </select>
-          <div class="form-group error">
-            <label for="email">이메일</label>
+          <div class="form-group">
+            <label for="email">이메일 *</label>
             <input
               id="email"
               type="email"
               class="border-input"
               placeholder="example@example.com"
               name="usersEmail"
+              required
+              onchange="validateEmail(this)"
             />
-            <div class="border-error">올바른 이메일 주소를 입력해 주세요</div>
+            <div class="border-error" id="emailError" style="display: none">
+              올바른 이메일 주소를 입력해 주세요
+            </div>
           </div>
+
           <div class="form-group">
-            <label for="password">비밀번호</label>
+            <label for="password">비밀번호 *</label>
             <input
               id="password"
               type="password"
               class="border-input"
               placeholder="6자 이상"
               name="usersPwd"
+              required
+              onchange="validatePassword(this)"
             />
-            <!-- <div class="border-error">
-            비밀번호는 6자 이상입니다
-          </div> -->
+            <div class="border-error" id="passwordError" style="display: none">
+              비밀번호는 6자 이상이어야 합니다
+            </div>
           </div>
+
           <div class="form-group">
+            <label for="password2">비밀번호 확인 *</label>
             <input
               id="password2"
               type="password"
               class="border-input"
               placeholder="비밀번호를 한번 더 입력해주세요"
+              required
+              onchange="validatePasswordConfirm(this)"
             />
-            <!-- <div class="border-error">비밀번호가 동일하지 않습니다</div> -->
+            <div class="border-error" id="password2Error" style="display: none">
+              비밀번호가 일치하지 않습니다
+            </div>
           </div>
+
           <div class="form-group">
-            <label for="nickname">닉네임</label>
+            <label for="nickname">닉네임 *</label>
             <input
               id="nickname"
               type="text"
               class="border-input"
               placeholder="2~16자 이내로 입력해주세요"
               name="usersNickname"
+              required
+              onchange="validateNickname(this)"
             />
-            <!-- <div class="border-error">
-            한글/영문/숫자 혼합 2~16자만 사용 가능합니다
-          </div> -->
+            <div class="border-error" id="nicknameError" style="display: none">
+              닉네임은 2~16자 이내로 입력해주세요
+            </div>
           </div>
+
           <div class="form-group">
-            <label for="name">이름</label>
+            <label for="name">이름 *</label>
             <input
               id="name"
               type="text"
               class="border-input"
               placeholder="이름을 입력해주세요"
               name="usersName"
+              required
+              onchange="validateName(this)"
             />
-            <!-- <div class="border-error">
-            한글/영문/숫자 혼합 2~16자만 사용 가능합니다
-          </div> -->
+            <div class="border-error" id="nameError" style="display: none">
+              이름을 입력해주세요
+            </div>
           </div>
+
           <div class="form-group">
-            <label for="phone">휴대폰 번호</label>
+            <label for="phone">휴대폰 번호 *</label>
             <input
               id="phone"
               type="tel"
               class="border-input"
               placeholder="'-'를 제외한 숫자만 입력해주세요"
               name="usersTel"
+              required
+              onchange="validatePhone(this)"
             />
-            <!-- <div class="border-error">올바른 휴대폰 번호를 입력해 주세요</div> -->
+            <div class="border-error" id="phoneError" style="display: none">
+              올바른 휴대폰 번호를 입력해 주세요
+            </div>
           </div>
+
           <div class="form-group">
-            <label for="birth">생년월일</label>
+            <label for="birth">생년월일 *</label>
             <input
               id="birth"
               type="date"
               class="border-input"
               name="usersBirth"
+              required
+              onchange="validateBirth(this)"
             />
-            <!-- <div class="border-error">
-            한글/영문/숫자 혼합 2~16자만 사용 가능합니다
-          </div> -->
+            <div class="border-error" id="birthError" style="display: none">
+              생년월일은 오늘 날짜보다 이후일 수 없습니다
+            </div>
           </div>
+
           <div>
             <label style="display: block; margin-bottom: 8px" for="usersGender"
-              >성별</label
+              >성별 *</label
             >
             <label class="radio">
               <input type="radio" name="usersGender" value="male" checked />
@@ -215,8 +245,9 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
               <span>여자</span>
             </label>
           </div>
+
           <div class="footer flex flex-sa" style="left: 0">
-            <button class="footer-btn">가입하기</button>
+            <button type="submit" class="footer-btn">가입하기</button>
           </div>
 
           <!-- Hidden Fields -->
@@ -234,16 +265,246 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
     </div>
     <script src="${pageContext.request.contextPath}/js/validateInput.js"></script>
     <script src="${pageContext.request.contextPath}/js/darkmode.js"></script>
-    <script src="${pageContext.request.contextPath}/js/validateInput.js"></script>
 
     <script>
       // Context Path를 JavaScript에서 사용할 수 있도록 설정
-      var contextPath = "${pageContext.request.contextPath}"; // 예: /solfood
+      var contextPath = "${pageContext.request.contextPath}"; // context path
     </script>
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
     <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/js/s3Upload.js"></script>
+
     <script>
+      // 유효성 검사 상태를 관리하는 객체
+      const validationState = {
+        company: false,
+        department: false,
+        email: false,
+        password: false,
+        password2: false,
+        nickname: false,
+        name: false,
+        phone: false,
+        birth: false,
+      };
+
+      // 에러 표시/숨김 함수
+      function showError(fieldId, message) {
+        const errorElement = document.getElementById(fieldId + "Error");
+        const inputElement = document.getElementById(fieldId);
+
+        if (errorElement) {
+          errorElement.style.display = "block";
+          if (message) errorElement.textContent = message;
+        }
+        if (inputElement) {
+          inputElement.classList.add("error");
+        }
+      }
+
+      function hideError(fieldId) {
+        const errorElement = document.getElementById(fieldId + "Error");
+        const inputElement = document.getElementById(fieldId);
+
+        if (errorElement) {
+          errorElement.style.display = "none";
+        }
+        if (inputElement) {
+          inputElement.classList.remove("error");
+        }
+      }
+
+      // 회사 선택 유효성 검사
+      function validateCompany(element) {
+        const isValid = element.value.trim() !== "";
+        validationState.company = isValid;
+
+        if (isValid) {
+          hideError("company");
+        } else {
+          showError("company", "회사를 선택해주세요");
+        }
+        return isValid;
+      }
+
+      // 부서 선택 유효성 검사
+      function validateDepartment(element) {
+        const isValid = element.value.trim() !== "";
+        validationState.department = isValid;
+
+        if (isValid) {
+          hideError("department");
+        } else {
+          showError("department", "부서를 선택해주세요");
+        }
+        return isValid;
+      }
+
+      // 이메일 유효성 검사
+      function validateEmail(element) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isValid = emailRegex.test(element.value);
+        validationState.email = isValid;
+
+        if (isValid) {
+          hideError("email");
+        } else {
+          showError("email", "올바른 이메일 주소를 입력해 주세요");
+        }
+        return isValid;
+      }
+
+      // 비밀번호 유효성 검사
+      function validatePassword(element) {
+        const isValid = element.value.length >= 6;
+        validationState.password = isValid;
+
+        if (isValid) {
+          hideError("password");
+          // 비밀번호 확인 필드가 있다면 재검사
+          const password2 = document.getElementById("password2");
+          if (password2.value) {
+            validatePasswordConfirm(password2);
+          }
+        } else {
+          showError("password", "비밀번호는 6자 이상이어야 합니다");
+        }
+        return isValid;
+      }
+
+      // 비밀번호 확인 유효성 검사
+      function validatePasswordConfirm(element) {
+        const password = document.getElementById("password").value;
+        const isValid = element.value === password && password.length >= 6;
+        validationState.password2 = isValid;
+
+        if (isValid) {
+          hideError("password2");
+        } else {
+          showError("password2", "비밀번호가 일치하지 않습니다");
+        }
+        return isValid;
+      }
+
+      // 닉네임 유효성 검사
+      function validateNickname(element) {
+        const value = element.value.trim();
+        const isValid = value.length >= 2 && value.length <= 16;
+        validationState.nickname = isValid;
+
+        if (isValid) {
+          hideError("nickname");
+        } else {
+          showError("nickname", "닉네임은 2~16자 이내로 입력해주세요");
+        }
+        return isValid;
+      }
+
+      // 이름 유효성 검사
+      function validateName(element) {
+        const isValid = element.value.trim().length > 0;
+        validationState.name = isValid;
+
+        if (isValid) {
+          hideError("name");
+        } else {
+          showError("name", "이름을 입력해주세요");
+        }
+        return isValid;
+      }
+
+      // 휴대폰 번호 유효성 검사
+      function validatePhone(element) {
+        const phoneRegex = /^\d{3}-\d{4}-\d{4}$/;
+        const isValid = phoneRegex.test(element.value);
+        validationState.phone = isValid;
+
+        if (isValid) {
+          hideError("phone");
+        } else {
+          showError(
+            "phone",
+            "올바른 휴대폰 번호를 입력해 주세요 (010-1234-5678)"
+          );
+        }
+        return isValid;
+      }
+
+      // 생년월일 유효성 검사
+      function validateBirth(element) {
+        if (!element.value) {
+          validationState.birth = false;
+          showError("birth", "생년월일을 입력해주세요");
+          return false;
+        }
+
+        const inputDate = new Date(element.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const isValid = inputDate <= today;
+        validationState.birth = isValid;
+
+        if (isValid) {
+          hideError("birth");
+        } else {
+          showError("birth", "생년월일은 오늘 날짜보다 이후일 수 없습니다");
+        }
+        return isValid;
+      }
+
+      // 폼 제출 전 전체 유효성 검사
+      function validateRegisterForm() {
+        // 모든 필드에 대해 유효성 검사 실행
+        const companySelect = document.getElementById("companySelect");
+        const departmentSelect = document.getElementById("departmentId");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const password2Input = document.getElementById("password2");
+        const nicknameInput = document.getElementById("nickname");
+        const nameInput = document.getElementById("name");
+        const phoneInput = document.getElementById("phone");
+        const birthInput = document.getElementById("birth");
+
+        const results = [
+          validateCompany(companySelect),
+          validateDepartment(departmentSelect),
+          validateEmail(emailInput),
+          validatePassword(passwordInput),
+          validatePasswordConfirm(password2Input),
+          validateNickname(nicknameInput),
+          validateName(nameInput),
+          validatePhone(phoneInput),
+          validateBirth(birthInput),
+        ];
+
+        const isAllValid = results.every((result) => result === true);
+
+        if (!isAllValid) {
+          // 첫 번째 에러 필드로 포커스 이동
+          const firstErrorField = [
+            companySelect,
+            departmentSelect,
+            emailInput,
+            passwordInput,
+            password2Input,
+            nicknameInput,
+            nameInput,
+            phoneInput,
+            birthInput,
+          ].find((field, index) => !results[index]);
+
+          if (firstErrorField) {
+            firstErrorField.focus();
+          }
+
+          alert("입력 정보를 다시 확인해주세요.");
+          return false;
+        }
+
+        return true;
+      }
+
       /**
        * 프로필 이미지 업로드 처리 (s3Upload.js와 호환)
        */
@@ -275,7 +536,9 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
           document.getElementById("usersProfile").value = s3Url;
         } catch (error) {
           console.error("프로필 이미지 업로드 실패:", error);
-          showWarningPopup("프로필 이미지 업로드에 실패했습니다: " + error.message);
+          showWarningPopup(
+            "프로필 이미지 업로드에 실패했습니다: " + error.message
+          );
 
           // 원래 이미지로 복원
           updateProfilePreview(

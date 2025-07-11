@@ -42,7 +42,7 @@
                                 <span class="user-main-summary-point">
                                     <c:choose>
                                         <c:when test="${not empty sessionScope.userLoginSession.usersPoint}">
-                                            <fmt:formatNumber value="${sessionScope.userLoginSession.usersPoint}" pattern="#,#00"/>
+                                            <fmt:formatNumber value="${sessionScope.userLoginSession.usersPoint}" pattern="#,##0"/>
                                         </c:when>
                                         <c:otherwise>0</c:otherwise>
                                     </c:choose>
@@ -78,7 +78,7 @@
             <section class="popular-section">
                 <div class="section-header">
                     <h2 class="section-title">인기 식당 Top 10</h2>
-                    <button class="popular-more-btn" onclick="location.href='${pageContext.request.contextPath}/user/store/list?sort=like'" style="color:var(--color-black)">
+                    <button class="popular-more-btn" onclick="location.href='${pageContext.request.contextPath}/user/store/list'" style="color:var(--color-black)">
                         <span>더보기</span>
                         <i class="bi bi-chevron-right"></i>
                     </button>
@@ -109,7 +109,7 @@
                             <div class="menu-subtitle">맛있는 음식을 주문하세요</div>
                         </div>
                     </a>
-                    <a class="menu-card secondary" href="#" onclick="alert('준비중입니다!')">
+                    <a class="menu-card secondary" onclick="location.href='${pageContext.request.contextPath}/user/board/list'" style="cursor: pointer;">
                         <div class="menu-icon">💬</div>
                         <div class="menu-content">
                             <div class="menu-title">커뮤니티</div>

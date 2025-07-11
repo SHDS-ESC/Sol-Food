@@ -27,6 +27,10 @@ public interface AdminMapper {
 
     int updateUserStatus(UserStatusUpdateDTO userStatusUpdateDTO);
 
+    List<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto);
+
+    int getPaymentsCount(PaymentSearchRequestDto paymentSearchRequestDto);
+
     List<OwnerReviewResponseDto> getOwnerReviews(OwnerReviewRequestDto ownerReviewRequestDto);
 
     List<CommunityResponseDto> communityResponses(CommunityRequestDto communityRequestDto);
@@ -36,4 +40,8 @@ public interface AdminMapper {
     int getCommunityResponsesCount(CommunityRequestDto communityRequestDto);
 
     void deleteOwnerReview(long reviewId);
+
+    int getDistinctPaymentsCount(PaymentDistinctRequestDto paymentDistinctRequestDto);
+
+    List<PaymentDistinctResponseDto> getDistinctPayments(PaymentDistinctRequestDto paymentDistinctRequestDto);
 }

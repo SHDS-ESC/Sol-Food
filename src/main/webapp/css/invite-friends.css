@@ -1,5 +1,5 @@
 /* 친구 초대 페이지 전용 스타일 */
-
+body{background-color: #d6eeff!important;}
 .friends-list { 
   display: flex; flex-direction: column; gap: 14px; 
   max-height: 490px; overflow-y: auto; padding-right: 4px;

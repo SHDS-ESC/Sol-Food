@@ -30,12 +30,11 @@
     <ul style="list-style:none; padding:0; margin:24px 0 0 0; font-size:18px;">
       <li><a href="${pageContext.request.contextPath}/user/mypage">마이페이지</a></li>
       <li><a href="${pageContext.request.contextPath}/user/cart">장바구니</a></li>
-      <li><a href="${pageContext.request.contextPath}/user/mypage/charge-history">주문내역</a></li>
+      <li><a href="${pageContext.request.contextPath}/user/mypage/payment-history">결제내역</a></li>
       <li><a href="${pageContext.request.contextPath}/user/like">찜한가게</a></li>
       <li><a href="${pageContext.request.contextPath}/user/review/my-review">리뷰관리</a></li>
       <li><a href="${pageContext.request.contextPath}/user/store/list">가게목록</a></li>
-      <li><a href="${pageContext.request.contextPath}/user/game/climbing-ladder">게시판</a></li>
-      <li><a href="${pageContext.request.contextPath}/user/support">고객센터/문의</a></li>
+      <li><a href="${pageContext.request.contextPath}/user/board/list">게시판</a></li>
     </ul>
   </div>
 </div>
@@ -48,7 +47,7 @@
     const url = window.contextPath + '/user/invitations';
     window.location.href = url;
   }
-  
+
   // DOM이 로드된 후 이벤트 리스너 추가
   document.addEventListener('DOMContentLoaded', function() {
     const invitationBtn = document.getElementById('invitation-btn');

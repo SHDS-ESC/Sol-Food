@@ -1,33 +1,4 @@
 
-/*
-// 슬라이더 자동 전환 (예: 3초마다)
-document.addEventListener('DOMContentLoaded', function() {
-    const slider = document.querySelector('.banner-slider');
-    const banners = document.querySelectorAll('.banner-img');
-    let current = 0;
-    const total = banners.length;
-    let intervalId;
-
-    function showBanner(idx) {
-        slider.style.transform = `translateX(-${idx * 100}%)`;
-    }
-
-    function nextBanner() {
-        current = (current + 1) % total;
-        showBanner(current);
-    }
-
-    // 자동 슬라이드 (3초 간격)
-    intervalId = setInterval(nextBanner, 3000);
-
-    // (선택) 마우스 올리면 멈추고, 내리면 다시 시작
-    slider.addEventListener('mouseenter', () => clearInterval(intervalId));
-    slider.addEventListener('mouseleave', () => intervalId = setInterval(nextBanner, 3000));
-
-    // 반응형 리셋
-    window.addEventListener('resize', () => showBanner(current));
-});
-*/
 
 document.addEventListener('DOMContentLoaded', function() {
     const banners = document.querySelectorAll('.banner-item');
@@ -87,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
         slider.scrollBy({ left: 220, behavior: 'smooth' });
     });
 
-    fetch("/solfood/user/store/api/popular")
+    fetch(UrlConstants.Builder.fullUrl("/user/store/api/popular"))
         .then(response => response.json())
         .then(data => {
             slider.innerHTML = "";
@@ -107,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function() {
                             <div class="popular-card-likes">${store.likeCount}</div>
                         </div>
                         <div class="popular-card-actions">
-                            <a class="popular-card-btn secondary" href="/solfood/user/store/detail?storeId=${store.storeId}&order=1"><i class="bi bi-bag"></i>주문하기</a>
+                            <a class="popular-card-btn secondary" href="${UrlConstants.Builder.storeDetail(store.storeId)}&order=1"><i class="bi bi-bag"></i>주문하기</a>
                         </div>
                     </div>
                 `;
@@ -118,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const storeId = this.getAttribute('data-id');
-                    location.href = "/solfood/user/store/detail?storeId=" + storeId;
+                    location.href = UrlConstants.Builder.storeDetail(storeId);
                 });
             });
         })

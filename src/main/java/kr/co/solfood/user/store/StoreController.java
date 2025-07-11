@@ -178,9 +178,7 @@ public class StoreController {
                 pageMaker = service.getPagedCategoryStoreList(searchCategory, pageDTO);
             }
 
-            // 화면 표시용 실시간 별점 계산 (페이징된 데이터만)
             List<StoreVO> storeList = pageMaker.getList();
-            calculateRealTimeAverageStars(storeList);
 
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
@@ -225,9 +223,7 @@ public class StoreController {
                 pageMaker = service.getPagedSearchResults(keyword, pageDTO);
             }
 
-            // 화면 표시용 실시간 별점 계산 (페이징된 데이터만)
             List<StoreVO> storeList = pageMaker.getList();
-            calculateRealTimeAverageStars(storeList);
 
             boolean hasNext = offset + pageSize < pageMaker.getCount();
 
@@ -254,9 +250,6 @@ public class StoreController {
         try {
             List<StoreVO> storeList = service.searchStores(keyword);
             
-            // 각 가게의 실시간 평균 별점 계산하여 포함
-            calculateRealTimeAverageStars(storeList);
-            
             StoreSearchResponseVO response = StoreSearchResponseVO.success(keyword, storeList, "general");
             return ResponseEntity.ok(response);
 
@@ -275,9 +268,6 @@ public class StoreController {
     public ResponseEntity<StoreSearchResponseVO> searchStoresByName(@RequestParam String name) {
         try {
             List<StoreVO> storeList = service.searchStoresByName(name);
-            
-            // 각 가게의 실시간 평균 별점 계산하여 포함
-            calculateRealTimeAverageStars(storeList);
             
             StoreSearchResponseVO response = StoreSearchResponseVO.success(name, storeList, "name");
             return ResponseEntity.ok(response);
@@ -298,9 +288,6 @@ public class StoreController {
         try {
             List<StoreVO> storeList = service.searchStoresByAddress(address);
             
-            // 각 가게의 실시간 평균 별점 계산하여 포함
-            calculateRealTimeAverageStars(storeList);
-            
             StoreSearchResponseVO response = StoreSearchResponseVO.success(address, storeList, "address");
             return ResponseEntity.ok(response);
 
@@ -319,9 +306,6 @@ public class StoreController {
     public ResponseEntity<CategoryResponseVO> getAllStoresApi() {
         try {
             List<StoreVO> storeList = service.getAllStore();
-            
-            // 각 가게의 실시간 평균 별점 계산하여 포함
-            calculateRealTimeAverageStars(storeList);
             
             CategoryResponseVO response = CategoryResponseVO.storesByCategory("전체", storeList);
             return ResponseEntity.ok(response);
@@ -346,9 +330,6 @@ public class StoreController {
             } else {
                 storeList = service.getCategoryStore(category);
             }
-
-            // 각 가게의 실시간 평균 별점 계산하여 포함
-            calculateRealTimeAverageStars(storeList);
 
             CategoryResponseVO response = CategoryResponseVO.storesByCategory(category, storeList);
             return ResponseEntity.ok(response);
@@ -399,7 +380,11 @@ public class StoreController {
      * 가게의 통계 정보를 모델에 추가하는 private 메서드
      */
     private void addStoreStatistics(Model model, Integer storeId) {
-        Double avgStar = reviewService.getAverageStarByStoreId(storeId);
+        Double avgStar = null;
+        StoreVO store = service.getStoreById(storeId);
+        if (store != null) {
+            avgStar = store.getStoreAvgstar();
+        }
         Integer totalCount = reviewService.getTotalCountByStoreId(storeId);
         Map<String, Object> starCountsMap = reviewService.getStarCountsByStoreId(storeId);
 
@@ -418,27 +403,7 @@ public class StoreController {
         model.addAttribute("starCounts", starCounts);
     }
 
-    // ========================= 실시간 별점 계산 유틸리티 메서드 =========================
-    
-    /**
-     * 가게 목록에 실시간 평균 별점을 계산하여 설정
-     */
-    private void calculateRealTimeAverageStars(List<StoreVO> storeList) {
-        if (storeList == null || storeList.isEmpty()) {
-            return;
-        }
-        
-        List<Integer> storeIds = storeList.stream()
-            .map(StoreVO::getStoreId)
-            .collect(Collectors.toList());
-        
-        Map<Integer, Double> avgStarsMap = reviewService.getAverageStarsByStoreIds(storeIds);
-        
-        for (StoreVO store : storeList) {
-            Double realAvgStar = avgStarsMap.get(store.getStoreId());
-            store.setStoreAvgstar(realAvgStar != null ? realAvgStar : 0.0);
-        }
-    }
+
 
     // ========================= 예외 처리 =========================
 
@@ -470,7 +435,6 @@ public class StoreController {
     public List<StoreVO> getTop10PopularStores() {
         try {
             List<StoreVO> popularStores = service.getTop10PopularStores();
-            calculateRealTimeAverageStars(popularStores); // 실시간 별점 계산
             return popularStores;
         } catch (Exception e) {
             log.error("인기 가게 조회 실패", e);

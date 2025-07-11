@@ -27,28 +27,31 @@
 
     <!-- 평균 별점 조회 -->
     <select id="selectAverageStar" resultType="double">
-        SELECT ROUND(AVG(review_star), 1)
-        FROM review
-        WHERE review_status = 'Y'
+        SELECT ROUND(AVG(r.review_star), 1)
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.review_status = 'Y'
     </select>
 
     <!-- 총 리뷰 개수 조회 -->
     <select id="selectTotalCount" resultType="int">
         SELECT COUNT(*)
-        FROM review
-        WHERE review_status = 'Y'
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.review_status = 'Y'
     </select>
 
     <!-- 별점별 개수 조회 -->
     <select id="selectStarCounts" resultType="java.util.Map">
         SELECT 
-            SUM(CASE WHEN review_star = 5 THEN 1 ELSE 0 END) as star5,
-            SUM(CASE WHEN review_star = 4 THEN 1 ELSE 0 END) as star4,
-            SUM(CASE WHEN review_star = 3 THEN 1 ELSE 0 END) as star3,
-            SUM(CASE WHEN review_star = 2 THEN 1 ELSE 0 END) as star2,
-            SUM(CASE WHEN review_star = 1 THEN 1 ELSE 0 END) as star1
-        FROM review
-        WHERE review_status = 'Y'
+            SUM(CASE WHEN r.review_star = 5 THEN 1 ELSE 0 END) as star5,
+            SUM(CASE WHEN r.review_star = 4 THEN 1 ELSE 0 END) as star4,
+            SUM(CASE WHEN r.review_star = 3 THEN 1 ELSE 0 END) as star3,
+            SUM(CASE WHEN r.review_star = 2 THEN 1 ELSE 0 END) as star2,
+            SUM(CASE WHEN r.review_star = 1 THEN 1 ELSE 0 END) as star1
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.review_status = 'Y'
     </select>
 
     <!-- 리뷰 상세 조회 (사용자 정보 포함) -->
@@ -184,36 +187,40 @@
         FROM review r
         JOIN users u ON r.users_id = u.users_id
         WHERE r.store_id = #{storeId}
+          AND r.review_status = 'Y'
         ORDER BY r.review_id DESC
     </select>
 
     <!-- 특정 가게의 평균 별점 조회 -->
     <select id="selectAverageStarByStoreId" parameterType="int" resultType="double">
-        SELECT COALESCE(ROUND(AVG(review_star), 1), 0.0)
-        FROM review
-        WHERE store_id = #{storeId}
-          AND review_status = 'Y'
+        SELECT COALESCE(ROUND(AVG(r.review_star), 1), 0.0)
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.store_id = #{storeId}
+          AND r.review_status = 'Y'
     </select>
 
     <!-- 특정 가게의 총 리뷰 개수 조회 -->
     <select id="selectTotalCountByStoreId" parameterType="int" resultType="int">
         SELECT COUNT(*)
-        FROM review
-        WHERE store_id = #{storeId}
-          AND review_status = 'Y'
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.store_id = #{storeId}
+          AND r.review_status = 'Y'
     </select>
 
     <!-- 특정 가게의 별점별 개수 조회 -->
     <select id="selectStarCountsByStoreId" parameterType="int" resultType="java.util.Map">
         SELECT 
-            SUM(CASE WHEN review_star = 5 THEN 1 ELSE 0 END) as star5,
-            SUM(CASE WHEN review_star = 4 THEN 1 ELSE 0 END) as star4,
-            SUM(CASE WHEN review_star = 3 THEN 1 ELSE 0 END) as star3,
-            SUM(CASE WHEN review_star = 2 THEN 1 ELSE 0 END) as star2,
-            SUM(CASE WHEN review_star = 1 THEN 1 ELSE 0 END) as star1
-        FROM review
-        WHERE store_id = #{storeId}
-          AND review_status = 'Y'
+            SUM(CASE WHEN r.review_star = 5 THEN 1 ELSE 0 END) as star5,
+            SUM(CASE WHEN r.review_star = 4 THEN 1 ELSE 0 END) as star4,
+            SUM(CASE WHEN r.review_star = 3 THEN 1 ELSE 0 END) as star3,
+            SUM(CASE WHEN r.review_star = 2 THEN 1 ELSE 0 END) as star2,
+            SUM(CASE WHEN r.review_star = 1 THEN 1 ELSE 0 END) as star1
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.store_id = #{storeId}
+          AND r.review_status = 'Y'
     </select>
 
     <!-- === 내 리뷰 관리 쿼리 === -->
@@ -269,29 +276,35 @@
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
     
-    <!-- 내 리뷰 총 개수 조회 -->
+    <!-- 내 리뷰 총 개수 조회 (활성 사용자만) -->
     <select id="selectMyReviewCount" parameterType="int" resultType="int">
         SELECT COUNT(*)
-        FROM review
-        WHERE users_id = #{usersId}
-          AND review_status = 'Y'
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.users_id = #{usersId}
+          AND r.review_status = 'Y'
+          AND u.users_status = 'active'
     </select>
     
-    <!-- 내 리뷰 평균 별점 조회 -->
+    <!-- 내 리뷰 평균 별점 조회 (활성 사용자만) -->
     <select id="selectMyReviewAvgRating" parameterType="int" resultType="double">
-        SELECT COALESCE(ROUND(AVG(review_star), 1), 0.0)
-        FROM review
-        WHERE users_id = #{usersId}
-          AND review_status = 'Y'
+        SELECT COALESCE(ROUND(AVG(r.review_star), 1), 0.0)
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.users_id = #{usersId}
+          AND r.review_status = 'Y'
+          AND u.users_status = 'active'
     </select>
     
-    <!-- 내 리뷰 이번 달 개수 조회 -->
+    <!-- 내 리뷰 이번 달 개수 조회 (활성 사용자만) -->
     <select id="selectMyReviewCountThisMonth" parameterType="int" resultType="int">
         SELECT COUNT(*)
-        FROM review
-        WHERE users_id = #{usersId}
-          AND review_status = 'Y'
-          AND review_date >= DATE_FORMAT(NOW(), '%Y-%m-01')
+        FROM review r
+        JOIN users u ON r.users_id = u.users_id
+        WHERE r.users_id = #{usersId}
+          AND r.review_status = 'Y'
+          AND u.users_status = 'active'
+          AND r.review_date >= DATE_FORMAT(NOW(), '%Y-%m-01')
     </select>
 
 </mapper> 

@@ -10,15 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-
 
 @Controller
 @RequestMapping("/admin")
@@ -140,7 +136,17 @@ public class AdminHomeController {
      * 어드민 페이지 < 결제 관리 대시보드
      */
     @GetMapping("/payment-management")
-    public String paymentManagement() {
+    public String paymentManagement(Model model) {
+        try {
+            PaymentSearchRequestDto paymentSearchRequestDto = new PaymentSearchRequestDto();
+            paymentSearchRequestDto.setCurrentPage(START_PAGE);
+            paymentSearchRequestDto.setPageSize(PAGE_GROUP_AMOUNT);
+            PageMaker<PaymentSearchResponseDto> paymentList = adminHomeService.getPayments(paymentSearchRequestDto);
+            model.addAttribute("paymentList", paymentList);
+        } catch (CustomException e) {
+            log.info("Payment management initialization failed: {}", e.getMessage());
+            model.addAttribute("error", e.getMessage());
+        }
         return "admin/payment-management/home";
     }
 
@@ -252,6 +258,32 @@ public class AdminHomeController {
             log.info("Owner review deletion failed: {}", e.getMessage());
             model.addAttribute("error", e.getMessage());
         }
+    }
+
+    @GetMapping("/payment-management/search")
+    @ResponseBody
+    public PageMaker<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto, Model model) {
+        try {
+            System.out.println("데이트" + paymentSearchRequestDto);
+            return adminHomeService.getPayments(paymentSearchRequestDto);
+        } catch (CustomException e) {
+            log.info("Payment search failed: {}", e.getMessage());
+            model.addAttribute("error", e.getMessage());
+            return new PageMaker<>();
+        }
+    }
+
+    @GetMapping("/payment-management/detail")
+    public String paymentDetail(@RequestParam("integratedpaymentId") String integratedpaymentId, @ModelAttribute PaymentDistinctRequestDto paymentDistinctRequestDto, Model model) {
+        try {
+            PageMaker<PaymentDistinctResponseDto> paymentDetail = adminHomeService.getDistinctPayments(paymentDistinctRequestDto);
+            model.addAttribute("paymentDetail", paymentDetail);
+            log.info("Payment detail retrieved: {}", paymentDetail);
+        } catch (CustomException e) {
+            log.info("Payment detail retrieval failed: {}", e.getMessage());
+            model.addAttribute("error", e.getMessage());
+        }
+        return "admin/payment-management/detail";
     }
 
 }

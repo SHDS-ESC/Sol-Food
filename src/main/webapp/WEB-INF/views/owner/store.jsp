@@ -522,8 +522,8 @@
 
           </div>
           <div style="margin-top: 30px; justify-content: center;display: flex;align-items: center;">
-            <button class="edit-btn" onclick="location.href='/solfood/owner/store/edit'">수정</button>
-            <form action="/solfood/owner/store/delete" method="post" style="display:inline;">
+            <button class="edit-btn" onclick="location.href='${pageContext.request.contextPath}/owner/store/edit'">수정</button>
+            <form action="${pageContext.request.contextPath}/owner/store/delete" method="post" style="display:inline;">
               <input type="hidden" name="storeId" value="${store.storeId}">
               <button type="submit" class="delete-btn" onclick="return confirm('정말 삭제하시겠습니까?🥹')">삭제</button>
             </form>
@@ -614,7 +614,7 @@
 <script>
   function logout(){
     if(confirm("로그아웃 하시겠습니까?😊")){
-      window.location.href="/solfood/owner/logout";
+      window.location.href="${pageContext.request.contextPath}/owner/logout";
     }
   }
 

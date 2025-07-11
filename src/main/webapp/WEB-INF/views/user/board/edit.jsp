@@ -73,13 +73,20 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
               </div>
             </label>
 
-            <div class="preview">
+            <div class="preview" style="position: relative">
               <img
                 id="previewImg"
-                src="${empty board.boardImage ? '' : board.boardImage}"
-                alt="미리보기"
+                src="${board.boardImage}"
+                alt=""
                 style="opacity: ${empty board.boardImage ? '0' : '1'}"
               />
+              <button
+                type="button"
+                class="preview-close"
+                aria-label="이미지 삭제"
+              >
+                &times;
+              </button>
             </div>
           </div>
 
@@ -157,6 +164,7 @@ ${board.boardContent}</textarea
           img.setAttribute("style", "opacity:1");
 
           document.querySelector(".board-add-photo-count").innerText = "1/1";
+          document.querySelector(".preview-close").style.opacity = 1; // X 버튼 보이기
         };
 
         const file = files[0];
@@ -183,6 +191,24 @@ ${board.boardContent}</textarea
           alert("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
         }
       }
+
+      // X 버튼 클릭 시 미리보기/값 제거
+      document.addEventListener("DOMContentLoaded", function () {
+        if (document.getElementById("previewImg").getAttribute("src")) {
+          document.querySelector(".preview-close").style.opacity = 1;
+        } else {
+          document.querySelector(".preview-close").style.opacity = 0;
+        }
+        document
+          .querySelector(".preview-close")
+          .addEventListener("click", function () {
+            document.getElementById("previewImg").setAttribute("src", "");
+            document.getElementById("previewImg").style.opacity = "0";
+            document.getElementById("boardImage").value = "";
+            document.querySelector(".board-add-photo-count").innerText = "0/1";
+            this.style.display = "none";
+          });
+      });
     </script>
   </body>
 </html>

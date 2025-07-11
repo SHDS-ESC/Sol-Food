@@ -99,11 +99,6 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
-        LEFT JOIN (
-        SELECT store_id, AVG(review_star) as real_avg_star
-        FROM review
-        GROUP BY store_id
-        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
             AND s.store_status = <![CDATA['승인완료']]>
             <if test="keyword != null and keyword != ''">
@@ -257,11 +252,6 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
-        LEFT JOIN (
-        SELECT store_id, AVG(review_star) as real_avg_star
-        FROM review
-        GROUP BY store_id
-        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
             AND s.store_status = <![CDATA['승인완료']]>
             <if test="category != null and category != '' and category != '전체'">
@@ -312,11 +302,6 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
-        LEFT JOIN (
-        SELECT store_id, AVG(review_star) as real_avg_star
-        FROM review
-        GROUP BY store_id
-        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
             AND s.store_status = <![CDATA['승인완료']]>
             <if test="keyword != null and keyword != ''">
@@ -421,11 +406,6 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
-        LEFT JOIN (
-        SELECT store_id, AVG(review_star) as real_avg_star
-        FROM review
-        GROUP BY store_id
-        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
             AND s.store_status = <![CDATA['승인완료']]>
             <if test="category != null and category != '' and category != '전체'">
@@ -437,10 +417,7 @@
                 ORDER BY COALESCE(like_counts.like_count, 0) DESC, s.store_id DESC
             </when>
             <when test="sort == 'star'">
-                ORDER BY 
-                CASE WHEN COALESCE(avg_stars.real_avg_star, 0) > 0 THEN 1 ELSE 0 END DESC,
-                COALESCE(avg_stars.real_avg_star, 0) DESC,
-                s.store_id DESC
+                ORDER BY s.store_avgstar DESC, s.store_id DESC
             </when>
             <otherwise>
                 ORDER BY s.store_id DESC
@@ -475,11 +452,6 @@
         FROM user_likes
         GROUP BY store_id
         ) like_counts ON s.store_id = like_counts.store_id
-        LEFT JOIN (
-        SELECT store_id, AVG(review_star) as real_avg_star
-        FROM review
-        GROUP BY store_id
-        ) avg_stars ON s.store_id = avg_stars.store_id
         <where>
             AND s.store_status = <![CDATA['승인완료']]>
             <if test="keyword != null and keyword != ''">
@@ -517,10 +489,7 @@
                 s.store_id DESC
             </when>
             <when test="sort == 'star'">
-                ORDER BY 
-                CASE WHEN COALESCE(avg_stars.real_avg_star, 0) > 0 THEN 1 ELSE 0 END DESC,
-                COALESCE(avg_stars.real_avg_star, 0) DESC,
-                s.store_id DESC
+                ORDER BY s.store_avgstar DESC, s.store_id DESC
             </when>
             <otherwise>
                 ORDER BY

@@ -53,8 +53,8 @@ public class OwnerReviewController {
         // 가게의 리뷰 목록 조회
         List<ReviewVO> reviews = reviewService.getReviewsByStoreId(ownerStore.getStoreId());
         
-        // 통계 정보
-        Double avgStar = reviewService.getAverageStarByStoreId(ownerStore.getStoreId());
+        // 통계 정보 (store_avgstar 사용)
+        Double avgStar = ownerStore.getStoreAvgstar();
         Integer totalCount = reviewService.getTotalCountByStoreId(ownerStore.getStoreId());
         Map<String, Object> starCounts = reviewService.getStarCountsByStoreId(ownerStore.getStoreId());
 
