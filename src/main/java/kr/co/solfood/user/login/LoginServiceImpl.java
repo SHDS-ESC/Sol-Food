@@ -1,8 +1,10 @@
 package kr.co.solfood.user.login;
 
+import kr.co.solfood.common.constants.UrlConstants;
 import properties.KakaoProperties;
 import properties.ServerProperties;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,23 +13,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.ServletContextAware;
 
+import javax.servlet.ServletContext;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 @Service
-public class LoginServiceImpl implements LoginService {
+public class LoginServiceImpl implements LoginService, ServletContextAware {
 
     private final LoginMapper mapper;
     private final KakaoProperties kakaoProperties;
     private final ServerProperties serverProperties;
+    private ServletContext servletContext;
 
     LoginServiceImpl(LoginMapper mapper, KakaoProperties kakaoProperties, ServerProperties serverProperties) {
         this.mapper = mapper;
         this.kakaoProperties = kakaoProperties;
         this.serverProperties = serverProperties;
+    }
+    
+    @Override
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 
     // 액세스 토큰 확인 후 VO 반환
@@ -40,7 +50,8 @@ public class LoginServiceImpl implements LoginService {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoProperties.getRestApiKey());
-        body.add("redirect_uri", "http://" + serverProperties.getIp() + ":" + serverProperties.getPort() + "/user/login/kakao-login");
+        String contextPath = servletContext != null ? servletContext.getContextPath() : "";
+        body.add("redirect_uri", "http://" + serverProperties.getIp() + ":" + serverProperties.getPort() + contextPath + UrlConstants.User.KAKAO_LOGIN_FULL);
         body.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(body, headers);
