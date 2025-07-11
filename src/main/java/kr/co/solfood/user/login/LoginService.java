@@ -37,4 +37,6 @@ public interface LoginService {
     UserVO getUserById(long userId);
 
     List<UserVO> getUsersByIds(List<Long> userIds);
+
+    String getUserStatusById(long userId);
 }

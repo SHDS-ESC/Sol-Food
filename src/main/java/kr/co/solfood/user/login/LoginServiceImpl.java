@@ -34,7 +34,7 @@ public class LoginServiceImpl implements LoginService, ServletContextAware {
         this.kakaoProperties = kakaoProperties;
         this.serverProperties = serverProperties;
     }
-    
+
     @Override
     public void setServletContext(ServletContext servletContext) {
         this.servletContext = servletContext;
@@ -195,6 +195,11 @@ public class LoginServiceImpl implements LoginService, ServletContextAware {
     @Override
     public List<UserVO> getUsersByIds(List<Long> userIds) {
         return mapper.getUsersByIds(userIds);
+    }
+
+    @Override
+    public String getUserStatusById(long userId) {
+        return mapper.getUserStatusById(userId);
     }
 
 }
