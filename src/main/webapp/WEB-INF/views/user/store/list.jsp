@@ -84,7 +84,7 @@
                 <div class="sort-dropdown">
                     <button class="sort-selected" onclick="toggleSortDropdown()">
 
-                        <span id="sortSelectedText">별점순</span>
+                        <span id="sortSelectedText">정렬</span>
                         <i class="bi bi-chevron-down"></i>
                     </button>
                     <div class="sort-dropdown-menu" id="sortDropdownMenu">

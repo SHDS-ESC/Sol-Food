@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class PaymentSearchResponseDto {
+    private String integratedpaymentId; // 통합 결제 아이디
     private String paymentId; // 결제 아이디
     private String usersName; // 결제한 유저 이름
     private long paymentPaidAmount; // 금액

@@ -1,33 +1,4 @@
 
-/*
-// 슬라이더 자동 전환 (예: 3초마다)
-document.addEventListener('DOMContentLoaded', function() {
-    const slider = document.querySelector('.banner-slider');
-    const banners = document.querySelectorAll('.banner-img');
-    let current = 0;
-    const total = banners.length;
-    let intervalId;
-
-    function showBanner(idx) {
-        slider.style.transform = `translateX(-${idx * 100}%)`;
-    }
-
-    function nextBanner() {
-        current = (current + 1) % total;
-        showBanner(current);
-    }
-
-    // 자동 슬라이드 (3초 간격)
-    intervalId = setInterval(nextBanner, 3000);
-
-    // (선택) 마우스 올리면 멈추고, 내리면 다시 시작
-    slider.addEventListener('mouseenter', () => clearInterval(intervalId));
-    slider.addEventListener('mouseleave', () => intervalId = setInterval(nextBanner, 3000));
-
-    // 반응형 리셋
-    window.addEventListener('resize', () => showBanner(current));
-});
-*/
 
 document.addEventListener('DOMContentLoaded', function() {
     const banners = document.querySelectorAll('.banner-item');

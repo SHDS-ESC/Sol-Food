@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -263,7 +260,6 @@ public class AdminHomeController {
         }
     }
 
-
     @GetMapping("/payment-management/search")
     @ResponseBody
     public PageMaker<PaymentSearchResponseDto> getPayments(PaymentSearchRequestDto paymentSearchRequestDto, Model model) {
@@ -276,4 +272,18 @@ public class AdminHomeController {
             return new PageMaker<>();
         }
     }
+
+    @GetMapping("/payment-management/detail")
+    public String paymentDetail(@RequestParam("integratedpaymentId") String integratedpaymentId, @ModelAttribute PaymentDistinctRequestDto paymentDistinctRequestDto, Model model) {
+        try {
+            PageMaker<PaymentDistinctResponseDto> paymentDetail = adminHomeService.getDistinctPayments(paymentDistinctRequestDto);
+            model.addAttribute("paymentDetail", paymentDetail);
+            log.info("Payment detail retrieved: {}", paymentDetail);
+        } catch (CustomException e) {
+            log.info("Payment detail retrieval failed: {}", e.getMessage());
+            model.addAttribute("error", e.getMessage());
+        }
+        return "admin/payment-management/detail";
+    }
+
 }
