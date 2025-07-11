@@ -306,15 +306,36 @@
         WHERE payment_id = #{paymentId}
     </update>
 
-    <!-- 사용자ID로 발의자 결제 조회 (진행중인 것만) -->
-    <select id="selectLeaderPaymentByUserId" resultMap="PaymentMap">
-        SELECT p.* FROM payment p
-        JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
-        WHERE ip.integratedpayment_leader_id = #{userId}
-        AND p.users_id = #{userId}
-        AND p.payment_status = 'pending'
-        ORDER BY p.payment_created_at DESC
-        LIMIT 1
-    </select>
-
-</mapper>
+         <!-- 사용자ID로 발의자 결제 조회 (진행중인 것만) -->
+     <select id="selectLeaderPaymentByUserId" resultMap="PaymentMap">
+         SELECT p.* FROM payment p
+         JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
+         WHERE ip.integratedpayment_leader_id = #{userId}
+         AND p.users_id = #{userId}
+         AND p.payment_status = 'pending'
+         ORDER BY p.payment_created_at DESC
+         LIMIT 1
+     </select>
+ 
+     <!-- 통합결제ID로 가게ID 조회 -->
+     <select id="selectStoreIdByIntegratedPaymentId" resultType="java.lang.Integer">
+         SELECT ip.store_id
+         FROM integrated_payment ip
+         WHERE ip.integratedpayment_id = #{integratedPaymentId}
+     </select>
+ 
+     <!-- 결제별 리뷰 작성 여부 확인 -->
+     <select id="hasReviewForPayment" resultType="boolean">
+         SELECT COUNT(*) > 0
+         FROM review r
+         WHERE r.users_id = #{userId}
+         AND r.review_status = 'Y'
+         AND EXISTS (
+             SELECT 1 FROM payment p
+             JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
+             WHERE p.payment_id = #{paymentId}
+             AND ip.store_id = r.store_id
+         )
+     </select>
+ 
+ </mapper>

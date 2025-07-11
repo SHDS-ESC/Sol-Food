@@ -35,7 +35,7 @@
             b.board_image,
             b.board_date,
             b.board_status,
-            (SELECT COUNT(*) FROM comment c WHERE c.board_id = b.board_id) AS comment_count,
+            (SELECT COUNT(*) FROM comment c WHERE c.board_id = b.board_id AND c.comment_status = 1 ) AS comment_count,
 
             u.users_nickname AS board_wirter,      -- 작성자 닉네임
             u.users_profile AS board_writer_image  -- 작성자 프로필
@@ -56,7 +56,7 @@
             b.board_image,
             b.board_date,
             b.board_viewcount,
-            (SELECT COUNT(*) FROM comment c WHERE c.board_id = b.board_id) AS comment_count, -- ← 쉼표 추가
+            (SELECT COUNT(*) FROM comment c WHERE c.board_id = b.board_id AND c.comment_status = 1 ) AS comment_count, -- ← 쉼표 추가
             u.users_nickname AS board_wirter,        -- 작성자 닉네임
             u.users_profile AS board_writer_image    -- 작성자 프로필
         FROM board b

@@ -19,10 +19,10 @@
     <!-- Sidebar -->
     <nav class="side-menu">
         <h4>🌿 관리자 메뉴</h4>
-      <a href="<c:url value="/admin/home"/>" class="nav-link">홈</a>
-      <a href="<c:url value="/admin/user-management"/>" class="nav-link">사용자</a>
-      <a href="<c:url value="/admin/owner-management"/>" class="nav-link">점주</a>
-      <a href="<c:url value="/admin/payment-management"/>" class="nav-link active">결제</a>
+        <a href="<c:url value="/admin/home"/>" class="nav-link">홈</a>
+        <a href="<c:url value="/admin/user-management"/>" class="nav-link">사용자</a>
+        <a href="<c:url value="/admin/owner-management"/>" class="nav-link">점주</a>
+        <a href="<c:url value="/admin/payment-management"/>" class="nav-link active">결제</a>
         <a href="#" class="nav-link">정책</a>
         <div class="mt-auto">
             <small class="text-muted">© 2025 YourCompany</small>
@@ -43,26 +43,42 @@
         <div class="store-card">
             <h4 class="section-title">👥 결제 내역 관리</h4>
             <form id="searchPaymentForm" class="search-bar">
-                <input type="date" name="paymentDate" class="form-control"/>
-                <select name="method" class="form-select">
-                    <option value="">결제 수단</option>
-                    <option>카카오페이</option>
-                    <option>토스페이</option>
-                    <option>신용카드</option>
-                </select>
-                <select name="status" class="form-select">
-                    <option value="">상태</option>
-                    <option>승인</option>
-                    <option>취소</option>
-                </select>
-                <button type="submit" class="btn btn-success">검색</button>
+                <div class="form-row">
+                    <input type="datetime-local" name="fromDate" class="form-control" id="fromDate" />
+                    <input type="datetime-local" name="toDate" class="form-control" id="toDate" />
+                    <select name="paymentMethod" class="form-select">
+                        <option value="">결제 수단</option>
+                        <option va>카카오페이</option>
+                        <option>토스페이</option>
+                        <option>신용카드</option>
+                    </select>
+                    <select name="status" class="form-select form-select-status">
+                        <option value="">결제 상태</option>
+                        <option value="paid">승인</option>
+                        <option value="pending">대기</option>
+                        <option value="cancelled">취소</option>
+                    </select>
+                    <select name="tableType" class="payment-type-select form-select-sm" style="width: 100px;">
+                        <option value="charge">충전</option>
+                        <option value="payment">결제</option>
+                    </select>
+                </div>
+                <div class="search-input-row">
+                    <input type="text" name="query" class="form-control" placeholder="검색">
+                    <button type="submit" class="btn btn-success">검색</button>
+                </div>
             </form>
 
             <div class="page-selector">
-                <select class="form-select form-select-sm" style="width: 100px;">
+                <select class="form-select form-select-count" style="width: 100px;">
                     <option value="10">10개씩</option>
                     <option value="20">20개씩</option>
                     <option value="50">50개씩</option>
+                </select>
+
+                <select class="payment-type-select form-select-sm" style="width: 100px;">
+                    <option value="charge">충전</option>
+                    <option value="payment">결제</option>
                 </select>
             </div>
 
@@ -70,40 +86,18 @@
                 <table class="table align-middle table-hover">
                     <thead>
                     <tr>
+                        <th>결제 아이디</th>
                         <th>사용자명</th>
-                        <th>가게명</th>
-                        <th>주문 번호</th>
-                        <th>승인 번호</th>
-                        <th>결제 번호</th>
-                        <th>결제 타입</th>
-                        <th>결제 일시</th>
-                        <th>결제 금액</th>
-                        <th>상태</th>
+                        <th>금액</th>
+                        <th>사용 포인트</th>
+                        <th>결제 수단</th>
+                        <th>PG사</th>
+                        <th>결제 생성일</th>
+                        <th>영수증 URL</th>
+                        <th>결제 상태</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <c:forEach var="p" items="${paymentList.list}">
-                        <tr>
-                            <td>${p.userName}</td>
-                            <td>${p.shopName}</td>
-                            <td>${p.orderNo}</td>
-                            <td>${p.approveNo}</td>
-                            <td>${p.paymentNo}</td>
-                            <td>${p.paymentType}</td>
-                            <td>${p.paymentDate}</td>
-                            <td>${p.amount}</td>
-                            <td>
-                                    <span class="${p.status == '승인' ? 'status-active' : 'status-inactive'}">
-                                            ${p.status}
-                                    </span>
-                            </td>
-                        </tr>
-                    </c:forEach>
-                    <c:if test="${empty paymentList.list}">
-                        <tr>
-                            <td colspan="9" class="text-center">검색 결과가 없습니다.</td>
-                        </tr>
-                    </c:if>
+                    <tbody id="paymentListBody">
                     </tbody>
                 </table>
 
@@ -115,11 +109,11 @@
                                 <a class="page-link">Previous</a>
                             </li>
                             <c:forEach begin="${paymentList.firstPage}" end="${paymentList.lastPage}" var="i">
-                                <li class="page-item ${i == paymentList.currentPage ? 'active' : ''}">
+                                <li class="page-item ${i == paymentList.curPage ? 'active' : ''}">
                                     <a class="page-link">${i}</a>
                                 </li>
                             </c:forEach>
-                            <li class="page-item next ${paymentList.lastPage * paymentList.pageSize >= paymentList.count ? 'disabled' : ''}">
+                            <li class="page-item next ${paymentList.lastPage * paymentList.limit  >= paymentList.count ? 'disabled' : ''}">
                                 <a class="page-link">Next</a>
                             </li>
                         </ul>
@@ -132,19 +126,25 @@
         <div class="store-card">
             <h4 class="section-title">📅 예약 내역 관리</h4>
             <form id="searchReservationForm" class="search-bar">
-                <input type="date" name="reserveDate" class="form-control"/>
-                <select name="method" class="form-select">
-                    <option value="">결제 수단</option>
-                    <option>카카오페이</option>
-                    <option>토스페이</option>
-                    <option>신용카드</option>
-                </select>
-                <select name="status" class="form-select">
-                    <option value="">상태</option>
-                    <option>승인</option>
-                    <option>취소</option>
-                </select>
-                <button type="submit" class="btn btn-success">검색</button>
+                <div class="form-row">
+                    <input type="date" name="reserveDate" class="form-control"/>
+                    <select name="method" class="form-select">
+                        <option value="">결제 수단</option>
+                        <option>카카오페이</option>
+                        <option>토스페이</option>
+                        <option>신용카드</option>
+                    </select>
+                    <select name="status" class="form-select">
+                        <option value="">상태</option>
+                        <option>승인</option>
+                        <option>취소</option>
+                    </select>
+                    <div style="flex: 1;"></div> <!-- 빈 공간으로 균등분할 유지 -->
+                </div>
+                <div class="search-input-row">
+                    <input type="text" name="query" class="form-control" placeholder="검색">
+                    <button type="submit" class="btn btn-success">검색</button>
+                </div>
             </form>
 
             <div class="page-selector">
@@ -193,25 +193,6 @@
                     </c:if>
                     </tbody>
                 </table>
-
-                <!-- 페이지 네비게이션 -->
-                <div id="custom-nav">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination">
-                            <li class="page-item previous ${reservationList.firstPage == 1 ? 'disabled' : ''}">
-                                <a class="page-link">Previous</a>
-                            </li>
-                            <c:forEach begin="${reservationList.firstPage}" end="${reservationList.lastPage}" var="i">
-                                <li class="page-item ${i == reservationList.currentPage ? 'active' : ''}">
-                                    <a class="page-link">${i}</a>
-                                </li>
-                            </c:forEach>
-                            <li class="page-item next ${reservationList.lastPage * reservationList.pageSize >= reservationList.count ? 'disabled' : ''}">
-                                <a class="page-link">Next</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
             </div>
         </div>
 

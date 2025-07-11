@@ -13,4 +13,5 @@ public class PaymentVO extends CommonPaymentVO {
     private int integratedpaymentId;    // 통합 결제 ID (FK)
     private int paymentUsedPoint;       // 결제 시 사용한 포인트
     private int paymentPaidAmount;      // 결제 시 실제 결제한 금액
+    private boolean hasReview;          // 리뷰 작성 여부
 }

@@ -27,10 +27,18 @@
                     <div class="alert alert-danger">${errorMessage}</div>
                 </c:if>
                 <form id="reviewForm" action="${pageContext.request.contextPath}/user/review/write" method="post" enctype="multipart/form-data">
+                    <!-- 가게 정보 -->
                     <div class="form-group">
-                        <label for="storeIdInput">가게 ID <span class="required">*</span></label>
-                        <input type="number" id="storeIdInput" name="storeId" value="${storeId}" placeholder="가게 ID를 입력해주세요" required>
-                        <small class="form-hint">리뷰를 작성할 가게의 ID를 입력해주세요.</small>
+                        <label>가게 정보</label>
+                        <div class="store-info">
+                            <strong>${store.storeName}</strong>
+                            <small class="store-address">${store.storeAddress}</small>
+                        </div>
+                        <input type="hidden" name="storeId" value="${storeId}">
+                        <c:if test="${not empty paymentId}">
+                            <input type="hidden" name="paymentId" value="${paymentId}">
+                        </c:if>
+                        <small class="form-hint">결제 내역에서 자동으로 가져온 가게 정보입니다.</small>
                     </div>
                     <div class="form-group">
                         <label>별점 평가 <span class="required">*</span></label>

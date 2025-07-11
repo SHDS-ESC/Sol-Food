@@ -51,18 +51,7 @@
             </div>
         </div>
 
-    <!-- 가게 ID 입력 모달 -->
-    <div id="storeIdModal" class="modal">
-        <div class="modal-content">
-            <h3>리뷰 작성</h3>
-            <p>리뷰를 작성할 가게의 ID를 입력해주세요:</p>
-            <input type="number" id="storeIdInput" placeholder="가게 ID를 입력하세요">
-            <div class="modal-buttons">
-                <button id="confirmStoreId">확인</button>
-                <button id="cancelStoreId">취소</button>
-            </div>
-        </div>
-    </div>
+
 
     <%@ include file="/WEB-INF/views/user/include/footer.jsp" %>
 </div>

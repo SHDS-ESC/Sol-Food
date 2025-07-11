@@ -250,6 +250,12 @@ public class PaymentController {
             }
             List<PaymentVO> history = paymentService.getPaymentHistory((int)user.getUsersId(), page, size);
 
+            // 각 결제에 대한 리뷰 작성 여부 확인
+            for (PaymentVO payment : history) {
+                boolean hasReview = paymentService.hasReviewForPayment(payment.getPaymentId(), user.getUsersId());
+                payment.setHasReview(hasReview);
+            }
+
             response.put("success", true);
             response.put("data", history);
             response.put("page", page);
@@ -259,6 +265,42 @@ public class PaymentController {
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "" + e.getMessage());
+        }
+        return response;
+    }
+
+    /*
+        통합결제ID로 가게ID 조회 API
+    */
+    @GetMapping("/storeId")
+    @ResponseBody
+    public Map<String, Object> getStoreIdByIntegratedPaymentId(
+            @RequestParam("integratedPaymentId") int integratedPaymentId,
+            HttpSession session) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            UserVO user = (UserVO) session.getAttribute("userLoginSession");
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "로그인이 필요합니다.");
+                return response;
+            }
+
+            Integer storeId = paymentService.getStoreIdByIntegratedPaymentId(integratedPaymentId);
+            
+            if (storeId != null) {
+                response.put("success", true);
+                response.put("data", storeId);
+            } else {
+                response.put("success", false);
+                response.put("message", "해당 결제의 가게 정보를 찾을 수 없습니다.");
+            }
+
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "가게 정보 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
         return response;
     }
