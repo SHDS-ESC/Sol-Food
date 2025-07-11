@@ -370,12 +370,7 @@
          FROM review r
          WHERE r.users_id = #{userId}
          AND r.review_status = 'Y'
-         AND EXISTS (
-             SELECT 1 FROM payment p
-             JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
-             WHERE p.payment_id = #{paymentId}
-             AND ip.store_id = r.store_id
-         )
+         AND r.userspayment_id = #{paymentId}
      </select>
 
  </mapper>
