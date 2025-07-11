@@ -5,6 +5,7 @@ window.UrlConstants = {
     
     /**
      * Context Path 자동 감지 헬퍼 함수
+     * JSP에서 contextPath 변수를 설정하면 우선 사용, 없으면 자동 감지
      */
     getContextPath: function() {
         // JSP에서 설정된 contextPath 변수 우선 사용

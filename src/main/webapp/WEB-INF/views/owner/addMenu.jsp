@@ -709,7 +709,7 @@
       </div>
 
       <div class="menu-content">
-        <form id="menuForm" action="/solfood/owner/menu/add" method="post" enctype="multipart/form-data">
+        <form id="menuForm" action="${pageContext.request.contextPath}/owner/menu/add" method="post" enctype="multipart/form-data">
           <div class="form-group">
             <label for="menuName">메뉴명</label>
             <input type="text" id="menuName" name="menuName" required>
@@ -758,7 +758,7 @@
           </div>
 
           <div class="modal-actions">
-            <button type="button" class="btn-cancel" onclick="location.href='/solfood/owner/menu'">취소</button>
+            <button type="button" class="btn-cancel" onclick="location.href='${pageContext.request.contextPath}/owner/menu'">취소</button>
             <button type="submit" class="btn-save">저장</button>
           </div>
         </form>
@@ -773,7 +773,7 @@
 <script>
   function logout(){
     if(confirm("로그아웃 하시겠습니까?😊")){
-      window.location.href="/solfood/owner/logout";
+      window.location.href="${pageContext.request.contextPath}/owner/logout";
     }
   }
 

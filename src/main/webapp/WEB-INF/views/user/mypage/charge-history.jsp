@@ -46,7 +46,7 @@
             
             <div class="button-group">
                 <button class="back-btn" onclick="location.href='${pageContext.request.contextPath}/user/mypage'">
-                    마이페이지로 돌아가기
+                    마이페이지로<br>돌아가기
                 </button>
                 <button class="charge-btn" onclick="location.href='${pageContext.request.contextPath}/user/mypage/charge'">
                     충전하기

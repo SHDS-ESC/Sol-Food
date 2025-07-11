@@ -518,7 +518,7 @@
 
             <div class="menu-content">
 
-                <form id="storeForm" enctype="multipart/form-data" action="/solfood/owner/store/edit" method="post">
+                <form id="storeForm" enctype="multipart/form-data" action="${pageContext.request.contextPath}/owner/store/edit" method="post">
 
                     <input  type="hidden" name="storeId" value="${store.storeId}" >
 <%--                    <input type="hidden" name="storeMainimage" value="${store.storeMainimage}" />--%>
@@ -601,7 +601,7 @@
 <script>
     function logout(){
         if(confirm("로그아웃 하시겠습니까?😊")){
-            window.location.href="/solfood/owner/logout";
+            window.location.href="${pageContext.request.contextPath}/owner/logout";
         }
     }
 

@@ -29,12 +29,18 @@ uri="http://www.springframework.org/tags/form" %>
       href="${pageContext.request.contextPath}/css/login/native-login.css"
     />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    
+    <!-- Context Path 설정 -->
+    <script>
+        var contextPath = '${pageContext.request.contextPath}';
+    </script>
 
     <c:if test="${not empty msg}">
       <script>
         $(function () {
-          showWarningPopup("${msg}");
-          window.location.href = "${pageContext.request.contextPath}/user/login";
+          showWarningPopup("${msg}", "알림", function() {
+            window.location.href = "${pageContext.request.contextPath}/user/login";
+          });
         });
       </script>
     </c:if>

@@ -57,8 +57,15 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
               </div>
             </label>
 
-            <div class="preview">
+            <div class="preview" style="position: relative">
               <img id="previewImg" src="" alt="" />
+              <button
+                type="button"
+                class="preview-close"
+                aria-label="이미지 삭제"
+              >
+                &times;
+              </button>
             </div>
           </div>
           <div class="board-add-group">
@@ -69,6 +76,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
               type="text"
               placeholder="글 제목"
               name="boardTitle"
+              required
             />
           </div>
           <div class="board-add-group">
@@ -79,6 +87,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
               rows="5"
               placeholder="게시글 내용을 작성해 주세요."
               name="boardContent"
+              required
             ></textarea>
           </div>
           <input type="hidden" name="boardImage" id="boardImage" />
@@ -129,10 +138,10 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
         reader.onload = function (e) {
           let img = document.getElementById("previewImg");
           img.setAttribute("src", e.target.result);
-          img.setAttribute("style", "border-radius:12px");
-          img.setAttribute("style", "opacity:1");
-
+          img.style.opacity = "1";
+          img.style.borderRadius = "12px";
           document.querySelector(".board-add-photo-count").innerText = "1/1";
+          document.querySelector(".preview-close").style.opacity = 1; // X 버튼 보이기
         };
 
         const file = files[0];
@@ -146,19 +155,24 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
               updateUploadProgress(progress);
             }
           );
-
-          // 업로드 성공 - hidden input에 S3 URL 저장
           document.getElementById("boardImage").value = s3Url;
-
-          // // S3 업로드 실행 (s3Upload.js의 s3Uploader 사용)
-          // const s3Url = await s3Uploader.uploadProfileImage(file);
-
-          // // 업로드 성공 - hidden input에 S3 URL 저장
-          // document.getElementById("boardImage").value = s3Url;
         } catch (error) {
           alert("이미지 업로드에 실패했습니다. 다시 시도해주세요.");
         }
       }
+
+      // X 버튼 클릭 시 미리보기/값 제거
+      document.addEventListener("DOMContentLoaded", function () {
+        document
+          .querySelector(".preview-close")
+          .addEventListener("click", function () {
+            document.getElementById("previewImg").setAttribute("src", "");
+            document.getElementById("previewImg").style.opacity = "0";
+            document.getElementById("boardImage").value = "";
+            document.querySelector(".board-add-photo-count").innerText = "0/1";
+            this.style.display = "none";
+          });
+      });
     </script>
   </body>
 </html>

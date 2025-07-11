@@ -15,6 +15,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/reset.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/make-bill.css?v=${pageContext.session.creationTime}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="<c:url value='/css/waiting-approval.css' />">
+    <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
 </head>
 <body>
     <div class="wrap">

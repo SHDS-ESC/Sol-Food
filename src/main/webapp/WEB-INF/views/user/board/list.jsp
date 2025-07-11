@@ -33,7 +33,9 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
       <jsp:include page="../include/header.jsp" />
       <div class="content board-list">
         <ul class="feed"></ul>
-        <button class="btn submit" id="load-more-btn">더보기</button>
+        <button class="btn submit" id="load-more-btn" style="display: block">
+          더보기
+        </button>
         <div class="writeBtn">
           <a href="${pageContext.request.contextPath}/user/board/add">
             <i class="bi bi-plus" style="font-size: 20px"></i
@@ -52,6 +54,8 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
       const pageSize = 10;
 
       function loadBoardList() {
+        // $("#load-more-btn").hide();
+        // $("#loading-spinner").show();
         $.ajax({
           url: contextPath + "/user/board/api/list",
           method: "GET",
@@ -82,6 +86,10 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
                 ? `<img class="board-list-img" src="\${board.boardImage}" alt="게시글 이미지" />`
                 : "";
 
+              let contentWithBr = board.boardContent
+                ? board.boardContent.replace(/(?:\r\n|\r|\n)/g, "<br>")
+                : "";
+
               let html = `
                         <li class="feed-item">
                             <a href="\${contextPath}/user/board/detail?boardId=\${board.boardId}" style="text-decoration:none">
@@ -99,7 +107,7 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
                                 
                                 </div>
                                 <div class="board-list-title">\${board.boardTitle}</div>
-                                <p class="board-list-content">\${board.boardContent}</p>
+                                <p class="board-list-content">\${contentWithBr}</p>
                                 <div class="board-list-imgbox">
                                 \${boardImgHtml}
                                 </div>
@@ -117,13 +125,22 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
             });
 
             offset += pageSize;
+            // if (!res.hasNext) {
+            //   console.log(res.hasNext);
+            //   console.log("더보기 없음");
+            //   $("#load-more-btn").hide();
+            // } else {
+            //   console.log(res.hasNext);
+            //   console.log("더보기 있음");
 
-            if (!res.hasNext) {
-              $("#load-more-btn").hide();
-            }
+            //   $("#load-more-btn").show();
+            // }
+            // $("#loading-spinner").hide();
           },
           error: function () {
             alert("서버 요청 실패");
+            // $("#loading-spinner").hide();
+            // $("#load-more-btn").show();
           },
         });
       }

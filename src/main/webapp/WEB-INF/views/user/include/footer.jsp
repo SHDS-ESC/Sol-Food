@@ -15,21 +15,47 @@
 
         <a href="${pageContext.request.contextPath}/user/cart" class="cart-nav-item">
             <i class="bi bi-bag" id="nav"></i>장바구니
-            <span class="cart-nav-badge">
-                <c:choose>
-                    <c:when test="${not empty sessionScope.userLoginSession}">
-                        <c:choose>
-                            <c:when test="${not empty sessionScope.userCart}">
-                                <c:out value="${sessionScope.userCart.totalQuantity}" />
-                            </c:when>
-                            <c:otherwise>0</c:otherwise>
-                        </c:choose>
-                    </c:when>
-                    <c:otherwise>0</c:otherwise>
-                </c:choose>
-            </span>
+            <span class="cart-nav-badge">0</span>
         </a>
 
         <a href="${pageContext.request.contextPath}/user/mypage"><i class="bi bi-person-circle"></i>마이</a>
     </div>
 </div>
+
+<script>
+function updateCartBadge() {
+    fetch("${pageContext.request.contextPath}/user/cart/count", {
+        credentials: 'include',
+        cache: 'no-cache',
+        headers: {
+            'Cache-Control': 'no-cache'
+        }
+    })
+    .then(function(response) { 
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.status);
+        }
+        return response.json(); 
+    })
+    .then(function(data) {
+        document.querySelectorAll('.cart-nav-badge').forEach(function(badge) {
+            badge.textContent = data.count || 0;
+        });
+    })
+    .catch(function(error) {
+        document.querySelectorAll('.cart-nav-badge').forEach(function(badge) {
+            badge.textContent = 0;
+        });
+    });
+}
+
+window.addEventListener('load', updateCartBadge);
+window.addEventListener('popstate', updateCartBadge);
+document.addEventListener('DOMContentLoaded', updateCartBadge);
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        updateCartBadge();
+    }
+});
+window.addEventListener('focus', updateCartBadge);
+</script>

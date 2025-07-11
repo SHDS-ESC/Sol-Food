@@ -25,4 +25,6 @@ public interface AdminHomeService {
     PageMaker<CommunityResponseDto> getCommunityResponses(CommunityRequestDto communityRequestDto);
 
     void deleteOwnerReview(long reviewId);
+
+    PageMaker<PaymentDistinctResponseDto> getDistinctPayments(PaymentDistinctRequestDto paymentDistinctRequestDto);
 }

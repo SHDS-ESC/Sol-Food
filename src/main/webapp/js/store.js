@@ -16,22 +16,46 @@ let currentSort = 'star';
 
 // ==================== 초기화 ====================
 document.addEventListener('DOMContentLoaded', function () {
-    currentCategory = '전체';
-    loadCategoryConfig();
+    // DOM이 완전히 로드된 후 실행되도록 약간의 지연 추가
+    setTimeout(() => {
+        initializeStorePage();
+    }, 100);
+});
 
-    // 초기 로딩 시 페이징 방식으로 통일
-    offset = 0;
-    hasNext = true;
-    loading = false;
-    document.getElementById('storeGrid').innerHTML = "";
-    loadStoreList();
+function initializeStorePage() {
+    try {
+        currentCategory = '전체';
+        loadCategoryConfig();
+
+        // 초기 로딩 시 페이징 방식으로 통일
+        offset = 0;
+        hasNext = true;
+        loading = false;
+        
+        // storeGrid 요소 존재 확인
+        const storeGrid = document.getElementById('storeGrid');
+        if (storeGrid) {
+            storeGrid.innerHTML = "";
+            loadStoreList();
+        } else {
+            console.error('storeGrid 요소를 찾을 수 없습니다. 페이지 구조를 확인해주세요.');
+            return; // 초기화 중단
+        }
+    } catch (error) {
+        console.error('initializeStorePage 함수 실행 중 오류:', error);
+    }
 
     // 더보기 버튼 이벤트 리스너
-    document.getElementById('loadMoreBtn').addEventListener('click', function () {
-        if (hasNext && !loading) {
-            loadStoreList();
-        }
-    });
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function () {
+            if (hasNext && !loading) {
+                loadStoreList();
+            }
+        });
+    } else {
+        console.error('loadMoreBtn 요소를 찾을 수 없습니다.');
+    }
 
     // 검색창 Enter 키 이벤트
     const searchInput = document.getElementById('searchInput');
@@ -70,20 +94,52 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         setCategories(cats);
     }
-});
+}
 
 // ==================== 장바구니 관련 ====================
 // updateCartBadge 함수는 cart.js에서 제공됨
 
 function loadCategoryConfig() {
-    fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.STORE_CATEGORY_CONFIG))
-        .then(response => response.json())
-        .then(data => {
-            categoryConfig = data.data || data;
-        })
-        .catch(error => {
-            console.error('카테고리 설정 로딩 실패:', error);
-        });
+    try {
+        // UrlConstants가 로드되지 않은 경우 처리
+        if (typeof UrlConstants === 'undefined' || !UrlConstants.API || !UrlConstants.API.STORE_CATEGORY_CONFIG) {
+            console.error('UrlConstants가 로드되지 않았습니다.');
+            categoryConfig = {};
+            return;
+        }
+
+        const apiUrl = UrlConstants.Builder.fullUrl(UrlConstants.API.STORE_CATEGORY_CONFIG);
+        console.log('카테고리 설정 API 호출:', apiUrl);
+
+        fetch(apiUrl)
+            .then(response => {
+                console.log('API 응답 상태:', response.status, response.statusText);
+                
+                if (!response.ok) {
+                    // 응답이 HTML인지 확인
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('text/html')) {
+                        throw new Error('서버가 HTML 페이지를 반환했습니다. 서버가 실행 중인지 확인해주세요.');
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                categoryConfig = data.data || data;
+                console.log('카테고리 설정 로딩 성공:', categoryConfig);
+            })
+            .catch(error => {
+                console.error('카테고리 설정 로딩 실패:', error);
+                console.log('서버가 실행 중인지 확인하고, API 엔드포인트가 올바른지 확인해주세요.');
+                // 오류 발생 시 기본값 설정
+                categoryConfig = {};
+            });
+    } catch (error) {
+        console.error('loadCategoryConfig 함수 실행 중 오류:', error);
+        categoryConfig = {};
+    }
 }
 
 // ==================== 화면 전환 ====================
@@ -289,17 +345,32 @@ function resetPagination() {
 function loadStoreList() {
     if (loading) return;
 
+    // UrlConstants 확인
+    if (typeof UrlConstants === 'undefined' || !UrlConstants.API) {
+        console.error('UrlConstants가 로드되지 않았습니다.');
+        return;
+    }
+
     loading = true;
     const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const storeGrid = document.getElementById('storeGrid');
+
+    if (!storeGrid) {
+        console.error('storeGrid 요소를 찾을 수 없습니다.');
+        loading = false;
+        return;
+    }
 
     if (offset === 0) {
         // 첫 로딩
-        document.getElementById('storeGrid').innerHTML = "";
-        loadMoreBtn.style.display = "none";
+        storeGrid.innerHTML = "";
+        if (loadMoreBtn) loadMoreBtn.style.display = "none";
     } else {
         // 더보기
-        loadMoreBtn.textContent = "로딩중...";
-        loadMoreBtn.disabled = true;
+        if (loadMoreBtn) {
+            loadMoreBtn.textContent = "로딩중...";
+            loadMoreBtn.disabled = true;
+        }
     }
 
     const isSearchActive = currentSearchKeyword && currentSearchKeyword.trim() !== '';
@@ -311,9 +382,21 @@ function loadStoreList() {
         apiUrl = UrlConstants.Builder.fullUrl(`${UrlConstants.API.STORE_LIST}?category=${encodeURIComponent(currentCategory)}&offset=${offset}&pageSize=${pageSize}&sort=${currentSort}`);
     }
 
+    console.log('가게 목록 API 호출:', apiUrl);
+
     fetch(apiUrl)
         .then(res => {
-            if (!res.ok) throw new Error('API 호출 실패');
+            console.log('가게 목록 API 응답 상태:', res.status, res.statusText);
+            
+            if (!res.ok) {
+                // 응답이 HTML인지 확인
+                const contentType = res.headers.get('content-type');
+                if (contentType && contentType.includes('text/html')) {
+                    throw new Error('서버가 HTML 페이지를 반환했습니다. 서버가 실행 중인지 확인해주세요.');
+                }
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+            
             return res.json();
         })
         .then(data => {
@@ -324,17 +407,29 @@ function loadStoreList() {
             offset += storeList.length;
 
             // 더보기 버튼 상태 업데이트
-            if (hasNext) {
+            if (hasNext && loadMoreBtn) {
                 loadMoreBtn.style.display = "block";
                 loadMoreBtn.textContent = "더보기";
                 loadMoreBtn.disabled = false;
-            } else {
+            } else if (loadMoreBtn) {
                 loadMoreBtn.style.display = "none";
             }
         })
         .catch(error => {
             console.error('목록 로드 실패:', error);
-            showErrorPopup('목록을 불러오지 못했습니다: ' + error.message);
+            console.log('서버가 실행 중인지 확인하고, API 엔드포인트가 올바른지 확인해주세요.');
+            
+            // 오류 메시지 표시
+            if (storeGrid) {
+                storeGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #dc3545;">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
+                        <h3 style="margin-bottom: 8px;">데이터를 불러올 수 없습니다</h3>
+                        <p>서버 연결에 문제가 있습니다. 페이지를 새로고침해주세요.</p>
+                        <button onclick="location.reload()" class="btn btn-outline-danger mt-3">새로고침</button>
+                    </div>
+                `;
+            }
         })
         .finally(() => {
             loading = false;

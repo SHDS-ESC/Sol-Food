@@ -84,7 +84,7 @@
                 <div class="sort-dropdown">
                     <button class="sort-selected" onclick="toggleSortDropdown()">
 
-                        <span id="sortSelectedText">별점순</span>
+                        <span id="sortSelectedText">정렬</span>
                         <i class="bi bi-chevron-down"></i>
                     </button>
                     <div class="sort-dropdown-menu" id="sortDropdownMenu">
@@ -152,12 +152,25 @@
             });
     }
     </script>
-    <script>
-        window.allCategories = [
+    <div id="categoriesData" style="display:none;" 
+         data-categories='[
             <c:forEach items="${categories}" var="category" varStatus="status">
-                {categoryName: "${category.categoryName}", categoryImage: "${category.categoryImage}"}<c:if test="${!status.last}">,</c:if>
+                {"categoryName": "${fn:escapeXml(category.categoryName)}", "categoryImage": "${fn:escapeXml(category.categoryImage)}"}<c:if test="${!status.last}">,</c:if>
             </c:forEach>
-        ];
+         ]'></div>
+    <script>
+        // HTML 데이터 속성에서 카테고리 정보 읽기
+        const categoriesDataElement = document.getElementById('categoriesData');
+        if (categoriesDataElement) {
+            try {
+                window.allCategories = JSON.parse(categoriesDataElement.getAttribute('data-categories'));
+            } catch (e) {
+                console.error('카테고리 데이터 파싱 실패:', e);
+                window.allCategories = [];
+            }
+        } else {
+            window.allCategories = [];
+        }
     </script>
 </body>
 </html>

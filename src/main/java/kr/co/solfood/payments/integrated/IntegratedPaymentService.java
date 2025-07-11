@@ -9,6 +9,9 @@ public interface IntegratedPaymentService {
     // 통합 결제 생성
     int createIntegratedPayment(BillDTO billDTO);
 
+    // 통합 결제 생성 (중복 체크 포함) - null 반환 시 중복 존재
+    Integer createIntegratedPaymentWithDuplicateCheck(BillDTO billDTO);
+
     // 결제 메뉴 저장
     void createPaymentMenu(List<CartItemVO> cartItems, int integratedPaymentId);
 

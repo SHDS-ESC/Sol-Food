@@ -742,7 +742,7 @@
 
 
       <div class="menu-content" style="position: relative">
-        <form id="menuForm" action="/solfood/owner/menu/edit" method="post" enctype="multipart/form-data">
+        <form id="menuForm" action="${pageContext.request.contextPath}/owner/menu/edit" method="post" enctype="multipart/form-data">
           <input type="hidden" name="storeId" value="${menu.storeId}">
           <input type="hidden" name="menuId" value="${menu.menuId}">
           <div class="form-group">
@@ -800,7 +800,7 @@
             <button type="submit" class="btn-save">저장</button>
           </div>
         </form>
-        <form action="/solfood/owner/menu/delete" method="post" style="position: absolute; bottom: 0">
+        <form action="${pageContext.request.contextPath}/owner/menu/delete" method="post" style="position: absolute; bottom: 0">
           <input type="hidden" name="menuId" value="${menu.menuId}">
           <button type="submit" class="btn-cancel" id="deleteMenuBtn">삭제</button>
         </form>
@@ -815,7 +815,7 @@
 <script>
   function logout(){
     if(confirm("로그아웃 하시겠습니까?😊")){
-      window.location.href="/solfood/owner/logout";
+      window.location.href="${pageContext.request.contextPath}/owner/logout";
     }
   }
 
@@ -1281,7 +1281,7 @@
     const cancelBtn = document.getElementById('cancelBtn');
     if (cancelBtn) {
       cancelBtn.addEventListener('click', function() {
-        location.href = '/solfood/owner/menu';
+        location.href = '${pageContext.request.contextPath}/owner/menu';
       });
     }
     

@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %> <%@ taglib
 uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> <%@ taglib prefix="fmt"
-uri="http://java.sun.com/jsp/jstl/fmt" %>
+uri="http://java.sun.com/jsp/jstl/fmt" %> <%@ taglib prefix="fn"
+uri="http://java.sun.com/jsp/jstl/functions" %>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -102,9 +103,16 @@ uri="http://java.sun.com/jsp/jstl/fmt" %>
               </c:if>
             </div>
             <div class="board-list-title">${board.boardTitle}</div>
-            <p style="line-height: 22px; margin-bottom: 16px">
+            <div
+              class="board-detail-content"
+              style="
+                white-space: pre-line;
+                line-height: 22px;
+                margin-bottom: 16px;
+              "
+            >
               ${board.boardContent}
-            </p>
+            </div>
             <div class="board-list-imgbox">
               <c:if test="${not empty board.boardImage}">
                 <img
@@ -200,14 +208,12 @@ uri="http://java.sun.com/jsp/jstl/fmt" %>
             const comment = group.parent;
 
             if (comment) {
-              console.log(comment)
+              console.log(comment);
               // 댓글 작성자와 현재 사용자가 같은지 확인
               const isCommentAuthor = comment.commentWriter === currentUser;
               const deleteButton = isCommentAuthor
                 ? ` · <span class="comment-delete" data-comment-id="\${comment.commentId}">삭제</span>`
                 : "";
-
-              // src="https://mblogthumb-phinf.pstatic.net/MjAyMDExMDFfMyAg/MDAxNjA0MjI5NDA4NDMy.5zGHwAo_UtaQFX8Hd7zrDi1WiV5KrDsPHcRzu3e6b8Eg.IlkR3QN__c3o7Qe9z5_xYyCyr2vcx7L_W1arNFgwAJwg.JPEG.gambasg/%EC%9C%A0%ED%8A%9C%EB%B8%8C_%EA%B8%B0%EB%B3%B8%ED%94%84%EB%A1%9C%ED%95%84_%ED%8C%8C%EC%8A%A4%ED%85%94.jpg?type=w800"
 
               const commentHtml = `
                 <li class="board-comment-item" data-comment-id="\${comment.commentId}">
@@ -239,7 +245,7 @@ uri="http://java.sun.com/jsp/jstl/fmt" %>
 
               // 대댓글 렌더링
               group.replies.forEach((reply) => {
-                console.log(reply)
+                console.log(reply);
                 const isReplyAuthor = reply.commentWriter === currentUser;
                 const replyDeleteButton = isReplyAuthor
                   ? ` · <span class="comment-delete" data-comment-id="\${reply.commentId}">삭제</span>`
@@ -249,7 +255,7 @@ uri="http://java.sun.com/jsp/jstl/fmt" %>
                   <li class="board-comment-item reply-item" data-comment-id="\${reply.commentId}" 
                       style="margin-left: 60px; border-left: 2px solid #f0f0f0; padding-left: 20px;">
                     <img class="board-comment-profile"
-                         src="\${comment.commentWriterImage}"alt="프로필" />
+                         src="\${reply.commentWriterImage}"alt="프로필" />
                     <div class="board-comment-body">
                       <div class="board-comment-meta">
                         <span class="board-comment-nick">\${reply.commentWriter}</span>
@@ -415,7 +421,9 @@ uri="http://java.sun.com/jsp/jstl/fmt" %>
 
         // 신고 버튼 클릭
         $(document).on("click", ".comment-report", function () {
-          console.log("신고 클릭");
+          if (confirm("신고하시겠습니까?")) {
+            alert("신고 처리가 완료되었습니다.");
+          }
         });
 
         // 게시판 삭제 버튼 클릭

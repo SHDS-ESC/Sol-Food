@@ -38,6 +38,12 @@
         WHERE payment_impuid = #{imp_uid}
     </select>
 
+    <select id="isMerchantUidAlreadyUsed" parameterType="String" resultType="Boolean">
+        SELECT COUNT(*) > 0
+        FROM payment
+        WHERE payment_merchant_uid = #{merchantUid}
+    </select>
+
     <update id="updateUserPoint" parameterType="kr.co.solfood.user.login.UserVO">
         UPDATE users
         SET users_point = #{usersPoint}
@@ -306,24 +312,46 @@
         WHERE payment_id = #{paymentId}
     </update>
 
-         <!-- 사용자ID로 발의자 결제 조회 (진행중인 것만) -->
-     <select id="selectLeaderPaymentByUserId" resultMap="PaymentMap">
-         SELECT p.* FROM payment p
-         JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
-         WHERE ip.integratedpayment_leader_id = #{userId}
-         AND p.users_id = #{userId}
-         AND p.payment_status = 'pending'
-         ORDER BY p.payment_created_at DESC
-         LIMIT 1
-     </select>
- 
+    <!-- 사용자ID로 발의자 결제 조회 (진행중인 것만) -->
+    <select id="selectLeaderPaymentByUserId" resultMap="PaymentMap">
+        SELECT p.* FROM payment p
+        JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
+        WHERE ip.integratedpayment_leader_id = #{userId}
+        AND p.users_id = #{userId}
+        AND p.payment_status = 'pending'
+        ORDER BY p.payment_created_at DESC
+        LIMIT 1
+    </select>
+
+    <!-- 사용자별 진행중인 결제 조회 (만료 여부 포함) -->
+    <select id="selectOngoingPaymentByUserIdWithExpiration" resultType="java.util.Map">
+        <![CDATA[
+        SELECT
+            p.*,
+            ip.integratedpayment_amount as total_amount,
+            ip.integratedpayment_people as participant_count,
+            ip.integratedpayment_leader_id as leader_id,
+            ip.integratedpayment_created_at as integrated_created_at,
+            CASE
+                WHEN ip.integratedpayment_created_at < DATE_SUB(NOW(), INTERVAL 30 MINUTE)
+                THEN 1
+                ELSE 0
+            END as is_expired
+        FROM payment p
+        JOIN integrated_payment ip ON p.integratedpayment_id = ip.integratedpayment_id
+        WHERE p.users_id = #{userId}
+        AND p.payment_status = 'pending'
+        ORDER BY p.payment_created_at DESC
+        ]]>
+    </select>
+
      <!-- 통합결제ID로 가게ID 조회 -->
      <select id="selectStoreIdByIntegratedPaymentId" resultType="java.lang.Integer">
          SELECT ip.store_id
          FROM integrated_payment ip
          WHERE ip.integratedpayment_id = #{integratedPaymentId}
      </select>
- 
+
      <!-- 결제별 리뷰 작성 여부 확인 -->
      <select id="hasReviewForPayment" resultType="boolean">
          SELECT COUNT(*) > 0
@@ -337,5 +365,5 @@
              AND ip.store_id = r.store_id
          )
      </select>
- 
+
  </mapper>

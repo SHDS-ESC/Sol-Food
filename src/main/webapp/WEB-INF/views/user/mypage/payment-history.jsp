@@ -19,6 +19,7 @@
     <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
     <script src="${pageContext.request.contextPath}/js/common-utils.js"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/resources/js/payment.js"></script>
     <script src="${pageContext.request.contextPath}/js/payment-history.js"></script>
 </head>
@@ -46,7 +47,7 @@
             
             <div class="button-group">
                 <button class="back-btn" onclick="location.href='${pageContext.request.contextPath}/user/mypage'">
-                    마이페이지로 돌아가기
+                    마이페이지로<br>돌아가기
                 </button>
             </div>
         </div>

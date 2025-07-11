@@ -159,3 +159,18 @@ body {
 tr td {
     text-align: center;
 }
+
+.detail-button {
+    background-color: orange;
+    color: white;
+    font-size: 12px;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.detail-button:hover {
+    background-color: darkorange;
+}

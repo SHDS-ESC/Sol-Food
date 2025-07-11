@@ -14,7 +14,7 @@ $(document).ready(function () {
 });
 
 // 팝업 알림 함수들
-function showPopup(message, type = 'info', title = '알림') {
+function showPopup(message, type = 'info', title = '알림', callback = null) {
   // 기존 팝업이 있다면 제거
   $('.custom-popup').remove();
 
@@ -46,6 +46,9 @@ function showPopup(message, type = 'info', title = '알림') {
   $('.custom-popup .popup-close, .custom-popup .confirm-btn, .custom-popup .popup-overlay').on('click', function() {
     $('.custom-popup').fadeOut(200, function() {
       $(this).remove();
+      if (callback) {
+        callback();
+      }
     });
   });
 }
@@ -61,8 +64,8 @@ function showErrorPopup(message, title = '오류') {
 }
 
 // 경고 팝업
-function showWarningPopup(message, title = '경고') {
-  showPopup(message, 'warning', title);
+function showWarningPopup(message, title = '경고', callback = null) {
+  showPopup(message, 'warning', title, callback);
 }
 
 // 정보 팝업
