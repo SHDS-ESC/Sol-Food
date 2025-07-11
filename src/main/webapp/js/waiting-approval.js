@@ -808,7 +808,7 @@ function proceedToPayment(userId) {
         console.log('IMP 객체 확인:', typeof window.IMP);
         
         // 고유한 merchant_uid 생성 (사용자 ID + 타임스탬프 + 랜덤값)
-        const uniqueMerchantUid = 'dutchpay_' + window.currentUserId + '_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2, 9);
+        const uniqueMerchantUid = 'payNo_' + window.currentUserId + '_' + new Date().getTime();
         
         // payment.js의 requestPayment 함수 사용 (중복 검증 제거)
         const paymentOptions = {
