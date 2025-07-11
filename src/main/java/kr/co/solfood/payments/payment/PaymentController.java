@@ -64,61 +64,78 @@ public class PaymentController {
      * 세션의 사용자 정보로 진행중인 발의자 결제를 찾아서 바로 결제 처리
      */
     @PostMapping("/leader-payment/verify")
-    public IamportResponse<Payment> verifyLeaderPayment(
+    public Map<String, Object> verifyLeaderPayment(
             @RequestParam("imp_uid") String imp_uid,
             @RequestParam("amount") int requestedAmount,
             @RequestParam("merchant_uid") String merchantUid,
             HttpSession session
     ) throws IamportResponseException, IOException {
     
-        IamportResponse<Payment> paymentResponse = iamportClient.paymentByImpUid(imp_uid);
-        Payment payment = paymentResponse.getResponse();
-    
-        // 1. 결제 금액 검증 (PG사에서 실제 결제된 금액과 요청 금액 비교)
-        if (payment.getAmount().intValue() != requestedAmount) {
-            throw new IllegalArgumentException("결제 금액이 일치하지 않습니다. 요청: " + requestedAmount + ", 실제: " + payment.getAmount().intValue());
-        }
-    
-        // 2. 결제 성공 여부 검증
-        if (!"paid".equals(payment.getStatus())) {
-            throw new IllegalStateException("결제가 완료되지 않았습니다.");
-        }
-    
-        // 3. 중복 결제 방지
-        if (paymentService.isAlreadyProcessed(imp_uid)) {
-            throw new IllegalStateException("이미 처리된 결제입니다.");
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            IamportResponse<Payment> paymentResponse = iamportClient.paymentByImpUid(imp_uid);
+            Payment payment = paymentResponse.getResponse();
+        
+            // 1. 결제 금액 검증 (PG사에서 실제 결제된 금액과 요청 금액 비교)
+            if (payment.getAmount().intValue() != requestedAmount) {
+                throw new IllegalArgumentException("결제 금액이 일치하지 않습니다. 요청: " + requestedAmount + ", 실제: " + payment.getAmount().intValue());
+            }
+        
+            // 2. 결제 성공 여부 검증
+            if (!"paid".equals(payment.getStatus())) {
+                throw new IllegalStateException("결제가 완료되지 않았습니다.");
+            }
+        
+            // 3. 중복 결제 방지
+            if (paymentService.isAlreadyProcessed(imp_uid)) {
+                throw new IllegalStateException("이미 처리된 결제입니다.");
+            }
+            
+            // 3-1. merchant_uid 중복 체크
+            if (paymentService.isMerchantUidAlreadyUsed(merchantUid)) {
+                throw new IllegalStateException("이미 사용된 주문번호입니다: " + merchantUid);
+            }
+        
+            // 4. 사용자 검증
+            UserVO user = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+            if (user == null) {
+                throw new IllegalStateException("로그인이 필요합니다.");
+            }
+        
+            // 5. 발의자의 진행중인 결제 찾기
+            PaymentVO leaderPayment = paymentService.getLeaderPaymentByUserId(user.getUsersId());
+            if (leaderPayment == null) {
+                throw new IllegalStateException("진행중인 발의자 결제가 없습니다.");
+            }
+            
+            // pending 상태인지 확인
+            if (!"pending".equals(leaderPayment.getStatus())) {
+                throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
+            }
+        
+            // 6. 결제 정보 업데이트
+            updatePaymentWithIamportData(leaderPayment, payment, imp_uid, merchantUid);
+            paymentService.updatePayment(leaderPayment);
+            
+            // 7. 그룹 결제 상태 업데이트 (SSE 알림용)
+            groupPaymentManager.updatePaymentStatus(leaderPayment.getIntegratedpaymentId(), user.getUsersId(), "paid");
+        
+            response.put("success", true);
+            response.put("result", "success");
+            response.put("message", "결제가 성공적으로 완료되었습니다.");
+            response.put("imp_uid", imp_uid);
+            response.put("merchant_uid", merchantUid);
+            response.put("amount", requestedAmount);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("result", "error");
+            response.put("message", e.getMessage());
+            response.put("error_msg", e.getMessage());
         }
         
-        // 3-1. merchant_uid 중복 체크
-        if (paymentService.isMerchantUidAlreadyUsed(merchantUid)) {
-            throw new IllegalStateException("이미 사용된 주문번호입니다: " + merchantUid);
-        }
-    
-        // 4. 사용자 검증
-        UserVO user = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
-        if (user == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
-        }
-    
-        // 5. 발의자의 진행중인 결제 찾기
-        PaymentVO leaderPayment = paymentService.getLeaderPaymentByUserId(user.getUsersId());
-        if (leaderPayment == null) {
-            throw new IllegalStateException("진행중인 발의자 결제가 없습니다.");
-        }
-        
-        // pending 상태인지 확인
-        if (!"pending".equals(leaderPayment.getStatus())) {
-            throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
-        }
-    
-        // 6. 결제 정보 업데이트
-        updatePaymentWithIamportData(leaderPayment, payment, imp_uid, merchantUid);
-        paymentService.updatePayment(leaderPayment);
-        
-        // 7. 그룹 결제 상태 업데이트 (SSE 알림용)
-        groupPaymentManager.updatePaymentStatus(leaderPayment.getIntegratedpaymentId(), user.getUsersId(), "paid");
-    
-        return paymentResponse;
+        return response;
     }
 
     /**
@@ -126,7 +143,7 @@ public class PaymentController {
      * Payment ID로 직접 결제 처리
      */
     @PostMapping("/verify/{paymentId}")
-    public IamportResponse<Payment> verifyPayment(
+    public Map<String, Object> verifyPayment(
             @PathVariable("paymentId") int paymentId,
             @RequestParam("imp_uid") String imp_uid,
             @RequestParam("amount") int requestedAmount,
@@ -134,59 +151,76 @@ public class PaymentController {
             HttpSession session
     ) throws IamportResponseException, IOException {
     
-        IamportResponse<Payment> paymentResponse = iamportClient.paymentByImpUid(imp_uid);
-        Payment payment = paymentResponse.getResponse();
-    
-        // 1. 결제 금액 검증 (PG사에서 실제 결제된 금액과 요청 금액 비교)
-        if (payment.getAmount().intValue() != requestedAmount) {
-            throw new IllegalArgumentException("결제 금액이 일치하지 않습니다. 요청: " + requestedAmount + ", 실제: " + payment.getAmount().intValue());
-        }
-    
-        // 2. 결제 성공 여부 검증
-        if (!"paid".equals(payment.getStatus())) {
-            throw new IllegalStateException("결제가 완료되지 않았습니다.");
-        }
-    
-        // 3. 중복 결제 방지
-        if (paymentService.isAlreadyProcessed(imp_uid)) {
-            throw new IllegalStateException("이미 처리된 결제입니다.");
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            IamportResponse<Payment> paymentResponse = iamportClient.paymentByImpUid(imp_uid);
+            Payment payment = paymentResponse.getResponse();
+        
+            // 1. 결제 금액 검증 (PG사에서 실제 결제된 금액과 요청 금액 비교)
+            if (payment.getAmount().intValue() != requestedAmount) {
+                throw new IllegalArgumentException("결제 금액이 일치하지 않습니다. 요청: " + requestedAmount + ", 실제: " + payment.getAmount().intValue());
+            }
+        
+            // 2. 결제 성공 여부 검증
+            if (!"paid".equals(payment.getStatus())) {
+                throw new IllegalStateException("결제가 완료되지 않았습니다.");
+            }
+        
+            // 3. 중복 결제 방지
+            if (paymentService.isAlreadyProcessed(imp_uid)) {
+                throw new IllegalStateException("이미 처리된 결제입니다.");
+            }
+            
+            // 3-1. merchant_uid 중복 체크
+            if (paymentService.isMerchantUidAlreadyUsed(merchantUid)) {
+                throw new IllegalStateException("이미 사용된 주문번호입니다: " + merchantUid);
+            }
+        
+            // 4. 사용자 검증
+            UserVO user = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+            if (user == null) {
+                throw new IllegalStateException("로그인이 필요합니다.");
+            }
+        
+            // 5. Payment 정보 조회 및 검증
+            PaymentVO targetPayment = paymentService.getPaymentById(paymentId);
+            if (targetPayment == null) {
+                throw new IllegalStateException("결제 정보를 찾을 수 없습니다.");
+            }
+            
+            // 본인의 결제인지 확인
+            if (targetPayment.getUsersId() != user.getUsersId()) {
+                throw new IllegalStateException("본인의 결제가 아닙니다.");
+            }
+            
+            // pending 상태인지 확인
+            if (!"pending".equals(targetPayment.getStatus())) {
+                throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
+            }
+        
+            // 6. 결제 정보 업데이트
+            updatePaymentWithIamportData(targetPayment, payment, imp_uid, merchantUid);
+            paymentService.updatePayment(targetPayment);
+            
+            // 7. 그룹 결제 상태 업데이트 (SSE 알림용)
+            groupPaymentManager.updatePaymentStatus(targetPayment.getIntegratedpaymentId(), user.getUsersId(), "paid");
+        
+            response.put("success", true);
+            response.put("result", "success");
+            response.put("message", "결제가 성공적으로 완료되었습니다.");
+            response.put("imp_uid", imp_uid);
+            response.put("merchant_uid", merchantUid);
+            response.put("amount", requestedAmount);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("result", "error");
+            response.put("message", e.getMessage());
+            response.put("error_msg", e.getMessage());
         }
         
-        // 3-1. merchant_uid 중복 체크
-        if (paymentService.isMerchantUidAlreadyUsed(merchantUid)) {
-            throw new IllegalStateException("이미 사용된 주문번호입니다: " + merchantUid);
-        }
-    
-        // 4. 사용자 검증
-        UserVO user = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
-        if (user == null) {
-            throw new IllegalStateException("로그인이 필요합니다.");
-        }
-    
-        // 5. Payment 정보 조회 및 검증
-        PaymentVO targetPayment = paymentService.getPaymentById(paymentId);
-        if (targetPayment == null) {
-            throw new IllegalStateException("결제 정보를 찾을 수 없습니다.");
-        }
-        
-        // 본인의 결제인지 확인
-        if (targetPayment.getUsersId() != user.getUsersId()) {
-            throw new IllegalStateException("본인의 결제가 아닙니다.");
-        }
-        
-        // pending 상태인지 확인
-        if (!"pending".equals(targetPayment.getStatus())) {
-            throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
-        }
-    
-        // 6. 결제 정보 업데이트
-        updatePaymentWithIamportData(targetPayment, payment, imp_uid, merchantUid);
-        paymentService.updatePayment(targetPayment);
-        
-        // 7. 그룹 결제 상태 업데이트 (SSE 알림용)
-        groupPaymentManager.updatePaymentStatus(targetPayment.getIntegratedpaymentId(), user.getUsersId(), "paid");
-    
-        return paymentResponse;
+        return response;
     }
 
     // Iamport 결제 데이터로 PaymentVO 업데이트

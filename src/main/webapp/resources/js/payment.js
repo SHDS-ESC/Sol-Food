@@ -36,15 +36,17 @@ function requestPayment(options, callback) {
         
         if (response.success) {
             // 결제 성공 시 서버 검증
+            // verifyPayment에 콜백 전달
+            options.callback = callback;
             verifyPayment(response, options);
         } else {
             // 결제 실패
             showPaymentErrorAlert("결제 실패", response.error_msg || "결제 처리 중 오류가 발생했습니다.");
-        }
-        
-        // 원본 콜백이 있다면 실행
-        if (callback) {
-            callback(response);
+            
+            // 원본 콜백이 있다면 실행
+            if (callback) {
+                callback(response);
+            }
         }
     }
 
@@ -92,19 +94,46 @@ function verifyPayment(response, options) {
         success: function(verifyResponse) {
             console.log("결제 검증 응답:", verifyResponse);
             
-            if (verifyResponse.success) {
-                showPaymentSuccessAlert(
-                    "결제가 완료되었습니다!",
-                    "그룹 결제에 성공적으로 참여했습니다.",
-                    getContextPath() + "/user/cart/payment-complete"
-                );
+            // 서버 응답이 성공인 경우
+            if (verifyResponse && (verifyResponse.success || verifyResponse.result === 'success')) {
+                console.log("✅ 결제 검증 성공");
+                
+                // 원본 콜백이 있다면 성공 응답 전달
+                if (options.callback) {
+                    options.callback({
+                        success: true,
+                        imp_uid: response.imp_uid,
+                        merchant_uid: response.merchant_uid,
+                        paid_amount: response.paid_amount,
+                        verifyResponse: verifyResponse
+                    });
+                }
             } else {
-                showPaymentErrorAlert("결제 검증 실패", verifyResponse.message || "결제 검증 중 오류가 발생했습니다.");
+                console.log("❌ 결제 검증 실패");
+                showPaymentErrorAlert("결제 검증 실패", verifyResponse.message || verifyResponse.error_msg || "결제 검증 중 오류가 발생했습니다.");
+                
+                // 원본 콜백이 있다면 실패 응답 전달
+                if (options.callback) {
+                    options.callback({
+                        success: false,
+                        error_msg: verifyResponse.message || verifyResponse.error_msg || "결제 검증 실패"
+                    });
+                }
             }
         },
         error: function(xhr, status, error) {
             console.error("결제 검증 오류:", error);
+            console.error("응답 텍스트:", xhr.responseText);
+            
             showPaymentErrorAlert("결제 검증 실패", "서버와의 통신 중 오류가 발생했습니다.");
+            
+            // 원본 콜백이 있다면 실패 응답 전달
+            if (options.callback) {
+                options.callback({
+                    success: false,
+                    error_msg: "서버와의 통신 중 오류가 발생했습니다."
+                });
+            }
         }
     });
 }
@@ -238,8 +267,8 @@ function showPaymentSuccessAlert(title, text, nextPath) {
             title: title || "결제가 완료되었습니다!",
             text: text || "결제 완료 페이지로 이동합니다.",
             icon: "success",
-            confirmButtonText: "확인",
-            timer: 1500
+            confirmButtonText: "확인"
+            // timer 제거 - 자동 페이지 이동 방지
         }).then(function() {
             if (nextPath) {
                 window.location.replace(nextPath);

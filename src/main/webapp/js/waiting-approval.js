@@ -42,7 +42,7 @@ function initializePage() {
     }
 
     // 결제 상태 폴링 시작
-    startPaymentStatusMonitoring();
+    // startPaymentStatusMonitoring();
 
     updateProgress();
 }
@@ -566,7 +566,6 @@ function initializeUserStatus() {
 // 결제 완료 처리 (실제 결제 API 연동시 호출)
 function markPaymentComplete(friendId) {
     console.log('💰 결제 완료 처리:', friendId);
-    console.log('💰 markPaymentComplete 호출 스택:', new Error().stack);
     
     const friendElement = document.getElementById('friend-' + friendId);
     
@@ -767,7 +766,8 @@ function proceedToPayment(userId) {
     
     if (confirmPayment) {
         console.log('💳 confirm 확인됨, 결제 진행 시작');
-        // 결제 요청
+        
+        // 결제 요청 데이터 준비
         let amount = userAmount;
         let userEmail = window.currentUserEmail || 'user@example.com';
         let userNickname = window.currentUserNickname || '사용자';
@@ -810,7 +810,8 @@ function proceedToPayment(userId) {
         // 고유한 merchant_uid 생성 (사용자 ID + 타임스탬프 + 랜덤값)
         const uniqueMerchantUid = 'dutchpay_' + window.currentUserId + '_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2, 9);
         
-        window.requestPayment({
+        // payment.js의 requestPayment 함수 사용 (중복 검증 제거)
+        const paymentOptions = {
             impCode: window.impCode || 'imp00000000',
             pg: 'html5_inicis',
             pay_method: 'card',
@@ -820,66 +821,42 @@ function proceedToPayment(userId) {
             buyer_email: userEmail,
             buyer_name: userNickname,
             buyer_tel: userTel
-        }, function(rsp) {
+        };
+        
+        // 역할에 따른 옵션 추가
+        if (isParticipantView()) {
+            paymentOptions.role = 'participant';
+            paymentOptions.paymentId = currentUser.paymentId;
+        } else {
+            paymentOptions.role = 'leader';
+        }
+        
+        // requestPayment 호출 (내부적으로 verifyPayment까지 처리됨)
+        window.requestPayment(paymentOptions, function(rsp) {
             console.log("🎯 requestPayment 콜백 실행됨");
             console.log("결제 응답:", rsp);
-            console.log("응답 타입:", typeof rsp);
-            console.log("응답 키들:", Object.keys(rsp));
-            
-            // 역할에 따라 다른 API 사용
-            let apiPath;
-            let nextPath = UrlConstants.Builder.fullUrl("/user/mypage/payment-history");
-            
-            if (isParticipantView()) {
-                // 참여자: verify/{paymentId} API 사용
-                apiPath = UrlConstants.Builder.fullUrl(`/payments/payment/verify/${currentUser.paymentId}`);
-            } else {
-                // 발의자: leader-payment/verify API 사용
-                apiPath = UrlConstants.Builder.fullUrl("/payments/payment/leader-payment/verify");
-            }
             
             if (rsp.success) {
-                console.log("Ajax 요청 시작 - URL:", apiPath);
+                console.log("✅ 결제 성공 - UI 업데이트 시작");
                 
-                $.ajax({
-                    type: "POST",
-                    url: apiPath,
-                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",
-                    data: {
-                        imp_uid : rsp.imp_uid,
-                        amount: amount,
-                        merchant_uid: rsp.merchant_uid
-                    },
-                    success: function(data) {
-                        console.log("Ajax 성공:", data);
-                        
-                        // 주문 정보를 URL 파라미터로 전달
-                        const orderParams = new URLSearchParams({
-                            orderNumber: rsp.merchant_uid,
-                            storeName: '더치페이 주문',
-                            totalQuantity: '1',
-                            totalAmount: amount,
-                            paymentMethod: '카드'
-                        });
-                        
-                        // 공통 결제 완료 알림 함수 사용
-                        showPaymentSuccessAlert("결제가 완료되었습니다!", "결제 완료 페이지로 이동합니다.", nextPath);
-                    },
-                    error: function(xhr, status, error) {
-                        console.log("Ajax 실패 - Status:", status, "Error:", error);
-                        console.log("Response:", xhr.responseText);
-                        showPaymentErrorAlert("결제 검증 실패", "결제 검증에 실패했습니다.");
-                        
-                        // 결제 실패시 버튼 복원
-                        if (payBtn) {
-                            payBtn.textContent = '결제하기';
-                            payBtn.disabled = false;
-                            payBtn.style.background = '#28a745';
-                        }
-                    }
-                });
+                // 결제 완료 처리
+                markPaymentComplete(userId);
+                
+                // 모든 결제가 완료되었는지 확인
+                const actualTotalFriends = selectedFriendsData.length;
+                if (acceptedFriends === actualTotalFriends) {
+                    completeAllPayments();
+                }
+                
+                // 성공 알림 (타이머 없이, 사용자가 확인 버튼을 눌러야 이동)
+                showPaymentSuccessAlert(
+                    "결제가 완료되었습니다!", 
+                    "결제가 성공적으로 처리되었습니다.", 
+                    UrlConstants.Builder.fullUrl("/user/mypage/payment-history")
+                );
             } else {
-                showPaymentErrorAlert("결제 실패", rsp.error_msg);
+                console.log("❌ 결제 실패");
+                showPaymentErrorAlert("결제 실패", rsp.error_msg || "결제 처리 중 오류가 발생했습니다.");
                 
                 // 결제 실패시 버튼 복원
                 if (payBtn) {
