@@ -12,6 +12,7 @@ import kr.co.solfood.user.menu.MenuVO;
 import kr.co.solfood.util.CustomException;
 import kr.co.solfood.util.ErrorCode;
 import kr.co.solfood.util.PageMaker;
+import kr.co.solfood.user.cart.CartConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +52,11 @@ public class CartController {
 
     @Autowired
     private LoginService loginService;
+
+    @Autowired
+    private GroupPaymentManager groupPaymentManager;
+
+
 
     // 사용자별 초대 친구 목록을 저장하는 Map
     // 엔티티 삭제 필요. 만약 Key가 겹치는 경우엔 초기화 할 것인지 불러올 것인지 선택
@@ -100,6 +106,7 @@ public class CartController {
         UserVO user = getValidatedUser(session); // 로그인 검증만 필요
 
         // 만약 DB에 발의자로 결제 중인 결제가 있으면 waiting-approval 페이지로 이동
+        // (pending, paid 상태는 진행 중, completed 상태는 완료된 상태이므로 제외)
         IntegratedPaymentVO ongoingIntegratedPayment = integratedPaymentService.getOnGoingIntegratedPaymentByLeaderId(user.getUsersId());
         if (ongoingIntegratedPayment != null) {
             // waiting-approval 페이지에 필요한 데이터들을 Model에 추가
@@ -108,7 +115,8 @@ public class CartController {
             model.addAttribute("impCode", impCode);
             return UrlConstants.View.USER_CART_WAITING_APPROVAL;
         }
-
+        
+        // 진행 중인 결제가 없으면 일반 장바구니 페이지로 이동
         CartVO cart = cartService.getCart(session);
 
         // 각 메뉴의 옵션 정보 설정
@@ -196,12 +204,38 @@ public class CartController {
      * 수락 대기 페이지
      */
     @GetMapping("/waiting-approval")
-    public String waitingApprovalPage(HttpSession session, Model model, @Value("${imp.code}") String impCode) {
+    public String waitingApprovalPage(
+            @RequestParam(value = "role", defaultValue = "leader") String role,
+            @RequestParam(value = "paymentId", required = false) Integer paymentId,
+            HttpSession session, 
+            Model model, 
+            @Value("${imp.code}") String impCode) {
+        
         UserVO user = getValidatedUser(session);
         UserVO fullUser = loginService.getUserById(user.getUsersId());
 
+        // participant 역할인 경우 paymentId 검증
+        if ("participant".equals(role) && paymentId != null) {
+            PaymentVO payment = paymentService.getPaymentById(paymentId);
+            if (payment == null || payment.getUsersId() != user.getUsersId()) {
+                // 유효하지 않은 결제인 경우 에러 처리
+                throw new CustomException(ErrorCode.UNAUTHORIZED);
+            }
+        }
+        
+        // leader 역할이고 진행 중인 결제가 없으면 payment-history로 리다이렉트
+        if ("leader".equals(role)) {
+            IntegratedPaymentVO ongoingIntegratedPayment = integratedPaymentService.getOnGoingIntegratedPaymentByLeaderId(user.getUsersId());
+            if (ongoingIntegratedPayment == null) {
+                // 진행 중인 결제가 없으면 payment-history로 리다이렉트
+                return "redirect:" + UrlConstants.User.MYPAGE_BASE + "/payment-history";
+            }
+        }
+
         model.addAttribute("impCode", impCode);
         model.addAttribute(UrlConstants.Model.CURRENT_USER, fullUser);
+        model.addAttribute("userRole", role);
+        model.addAttribute("paymentId", paymentId);
         return UrlConstants.View.USER_CART_WAITING_APPROVAL;
     }
 
@@ -242,7 +276,7 @@ public class CartController {
         CartVO cart = cartService.getCart(session);
         int newStoreId = menuService.getMenuById(menuId).getStoreId();
         int cartStoreId = cart.getStoreId();
-        if (cartStoreId != newStoreId) {
+        if (cartStoreId != 0 && cartStoreId != newStoreId) {
             isOtherCart = true;
         }
 
@@ -353,12 +387,6 @@ public class CartController {
         response.put("cartStoreId", cartStoreId);
         response.put("requestedStoreId", storeId);
         
-        if (isDifferentStore) {
-            response.put("message", "다른 가게의 메뉴가 장바구니에 있습니다.");
-        } else {
-            response.put("message", "같은 가게의 메뉴입니다.");
-        }
-        
         return ResponseEntity.ok(response);
     }
 
@@ -368,14 +396,25 @@ public class CartController {
     @GetMapping("/count")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getCartItemCount(HttpSession session) {
-        getValidatedUser(session); // 로그인 검증만 필요
-
-        int count = cartService.getCartItemCount(session);
+        // 로그인하지 않은 경우 0 반환
+        UserVO user = (UserVO) session.getAttribute(UrlConstants.Session.USER_LOGIN_SESSION);
+        int count = 0;
+        
+        if (user != null) {
+            count = cartService.getCartItemCount(session);
+            log.info("장바구니 개수 조회: 사용자 {}, 개수: {}", user.getUsersId(), count);
+        } else {
+            log.info("장바구니 개수 조회: 로그인하지 않은 사용자, 개수: 0");
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put(CartConstants.JSON_COUNT, count);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .body(response);
     }
 
     /**
@@ -699,18 +738,9 @@ public class CartController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> submitBill(@RequestBody Map<String, Object> request, HttpSession session) {
         UserVO user = getValidatedUser(session);
-        List<UserVO> participants;
-        BillDTO billDTO = new BillDTO();
         Map<String, Object> response = new HashMap<>();
 
-        // 0. 진행중인 결제 존재 여부 체크 -> 중복 결제 및 다중 결제 생성을 막기 위함
-        // DB의 값을 기준으로 새로운 결제 페이지를 열도록 함.
-        IntegratedPaymentVO ongoingPayment = integratedPaymentService.getOnGoingIntegratedPaymentByLeaderId(user.getUsersId());
-        if (ongoingPayment != null) {
-            response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ONGOING_PAYMENT);
-            response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_FAILED_ONGOING_PAYMENT);
-        }
-        else {
+        try {
             // 1. session에서 cart 가져오기
             CartVO cart = cartService.getCart(session);
             if (cart == null || cart.isEmpty()) {
@@ -720,12 +750,13 @@ public class CartController {
             }
 
             // 2. controller의 inviteMap에서 참여자 목록 가져오기
-            participants = getParticipantDetails(user);
+            List<UserVO> participants = getParticipantDetails(user);
             int totalAmount = cart.getTotalAmount();
             int participantCount = participants.size();
             int amountPerPerson = participantCount > 0 ? totalAmount / participantCount : 0;
 
             // 3. BillDTO 생성
+            BillDTO billDTO = new BillDTO();
             billDTO.setLeaderId(user.getUsersId());
             billDTO.setTotalAmount(totalAmount);
             billDTO.setStoreId(cart.getStoreId());
@@ -740,19 +771,38 @@ public class CartController {
             // 4. billMap에 저장
             billMap.put(user.getUsersId(), billDTO);
 
-            // 5. DB 저장
-            // 5-1. 통합 결제 내역
-            int integratedPaymentId = integratedPaymentService.createIntegratedPayment(billDTO);
-            // 5-2. 개별 결제 내역 저장
+            // 5. DB 저장 (Race Condition 방지를 위한 중복 체크 포함)
+            Integer integratedPaymentId = integratedPaymentService.createIntegratedPaymentWithDuplicateCheck(billDTO);
+            
+            if (integratedPaymentId == null) {
+                // 중복 결제가 이미 존재하는 경우
+                response.put(CartConstants.JSON_RESULT, CartConstants.RESULT_ONGOING_PAYMENT);
+                response.put(CartConstants.JSON_MESSAGE, CartConstants.MSG_CART_ADD_FAILED_ONGOING_PAYMENT);
+                return ResponseEntity.ok(response);
+            }
+
+            // 6. 개별 결제 내역 저장
             paymentService.createPayment(billDTO, integratedPaymentId);
-            // 5-3. 결제 메뉴 저장
+            // 7. 결제 메뉴 저장
             integratedPaymentService.createPaymentMenu(billDTO.getCartItems(), integratedPaymentId);
-            // 5-4. 장바구니 정보 업데이트 (IntegratedPaymentId)
+            // 8. 장바구니 정보 업데이트 (IntegratedPaymentId)
             cart.setIntegratedPaymentId(integratedPaymentId);
+
+            // 9. 그룹 결제 상태 등록 (SSE 알림용)
+            Set<Long> participantIds = new HashSet<>();
+            for (UserVO participant : participants) {
+                participantIds.add(participant.getUsersId());
+            }
+            groupPaymentManager.registerGroupPayment(integratedPaymentId, user.getUsersId(), participantIds);
 
             response.put("result", "success");
             response.put("message", "영수증이 생성되었습니다.");
+            response.put("integratedPaymentId", integratedPaymentId);
 
+        } catch (Exception e) {
+            log.error("submit-bill 처리 중 오류 발생: {}", e.getMessage(), e);
+            response.put("result", "error");
+            response.put("message", "영수증 생성 중 오류가 발생했습니다.");
         }
 
         return ResponseEntity.ok(response);
@@ -802,22 +852,58 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
+
+
     /**
-     * SSE를 통한 결제 상태 모니터링
+     * 그룹 결제 취소 API
      */
-    @GetMapping(value = "/payment-status-stream")
-    public ResponseEntity<String> paymentStatusStream(HttpSession session) {
+    @PostMapping("/cancel-group-payment")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> cancelGroupPayment(
+            @RequestParam(required = false) Integer integratedPaymentId,
+            HttpSession session) {
         UserVO user = getValidatedUser(session);
+        
+        // integratedPaymentId가 없으면 사용자가 참여한 그룹 결제 찾기
+        if (integratedPaymentId == null) {
+            integratedPaymentId = groupPaymentManager.getParticipantGroupPaymentId(user.getUsersId());
+            if (integratedPaymentId == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "result", "error",
+                    "message", "참여 중인 그룹 결제를 찾을 수 없습니다."
+                ));
+            }
+        }
+        
+        // 그룹 결제 취소 처리
+        groupPaymentManager.cancelGroupPayment(integratedPaymentId, user.getUsersId());
+        
+        // DB에서도 취소 처리 (실제 결제 취소 로직은 별도 구현 필요)
+        // integratedPaymentService.cancelIntegratedPayment(integratedPaymentId);
+        
+        return ResponseEntity.ok(Map.of(
+            "result", "success",
+            "message", "그룹 결제가 취소되었습니다."
+        ));
+    }
 
-        // SSE 응답 생성
-        String sseData = "data: {\"type\": \"connected\", \"userId\": " + user.getUsersId() + "}\n\n";
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.valueOf("text/event-stream;charset=UTF-8"))
-                .header("Cache-Control", "no-cache")
-                .header("Connection", "keep-alive")
-                .header("Access-Control-Allow-Origin", "*")
-                .body(sseData);
+    /**
+     * 그룹 결제 완료 확인 API
+     */
+    @PostMapping("/complete-group-payment")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> completeGroupPayment(
+            @RequestParam Integer integratedPaymentId,
+            HttpSession session) {
+        UserVO user = getValidatedUser(session);
+        
+        // 그룹 결제 완료 처리
+        groupPaymentManager.completeGroupPayment(integratedPaymentId);
+        
+        return ResponseEntity.ok(Map.of(
+            "result", "success",
+            "message", "그룹 결제가 완료되었습니다."
+        ));
     }
 
     // =============================== 내부 메서드 ===============================
@@ -1198,11 +1284,20 @@ public class CartController {
 
         // 2. 참여자 정보 조회 (payment 테이블에서 usersId 추출 → UserVO 조회)
         List<PaymentVO> payments = paymentService.getPaymentsByIntegratedPaymentId(integratedPaymentId);
-        List<UserVO> participants = new ArrayList<>();
+        List<Map<String, Object>> participants = new ArrayList<>();
         for (PaymentVO payment : payments) {
             UserVO participant = loginService.getUserById(payment.getUsersId());
             if (participant != null) {
-                participants.add(participant);
+                Map<String, Object> participantInfo = new HashMap<>();
+                participantInfo.put("usersId", participant.getUsersId());
+                participantInfo.put("usersName", participant.getUsersName());
+                participantInfo.put("usersProfile", participant.getUsersProfile());
+                participantInfo.put("companyName", participant.getCompanyName());
+                participantInfo.put("departmentName", participant.getDepartmentName());
+                participantInfo.put("paymentAmount", payment.getAmount());
+                participantInfo.put("paymentStatus", payment.getStatus());
+                participantInfo.put("paymentId", payment.getPaymentId());
+                participants.add(participantInfo);
             }
         }
 
@@ -1221,22 +1316,35 @@ public class CartController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> respondToInvitation(
             @RequestParam String response, // "accept" 또는 "reject"
+            @RequestParam(required = false) Integer paymentId,
             HttpSession session) {
         UserVO user = getValidatedUser(session);
         long usersId = user.getUsersId();
         
-        // 사용자의 진행중인 결제 조회
-        List<PaymentVO> ongoingPayments = paymentService.getOngoingPaymentByUserId(usersId);
-        if (ongoingPayments == null || ongoingPayments.isEmpty()) {
+        List<PaymentVO> ongoingPayments;
+        PaymentVO selectedPayment;
+        
+        if (paymentId != null) {
+            // 특정 paymentId가 제공된 경우
+            selectedPayment = paymentService.getPaymentById(paymentId);
+                    if (selectedPayment == null || selectedPayment.getUsersId() != usersId) {
             Map<String, Object> res = new HashMap<>();
             res.put("result", "error");
-            res.put("message", "진행중인 결제가 없습니다.");
+            res.put("message", "유효하지 않은 결제입니다.");
             return ResponseEntity.ok(res);
         }
+        } else {
+            // 기존 로직: 사용자의 진행중인 결제 조회
+            ongoingPayments = paymentService.getOngoingPaymentByUserId(usersId);
+            if (ongoingPayments == null || ongoingPayments.isEmpty()) {
+                Map<String, Object> res = new HashMap<>();
+                res.put("result", "error");
+                res.put("message", "진행중인 결제가 없습니다.");
+                return ResponseEntity.ok(res);
+            }
+            selectedPayment = ongoingPayments.get(0);
+        }
         
-        // TODO: 사용자가 여러 개의 초대를 받았을 경우 선택 로직 필요
-        // 현재는 첫 번째 결제를 선택
-        PaymentVO selectedPayment = ongoingPayments.get(0);
         int integratedPaymentId = selectedPayment.getIntegratedpaymentId();
         IntegratedPaymentVO integratedPayment = integratedPaymentService.getIntegratedPaymentById(integratedPaymentId);
         
@@ -1250,5 +1358,6 @@ public class CartController {
         res.put("integratedPaymentId", integratedPaymentId);
         return ResponseEntity.ok(res);
     }
+
 
 }

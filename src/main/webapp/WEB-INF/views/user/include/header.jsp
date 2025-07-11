@@ -17,7 +17,7 @@
     >
       <i class="bi bi-moon"></i>
     </button>
-    <i class="bi bi-envelope active" style="font-size: 22px"></i>
+    <i class="bi bi-envelope active" id="invitation-btn" style="font-size: 22px; cursor: pointer;" onclick="goToInvitations()"></i>
     <i class="bi bi-list" id="all-menu-btn" style="font-size: 20px"></i>
   </div>
 </div>
@@ -41,4 +41,21 @@
 <script src="${pageContext.request.contextPath}/js/header.js"></script>
 <script>
   window.contextPath = '${pageContext.request.contextPath}';
+
+  // 인라인 이벤트 핸들러 함수
+  function goToInvitations() {
+    const url = window.contextPath + '/user/invitations';
+    window.location.href = url;
+  }
+
+  // DOM이 로드된 후 이벤트 리스너 추가
+  document.addEventListener('DOMContentLoaded', function() {
+    const invitationBtn = document.getElementById('invitation-btn');
+    if (invitationBtn) {
+      invitationBtn.addEventListener('click', function() {
+        const url = window.contextPath + '/user/invitations';
+        window.location.href = url;
+      });
+    }
+  });
 </script>

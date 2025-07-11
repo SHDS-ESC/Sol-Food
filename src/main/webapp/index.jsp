@@ -146,25 +146,9 @@
 <script src="<c:url value='/js/index.js' />"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        <c:if test="${not empty sessionScope.userLoginSession}">
-        fetchCartCount();
-        </c:if>
-
         // 배너 슬라이더 자동 전환
         initBannerSlider();
     });
-
-    function fetchCartCount() {
-        fetch(UrlConstants.Builder.fullUrl(UrlConstants.API.CART_COUNT))
-            .then(response => response.json())
-            .then(data => {
-                const count = data.count || 0;
-                SolFoodUtils.updateBadge('.cart-nav-badge', count);
-            })
-            .catch(error => {
-                console.log('장바구니 개수 조회 실패 (로그인하지 않은 경우 등):', error);
-            });
-    }
 
     // 배너 슬라이더 기능
     let currentSlideIndex = 0;

@@ -40,6 +40,39 @@ public class IntegratedPaymentServiceImpl implements IntegratedPaymentService {
         return integratedPayment.getIntegratedpaymentId();
     }
 
+    // 중복 체크를 포함한 통합 결제 생성 - null 반환 시 중복 존재
+    @Override
+    public Integer createIntegratedPaymentWithDuplicateCheck(BillDTO billDTO) {
+        // synchronized 블록으로 동시 접근 방지
+        synchronized (this) {
+            try {
+                // 1. 먼저 진행 중인 결제가 있는지 확인
+                IntegratedPaymentVO existingPayment = integratedPaymentMapper.selectOnGoingIntegratedPaymentByLeaderId(billDTO.getLeaderId());
+                if (existingPayment != null) {
+                    log.info("중복 결제 시도 감지: 발의자ID {}, 기존 통합결제ID {}", billDTO.getLeaderId(), existingPayment.getIntegratedpaymentId());
+                    return null; // 중복 존재
+                }
+
+                // 2. 새로운 통합 결제 생성
+                IntegratedPaymentVO integratedPayment = new IntegratedPaymentVO();
+                integratedPayment.setStoreId(billDTO.getStoreId());
+                integratedPayment.setIntegratedpaymentLeaderId((int) billDTO.getLeaderId());
+                integratedPayment.setIntegratedpaymentAmount(billDTO.getTotalAmount());
+                integratedPayment.setIntegratedpaymentPeople(billDTO.getUserBill().size());
+                integratedPayment.setIntegratedpaymentStatus("pending");
+
+                integratedPaymentMapper.insertIntegratedPayment(integratedPayment);
+
+                log.info("새로운 통합 결제 생성 완료: 발의자ID {}, 통합결제ID {}", billDTO.getLeaderId(), integratedPayment.getIntegratedpaymentId());
+                return integratedPayment.getIntegratedpaymentId();
+
+            } catch (Exception e) {
+                log.error("통합 결제 생성 중 오류 발생: 발의자ID {}, 오류: {}", billDTO.getLeaderId(), e.getMessage());
+                throw e; // 트랜잭션 롤백을 위해 예외 재발생
+            }
+        }
+    }
+
     @Override
     public void createPaymentMenu(List<CartItemVO> cartItems, int integratedPaymentId) {
         for (CartItemVO cartItem : cartItems) {

@@ -98,22 +98,34 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentMapper.selectPaymentById(paymentId);
     }
     
-         // 사용자ID로 발의자 결제 조회 (진행중인 것만)
-     @Override
-     public PaymentVO getLeaderPaymentByUserId(long userId) {
-         return paymentMapper.selectLeaderPaymentByUserId(userId);
-     }
-     
+    // 사용자ID로 발의자 결제 조회 (진행중인 것만)
+    @Override
+    public PaymentVO getLeaderPaymentByUserId(long userId) {
+        return paymentMapper.selectLeaderPaymentByUserId(userId);
+    }
+    
+    // 사용자별 진행중인 결제 조회 (만료 여부 포함)
+    @Override
+    public List<Map<String, Object>> getOngoingPaymentByUserIdWithExpiration(long userId) {
+        return paymentMapper.selectOngoingPaymentByUserIdWithExpiration(userId);
+    }
+
      // 통합결제ID로 가게ID 조회
      @Override
      public Integer getStoreIdByIntegratedPaymentId(int integratedPaymentId) {
          return paymentMapper.selectStoreIdByIntegratedPaymentId(integratedPaymentId);
      }
-     
+
      // 결제별 리뷰 작성 여부 확인
      @Override
      public boolean hasReviewForPayment(int paymentId, long userId) {
          return paymentMapper.hasReviewForPayment(paymentId, userId);
      }
      
+     // merchant_uid 중복 체크
+     @Override
+     public boolean isMerchantUidAlreadyUsed(String merchantUid) {
+         return paymentMapper.isMerchantUidAlreadyUsed(merchantUid);
+     }
+
  }
