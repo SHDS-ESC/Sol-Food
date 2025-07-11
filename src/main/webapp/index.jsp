@@ -16,7 +16,6 @@
     <link href="${pageContext.request.contextPath}/css/reset.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/index.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/main-improved.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 </head>
 <body>
@@ -43,7 +42,7 @@
                                 <span class="user-main-summary-point">
                                     <c:choose>
                                         <c:when test="${not empty sessionScope.userLoginSession.usersPoint}">
-                                            <fmt:formatNumber value="${sessionScope.userLoginSession.usersPoint}" pattern="#,#00"/>
+                                            <fmt:formatNumber value="${sessionScope.userLoginSession.usersPoint}" pattern="#,##0"/>
                                         </c:when>
                                         <c:otherwise>0</c:otherwise>
                                     </c:choose>
@@ -79,7 +78,7 @@
             <section class="popular-section">
                 <div class="section-header">
                     <h2 class="section-title">인기 식당 Top 10</h2>
-                    <button class="popular-more-btn" onclick="location.href='${pageContext.request.contextPath}/user/store/list?sort=like'" style="color:var(--color-black">
+                    <button class="popular-more-btn" onclick="location.href='${pageContext.request.contextPath}/user/store/list'" style="color:var(--color-black)">
                         <span>더보기</span>
                         <i class="bi bi-chevron-right"></i>
                     </button>
@@ -110,7 +109,7 @@
                             <div class="menu-subtitle">맛있는 음식을 주문하세요</div>
                         </div>
                     </a>
-                    <a class="menu-card secondary" href="#" onclick="alert('준비중입니다!')">
+                    <a class="menu-card secondary" onclick="location.href='${pageContext.request.contextPath}/user/board/list'" style="cursor: pointer;">
                         <div class="menu-icon">💬</div>
                         <div class="menu-content">
                             <div class="menu-title">커뮤니티</div>
@@ -142,7 +141,6 @@
 <script src="<c:url value='/js/urlConstants.js' />"></script>
 <script src="<c:url value='/js/common-utils.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
-<script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/darkmode.js' />"></script>
 <script src="<c:url value='/js/index.js' />"></script>
 <script>
