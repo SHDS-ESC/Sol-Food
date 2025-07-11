@@ -40,4 +40,8 @@ public interface AdminMapper {
     int getCommunityResponsesCount(CommunityRequestDto communityRequestDto);
 
     void deleteOwnerReview(long reviewId);
+
+    int getDistinctPaymentsCount(PaymentDistinctRequestDto paymentDistinctRequestDto);
+
+    List<PaymentDistinctResponseDto> getDistinctPayments(PaymentDistinctRequestDto paymentDistinctRequestDto);
 }
