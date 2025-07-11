@@ -33,12 +33,9 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
       <jsp:include page="../include/header.jsp" />
       <div class="content board-list">
         <ul class="feed"></ul>
-        <button class="btn submit" id="load-more-btn" style="display: none">
+        <button class="btn submit" id="load-more-btn" style="display: block">
           더보기
         </button>
-        <div id="loading-spinner" style="display: none; text-align: center">
-          로딩중...
-        </div>
         <div class="writeBtn">
           <a href="${pageContext.request.contextPath}/user/board/add">
             <i class="bi bi-plus" style="font-size: 20px"></i
@@ -57,8 +54,8 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
       const pageSize = 10;
 
       function loadBoardList() {
-        $("#load-more-btn").hide();
-        $("#loading-spinner").show();
+        // $("#load-more-btn").hide();
+        // $("#loading-spinner").show();
         $.ajax({
           url: contextPath + "/user/board/api/list",
           method: "GET",
@@ -128,17 +125,22 @@ uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
             });
 
             offset += pageSize;
-            if (!res.hasNext) {
-              $("#load-more-btn").hide();
-            } else {
-              $("#load-more-btn").show();
-            }
-            $("#loading-spinner").hide();
+            // if (!res.hasNext) {
+            //   console.log(res.hasNext);
+            //   console.log("더보기 없음");
+            //   $("#load-more-btn").hide();
+            // } else {
+            //   console.log(res.hasNext);
+            //   console.log("더보기 있음");
+
+            //   $("#load-more-btn").show();
+            // }
+            // $("#loading-spinner").hide();
           },
           error: function () {
             alert("서버 요청 실패");
-            $("#loading-spinner").hide();
-            $("#load-more-btn").show();
+            // $("#loading-spinner").hide();
+            // $("#load-more-btn").show();
           },
         });
       }
