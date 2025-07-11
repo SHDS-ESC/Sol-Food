@@ -28,6 +28,11 @@ uri="http://www.springframework.org/tags/form" %>
       href="${pageContext.request.contextPath}/css/mypage/non-user-mypage.css"
     />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    
+    <!-- Context Path 설정 -->
+    <script>
+        var contextPath = '${pageContext.request.contextPath}';
+    </script>
   </head>
   <body>
     <div class="wrap">

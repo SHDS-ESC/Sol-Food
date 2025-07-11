@@ -45,6 +45,13 @@ public final class UrlConstants {
         public static final String REVIEW_BASE = BASE + "/review";
         public static final String REVIEW_WRITE = REVIEW_BASE + "/write";
         public static final String REVIEW_EDIT = REVIEW_BASE + "/edit";
+        public static final String REVIEW_TEMP_WRITE = REVIEW_BASE + "/temp-write";
+        
+        // 카카오 로그인 관련
+        public static final String KAKAO_LOGIN = LOGIN_BASE + "/kakao-login";
+        
+        // 카카오 로그인 전체 URL (배포용)
+        public static final String KAKAO_LOGIN_FULL = "/user/login/kakao-login";
         
         // 찜 관련
         public static final String LIKE_BASE = BASE + "/like";
@@ -108,6 +115,7 @@ public final class UrlConstants {
         public static final String USER_MYPAGE = "user/login/mypage";
         public static final String USER_LOGIN_INFO = "user/login/info";
         public static final String USER_REVIEW_WRITE = "user/review/write";
+        public static final String USER_REVIEW_TEMP_WRITE = "user/review/temp-write";
         public static final String USER_CART = "user/cart/cart";
         public static final String USER_CART_PAYMENT_METHOD = "user/cart/payment-method";
         public static final String USER_CART_INVITE_FRIENDS = "user/cart/invite-friends";

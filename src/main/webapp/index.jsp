@@ -141,6 +141,7 @@
 <script src="<c:url value='/js/urlConstants.js' />"></script>
 <script src="<c:url value='/js/common-utils.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/cart.js' />?v=${pageContext.session.creationTime}"></script>
+<script src="<c:url value='/js/store.js' />?v=${pageContext.session.creationTime}"></script>
 <script src="<c:url value='/js/darkmode.js' />"></script>
 <script src="<c:url value='/js/index.js' />"></script>
 <script>
