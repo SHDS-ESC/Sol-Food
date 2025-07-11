@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.solfood.payments.common.CommonPaymentMapper">
+
+    <!-- 중복 결제 방지 (imp_uid 중복 체크) -->
+    <select id="isAlreadyProcessed" parameterType="string" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM (
+            SELECT charge_impuid FROM charge WHERE charge_impuid = #{imp_uid}
+            UNION ALL
+            SELECT payment_impuid FROM payment WHERE payment_impuid = #{imp_uid}
+        ) combined
+    </select>
+    
+    <!-- 충전 취소 후 업데이트 -->
+    <update id="updateChargeAfterCancel">
+        UPDATE charge 
+        SET charge_cancel_amount = #{cancel_amount},
+            charge_cancel_reason = #{cancel_reason},
+            charge_cancelled_at = NOW(),
+            charge_status = 'cancelled',
+            charge_updated_at = NOW()
+        WHERE charge_impuid = #{imp_uid}
+    </update>
+    
+    <!-- 결제 취소 후 업데이트 -->
+    <update id="updatePaymentAfterCancel">
+        UPDATE payment 
+        SET payment_cancel_amount = #{cancel_amount},
+            payment_cancel_reason = #{cancel_reason},
+            payment_cancelled_at = NOW(),
+            payment_status = 'cancelled',
+            payment_updated_at = NOW()
+        WHERE payment_impuid = #{imp_uid}
+    </update>
+    
+    <!-- 자동 타입 감지하여 취소 후 업데이트 -->
+    <update id="updateAnyPaymentAfterCancel">
+        UPDATE charge 
+        SET charge_cancel_amount = #{cancel_amount},
+            charge_cancel_reason = #{cancel_reason},
+            charge_cancelled_at = NOW(),
+            charge_status = 'cancelled',
+            charge_updated_at = NOW()
+        WHERE charge_impuid = #{imp_uid};
+        
+        UPDATE payment 
+        SET payment_cancel_amount = #{cancel_amount},
+            payment_cancel_reason = #{cancel_reason},
+            payment_cancelled_at = NOW(),
+            payment_status = 'cancelled',
+            payment_updated_at = NOW()
+        WHERE payment_impuid = #{imp_uid}
+    </update>
+    
+    <!-- 충전 정보 조회 -->
+    <select id="getChargeByImpUid" parameterType="string" resultType="kr.co.solfood.payments.charge.ChargeVO">
+        SELECT 
+            charge_id as chargeId,
+            users_id as usersId,
+            charge_impuid as impUid,
+            charge_merchant_uid as merchantUid,
+            charge_method as payMethod,
+            charge_pg_provider as pgProvider,
+            charge_pg_tid as pgTid,
+            charge_receipt_url as receiptUrl,
+            charge_status as status,
+            charge_status_detail as statusDetail,
+            charge_amount as amount,
+            charge_cancel_amount as cancelAmount,
+            charge_buyer_name as buyerName,
+            charge_buyer_email as buyerEmail,
+            charge_buyer_tel as buyerTel,
+            charge_fail_reason as failReason,
+            charge_cancel_reason as cancelReason,
+            charge_paid_at as paidAt,
+            charge_cancelled_at as cancelledAt,
+            charge_created_at as createdAt,
+            charge_updated_at as updatedAt
+        FROM charge 
+        WHERE charge_impuid = #{imp_uid}
+    </select>
+    
+    <!-- 결제 정보 조회 -->
+    <select id="getPaymentByImpUid" parameterType="string" resultType="kr.co.solfood.payments.payment.PaymentVO">
+        SELECT 
+            payment_id as paymentId,
+            users_id as usersId,
+            integratedpayment_id as integratedpaymentId,
+            payment_used_point as paymentUsedPoint,
+            payment_paid_amount as paymentPaidAmount,
+            payment_impuid as impUid,
+            payment_merchant_uid as merchantUid,
+            payment_method as payMethod,
+            payment_pg_provider as pgProvider,
+            payment_pg_tid as pgTid,
+            payment_receipt_url as receiptUrl,
+            payment_status as status,
+            payment_status_detail as statusDetail,
+            payment_amount as amount,
+            payment_cancel_amount as cancelAmount,
+            payment_buyer_name as buyerName,
+            payment_buyer_email as buyerEmail,
+            payment_buyer_tel as buyerTel,
+            payment_fail_reason as failReason,
+            payment_cancel_reason as cancelReason,
+            payment_paid_at as paidAt,
+            payment_cancelled_at as cancelledAt,
+            payment_created_at as createdAt,
+            payment_updated_at as updatedAt
+        FROM payment 
+        WHERE payment_impuid = #{imp_uid}
+    </select>
+    
+    <!-- 자동 타입 감지하여 결제 정보 조회 (충전 우선) -->
+    <select id="getAnyPaymentByImpUid" parameterType="string" resultType="kr.co.solfood.payments.charge.ChargeVO">
+        SELECT 
+            charge_id as chargeId,
+            users_id as usersId,
+            charge_impuid as impUid,
+            charge_merchant_uid as merchantUid,
+            charge_method as payMethod,
+            charge_pg_provider as pgProvider,
+            charge_pg_tid as pgTid,
+            charge_receipt_url as receiptUrl,
+            charge_status as status,
+            charge_status_detail as statusDetail,
+            charge_amount as amount,
+            charge_cancel_amount as cancelAmount,
+            charge_buyer_name as buyerName,
+            charge_buyer_email as buyerEmail,
+            charge_buyer_tel as buyerTel,
+            charge_fail_reason as failReason,
+            charge_cancel_reason as cancelReason,
+            charge_paid_at as paidAt,
+            charge_cancelled_at as cancelledAt,
+            charge_created_at as createdAt,
+            charge_updated_at as updatedAt
+        FROM charge 
+        WHERE charge_impuid = #{imp_uid}
+        
+        UNION ALL
+        
+        SELECT 
+            NULL as chargeId,
+            users_id as usersId,
+            payment_impuid as impUid,
+            payment_merchant_uid as merchantUid,
+            payment_method as payMethod,
+            payment_pg_provider as pgProvider,
+            payment_pg_tid as pgTid,
+            payment_receipt_url as receiptUrl,
+            payment_status as status,
+            payment_status_detail as statusDetail,
+            payment_amount as amount,
+            payment_cancel_amount as cancelAmount,
+            payment_buyer_name as buyerName,
+            payment_buyer_email as buyerEmail,
+            payment_buyer_tel as buyerTel,
+            payment_fail_reason as failReason,
+            payment_cancel_reason as cancelReason,
+            payment_paid_at as paidAt,
+            payment_cancelled_at as cancelledAt,
+            payment_created_at as createdAt,
+            payment_updated_at as updatedAt
+        FROM payment 
+        WHERE payment_impuid = #{imp_uid}
+        
+        LIMIT 1
+    </select>
+    
+    <!-- 충전 취소 시 사용자 포인트 차감 -->
+    <update id="updateUserPointAfterChargeCancel">
+        UPDATE users 
+        SET users_point = users_point - #{deduct_amount}
+        WHERE users_id = #{users_id}
+    </update>
+
+</mapper> 

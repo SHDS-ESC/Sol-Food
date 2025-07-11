@@ -12,6 +12,7 @@ import kr.co.solfood.user.menu.MenuVO;
 import kr.co.solfood.util.CustomException;
 import kr.co.solfood.util.ErrorCode;
 import kr.co.solfood.util.PageMaker;
+import kr.co.solfood.user.cart.CartConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -105,6 +106,7 @@ public class CartController {
         UserVO user = getValidatedUser(session); // 로그인 검증만 필요
 
         // 만약 DB에 발의자로 결제 중인 결제가 있으면 waiting-approval 페이지로 이동
+        // (pending, paid 상태는 진행 중, completed 상태는 완료된 상태이므로 제외)
         IntegratedPaymentVO ongoingIntegratedPayment = integratedPaymentService.getOnGoingIntegratedPaymentByLeaderId(user.getUsersId());
         if (ongoingIntegratedPayment != null) {
             // waiting-approval 페이지에 필요한 데이터들을 Model에 추가
@@ -113,7 +115,8 @@ public class CartController {
             model.addAttribute("impCode", impCode);
             return UrlConstants.View.USER_CART_WAITING_APPROVAL;
         }
-
+        
+        // 진행 중인 결제가 없으면 일반 장바구니 페이지로 이동
         CartVO cart = cartService.getCart(session);
 
         // 각 메뉴의 옵션 정보 설정
@@ -217,6 +220,15 @@ public class CartController {
             if (payment == null || payment.getUsersId() != user.getUsersId()) {
                 // 유효하지 않은 결제인 경우 에러 처리
                 throw new CustomException(ErrorCode.UNAUTHORIZED);
+            }
+        }
+        
+        // leader 역할이고 진행 중인 결제가 없으면 payment-history로 리다이렉트
+        if ("leader".equals(role)) {
+            IntegratedPaymentVO ongoingIntegratedPayment = integratedPaymentService.getOnGoingIntegratedPaymentByLeaderId(user.getUsersId());
+            if (ongoingIntegratedPayment == null) {
+                // 진행 중인 결제가 없으면 payment-history로 리다이렉트
+                return "redirect:" + UrlConstants.User.MYPAGE_BASE + "/payment-history";
             }
         }
 
@@ -1272,11 +1284,20 @@ public class CartController {
 
         // 2. 참여자 정보 조회 (payment 테이블에서 usersId 추출 → UserVO 조회)
         List<PaymentVO> payments = paymentService.getPaymentsByIntegratedPaymentId(integratedPaymentId);
-        List<UserVO> participants = new ArrayList<>();
+        List<Map<String, Object>> participants = new ArrayList<>();
         for (PaymentVO payment : payments) {
             UserVO participant = loginService.getUserById(payment.getUsersId());
             if (participant != null) {
-                participants.add(participant);
+                Map<String, Object> participantInfo = new HashMap<>();
+                participantInfo.put("usersId", participant.getUsersId());
+                participantInfo.put("usersName", participant.getUsersName());
+                participantInfo.put("usersProfile", participant.getUsersProfile());
+                participantInfo.put("companyName", participant.getCompanyName());
+                participantInfo.put("departmentName", participant.getDepartmentName());
+                participantInfo.put("paymentAmount", payment.getAmount());
+                participantInfo.put("paymentStatus", payment.getStatus());
+                participantInfo.put("paymentId", payment.getPaymentId());
+                participants.add(participantInfo);
             }
         }
 

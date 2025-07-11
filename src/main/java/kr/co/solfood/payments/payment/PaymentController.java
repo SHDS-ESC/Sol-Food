@@ -24,10 +24,15 @@ import kr.co.solfood.payments.integrated.IntegratedPaymentVO;
 import kr.co.solfood.payments.integrated.IntegratedPaymentService;
 import kr.co.solfood.user.login.LoginService;
 import kr.co.solfood.user.cart.GroupPaymentManager;
+import kr.co.solfood.user.cart.CartConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/payments/payment")
 public class PaymentController {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentController.class);
 
     private final PaymentService paymentService;
     private final IntegratedPaymentService integratedPaymentService;
@@ -109,9 +114,13 @@ public class PaymentController {
                 throw new IllegalStateException("진행중인 발의자 결제가 없습니다.");
             }
             
-            // pending 상태인지 확인
-            if (!"pending".equals(leaderPayment.getStatus())) {
-                throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
+            // pending 상태인지 확인 (completed 상태는 이미 완료된 상태이므로 결제 불가)
+            if (!CartConstants.PAYMENT_STATUS_PENDING.equals(leaderPayment.getStatus())) {
+                if (CartConstants.PAYMENT_STATUS_COMPLETED.equals(leaderPayment.getStatus())) {
+                    throw new IllegalStateException("이미 완료된 결제입니다.");
+                } else {
+                    throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
+                }
             }
         
             // 6. 결제 정보 업데이트
@@ -120,6 +129,9 @@ public class PaymentController {
             
             // 7. 그룹 결제 상태 업데이트 (SSE 알림용)
             groupPaymentManager.updatePaymentStatus(leaderPayment.getIntegratedpaymentId(), user.getUsersId(), "paid");
+            
+            // 8. 전체 결제 완료 여부 체크
+            boolean isAllCompleted = checkAndUpdateGroupPaymentStatus(leaderPayment.getIntegratedpaymentId());
         
             response.put("success", true);
             response.put("result", "success");
@@ -127,6 +139,8 @@ public class PaymentController {
             response.put("imp_uid", imp_uid);
             response.put("merchant_uid", merchantUid);
             response.put("amount", requestedAmount);
+            response.put("isAllCompleted", isAllCompleted);
+            response.put("integratedPaymentId", leaderPayment.getIntegratedpaymentId());
             
         } catch (Exception e) {
             response.put("success", false);
@@ -194,9 +208,13 @@ public class PaymentController {
                 throw new IllegalStateException("본인의 결제가 아닙니다.");
             }
             
-            // pending 상태인지 확인
+            // pending 상태인지 확인 (completed 상태는 이미 완료된 상태이므로 결제 불가)
             if (!"pending".equals(targetPayment.getStatus())) {
-                throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
+                if ("completed".equals(targetPayment.getStatus())) {
+                    throw new IllegalStateException("이미 완료된 결제입니다.");
+                } else {
+                    throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
+                }
             }
         
             // 6. 결제 정보 업데이트
@@ -205,6 +223,9 @@ public class PaymentController {
             
             // 7. 그룹 결제 상태 업데이트 (SSE 알림용)
             groupPaymentManager.updatePaymentStatus(targetPayment.getIntegratedpaymentId(), user.getUsersId(), "paid");
+            
+            // 8. 전체 결제 완료 여부 체크
+            boolean isAllCompleted = checkAndUpdateGroupPaymentStatus(targetPayment.getIntegratedpaymentId());
         
             response.put("success", true);
             response.put("result", "success");
@@ -212,6 +233,8 @@ public class PaymentController {
             response.put("imp_uid", imp_uid);
             response.put("merchant_uid", merchantUid);
             response.put("amount", requestedAmount);
+            response.put("isAllCompleted", isAllCompleted);
+            response.put("integratedPaymentId", targetPayment.getIntegratedpaymentId());
             
         } catch (Exception e) {
             response.put("success", false);
@@ -221,6 +244,37 @@ public class PaymentController {
         }
         
         return response;
+    }
+    
+    /**
+     * 전체 결제 완료 여부를 체크하고 통합결제 상태를 업데이트
+     * @param integratedPaymentId 통합결제 ID
+     * @return 모든 참여자가 결제 완료되었는지 여부
+     */
+    private boolean checkAndUpdateGroupPaymentStatus(int integratedPaymentId) {
+        try {
+            // 해당 통합결제의 모든 개별결제 조회
+            List<PaymentVO> allPayments = paymentService.getPaymentsByIntegratedPaymentId(integratedPaymentId);
+            
+            // 모든 결제가 완료되었는지 확인
+            boolean allCompleted = allPayments.stream()
+                    .allMatch(payment -> "paid".equals(payment.getStatus()) || 
+                                        CartConstants.PAYMENT_STATUS_COMPLETED.equals(payment.getStatus()) ||
+                                        (payment.getAmount() == 0 && CartConstants.PAYMENT_STATUS_PENDING.equals(payment.getStatus())));
+            
+            if (allCompleted) {
+                // 모든 결제가 완료되면 통합결제 상태를 'completed'로 업데이트
+                integratedPaymentService.processDutchPaySuccess(integratedPaymentId);
+                return true;
+            }
+            
+            return false;
+            
+        } catch (Exception e) {
+            // 로그만 남기고 false 반환 (결제 자체는 성공했으므로)
+            log.error("전체 결제 상태 체크 중 오류: {}", e.getMessage(), e);
+            return false;
+        }
     }
 
     // Iamport 결제 데이터로 PaymentVO 업데이트

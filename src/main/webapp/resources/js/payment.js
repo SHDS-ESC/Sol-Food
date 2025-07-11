@@ -21,7 +21,7 @@
  */
 function requestPayment(options, callback) {
     if (!window.IMP) {
-        showErrorPopup("아임포트 라이브러리가 로드되지 않았습니다.");
+        showPaymentErrorAlert("라이브러리 오류", "아임포트 라이브러리가 로드되지 않았습니다.");
         return;
     }
     var IMP = window.IMP;
@@ -151,8 +151,9 @@ function getContextPath() {
  * @param {string} impUid - 아임포트 결제 고유번호
  * @param {number} cancelAmount - 취소 금액 (null이면 전액 취소)
  * @param {string} cancelReason - 취소 사유
+ * @param {string} paymentType - 결제 타입 ("charge" 또는 "payment")
  */
-function cancelPayment(impUid, cancelAmount, cancelReason) {
+function cancelPayment(impUid, cancelAmount, cancelReason, paymentType) {
     if (!confirm('정말로 결제를 취소하시겠습니까?')) {
         return;
     }
@@ -160,25 +161,26 @@ function cancelPayment(impUid, cancelAmount, cancelReason) {
     const requestData = {
         imp_uid: impUid,
         cancel_amount: cancelAmount,
-        cancel_reason: cancelReason || '고객 요청'
+        cancel_reason: cancelReason || '고객 요청',
+        payment_type: paymentType // "charge" 또는 "payment"
     };
 
     $.ajax({
-        url: getContextPath() + '/payments/charge/cancel',
+        url: getContextPath() + '/payments/common/cancel',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify(requestData),
         success: function(response) {
             if (response.success) {
-                showSuccessPopup('결제가 성공적으로 취소되었습니다.');
+                showPaymentSuccessAlert('취소 완료', '결제가 성공적으로 취소되었습니다.');
                 // 페이지 새로고침 또는 내역 업데이트
                 location.reload();
             } else {
-                showErrorPopup('결제 취소 실패: ' + response.message);
+                showPaymentErrorAlert('취소 실패', '결제 취소 실패: ' + response.message);
             }
         },
         error: function(xhr, status, error) {
-            showErrorPopup('결제 취소 처리 중 오류가 발생했습니다: ' + error);
+            showPaymentErrorAlert('오류', '결제 취소 처리 중 오류가 발생했습니다: ' + error);
         }
     });
 }
@@ -187,26 +189,31 @@ function cancelPayment(impUid, cancelAmount, cancelReason) {
  * 결제 취소 가능 여부 확인
  * @param {string} impUid - 아임포트 결제 고유번호
  * @param {function} callback - 확인 후 실행할 콜백 함수
+ * @param {string} paymentType - 결제 타입 ("charge" 또는 "payment")
  */
-function checkCancelable(impUid, callback) {
+function checkCancelable(impUid, callback, paymentType) {
+    const url = getContextPath() + '/payments/common/cancel/check/' + impUid;
+    const params = paymentType ? { payment_type: paymentType } : {};
+    
     $.ajax({
-        url: getContextPath() + '/payments/charge/cancel/check/' + impUid,
+        url: url,
         type: 'GET',
+        data: params,
         success: function(response) {
             if (response.success) {
                 if (response.can_cancel) {
                     if (callback) {
-                        callback(response.charge_info, response.cancelable_amount);
+                        callback(response.payment_info, response.cancelable_amount);
                     }
                 } else {
-                    showWarningPopup('이미 취소되었거나 취소할 수 없는 결제입니다.');
+                    showPaymentErrorAlert('취소 불가', '이미 취소되었거나 취소할 수 없는 결제입니다.');
                 }
             } else {
-                showErrorPopup('취소 가능 여부 확인 실패: ' + response.message);
+                showPaymentErrorAlert('확인 실패', '취소 가능 여부 확인 실패: ' + response.message);
             }
         },
         error: function(xhr, status, error) {
-            showErrorPopup('취소 가능 여부 확인 중 오류가 발생했습니다: ' + error);
+            showPaymentErrorAlert('오류', '취소 가능 여부 확인 중 오류가 발생했습니다: ' + error);
         }
     });
 }
@@ -215,8 +222,9 @@ function checkCancelable(impUid, callback) {
  * 부분 환불 처리
  * @param {string} impUid - 아임포트 결제 고유번호
  * @param {number} maxAmount - 최대 환불 가능 금액
+ * @param {string} paymentType - 결제 타입 ("charge" 또는 "payment")
  */
-function partialRefund(impUid, maxAmount) {
+function partialRefund(impUid, maxAmount, paymentType) {
     const refundAmount = prompt('환불할 금액을 입력하세요 (최대: ' + maxAmount + '원)');
     
     if (refundAmount === null) {
@@ -225,12 +233,20 @@ function partialRefund(impUid, maxAmount) {
     
     const amount = parseInt(refundAmount);
     if (isNaN(amount) || amount <= 0) {
-        showWarningPopup('올바른 금액을 입력해주세요.');
+        if (typeof showWarningPopup === 'function') {
+            showWarningPopup('올바른 금액을 입력해주세요.');
+        } else {
+            alert('올바른 금액을 입력해주세요.');
+        }
         return;
     }
     
     if (amount > maxAmount) {
-        showWarningPopup('환불 가능 금액을 초과했습니다.');
+        if (typeof showWarningPopup === 'function') {
+            showWarningPopup('환불 가능 금액을 초과했습니다.');
+        } else {
+            alert('환불 가능 금액을 초과했습니다.');
+        }
         return;
     }
     
@@ -239,31 +255,33 @@ function partialRefund(impUid, maxAmount) {
         return; // 취소
     }
     
-    cancelPayment(impUid, amount, reason);
+    cancelPayment(impUid, amount, reason, paymentType);
 }
 
 /**
  * 전액 취소 처리
  * @param {string} impUid - 아임포트 결제 고유번호
+ * @param {string} paymentType - 결제 타입 ("charge" 또는 "payment")
  */
-function fullRefund(impUid) {
+function fullRefund(impUid, paymentType) {
     const reason = prompt('취소 사유를 입력하세요');
     if (reason === null) {
         return; // 취소
     }
     
-    cancelPayment(impUid, null, reason); // null은 전액 취소를 의미
+    cancelPayment(impUid, null, reason, paymentType); // null은 전액 취소를 의미
 }
 
 /**
  * SweetAlert2를 사용한 결제 완료 알림
  * @param {string} title - 알림 제목
  * @param {string} text - 알림 내용
- * @param {string} nextPath - 이동할 경로
+ * @param {string} nextPath - 이동할 경로 (null이면 이동하지 않음)
+ * @returns {Promise} 알림이 닫힐 때 resolve되는 Promise
  */
 function showPaymentSuccessAlert(title, text, nextPath) {
     if (typeof Swal !== 'undefined') {
-        Swal.fire({
+        return Swal.fire({
             title: title || "결제가 완료되었습니다!",
             text: text || "결제 완료 페이지로 이동합니다.",
             icon: "success",
@@ -274,11 +292,20 @@ function showPaymentSuccessAlert(title, text, nextPath) {
                 window.location.replace(nextPath);
             }
         });
-    } else {
+    } else if (typeof showSuccessPopup === 'function') {
         showSuccessPopup(title || "결제가 완료되었습니다!");
         if (nextPath) {
             window.location.replace(nextPath);
         }
+        // Promise를 반환하도록 수정
+        return Promise.resolve();
+    } else {
+        // fallback: 기본 alert 사용
+        alert(title || "결제가 완료되었습니다!");
+        if (nextPath) {
+            window.location.replace(nextPath);
+        }
+        return Promise.resolve();
     }
 }
 
@@ -295,7 +322,10 @@ function showPaymentErrorAlert(title, text) {
             icon: "error",
             confirmButtonText: "확인"
         });
-    } else {
+    } else if (typeof showErrorPopup === 'function') {
         showErrorPopup(title || "결제 실패: " + (text || "결제 처리 중 오류가 발생했습니다."));
+    } else {
+        // fallback: 기본 alert 사용
+        alert((title || "결제 실패") + ": " + (text || "결제 처리 중 오류가 발생했습니다."));
     }
 } 

@@ -2,6 +2,7 @@ package kr.co.solfood.user.cart;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import kr.co.solfood.user.cart.CartConstants;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -61,7 +62,7 @@ public class GroupPaymentManager {
          */
         public boolean isAllPaymentsCompleted() {
             return paymentStatus.values().stream()
-                    .allMatch(status -> "paid".equals(status) || "free".equals(status));
+                    .allMatch(status -> "paid".equals(status) || CartConstants.PAYMENT_STATUS_COMPLETED.equals(status) || "free".equals(status));
         }
         
         /**
@@ -69,7 +70,7 @@ public class GroupPaymentManager {
          */
         public int getCompletedPaymentCount() {
             return (int) paymentStatus.values().stream()
-                    .filter(status -> "paid".equals(status) || "free".equals(status))
+                    .filter(status -> "paid".equals(status) || CartConstants.PAYMENT_STATUS_COMPLETED.equals(status) || "free".equals(status))
                     .count();
         }
     }

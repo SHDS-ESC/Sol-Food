@@ -45,6 +45,54 @@ function initializePage() {
     // startPaymentStatusMonitoring();
 
     updateProgress();
+    
+    // 초기 로드 시 전체 결제 완료 여부 체크
+    setTimeout(() => {
+        checkInitialPaymentStatus();
+    }, 1000); // 1초 후 체크
+}
+
+/**
+ * 초기 로드 시 전체 결제 완료 여부 체크
+ */
+async function checkInitialPaymentStatus() {
+    console.log('🔍 초기 결제 상태 체크 시작');
+    
+    try {
+        // 역할에 따라 다른 API 호출
+        let apiUrl;
+        if (isParticipantView()) {
+            apiUrl = window.UrlConstants.Builder.fullUrl(`/payments/payment/${window.paymentId}`);
+        } else {
+            apiUrl = window.UrlConstants.Builder.fullUrl('/user/cart/waiting-approval-data');
+        }
+        
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        if (data.result === 'success' || data.success) {
+            if (data.participants && data.participants.length > 0) {
+                updateParticipantsFromResponse(data);
+                
+                // 전체 결제 완료 여부 확인
+                const isAllCompleted = checkAllPaymentsCompleted();
+                
+                if (isAllCompleted) {
+                    console.log('🎉 초기 체크: 모든 결제 완료!');
+                    changeRefreshButtonToPaymentHistory();
+                }
+            }
+        } else {
+            // 진행 중인 결제가 없으면 payment-history로 리다이렉트
+            if (data.result === 'error' && data.message === '진행 중인 결제가 없습니다.') {
+                console.log('🔍 초기 체크: 진행 중인 결제가 없음, payment-history로 리다이렉트');
+                window.location.href = UrlConstants.Builder.fullUrl('/user/mypage/payment-history');
+                return;
+            }
+        }
+    } catch (error) {
+        console.error('❌ 초기 결제 상태 체크 오류:', error);
+    }
 }
 
 // 페이지 로드 시 선택된 친구들 정보 로드
@@ -66,11 +114,18 @@ async function loadWaitingApprovalData() {
         const res = await fetch(apiUrl);
         const data = await res.json();
         if (data.result === 'success' && data.participants && data.participants.length > 0) {
+            // 발의자 역할: API에서 받은 데이터를 그대로 사용 (이제 paymentStatus 포함)
             selectedFriendsData = data.participants;
             totalAmount = data.totalAmount;
             displayFriends();
             updateTotalAmountDisplay();
         } else {
+            // 진행 중인 결제가 없으면 payment-history로 리다이렉트
+            if (data.result === 'error' && data.message === '진행 중인 결제가 없습니다.') {
+                console.log('🔍 진행 중인 결제가 없음, payment-history로 리다이렉트');
+                window.location.href = UrlConstants.Builder.fullUrl('/user/mypage/payment-history');
+                return;
+            }
             displayNoFriends();
         }
     } catch (error) {
@@ -234,7 +289,7 @@ function updateFriendDisplayWithAmounts() {
                 }
                 
                 // 결제 상태에 따른 UI 업데이트
-                if (paymentStatus === 'paid' || amount === 0) {
+                if (paymentStatus === 'paid' || paymentStatus === 'completed' || amount === 0) {
                     if (payBtn) {
                         payBtn.style.display = 'none';
                     }
@@ -277,8 +332,9 @@ function updateFriendDisplayWithAmounts() {
                 }
             }
         } else {
-            // 발의자 화면: 기존 로직 유지
+            // 발의자 화면: paymentStatus와 splitAmounts 모두 고려
             const amount = splitAmounts[friend.usersId] || 0;
+            const paymentStatus = friend.paymentStatus || 'pending';
             
             if (friendElement) {
                 const amountElement = friendElement.querySelector('.friend-amount');
@@ -295,34 +351,32 @@ function updateFriendDisplayWithAmounts() {
                     }
                 }
                 
-                // 0원인 경우 결제 버튼 숨기고 무료 표시
-                if (amount === 0) {
+                // 결제 상태에 따른 UI 업데이트 (paid, completed, 무료)
+                if (paymentStatus === 'paid' || paymentStatus === 'completed' || amount === 0) {
                     if (payBtn) {
                         payBtn.style.display = 'none';
                     }
                     if (statusBadge) {
                         statusBadge.className = 'status-badge status-accepted';
-                        statusBadge.textContent = '무료';
+                        statusBadge.textContent = amount === 0 ? '무료' : '결제 완료';
                         statusBadge.style.background = '#28a745';
                     }
                     
-                    // 무료 사용자는 자동으로 결제 완료 처리
-                    setTimeout(() => {
-                        if (!friendElement.classList.contains('payment-completed')) {
-                            friendElement.classList.add('payment-completed');
-                            friendElement.style.background = '#d4edda';
-                            friendElement.style.borderLeft = '4px solid #28a745';
-                            
-                            acceptedFriends++;
-                            updateProgress();
-                            
-                            if (statusBadge) {
-                                addCheckIcon(statusBadge);
-                            }
+                    // 결제 완료된 사용자는 자동으로 완료 처리
+                    if (!friendElement.classList.contains('payment-completed')) {
+                        friendElement.classList.add('payment-completed');
+                        friendElement.style.background = '#d4edda';
+                        friendElement.style.borderLeft = '4px solid #28a745';
+                        
+                        acceptedFriends++;
+                        updateProgress();
+                        
+                        if (statusBadge) {
+                            addCheckIcon(statusBadge);
                         }
-                    }, 500);
+                    }
                 } else {
-                    // 0원이 아닌 경우 결제 버튼 표시
+                    // 결제 대기 중인 경우
                     if (payBtn) {
                         payBtn.style.display = 'inline-block';
                     }
@@ -335,6 +389,13 @@ function updateFriendDisplayWithAmounts() {
             }
         }
     });
+    
+    // 모든 결제가 완료되었는지 확인하고 버튼 변경
+    const isAllCompleted = checkAllPaymentsCompleted();
+    if (isAllCompleted) {
+        console.log('🎉 updateFriendDisplayWithAmounts: 모든 결제 완료!');
+        changeRefreshButtonToPaymentHistory();
+    }
 }
 
 function createFriendElement(friend, index) {
@@ -479,10 +540,10 @@ function createFriendElement(friend, index) {
     if (isParticipant) {
         // 참여자 화면: paymentStatus 기반으로 상태 표시
         const paymentStatus = friend.paymentStatus || 'pending';
-        if (paymentStatus === 'paid') {
-            statusBadge.className = 'status-badge status-accepted';
-            statusBadge.textContent = '결제 완료';
-            statusBadge.style.background = '#28a745';
+                        if (paymentStatus === 'paid' || paymentStatus === 'completed') {
+                    statusBadge.className = 'status-badge status-accepted';
+                    statusBadge.textContent = paymentStatus === 'completed' ? '그룹 완료' : '결제 완료';
+                    statusBadge.style.background = '#28a745';
             
             // 결제 완료된 사용자는 자동으로 완료 처리
             div.classList.add('payment-completed');
@@ -517,16 +578,45 @@ function createFriendElement(friend, index) {
             }
         }
     } else {
-        // 발의자 화면: 기존 로직 유지
-        if (isCurrentUser) {
-            statusBadge.className = 'status-badge status-ready';
-            statusBadge.textContent = '결제 대기';
-            statusBadge.style.background = '#17a2b8';
-            statusBadge.innerHTML = '결제 대기 <i class="bi bi-person" style="margin-left: 5px; font-size: 10px;"></i>';
+        // 발의자 화면: paymentStatus 기반으로 상태 표시
+        const paymentStatus = friend.paymentStatus || 'pending';
+        
+        if (paymentStatus === 'paid' || paymentStatus === 'completed') {
+            statusBadge.className = 'status-badge status-accepted';
+            statusBadge.textContent = paymentStatus === 'completed' ? '그룹 완료' : '결제 완료';
+            statusBadge.style.background = '#28a745';
+            
+            // 결제 완료된 사용자는 자동으로 완료 처리
+            div.classList.add('payment-completed');
+            div.style.background = '#d4edda';
+            div.style.borderLeft = '4px solid #28a745';
+            
+            if (payBtn) {
+                payBtn.style.display = 'none';
+            }
+            
+            addCheckIcon(statusBadge);
+        } else if (friend.paymentAmount === 0 || (splitAmounts[friend.usersId] === 0)) {
+            statusBadge.className = 'status-badge status-accepted';
+            statusBadge.textContent = '무료';
+            statusBadge.style.background = '#28a745';
+            
+            if (payBtn) {
+                payBtn.style.display = 'none';
+            }
+            
+            addCheckIcon(statusBadge);
         } else {
-            statusBadge.className = 'status-badge status-waiting';
-            statusBadge.textContent = '결제 대기중';
-            statusBadge.style.background = '#6c757d';
+            if (isCurrentUser) {
+                statusBadge.className = 'status-badge status-ready';
+                statusBadge.textContent = '결제 대기';
+                statusBadge.style.background = '#17a2b8';
+                statusBadge.innerHTML = '결제 대기 <i class="bi bi-person" style="margin-left: 5px; font-size: 10px;"></i>';
+            } else {
+                statusBadge.className = 'status-badge status-waiting';
+                statusBadge.textContent = '결제 대기중';
+                statusBadge.style.background = '#6c757d';
+            }
         }
     }
     
@@ -552,11 +642,13 @@ function initializeUserStatus() {
         if (isParticipant) {
             // 참여자 화면: paymentStatus 기반으로 acceptedFriends 계산
             acceptedFriends = selectedFriendsData.filter(friend => 
-                friend.paymentStatus === 'paid' || friend.paymentAmount === 0
+                friend.paymentStatus === 'paid' || friend.paymentStatus === 'completed' || friend.paymentAmount === 0
             ).length;
         } else {
-            // 발의자 화면: 기존 로직 유지
-            acceptedFriends = 0;
+            // 발의자 화면: paymentStatus 기반으로 acceptedFriends 계산 (이제 paymentStatus 정보가 있음)
+            acceptedFriends = selectedFriendsData.filter(friend => 
+                friend.paymentStatus === 'paid' || friend.paymentStatus === 'completed' || friend.paymentAmount === 0
+            ).length;
         }
     }
     
@@ -596,6 +688,7 @@ function markPaymentComplete(friendId) {
         const actualTotalFriends = selectedFriendsData.length;
         if (acceptedFriends === actualTotalFriends) {
             completeAllPayments();
+            changeRefreshButtonToPaymentHistory();
         }
     }
 }
@@ -839,21 +932,70 @@ function proceedToPayment(userId) {
             if (rsp.success) {
                 console.log("✅ 결제 성공 - UI 업데이트 시작");
                 
-                // 결제 완료 처리
+                // 결제 완료 처리 (현재 사용자의 결제 상태를 먼저 업데이트)
                 markPaymentComplete(userId);
                 
-                // 모든 결제가 완료되었는지 확인
-                const actualTotalFriends = selectedFriendsData.length;
-                if (acceptedFriends === actualTotalFriends) {
-                    completeAllPayments();
+                // 현재 사용자의 결제 상태를 즉시 업데이트
+                const currentUser = selectedFriendsData.find(friend => friend.usersId == userId);
+                if (currentUser) {
+                    currentUser.paymentStatus = 'paid';
+                    console.log("🔄 현재 사용자 결제 상태 즉시 업데이트:", {
+                        userId: userId,
+                        name: currentUser.usersName,
+                        status: currentUser.paymentStatus
+                    });
                 }
                 
-                // 성공 알림 (타이머 없이, 사용자가 확인 버튼을 눌러야 이동)
-                showPaymentSuccessAlert(
-                    "결제가 완료되었습니다!", 
-                    "결제가 성공적으로 처리되었습니다.", 
-                    UrlConstants.Builder.fullUrl("/user/mypage/payment-history")
-                );
+                // 서버에서 전체 결제 완료 여부 확인
+                const isAllCompleted = rsp.isAllCompleted || false;
+                console.log("🔍 서버 응답의 전체 결제 완료 여부:", isAllCompleted);
+                
+                // 클라이언트에서도 전체 결제 완료 여부 재확인 (현재 사용자 상태 업데이트 후)
+                const clientAllCompleted = checkAllPaymentsCompleted();
+                console.log("🔍 클라이언트 확인 전체 결제 완료 여부:", clientAllCompleted);
+                
+                // 서버 또는 클라이언트 중 하나라도 완료로 판단하면 완료 처리
+                const finalAllCompleted = isAllCompleted || clientAllCompleted;
+                console.log("🔍 최종 전체 결제 완료 여부:", finalAllCompleted);
+                
+                if (finalAllCompleted) {
+                    // 모든 결제가 완료된 경우
+                    console.log("🎉 모든 결제 완료!");
+                    completeAllPayments();
+                    changeRefreshButtonToPaymentHistory();
+                    
+                    // 성공 알림 후 payment-history로 이동
+                    showPaymentSuccessAlert(
+                        "모든 결제가 완료되었습니다!", 
+                        "그룹 결제가 성공적으로 완료되었습니다.", 
+                        UrlConstants.Builder.fullUrl("/user/mypage/payment-history")
+                    );
+                } else {
+                    // 아직 다른 참여자들의 결제가 남은 경우
+                    console.log("⏳ 다른 참여자들의 결제 대기 중...");
+                    
+                    // 성공 알림 (페이지 이동 없이)
+                    const alertPromise = showPaymentSuccessAlert(
+                        "결제가 완료되었습니다!", 
+                        "다른 참여자들의 결제를 기다리는 중입니다.", 
+                        null // 페이지 이동하지 않음
+                    );
+                    
+                    // Promise가 반환되는 경우에만 then 체인 사용
+                    if (alertPromise && typeof alertPromise.then === 'function') {
+                        alertPromise.then(() => {
+                            // 알림 닫힌 후 결제 상태 새로고침 (페이지 새로고침 대신)
+                            console.log("🔄 결제 상태 새로고침");
+                            refreshPaymentStatus();
+                        });
+                    } else {
+                        // Promise가 반환되지 않는 경우 결제 상태 새로고침
+                        console.log("🔄 결제 상태 새로고침 (즉시)");
+                        setTimeout(() => {
+                            refreshPaymentStatus();
+                        }, 1000); // 1초 후 새로고침
+                    }
+                }
             } else {
                 console.log("❌ 결제 실패");
                 showPaymentErrorAlert("결제 실패", rsp.error_msg || "결제 처리 중 오류가 발생했습니다.");
@@ -1124,8 +1266,8 @@ async function checkPaymentStatus() {
         const data = await response.json();
         console.log('🔍 폴링 응답 데이터:', data);
         
-        if (data.result === 'success' && data.participants) {
-            console.log('🔍 폴링 성공, 참여자 수:', data.participants.length);
+        if (data.result === 'success' || data.success) {
+            console.log('🔍 폴링 성공, 참여자 수:', data.participants ? data.participants.length : 0);
             // 결제 상태 변경 감지 및 UI 업데이트
             updatePaymentStatusFromResponse(data);
         } else {
@@ -1165,6 +1307,11 @@ function updatePaymentStatusFromResponse(data) {
                 existingFriend.paymentStatus = participant.paymentStatus;
                 existingFriend.paymentAmount = participant.paymentAmount;
                 hasChanges = true;
+                
+                // 현재 사용자의 결제 상태가 변경된 경우 특별 로그
+                if (participant.usersId == window.currentUserId) {
+                    console.log(`🎯 현재 사용자 결제 상태 변경: ${existingFriend.usersName} → ${participant.paymentStatus}`);
+                }
             } else {
                 console.log(`🔍 상태 변경 없음: ${existingFriend.usersName} (${existingFriend.paymentStatus})`);
             }
@@ -1181,15 +1328,14 @@ function updatePaymentStatusFromResponse(data) {
         updateFriendDisplayWithAmounts();
         updateProgress();
         
-        // 모든 결제가 완료되었는지 확인
-        const allCompleted = participants.every(p => 
-            p.paymentStatus === 'paid' || p.paymentAmount === 0
-        );
+        // 모든 결제가 완료되었는지 확인 (현재 사용자 제외 로직 적용)
+        const allCompleted = checkAllPaymentsCompleted();
         
-        console.log('🔍 모든 결제 완료 여부:', allCompleted);
+        console.log('🔍 모든 결제 완료 여부 (폴링):', allCompleted);
         
         if (allCompleted) {
             handleGroupPaymentCompleted();
+            changeRefreshButtonToPaymentHistory();
         }
     } else {
         console.log('🔍 변경사항 없음, UI 업데이트 건너뜀');
@@ -1227,6 +1373,7 @@ function handleGroupPaymentCompleted() {
     
     // 모든 결제가 완료된 상태로 UI 업데이트
     completeAllPayments();
+    changeRefreshButtonToPaymentHistory();
     
     // 성공 알림 표시
     showPaymentSuccessAlert("모든 결제가 완료되었습니다!", "결제 완료 페이지로 이동합니다.", 
@@ -1279,6 +1426,203 @@ function cancelGroupPayment() {
         console.error('그룹 결제 취소 오류:', error);
         showPaymentErrorAlert("취소 실패", "그룹 결제 취소 중 오류가 발생했습니다.");
     });
+}
+
+// ======== 결제 상태 새로고침 함수들 ========
+
+/**
+ * 결제 상태 새로고침
+ */
+async function refreshPaymentStatus() {
+    console.log('🔄 결제 상태 새로고침 시작');
+    
+    const refreshBtn = document.getElementById('refreshPaymentStatus');
+    if (refreshBtn) {
+        // 버튼 비활성화 및 로딩 상태
+        refreshBtn.disabled = true;
+        refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise spin"></i> 새로고침 중...';
+    }
+    
+    try {
+        // 역할에 따라 다른 API 호출
+        let apiUrl;
+        if (isParticipantView()) {
+            // 참여자: 특정 paymentId로 결제 정보 조회
+            apiUrl = window.UrlConstants.Builder.fullUrl(`/payments/payment/${window.paymentId}`);
+        } else {
+            // 발의자: 기존 API 사용
+            apiUrl = window.UrlConstants.Builder.fullUrl('/user/cart/waiting-approval-data');
+        }
+        
+        console.log('🔍 API 호출:', apiUrl);
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        if (data.result === 'success' || data.success) {
+            console.log('✅ 결제 상태 새로고침 성공:', data);
+            
+            // 참여자 데이터 업데이트
+            if (data.participants && data.participants.length > 0) {
+                updateParticipantsFromResponse(data);
+            }
+            
+            // 전체 결제 완료 여부 확인
+            const isAllCompleted = checkAllPaymentsCompleted();
+            
+            if (isAllCompleted) {
+                console.log('🎉 모든 결제 완료! 버튼을 payment-history로 변경');
+                changeRefreshButtonToPaymentHistory();
+            } else {
+                console.log('⏳ 아직 결제 대기 중...');
+                // UI 업데이트
+                updateFriendDisplayWithAmounts();
+                updateProgress();
+            }
+            
+        } else {
+            // 진행 중인 결제가 없으면 payment-history로 리다이렉트
+            if (data.result === 'error' && data.message === '진행 중인 결제가 없습니다.') {
+                console.log('🔍 진행 중인 결제가 없음, payment-history로 리다이렉트');
+                window.location.href = UrlConstants.Builder.fullUrl('/user/mypage/payment-history');
+                return;
+            }
+            
+            console.error('❌ 결제 상태 새로고침 실패:', data);
+            showErrorPopup('결제 상태를 불러오는데 실패했습니다.');
+        }
+        
+    } catch (error) {
+        console.error('❌ 결제 상태 새로고침 오류:', error);
+        showErrorPopup('결제 상태를 불러오는 중 오류가 발생했습니다.');
+    } finally {
+        // 버튼 복원
+        if (refreshBtn) {
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> 결제 상태 새로고침';
+        }
+    }
+}
+
+/**
+ * 서버 응답으로부터 참여자 데이터 업데이트
+ */
+function updateParticipantsFromResponse(data) {
+    const participants = data.participants || [];
+    
+    // selectedFriendsData 업데이트
+    participants.forEach(participant => {
+        const existingFriend = selectedFriendsData.find(friend => friend.usersId == participant.usersId);
+        if (existingFriend) {
+            // 결제 상태 업데이트
+            existingFriend.paymentStatus = participant.paymentStatus || 'pending';
+            existingFriend.paymentAmount = participant.paymentAmount || 0;
+            
+            console.log(`💰 참여자 ${existingFriend.usersName} 상태 업데이트:`, {
+                status: existingFriend.paymentStatus,
+                amount: existingFriend.paymentAmount
+            });
+        }
+    });
+    
+    // acceptedFriends 재계산
+    acceptedFriends = selectedFriendsData.filter(friend => 
+        friend.paymentStatus === 'paid' || friend.paymentStatus === 'completed' || friend.paymentAmount === 0
+    ).length;
+    
+    console.log('📊 acceptedFriends 재계산:', acceptedFriends);
+}
+
+/**
+ * 모든 결제가 완료되었는지 확인
+ * 현재 사용자의 결제가 완료된 경우 자신은 제외하고 다른 참여자들만 검사
+ */
+function checkAllPaymentsCompleted() {
+    const currentUserId = window.currentUserId;
+    
+    // 현재 사용자의 결제 상태 확인
+    const currentUser = selectedFriendsData.find(friend => friend.usersId == currentUserId);
+    const isCurrentUserCompleted = currentUser && (
+        currentUser.paymentStatus === 'paid' || 
+        currentUser.paymentStatus === 'completed' || 
+        currentUser.paymentAmount === 0
+    );
+    
+    console.log('🔍 현재 사용자 결제 상태:', {
+        userId: currentUserId,
+        name: currentUser?.usersName,
+        status: currentUser?.paymentStatus,
+        amount: currentUser?.paymentAmount,
+        isCompleted: isCurrentUserCompleted
+    });
+    
+    // 현재 사용자의 결제가 완료된 경우, 다른 참여자들만 검사
+    if (isCurrentUserCompleted) {
+        const otherParticipantsCompleted = selectedFriendsData.every(friend => {
+            // 현재 사용자는 제외
+            if (friend.usersId == currentUserId) {
+                return true; // 현재 사용자는 항상 통과
+            }
+            // 다른 참여자들은 결제 완료 상태여야 함
+            return friend.paymentStatus === 'paid' || 
+                   friend.paymentStatus === 'completed' || 
+                   friend.paymentAmount === 0;
+        });
+        
+        console.log('🔍 다른 참여자들 결제 완료 여부:', otherParticipantsCompleted);
+        console.log('📊 참여자별 상태 (현재 사용자 제외):', selectedFriendsData.map(f => ({
+            name: f.usersName,
+            isCurrentUser: f.usersId == currentUserId,
+            status: f.paymentStatus,
+            amount: f.paymentAmount
+        })));
+        
+        return otherParticipantsCompleted;
+    } else {
+        // 현재 사용자의 결제가 아직 완료되지 않은 경우, 모든 참여자 검사
+        const allCompleted = selectedFriendsData.every(friend => 
+            friend.paymentStatus === 'paid' || 
+            friend.paymentStatus === 'completed' || 
+            friend.paymentAmount === 0
+        );
+        
+        console.log('🔍 전체 결제 완료 여부 (현재 사용자 미완료):', allCompleted);
+        console.log('📊 참여자별 상태:', selectedFriendsData.map(f => ({
+            name: f.usersName,
+            status: f.paymentStatus,
+            amount: f.paymentAmount
+        })));
+        
+        return allCompleted;
+    }
+}
+
+/**
+ * 새로고침 버튼을 payment-history로 이동하는 버튼으로 변경
+ */
+function changeRefreshButtonToPaymentHistory() {
+    const refreshBtn = document.getElementById('refreshPaymentStatus');
+    if (refreshBtn) {
+        refreshBtn.className = 'btn-refresh btn-success';
+        refreshBtn.style.background = '#28a745';
+        refreshBtn.style.color = 'white';
+        refreshBtn.innerHTML = '<i class="bi bi-check-circle"></i> 결제 완료! 내역 보기';
+        refreshBtn.onclick = function() {
+            window.location.href = UrlConstants.Builder.fullUrl('/user/mypage/payment-history');
+        };
+        
+        // 설명 텍스트도 업데이트
+        const refreshSection = refreshBtn.closest('.refresh-section');
+        if (refreshSection) {
+            const smallText = refreshSection.querySelector('small');
+            if (smallText) {
+                smallText.textContent = '모든 결제가 완료되었습니다!';
+                smallText.style.color = '#28a745';
+            }
+        }
+        
+        // 전체 결제 완료 UI 업데이트
+        completeAllPayments();
+    }
 }
 
  
