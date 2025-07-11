@@ -38,4 +38,6 @@ public interface LoginMapper {
     UserVO getUserById(long userId);
 
     List<UserVO> getUsersByIds(@Param("userIds") List<Long> userIds);
+
+    String getUserStatusById(long userId);
 }
