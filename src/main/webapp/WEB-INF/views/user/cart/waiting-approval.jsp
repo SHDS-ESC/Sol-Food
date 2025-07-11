@@ -68,6 +68,16 @@
                 </small>
             </div>
             
+            <!-- 결제 상태 새로고침 버튼 -->
+            <div class="refresh-section" style="text-align: center; margin: 20px 0;">
+                <button class="btn-refresh" id="refreshPaymentStatus" onclick="refreshPaymentStatus()">
+                    <i class="bi bi-arrow-clockwise"></i> 결제 상태 새로고침
+                </button>
+                <small class="text-muted mt-2 d-block">
+                    다른 참여자들의 결제 상태를 확인합니다
+                </small>
+            </div>
+            
             <!-- 액션 버튼들 -->
             <div class="action-buttons">
                 <button class="btn-cancel" onclick="cancelInvitation()">

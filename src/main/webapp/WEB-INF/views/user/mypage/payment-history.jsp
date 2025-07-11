@@ -19,6 +19,7 @@
     <script src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
     <script src="${pageContext.request.contextPath}/js/urlConstants.js"></script>
     <script src="${pageContext.request.contextPath}/js/common-utils.js"></script>
+    <script src="${pageContext.request.contextPath}/js/popup.js"></script>
     <script src="${pageContext.request.contextPath}/resources/js/payment.js"></script>
     <script src="${pageContext.request.contextPath}/js/payment-history.js"></script>
 </head>

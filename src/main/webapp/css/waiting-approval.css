@@ -264,6 +264,69 @@ body {
 }
 
 .btn-game:hover {
+    background: linear-gradient(135deg, #6f42c1, #e83e8c);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(111,66,193,0.3);
+    box-shadow: 0 8px 25px rgba(111, 66, 193, 0.3);
+}
+
+/* 새로고침 버튼 스타일 */
+.refresh-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px dashed #dee2e6;
+    transition: all 0.3s;
+}
+
+.refresh-section:hover {
+    border-color: #007bff;
+    background: #e3f2fd;
+}
+
+.btn-refresh {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    color: white;
+    font-size: 14px;
+    transition: all 0.3s;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-refresh:hover {
+    background: linear-gradient(135deg, #0056b3, #004085);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+}
+
+.btn-refresh:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-refresh.btn-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.btn-refresh.btn-success:hover {
+    background: linear-gradient(135deg, #20c997, #17a2b8);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+}
+
+/* 회전 애니메이션 */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 } 

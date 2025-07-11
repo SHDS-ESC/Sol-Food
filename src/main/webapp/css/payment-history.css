@@ -57,6 +57,11 @@
     color: #155724;
 }
 
+.status.completed {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
 .status.pending {
     background-color: #fff3cd;
     color: #856404;
