@@ -1,7 +1,8 @@
 /* 금액 조정 페이지 스타일 */
+body{background-color: #d6eeff !important}
 .make-bill {
-    padding: 20px;
-    background: var(--color-background);
+    padding: 60px 20px 20px 20px;
+    background: var(--color-bg);
     min-height: calc(100vh - 120px);
 }
 
@@ -18,7 +19,7 @@
     text-align: center;
     margin-bottom: 30px;
     padding: 20px;
-    background: linear-gradient(135deg, var(--color-main) 0%, var(--color-main-hover) 100%);
+    background: var(--color-bg) !important;
     color: var(--color-white);
     border-radius: 12px;
 }
@@ -33,6 +34,7 @@
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 8px;
+    color: var(--color-black) !important;
 }
 
 .status-desc {
@@ -42,7 +44,7 @@
 }
 
 .progress-section {
-    background: var(--color-white);
+    background: var(--color-bg) !important;
     border-radius: 12px;
 }
 
@@ -123,7 +125,7 @@
     align-items: center;
     margin-bottom: 20px;
     padding: 15px;
-    background: var(--color-gray-light);
+    background: #f1f1f1;
     border-radius: 8px;
     font-weight: bold;
 }
@@ -168,7 +170,7 @@
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .make-bill {
-        padding: 15px;
+        padding: 30px 20px 20px 20px;
     }
     
     .make-bill-container {

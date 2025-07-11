@@ -129,8 +129,16 @@
             payment_buyer_tel = #{buyerTel},
             payment_fail_reason = #{failReason},
             payment_cancel_reason = #{cancelReason},
-            payment_paid_at = #{paidAt},
-            payment_cancelled_at = #{cancelledAt},
+            payment_paid_at = 
+                CASE 
+                    WHEN #{paidAt} IS NULL OR #{paidAt} = '1970-01-01 00:00:00' THEN NULL
+                    ELSE #{paidAt}
+                END,
+            payment_cancelled_at = 
+                CASE 
+                    WHEN #{cancelledAt} IS NULL OR #{cancelledAt} = '1970-01-01 00:00:00' THEN NULL
+                    ELSE #{cancelledAt}
+                END,
             payment_used_point = #{paymentUsedPoint},
             payment_paid_amount = #{paymentPaidAmount},
             payment_updated_at = CURRENT_TIMESTAMP
@@ -142,7 +150,11 @@
         UPDATE payment SET
             payment_status = #{status},
             payment_status_detail = #{statusDetail},
-            payment_paid_at = #{paidAt},
+            payment_paid_at = 
+                CASE 
+                    WHEN #{paidAt} IS NULL OR #{paidAt} = '1970-01-01 00:00:00' THEN NULL
+                    ELSE #{paidAt}
+                END,
             payment_updated_at = CURRENT_TIMESTAMP
         WHERE payment_id = #{paymentId}
     </update>

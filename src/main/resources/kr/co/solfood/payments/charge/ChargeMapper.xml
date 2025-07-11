@@ -107,7 +107,16 @@
         UPDATE charge
         SET charge_cancel_amount = #{cancelAmount},
             charge_cancel_reason = #{cancelReason},
-            charge_cancelled_at = #{cancelledAt},
+            charge_paid_at = 
+                CASE 
+                    WHEN #{paidAt} IS NULL OR #{paidAt} = '1970-01-01 00:00:00' THEN NULL
+                    ELSE #{paidAt}
+                END,
+            charge_cancelled_at = 
+                CASE 
+                    WHEN #{cancelledAt} IS NULL OR #{cancelledAt} = '1970-01-01 00:00:00' THEN NULL
+                    ELSE #{cancelledAt}
+                END,
             charge_status = #{status},
             charge_updated_at = #{updatedAt}
         WHERE charge_impuid = #{impUid}

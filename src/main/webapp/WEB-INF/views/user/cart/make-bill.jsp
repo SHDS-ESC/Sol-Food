@@ -25,36 +25,34 @@
 
         <!-- 컨텐츠 -->
         <div class="content make-bill">
-            <div class="make-bill-container">
-                <div class="status-section">
-                    <i class="bi bi-pencil-square status-icon"></i>
-                    <div class="status-title">참여자별 결제 금액 조정</div>
-                    <div class="status-desc">각자 결제할 금액을 입력하거나 수정할 수 있습니다.</div>
+            <div class="status-section">
+                <i class="bi bi-pencil-square status-icon"></i>
+                <div class="status-title">참여자별 결제 금액 조정</div>
+                <div class="status-desc">각자 결제할 금액을 입력하거나 수정할 수 있습니다.</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-header">
+                    <h5><i class="bi bi-people"></i> 결제 인원</h5>
                 </div>
-                
-                <div class="progress-section">
-                    <div class="progress-header">
-                        <h5><i class="bi bi-people"></i> 결제 인원</h5>
+                <form id="billForm">
+                    <table class="table table-bordered text-center align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>이름</th>
+                            <th>금액(원)</th>
+                        </tr>
+                        </thead>
+                        <tbody id="billTableBody">
+                        <!-- JS로 참여자별 row 생성 -->
+                        </tbody>
+                    </table>
+                    <div class="amount-summary">
+                        <div>합계: <span id="sumAmount">0</span>원 / <span id="totalAmount">0</span>원</div>
+                        <span id="amountCheckMsg" class="error-message"></span>
                     </div>
-                    <form id="billForm">
-                        <table class="table table-bordered text-center align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>이름</th>
-                                    <th>금액(원)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="billTableBody">
-                                <!-- JS로 참여자별 row 생성 -->
-                            </tbody>
-                        </table>
-                        <div class="amount-summary">
-                            <div>합계: <span id="sumAmount">0</span>원 / <span id="totalAmount">0</span>원</div>
-                            <span id="amountCheckMsg" class="error-message"></span>
-                        </div>
-                        <button type="submit" id="submitBtn" class="submit-btn" disabled>확정</button>
-                    </form>
-                </div>
+                    <button type="submit" id="submitBtn" class="submit-btn" disabled>확정</button>
+                </form>
             </div>
         </div>
     </div>

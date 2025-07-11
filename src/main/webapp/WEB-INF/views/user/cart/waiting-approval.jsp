@@ -25,7 +25,7 @@
             <i class="bi bi-arrow-left back-btn" onclick="goBack()"></i>
             <h3 class="mb-0">수락 대기중</h3>
         </div>
-        
+
         <!-- 대기 상태 -->
         <div class="status-section">
             <i class="bi bi-credit-card status-icon" id="statusIcon"></i>
@@ -35,7 +35,7 @@
                 각자 결제를 진행해주세요
             </div>
         </div>
-        
+
         <!-- 진행 상황 -->
         <div class="progress-section">
             <div class="progress-header">
@@ -44,7 +44,7 @@
                     <span id="acceptedCount">0</span>/<span id="totalCount">4</span> 결제 완료
                 </div>
             </div>
-            
+
             <!-- 총 주문 금액 표시 -->
             <div class="total-amount-section" style="background: #f8f9fa; border-radius: 8px; padding: 16px; margin-bottom: 20px; text-align: center;">
                 <div style="font-size: 14px; color: #6c757d; margin-bottom: 8px;">총 주문 금액</div>
@@ -53,11 +53,11 @@
                     <span id="totalPeopleDisplay">0</span>명이 나누어 결제
                 </div>
             </div>
-            
+
             <div class="friends-status" id="friendsStatus">
                 <!-- 선택된 친구들이 여기에 동적으로 표시됩니다 -->
             </div>
-            
+
             <!-- 미니게임 버튼 -->
             <div class="mini-game-section">
                 <button class="btn-game" onclick="goToMiniGame()">
@@ -67,7 +67,7 @@
                     결제 대기 중 미니게임을 즐겨보세요!
                 </small>
             </div>
-            
+
             <!-- 결제 상태 새로고침 버튼 -->
             <div class="refresh-section" style="text-align: center; margin: 20px 0;">
                 <button class="btn-refresh" id="refreshPaymentStatus" onclick="refreshPaymentStatus()">
@@ -77,7 +77,7 @@
                     다른 참여자들의 결제 상태를 확인합니다
                 </small>
             </div>
-            
+
             <!-- 액션 버튼들 -->
             <div class="action-buttons">
                 <button class="btn-cancel" onclick="cancelInvitation()">
