@@ -86,6 +86,12 @@ function verifyPayment(response, options) {
     }
     
     console.log("결제 검증 API 호출:", apiUrl);
+    console.log("Context Path:", getContextPath());
+    console.log("Options:", options);
+    console.log("현재 페이지 경로:", window.location.pathname);
+    
+    // 디버깅용: 절대 경로로도 시도
+    console.log("절대 경로 테스트:", window.location.origin + apiUrl);
     
     $.ajax({
         url: apiUrl,
@@ -142,8 +148,25 @@ function verifyPayment(response, options) {
  * contextPath를 가져오는 함수
  */
 function getContextPath() {
-    // 현재 페이지의 contextPath를 가져옴
-    return window.location.pathname.substring(0, window.location.pathname.indexOf("/", 1)) || "";
+    // API 호출용 contextPath - 항상 루트에서 시작
+    // 개발 환경: /solfood, 배포 환경: "" (루트)
+    const currentPath = window.location.pathname;
+    
+    // 현재 경로가 /user/... 형태인지 확인
+    if (currentPath.startsWith('/user/')) {
+        // /user 경로에서는 API를 루트에서 호출
+        return "";
+    }
+    
+    // 기존 로직 (다른 페이지들용)
+    const firstSlashIndex = currentPath.indexOf("/", 1);
+    if (firstSlashIndex === -1) {
+        return "";
+    }
+    
+    const contextPath = currentPath.substring(0, firstSlashIndex);
+    console.log("Context Path:", contextPath);
+    return contextPath;
 }
 
 /**

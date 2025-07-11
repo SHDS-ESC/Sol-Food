@@ -78,6 +78,11 @@ public class PaymentController {
     
         Map<String, Object> response = new HashMap<>();
         
+        log.info("=== 발의자 결제 검증 시작 ===");
+        log.info("imp_uid: {}", imp_uid);
+        log.info("amount: {}", requestedAmount);
+        log.info("merchant_uid: {}", merchantUid);
+        
         try {
             IamportResponse<Payment> paymentResponse = iamportClient.paymentByImpUid(imp_uid);
             Payment payment = paymentResponse.getResponse();
@@ -107,21 +112,28 @@ public class PaymentController {
             if (user == null) {
                 throw new IllegalStateException("로그인이 필요합니다.");
             }
+            log.info("사용자 검증 성공: userId={}", user.getUsersId());
         
             // 5. 발의자의 진행중인 결제 찾기
             PaymentVO leaderPayment = paymentService.getLeaderPaymentByUserId(user.getUsersId());
             if (leaderPayment == null) {
+                log.error("발의자 결제를 찾을 수 없음: userId={}", user.getUsersId());
                 throw new IllegalStateException("진행중인 발의자 결제가 없습니다.");
             }
+            log.info("발의자 결제 찾음: paymentId={}, status={}", leaderPayment.getPaymentId(), leaderPayment.getStatus());
             
             // pending 상태인지 확인 (completed 상태는 이미 완료된 상태이므로 결제 불가)
+            log.info("결제 상태 확인: 현재={}, 기대={}", leaderPayment.getStatus(), CartConstants.PAYMENT_STATUS_PENDING);
             if (!CartConstants.PAYMENT_STATUS_PENDING.equals(leaderPayment.getStatus())) {
                 if (CartConstants.PAYMENT_STATUS_COMPLETED.equals(leaderPayment.getStatus())) {
+                    log.error("이미 완료된 결제: paymentId={}", leaderPayment.getPaymentId());
                     throw new IllegalStateException("이미 완료된 결제입니다.");
                 } else {
+                    log.error("결제 가능하지 않은 상태: paymentId={}, status={}", leaderPayment.getPaymentId(), leaderPayment.getStatus());
                     throw new IllegalStateException("결제 가능한 상태가 아닙니다.");
                 }
             }
+            log.info("결제 상태 검증 성공: pending 상태 확인됨");
         
             // 6. 결제 정보 업데이트
             updatePaymentWithIamportData(leaderPayment, payment, imp_uid, merchantUid);
@@ -300,8 +312,11 @@ public class PaymentController {
         if (payment.getPaidAt() != null) {
             paymentVO.setPaidAt(new java.sql.Timestamp(payment.getPaidAt().getTime()));
         }
-        if (payment.getCancelledAt() != null) {
+        // cancelled_at은 null이거나 유효한 날짜일 때만 설정
+        if (payment.getCancelledAt() != null && payment.getCancelledAt().getTime() > 0) {
             paymentVO.setCancelledAt(new java.sql.Timestamp(payment.getCancelledAt().getTime()));
+        } else {
+            paymentVO.setCancelledAt(null); // 명시적으로 null 설정
         }
         paymentVO.setUpdatedAt(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
     }
@@ -335,8 +350,11 @@ public class PaymentController {
         if (payment.getPaidAt() != null) {
             paymentVO.setPaidAt(new java.sql.Timestamp(payment.getPaidAt().getTime()));
         }
-        if (payment.getCancelledAt() != null) {
+        // cancelled_at은 null이거나 유효한 날짜일 때만 설정
+        if (payment.getCancelledAt() != null && payment.getCancelledAt().getTime() > 0) {
             paymentVO.setCancelledAt(new java.sql.Timestamp(payment.getCancelledAt().getTime()));
+        } else {
+            paymentVO.setCancelledAt(null); // 명시적으로 null 설정
         }
         paymentVO.setCreatedAt(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
         paymentVO.setUpdatedAt(java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
