@@ -143,7 +143,7 @@ uri="http://www.springframework.org/tags/form" %>
           <div class="footer flex flex-sa" style="left: 0">
             <button class="footer-btn" type="submit">로그인</button>
           </div>
-          <img src="${pageContext.request.contextPath}/img/kakao_login_medium_wide.png" onclick="location.href=`https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}${pageContext.request.contextPath}/user/login/kakao-login&response_type=code`">
+          <img src="${pageContext.request.contextPath}/img/kakao_login_medium_wide.png" onclick="location.href=`https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=https://${serverMap.ip}${pageContext.request.contextPath}/user/login/kakao-login&response_type=code`">
 
         </form>
 
