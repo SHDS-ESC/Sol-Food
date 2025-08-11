@@ -64,7 +64,7 @@ uri="http://www.springframework.org/tags/form" %>
         <button class="quick-join">5초만에 빠른 회원가입</button>
 
 
-        <img style="margin-bottom: 12px" src="${pageContext.request.contextPath}/img/kakao_login_medium_wide.png" onclick="location.href=`https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=http://${serverMap.ip}:${serverMap.port}${pageContext.request.contextPath}/user/login/kakao-login&response_type=code`">
+        <img style="margin-bottom: 12px" src="${pageContext.request.contextPath}/img/kakao_login_medium_wide.png" onclick="location.href=`https://kauth.kakao.com/oauth/authorize?client_id=${apiKey}&redirect_uri=https://${serverMap.ip}${pageContext.request.contextPath}/user/login/kakao-login&response_type=code`">
 
         <button
           class="sns-btn sns-email"
