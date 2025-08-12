@@ -1,0 +1,8 @@
+FROM docker.io/library/tomcat:9.0.105-jdk11
+
+MAINTAINER "LEE SANGYOON<yunisy51@gmail.com>
+
+RUN rm -rf /usr/local/tomcat/webapps/
+
+ADD mariadb-java-client-3.5.3.jar /usr/local/tomcat/lib/
+ADD target/sol-food.war /usr/local/tomcat/webapps/ROOT.war
