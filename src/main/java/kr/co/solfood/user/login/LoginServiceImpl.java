@@ -51,7 +51,7 @@ public class LoginServiceImpl implements LoginService, ServletContextAware {
         body.add("grant_type", "authorization_code");
         body.add("client_id", kakaoProperties.getRestApiKey());
         String contextPath = servletContext != null ? servletContext.getContextPath() : "";
-        body.add("redirect_uri", "http://" + serverProperties.getIp() + ":" + serverProperties.getPort() + contextPath + UrlConstants.User.KAKAO_LOGIN_FULL);
+        body.add("redirect_uri", "http://" + serverProperties.getIp() + contextPath + UrlConstants.User.KAKAO_LOGIN_FULL);
         body.add("code", code);
 
         HttpEntity<MultiValueMap<String, String>> tokenRequest = new HttpEntity<>(body, headers);

@@ -1,0 +1,10 @@
+FROM docker.io/library/mariadb:11.4.5
+
+MAINTAINER "LEE SANGYOON<yunisy51@gmail.com>"
+
+ENV MARIADB_PASSWORD 55688789
+ENV MARIADB_USER SSud
+ENV MARIADB_DATABASE sol
+ENV MARIADB_ROOT_PASSWORD solfood
+
+ADD solfood.sql /docker-entrypoint-initdb.d/
